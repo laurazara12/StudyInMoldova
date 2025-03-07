@@ -1,0 +1,96 @@
+.error404-container1 {
+  width: 100%;
+  height: 400px;
+  display: flex;
+  position: relative;
+  align-items: center;
+  flex-direction: row;
+  justify-content: center;
+}
+ 
+.error404-max-width {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: center;
+}
+ 
+.error404-container2 {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+}
+ 
+.error404-container3 {
+  gap: var(--dl-space-space-oneandhalfunits);
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  justify-content: center;
+}
+ 
+.error404-text1 {
+  text-align: center;
+}
+ 
+.error404-text2 {
+  text-align: center;
+}
+ 
+.error404-container4 {
+  flex: 1;
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+}
+ 
+.error404-text3 {
+  font-size: 140px;
+}
+ 
+.error404-text4 {
+  display: inline-block;
+}
+ 
+.error404-text5 {
+  display: inline-block;
+}
+ 
+@media(max-width: 767px) {
+  .error404-container1 {
+    padding-left: var(--dl-space-space-threeunits);
+    padding-right: var(--dl-space-space-threeunits);
+    flex-direction: column;
+  }
+  .error404-max-width {
+    flex-direction: column;
+  }
+  .error404-container2 {
+    width: 100%;
+    align-items: center;
+  }
+  .error404-container3 {
+    align-items: center;
+  }
+  .error404-text2 {
+    text-align: center;
+  }
+  .error404-container4 {
+    width: 100%;
+    align-items: center;
+  }
+}
+ 
+@media(max-width: 479px) {
+  .error404-container1 {
+    padding-left: var(--dl-space-space-oneandhalfunits);
+    padding-right: var(--dl-space-space-oneandhalfunits);
+  }
+}

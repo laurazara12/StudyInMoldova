@@ -1,0 +1,323 @@
+.sign-in-container1 {
+  width: 100%;
+  height: auto;
+  display: flex;
+  position: relative;
+  margin-top: var(--dl-space-space-unit);
+  align-items: center;
+  margin-left: var(--dl-space-space-unit);
+  margin-right: var(--dl-space-space-unit);
+  margin-bottom: var(--dl-space-space-unit);
+  flex-direction: row;
+  justify-content: center;
+}
+ 
+.sign-in-max-width {
+  width: 1354px;
+  height: 619px;
+  display: flex;
+  align-items: center;
+  padding-top: var(--dl-space-space-oneandhalfunits);
+  padding-left: var(--dl-space-space-fiveunits);
+  padding-right: var(--dl-space-space-fiveunits);
+  flex-direction: row;
+  padding-bottom: var(--dl-space-space-oneandhalfunits);
+  justify-content: center;
+}
+ 
+.sign-in-container2 {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-self: center;
+  align-items: center;
+  flex-direction: row;
+  justify-content: center;
+}
+ 
+.sign-in-sign-up-image {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+ 
+.sign-in-form-root {
+  gap: var(--dl-space-space-unit);
+  width: 50%;
+  height: 100%;
+  display: flex;
+  overflow: hidden;
+  align-items: center;
+  flex-shrink: 0;
+  flex-direction: column;
+  justify-content: center;
+}
+ 
+.sign-in-navlink {
+  display: contents;
+}
+ 
+.sign-in-text10 {
+  align-self: flex-start;
+  text-decoration: none;
+}
+ 
+.sign-in-form1 {
+  gap: var(--dl-space-space-twounits);
+  width: 100%;
+  display: flex;
+  max-width: 500px;
+  align-self: flex-start;
+  align-items: center;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+ 
+.sign-in-text11 {
+  align-self: flex-start;
+  text-align: left;
+}
+ 
+.sign-in-form2 {
+  gap: var(--dl-space-space-unit);
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+}
+ 
+.sign-in-email {
+  gap: var(--dl-space-space-halfunit);
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  flex-shrink: 0;
+  flex-direction: column;
+}
+ 
+.sign-in-textinput1 {
+  width: 100%;
+  border-color: var(--dl-color-theme-primary1);
+  background-color: transparent;
+}
+ 
+.sign-in-password {
+  gap: var(--dl-space-space-halfunit);
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.sign-in-textfield {
+  gap: var(--dl-space-space-halfunit);
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  flex-shrink: 0;
+  flex-direction: column;
+}
+ 
+.sign-in-container3 {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  justify-content: space-between;
+}
+ 
+.sign-in-hide-password {
+  gap: var(--dl-space-space-halfunit);
+  width: auto;
+  height: auto;
+  display: flex;
+  align-items: center;
+  flex-shrink: 1;
+  justify-content: center;
+}
+ 
+.sign-in-icon1 {
+  fill: var(--dl-color-theme-neutral-dark);
+  width: 24px;
+  height: 24px;
+}
+ 
+.sign-in-textinput2 {
+  width: 100%;
+  padding-top: var(--dl-space-space-halfunit);
+  border-color: var(--dl-color-theme-primary1);
+  background-color: transparent;
+}
+ 
+.sign-in-link {
+  align-self: flex-end;
+  text-decoration:  underline none;
+}
+ 
+.sign-in-button1 {
+  width: 100%;
+  height: 42px;
+}
+ 
+.sign-in-text15 {
+  text-align: center;
+}
+ 
+.sign-in-divider1 {
+  gap: var(--dl-space-space-oneandhalfunits);
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  justify-content: center;
+}
+ 
+.sign-in-divider2 {
+  flex: 1;
+  width: var(--dl-size-size-medium);
+  height: 1px;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  background-color: var(--dl-color-theme-primary1);
+}
+ 
+.sign-in-divider3 {
+  flex: 1;
+  width: auto;
+  height: 1px;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  background-color: var(--dl-color-theme-primary1);
+}
+ 
+.sign-in-container4 {
+  gap: var(--dl-space-space-unit);
+  width: 100%;
+  display: flex;
+  box-sizing: border-box;
+  align-items: center;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+ 
+.sign-in-button2 {
+  gap: var(--dl-space-space-halfunit);
+  width: 100%;
+  display: flex;
+  box-sizing: border-box;
+  align-items: center;
+  border-color: var(--dl-color-theme-primary1);
+  border-style: solid;
+  border-width: 1px;
+  justify-content: center;
+}
+ 
+.sign-in-icon3 {
+  width: 24px;
+  height: 24px;
+}
+ 
+.sign-in-text18 {
+  display: inline-block;
+}
+ 
+.sign-in-text19 {
+  display: inline-block;
+}
+ 
+.sign-inroot-class-name {
+  margin-top: 0px;
+  margin-left: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+}
+ 
+@media(max-width: 1200px) {
+  .sign-in-max-width {
+    width: auto;
+    padding-left: var(--dl-space-space-fiveunits);
+    padding-right: var(--dl-space-space-fiveunits);
+  }
+  .sign-in-sign-up-image {
+    width: 100%;
+    height: 615px;
+  }
+  .sign-in-text10 {
+    font-size: 12px;
+    text-decoration: none;
+  }
+  .sign-in-text11 {
+    text-align: center;
+  }
+  .sign-in-text12 {
+    font-size: 12px;
+  }
+  .sign-in-textinput1 {
+    font-size: 12px;
+  }
+  .sign-in-text13 {
+    font-size: 12px;
+  }
+  .sign-in-textinput2 {
+    font-size: 12px;
+  }
+  .sign-in-link {
+    font-size: 12px;
+  }
+  .sign-in-text16 {
+    font-size: 12px;
+  }
+  .sign-in-text17 {
+    font-size: 12px;
+  }
+  .sign-in-text18 {
+    font-size: 24px;
+  }
+  .sign-in-text19 {
+    font-size: 12px;
+  }
+  .sign-inroot-class-name {
+    margin-top: 0px;
+    margin-left: 0px;
+    padding-top: var(--dl-space-space-unit);
+    margin-right: 0px;
+    margin-bottom: 0px;
+    padding-right: var(--dl-space-space-fourunits);
+    padding-bottom: var(--dl-space-space-unit);
+  }
+}
+ 
+@media(max-width: 991px) {
+  .sign-in-max-width {
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .sign-in-container2 {
+    width: 100%;
+    height: var(--dl-size-size-xxlarge);
+    display: none;
+  }
+  .sign-in-form-root {
+    width: 100%;
+  }
+}
+ 
+@media(max-width: 479px) {
+  .sign-in-text10 {
+    align-self: flex-start;
+    text-align: center;
+  }
+  .sign-in-text11 {
+    text-align: center;
+  }
+  .sign-in-button1 {
+    width: 100%;
+  }
+  .sign-in-button2 {
+    width: 100%;
+  }
+}

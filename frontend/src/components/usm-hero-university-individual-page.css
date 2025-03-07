@@ -1,0 +1,56 @@
+.usm-hero-university-individual-page-header19 {
+  height: 486px;
+  display: flex;
+  padding-top: var(--dl-space-space-twounits);
+  padding-bottom: var(--dl-space-space-twounits);
+  justify-content: center;
+}
+ 
+.usm-hero-university-individual-page-university-container {
+  align-self: center;
+  align-items: flex-start;
+}
+ 
+.usm-hero-university-individual-page-university-hero-content1 {
+  gap: var(--dl-space-space-oneandhalfunits);
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.usm-hero-university-individual-page-university-hero-content2 {
+  gap: var(--dl-space-space-oneandhalfunits);
+  display: flex;
+  align-self: stretch;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.usm-hero-university-individual-page-university-hero-heading {
+  text-align: left;
+}
+ 
+.usm-hero-university-individual-page-text-university-hero-text {
+  text-align: left;
+}
+ 
+.usm-hero-university-individual-page-text1 {
+  display: inline-block;
+}
+ 
+.usm-hero-university-individual-page-text2 {
+  display: inline-block;
+}
+ 
+@media(max-width: 991px) {
+  .usm-hero-university-individual-page-university-container {
+    flex-direction: column;
+  }
+  .usm-hero-university-individual-page-university-hero-heading {
+    text-align: center;
+  }
+  .usm-hero-university-individual-page-text-university-hero-text {
+    text-align: center;
+  }
+}

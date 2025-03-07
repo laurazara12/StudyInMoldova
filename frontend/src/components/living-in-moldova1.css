@@ -1,0 +1,288 @@
+.living-in-moldova1faq12 {
+  width: 100%;
+  height: auto;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+  align-items: flex-start;
+  flex-shrink: 0;
+  flex-direction: column;
+}
+ 
+.living-in-moldova1-max-width {
+  gap: var(--dl-space-space-threeunits);
+  display: flex;
+  align-self: center;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.living-in-moldova1-section-title {
+  align-items: flex-start;
+}
+ 
+.living-in-moldova1-text10 {
+  text-align: center;
+}
+ 
+.living-in-moldova1-text11 {
+  text-align: center;
+}
+ 
+.living-in-moldova1-list-item1 {
+  gap: var(--dl-space-space-unit);
+  display: flex;
+  align-self: stretch;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.living-in-moldova1-faq1-question1 {
+  font-style: normal;
+  text-align: center;
+  font-weight: 600;
+}
+ 
+.living-in-moldova1-list-item2 {
+  gap: var(--dl-space-space-unit);
+  display: flex;
+  align-self: stretch;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.living-in-moldova1-faq2-question1 {
+  font-style: normal;
+  text-align: center;
+  font-weight: 600;
+}
+ 
+.living-in-moldova1-list-item3 {
+  gap: var(--dl-space-space-unit);
+  display: flex;
+  align-self: stretch;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.living-in-moldova1-faq3-question1 {
+  font-style: normal;
+  text-align: center;
+  font-weight: 600;
+}
+ 
+.living-in-moldova1-list-item4 {
+  gap: var(--dl-space-space-unit);
+  display: flex;
+  align-self: stretch;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.living-in-moldova1-faq4-question1 {
+  font-style: normal;
+  text-align: center;
+  font-weight: 600;
+}
+ 
+.living-in-moldova1-list-item5 {
+  gap: var(--dl-space-space-unit);
+  border: 2px dashed rgba(120, 120, 120, 0.4);
+  display: flex;
+  align-self: stretch;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.living-in-moldova1-list-item6 {
+  gap: var(--dl-space-space-unit);
+  display: flex;
+  align-self: stretch;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.living-in-moldova1-faq1-question2 {
+  font-style: normal;
+  text-align: center;
+  font-weight: 600;
+}
+ 
+.living-in-moldova1-list-item7 {
+  gap: var(--dl-space-space-unit);
+  display: flex;
+  align-self: stretch;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.living-in-moldova1-faq2-question2 {
+  font-style: normal;
+  text-align: center;
+  font-weight: 600;
+}
+ 
+.living-in-moldova1-list-item8 {
+  gap: var(--dl-space-space-unit);
+  display: flex;
+  align-self: stretch;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.living-in-moldova1-faq3-question2 {
+  font-style: normal;
+  text-align: center;
+  font-weight: 600;
+}
+ 
+.living-in-moldova1-list-item9 {
+  gap: var(--dl-space-space-unit);
+  display: flex;
+  align-self: stretch;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.living-in-moldova1-faq4-question2 {
+  font-style: normal;
+  text-align: center;
+  font-weight: 600;
+}
+ 
+.living-in-moldova1-list-item10 {
+  gap: var(--dl-space-space-unit);
+  border: 2px dashed rgba(120, 120, 120, 0.4);
+  display: flex;
+  align-self: stretch;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.living-in-moldova1-content2 {
+  align-items: flex-start;
+}
+ 
+.living-in-moldova1-content3 {
+  gap: var(--dl-space-space-unit);
+  display: flex;
+  align-self: stretch;
+  flex-direction: column;
+}
+ 
+.living-in-moldova1-text14 {
+  display: inline-block;
+}
+ 
+.living-in-moldova1-text15 {
+  display: inline-block;
+}
+ 
+.living-in-moldova1-text16 {
+  display: inline-block;
+}
+ 
+.living-in-moldova1-text17 {
+  display: inline-block;
+}
+ 
+.living-in-moldova1-text18 {
+  display: inline-block;
+}
+ 
+.living-in-moldova1-text19 {
+  display: inline-block;
+}
+ 
+.living-in-moldova1-text20 {
+  display: inline-block;
+}
+ 
+.living-in-moldova1-text21 {
+  display: inline-block;
+}
+ 
+.living-in-moldova1-text22 {
+  display: inline-block;
+}
+ 
+.living-in-moldova1-text23 {
+  display: inline-block;
+}
+ 
+.living-in-moldova1-text24 {
+  display: inline-block;
+}
+ 
+.living-in-moldova1-text25 {
+  display: inline-block;
+}
+ 
+.living-in-moldova1-text26 {
+  display: inline-block;
+}
+ 
+.living-in-moldova1-text27 {
+  display: inline-block;
+}
+ 
+.living-in-moldova1-text28 {
+  display: inline-block;
+}
+ 
+.living-in-moldova1-text29 {
+  display: inline-block;
+}
+ 
+.living-in-moldova1-text30 {
+  display: inline-block;
+}
+ 
+.living-in-moldova1-text31 {
+  display: inline-block;
+}
+ 
+.living-in-moldova1-text32 {
+  display: inline-block;
+}
+ 
+.living-in-moldova1-text33 {
+  display: inline-block;
+}
+ 
+.living-in-moldova1-text34 {
+  display: inline-block;
+}
+ 
+@media(max-width: 1200px) {
+  .living-in-moldova1-text11 {
+    align-items: center;
+    justify-content: flex-start;
+  }
+  .living-in-moldova1-content1 {
+    display: grid;
+    place-items: center;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+ 
+@media(max-width: 767px) {
+  .living-in-moldova1-content1 {
+    flex-direction: column;
+  }
+}
+ 
+@media(max-width: 479px) {
+  .living-in-moldova1-max-width {
+    gap: var(--dl-space-space-oneandhalfunits);
+  }
+  .living-in-moldova1-content2 {
+    align-items: center;
+  }
+  .living-in-moldova1-text12 {
+    text-align: center;
+  }
+  .living-in-moldova1-text13 {
+    text-align: center;
+  }
+}

@@ -1,0 +1,172 @@
+.sign-up-container1 {
+  width: 100%;
+  height: 900px;
+  display: flex;
+  position: relative;
+  align-items: center;
+  flex-direction: row;
+  justify-content: center;
+  background-color: var(--dl-color-theme-neutral-light);
+}
+ 
+.sign-up-max-width {
+  gap: var(--dl-space-space-unit);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  z-index: 100;
+  overflow: hidden;
+  position: relative;
+  align-items: center;
+  flex-shrink: 0;
+  padding-top: var(--dl-space-space-oneandhalfunits);
+  padding-left: var(--dl-space-space-fiveunits);
+  padding-right: var(--dl-space-space-fiveunits);
+  padding-bottom: var(--dl-space-space-oneandhalfunits);
+  justify-content: center;
+  background-color: #ffffff;
+}
+ 
+.sign-up-sign-up-image {
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  width: 100%;
+  bottom: 0px;
+  height: 100%;
+  display: flex;
+  overflow: hidden;
+  position: absolute;
+  align-items: center;
+  background-size: cover;
+  justify-content: center;
+  background-image: url('https://raw.githubusercontent.com/laurazara12/Study-in-Moldova/refs/heads/main/images/pexels-radubradu-395822838-15252123.jpg');
+  background-position: center;
+}
+ 
+.sign-up-form {
+  gap: var(--dl-space-space-twounits);
+  width: auto;
+  display: flex;
+  max-width: 500px;
+  align-items: center;
+  border-radius: var(--dl-radius-radius-radius4);
+  flex-direction: column;
+  justify-content: flex-end;
+  background-color: var(--dl-color-theme-neutral-light);
+}
+ 
+.sign-up-title-root {
+  gap: var(--dl-space-space-halfunit);
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+ 
+.sign-up-text10 {
+  text-align: center;
+}
+ 
+.sign-up-container2 {
+  gap: var(--dl-space-space-unit);
+  width: 100%;
+  display: flex;
+  box-sizing: border-box;
+  align-items: center;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+ 
+.sign-up-button1 {
+  width: 100%;
+}
+ 
+.sign-up-text12 {
+  text-align: center;
+}
+ 
+.sign-up-button2 {
+  gap: var(--dl-space-space-halfunit);
+  width: 100%;
+  display: flex;
+  box-sizing: border-box;
+  align-items: center;
+  border-color: var(--dl-color-theme-primary1);
+  border-style: solid;
+  border-width: 1px;
+  justify-content: center;
+}
+ 
+.sign-up-icon1 {
+  width: 24px;
+  height: 24px;
+}
+ 
+.sign-up-text13 {
+  text-align: center;
+}
+ 
+.sign-up-text14 {
+  font-size: 16px;
+  text-align: center;
+}
+ 
+.sign-up-text15 {
+  font-size: 12px;
+}
+ 
+.sign-up-text18 {
+  font-size: 12px;
+}
+ 
+.sign-up-navlink {
+  text-decoration: underline;
+}
+ 
+.sign-up-text20 {
+  display: inline-block;
+  font-size: 24px;
+}
+ 
+.sign-up-text21 {
+  display: inline-block;
+}
+ 
+.sign-up-text22 {
+  display: inline-block;
+}
+ 
+.sign-up-text23 {
+  display: inline-block;
+}
+ 
+@media(max-width: 991px) {
+  .sign-up-max-width {
+    width: 100%;
+    padding: var(--dl-space-space-fourunits);
+  }
+}
+ 
+@media(max-width: 479px) {
+  .sign-up-max-width {
+    padding: var(--dl-space-space-oneandhalfunits);
+  }
+  .sign-up-form {
+    padding-top: var(--dl-space-space-fourunits);
+    padding-left: var(--dl-space-space-oneandhalfunits);
+    padding-right: var(--dl-space-space-oneandhalfunits);
+    padding-bottom: var(--dl-space-space-oneandhalfunits);
+  }
+  .sign-up-text10 {
+    text-align: center;
+  }
+  .sign-up-button1 {
+    width: 100%;
+  }
+  .sign-up-button2 {
+    width: 100%;
+  }
+  .sign-up-text18 {
+    text-align: center;
+  }
+}
