@@ -1,34 +1,10 @@
-import React, { Fragment, useState } from 'react'
-import { useHistory } from 'react-router-dom'
-import axios from 'axios'
+import React, { Fragment } from 'react'
 import { Helmet } from 'react-helmet'
 import Navbar from '../components/navbar'
 import SignIn from '../components/sign-in'
 import './sign-in.css'
 
 const SignInPage = () => {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const history = useHistory()
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
-        email,
-        password
-      })
-
-      localStorage.setItem('token', response.data.token)
-      localStorage.setItem('user', JSON.stringify(response.data.user))
-      
-      history.push('/dashboard')
-    } catch (err) {
-      setError(err.response?.data?.message || 'Eroare la autentificare')
-    }
-  }
-
   return (
     <div className="sign-in-container">
       <Helmet>
