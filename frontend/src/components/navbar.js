@@ -15,10 +15,13 @@ const Navbar = (props) => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    setUser(null);
-    history.push('/');
+    const confirmLogout = window.confirm('Are you sure you want to logout?');
+    if (confirmLogout) {
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      setUser(null);
+      history.push('/');
+    }
   };
 
   return (
@@ -52,7 +55,7 @@ const Navbar = (props) => {
               <>
                 <button className="navbar-login1 button">
                   <Link to="/profile" className="navbar-navlink1">
-                    <span className="navbar-text37">Profil Personal</span>
+                    <span className="navbar-text37">Profile</span>
                   </Link>
                 </button>
                 {user.role === 'admin' && (

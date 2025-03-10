@@ -18,28 +18,31 @@ const SignIn = (props) => {
   const handleSignIn = async (event) => {
     event.preventDefault();
     try {
-      const response = await fetch('http://localhost:4000/api/signin', {
+      console.log('Email trimis:', email);
+      console.log('Parolă trimisă:', password);
+      const response = await fetch('http://localhost:4000/api/auth/login', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           email,
           password,
-        }),
+        })
       });
 
       if (response.ok) {
         const userData = await response.json();
         localStorage.setItem('user', JSON.stringify(userData));
-        alert('Autentificare reușită!');
-        history.push('/');
+        alert('Login successful!');
+        history.push('/dashboard');
       } else {
         const errorData = await response.json();
-        alert(errorData.message || 'A apărut o eroare la autentificare.');
+        alert(errorData.message || 'An error occurred during login.');
       }
     } catch (error) {
-      alert('Eroare de rețea. Vă rugăm să încercați din nou.');
+      const errorMessage = error.message || 'A network error occurred. Please try again later.';
+      alert(`Network error: ${errorMessage}`);
     }
   };
 
@@ -56,7 +59,7 @@ const SignIn = (props) => {
         <div className="sign-in-form-root thq-section-padding">
           <Link to="/sign-up" className="sign-in-navlink">
             <p className="sign-in-text10 thq-body-large">
-              Don&apos;t have an account? Sign up
+              Don't have an account? Sign up
             </p>
           </Link>
           <div className="sign-in-form1">

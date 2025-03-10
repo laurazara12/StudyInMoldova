@@ -16,8 +16,18 @@ const SignUp = (props) => {
 
   const handleSignUp = async (event) => {
     event.preventDefault();
+    console.log('Datele trimise:', {
+      email,
+      password,
+      confirmPassword,
+      name,
+    });
+    if (password !== confirmPassword) {
+      setErrorMessage('Passwords do not match.');
+      return;
+    }
     try {
-      const response = await fetch('/api/signup', {
+      const response = await fetch('http://localhost:4000/api/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -30,27 +40,22 @@ const SignUp = (props) => {
       });
 
       if (response.ok) {
-        setSuccessMessage('');
+        setSuccessMessage('Registration successful!');
         setErrorMessage('');
-        alert('Înregistrare reușită!');
         history.push('/sign-in');
       } else {
         const errorData = await response.json();
-        setErrorMessage('');
+        setErrorMessage(errorData.message || 'An error occurred during registration.');
         setSuccessMessage('');
-        alert(errorData.message || 'A apărut o eroare la înregistrare.');
       }
     } catch (error) {
-      setErrorMessage('');
+      setErrorMessage('Network error. Please check your connection and try again.');
       setSuccessMessage('');
-      alert('Eroare de rețea. Vă rugăm să încercați din nou.');
     }
   };
 
   return (
     <div className="sign-up-container1">
-      {errorMessage && <div className="error-message">{errorMessage}</div>}
-      {successMessage && <div className="success-message">{successMessage}</div>}
       <div className="sign-up-max-width">
         <div className="sign-up-sign-up-image thq-img-ratio-16-9"></div>
         <div className="sign-up-form thq-section-padding">
@@ -73,7 +78,7 @@ const SignUp = (props) => {
           <form onSubmit={handleSignUp}>
             <input
               type="text"
-              placeholder="Nume"
+              placeholder="Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
@@ -87,18 +92,19 @@ const SignUp = (props) => {
             />
             <input
               type="password"
-              placeholder="Parolă"
+              placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
             <input
               type="password"
-              placeholder="Confirmare Parolă"
+              placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
+            {errorMessage && <div className="error-message">{errorMessage}</div>}
             <button type="submit" className="sign-up-button1 thq-button-filled">
               {props.action1 ?? (
                 <Fragment>

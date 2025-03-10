@@ -42,9 +42,10 @@ async function createAdminUser() {
 
   db.get('SELECT id FROM users WHERE email = ?', [adminEmail], (err, user) => {
     if (!user) {
+      const trimmedName = 'Administrator'.trim();
       db.run(
         'INSERT INTO users (email, password, name, role) VALUES (?, ?, ?, ?)',
-        [adminEmail, adminPassword, 'Administrator', 'admin'],
+        [adminEmail, adminPassword, trimmedName, 'admin'],
         (err) => {
           if (err) {
             console.error('Eroare la crearea admin:', err);

@@ -7,7 +7,7 @@ const db = require('../config/database');
 const { authMiddleware, adminMiddleware } = require('../middleware/auth');
 
 // Înregistrare
-router.post('/register', async (req, res) => {
+router.post('/signup', async (req, res) => {
   try {
     const { email, password, name } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -55,6 +55,7 @@ router.post('/login', (req, res) => {
 
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
+      console.log('Parola nu este corectă.');
       return res.status(400).json({ message: 'Email sau parolă incorectă' });
     }
 
