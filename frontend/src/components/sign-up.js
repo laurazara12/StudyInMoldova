@@ -1,13 +1,56 @@
-import React, { Fragment } from 'react'
-import { Link } from 'react-router-dom'
+import React, { Fragment, useState } from 'react'
+import { Link, useHistory } from 'react-router-dom'
 
 import PropTypes from 'prop-types'
 
 import './sign-up.css'
 
 const SignUp = (props) => {
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const history = useHistory();
+
+  const handleSignUp = async (event) => {
+    event.preventDefault();
+    try {
+      const response = await fetch('/api/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+        }),
+      });
+
+      if (response.ok) {
+        setSuccessMessage('');
+        setErrorMessage('');
+        alert('Înregistrare reușită!');
+        history.push('/sign-in');
+      } else {
+        const errorData = await response.json();
+        setErrorMessage('');
+        setSuccessMessage('');
+        alert(errorData.message || 'A apărut o eroare la înregistrare.');
+      }
+    } catch (error) {
+      setErrorMessage('');
+      setSuccessMessage('');
+      alert('Eroare de rețea. Vă rugăm să încercați din nou.');
+    }
+  };
+
   return (
     <div className="sign-up-container1">
+      {errorMessage && <div className="error-message">{errorMessage}</div>}
+      {successMessage && <div className="success-message">{successMessage}</div>}
       <div className="sign-up-max-width">
         <div className="sign-up-sign-up-image thq-img-ratio-16-9"></div>
         <div className="sign-up-form thq-section-padding">
@@ -27,15 +70,41 @@ const SignUp = (props) => {
               )}
             </span>
           </div>
-          <div className="sign-up-container2">
-            <button className="sign-up-button1 thq-button-filled">
-              <span className="sign-up-text12 thq-body-small">
-                {props.action1 ?? (
-                  <Fragment>
-                    <span className="sign-up-text22">Continue with email</span>
-                  </Fragment>
-                )}
-              </span>
+          <form onSubmit={handleSignUp}>
+            <input
+              type="text"
+              placeholder="Nume"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <input
+              type="password"
+              placeholder="Parolă"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <input
+              type="password"
+              placeholder="Confirmare Parolă"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+            <button type="submit" className="sign-up-button1 thq-button-filled">
+              {props.action1 ?? (
+                <Fragment>
+                  <span className="sign-up-text22">Continue with email</span>
+                </Fragment>
+              )}
             </button>
             <button className="sign-up-button2 thq-button-outline">
               <svg
@@ -52,7 +121,7 @@ const SignUp = (props) => {
                 )}
               </span>
             </button>
-          </div>
+          </form>
           <p className="sign-up-text14 thq-body-large">
             <span className="sign-up-text15">
               By creating an account, you agree to the Terms of use and Privacy

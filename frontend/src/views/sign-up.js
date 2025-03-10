@@ -17,7 +17,7 @@ const SignUpPage = (props) => {
       <SignUp
         action1={
           <Fragment>
-            <span className="sign-up-text25">Continue with email</span>
+            <span className="sign-up-text25">Submit</span>
           </Fragment>
         }
         action3={
