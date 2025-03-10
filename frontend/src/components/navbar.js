@@ -52,7 +52,7 @@ const Navbar = (props) => {
               <>
                 <button className="navbar-login1 button">
                   <Link to="/profile" className="navbar-navlink1">
-                    <span className="navbar-text37">{user.name}</span>
+                    <span className="navbar-text37">Profil Personal</span>
                   </Link>
                 </button>
                 {user.role === 'admin' && (
