@@ -19,6 +19,8 @@ import SignUp from './views/sign-up'
 import LivingInMoldova from './views/living-in-moldova'
 import Error404Page from './views/error404-page'
 import NotFound from './views/not-found'
+import Profile from './views/profile'
+import PrivateRoute from './components/PrivateRoute'
 
 const App = () => {
   return (
@@ -33,6 +35,7 @@ const App = () => {
         <Route path="/universities/usm" element={<USMUniversityIndividualPage />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/living-in-moldova" element={<LivingInMoldova />} />
+        <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
         <Route path="/error404-page" element={<Error404Page />} />
         <Route path="*" element={<NotFound />} />
         <Route path="*" element={<Navigate to="/" />} />
