@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 
 import './style.css';
 import Home from './views/landing';
@@ -25,23 +25,11 @@ const App = () => {
         <Route path="/universities" element={<Universities />} />
         <Route path="/programms" element={<Programms />} />
         <Route path="/living-in-moldova" element={<LivingInMoldova />} />
-        <Route
-          path="/universities/usm-university-individual-page"
-          element={<USMUniversityIndividualPage />}
-        />
-        <Route
-          path="/universities/utm-university-individual-page"
-          element={<UTMUniversityIndividualPage />}
-        />
-        <Route
-          path="/profile"
-          element={
-            <PrivateRoute>
-              <Profile />
-            </PrivateRoute>
-          }
-        />
+        <Route path="/universities/usm-university-individual-page" element={<USMUniversityIndividualPage />} />
+        <Route path="/universities/utm-university-individual-page" element={<UTMUniversityIndividualPage />} />
+        <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
         <Route path="/example" element={<ExampleComponent />} />
+        <Route path="/old-path" element={<Navigate to="/new-path" />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>

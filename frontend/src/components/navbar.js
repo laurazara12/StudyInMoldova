@@ -1,10 +1,10 @@
 import React, { Fragment, useEffect, useState } from 'react'
-import { Link, useHistory } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import './navbar.css'
 
 const Navbar = (props) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -20,7 +20,7 @@ const Navbar = (props) => {
       localStorage.removeItem('user');
       localStorage.removeItem('token');
       setUser(null);
-      history.push('/');
+      navigate('/');
     }
   };
 
