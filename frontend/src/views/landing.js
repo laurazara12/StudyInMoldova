@@ -164,7 +164,7 @@ const Landing = (props) => {
         feature2Description1={
           <Fragment>
             <span className="landing-text34">
-              Moldova’s students show steady improvement in global assessments,
+              Moldova's students show steady improvement in global assessments,
               reflecting quality-driven reforms.
             </span>
           </Fragment>
@@ -237,7 +237,7 @@ const Landing = (props) => {
             </span>
           </Fragment>
         }
-        activeTab
+        activeTab={0}
       ></FeaturesWhyStudyInMoldova2>
       <FeatureLocations
         content1={

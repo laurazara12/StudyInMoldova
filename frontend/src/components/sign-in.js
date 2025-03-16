@@ -1,5 +1,5 @@
 import React, { Fragment, useState } from 'react'
-import { Link, useHistory } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import PropTypes from 'prop-types'
 
@@ -9,7 +9,7 @@ const SignIn = (props) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -35,7 +35,7 @@ const SignIn = (props) => {
         const userData = await response.json();
         localStorage.setItem('user', JSON.stringify(userData));
         alert('Login successful!');
-        history.push('/dashboard');
+        navigate('/dashboard');
       } else {
         const errorData = await response.json();
         alert(errorData.message || 'An error occurred during login.');

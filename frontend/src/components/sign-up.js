@@ -1,5 +1,5 @@
 import React, { Fragment, useState } from 'react'
-import { Link, useHistory } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import PropTypes from 'prop-types'
 
@@ -12,7 +12,7 @@ const SignUp = (props) => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleSignUp = async (event) => {
     event.preventDefault();
@@ -42,7 +42,7 @@ const SignUp = (props) => {
       if (response.ok) {
         setSuccessMessage('Registration successful!');
         setErrorMessage('');
-        history.push('/sign-in');
+        navigate('/sign-in');
       } else {
         const errorData = await response.json();
         setErrorMessage(errorData.message || 'An error occurred during registration.');

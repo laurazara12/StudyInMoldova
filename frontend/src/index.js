@@ -2,9 +2,9 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import {
   BrowserRouter as Router,
+  Routes,
   Route,
-  Switch,
-  Redirect,
+  Navigate,
 } from 'react-router-dom'
 
 import './style.css'
@@ -19,32 +19,27 @@ import SignUp from './views/sign-up'
 import LivingInMoldova from './views/living-in-moldova'
 import Error404Page from './views/error404-page'
 import NotFound from './views/not-found'
+import Profile from './views/profile'
+import PrivateRoute from './components/PrivateRoute'
 
 const App = () => {
   return (
     <Router>
-      <Switch>
-        <Route component={Page} exact path="/page" />
-        <Route component={Landing} exact path="/" />
-        <Route component={Programms} exact path="/programms" />
-        <Route component={SignIn} exact path="/sign-in" />
-        <Route
-          component={UTMUniversityIndividualPage}
-          exact
-          path="/universities/usm1"
-        />
-        <Route component={Universities} exact path="/universities" />
-        <Route
-          component={USMUniversityIndividualPage}
-          exact
-          path="/universities/usm"
-        />
-        <Route component={SignUp} exact path="/sign-up" />
-        <Route component={LivingInMoldova} exact path="/living-in-moldova" />
-        <Route component={Error404Page} exact path="/error404-page" />
-        <Route component={NotFound} path="**" />
-        <Redirect to="**" />
-      </Switch>
+      <Routes>
+        <Route path="/page" element={<Page />} />
+        <Route path="/" element={<Landing />} />
+        <Route path="/programms" element={<Programms />} />
+        <Route path="/sign-in" element={<SignIn />} />
+        <Route path="/universities/usm1" element={<UTMUniversityIndividualPage />} />
+        <Route path="/universities" element={<Universities />} />
+        <Route path="/universities/usm" element={<USMUniversityIndividualPage />} />
+        <Route path="/sign-up" element={<SignUp />} />
+        <Route path="/living-in-moldova" element={<LivingInMoldova />} />
+        <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+        <Route path="/error404-page" element={<Error404Page />} />
+        <Route path="*" element={<NotFound />} />
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
     </Router>
   )
 }
