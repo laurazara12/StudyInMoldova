@@ -1,5 +1,6 @@
 import React, { Fragment, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import axios from 'axios'
 
 import PropTypes from 'prop-types'
 
@@ -15,34 +16,37 @@ const SignIn = (props) => {
     setShowPassword(!showPassword);
   };
 
-  const handleSignIn = async (event) => {
-    event.preventDefault();
+  const handleSignIn = async (e) => {
+    e.preventDefault();
+    console.log('Încercare de autentificare...');
+    console.log('Email trimis:', email);
+    console.log('Parolă trimisă:', password);
+
     try {
-      console.log('Email trimis:', email);
-      console.log('Parolă trimisă:', password);
-      const response = await fetch('http://localhost:4000/api/auth/login', {
-        method: 'POST',
+      const response = await axios.post('http://localhost:4000/api/auth/login', {
+        email,
+        password
+      }, {
         headers: {
           'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        })
+        }
       });
 
-      if (response.ok) {
-        const userData = await response.json();
-        localStorage.setItem('user', JSON.stringify(userData));
-        alert('Login successful!');
-        navigate('/dashboard');
-      } else {
-        const errorData = await response.json();
-        alert(errorData.message || 'An error occurred during login.');
-      }
+      console.log('Răspuns primit:', response.data);
+      
+      // Salvăm datele utilizatorului și token-ul
+      localStorage.setItem('user', JSON.stringify(response.data));
+      localStorage.setItem('token', response.data.token);
+      
+      alert('Autentificare reușită!');
+      navigate('/');
     } catch (error) {
-      const errorMessage = error.message || 'A network error occurred. Please try again later.';
-      alert(`Network error: ${errorMessage}`);
+      console.error('Eroare la autentificare:', error.response?.data || error.message);
+      if (error.response?.status === 400) {
+        alert(error.response.data.message);
+      } else {
+        alert('Eroare la autentificare. Vă rugăm să încercați din nou.');
+      }
     }
   };
 

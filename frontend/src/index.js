@@ -38,10 +38,20 @@ const App = () => {
         <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
         <Route path="/error404-page" element={<Error404Page />} />
         <Route path="*" element={<NotFound />} />
-        <Route path="*" element={<Navigate to="/" />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   )
 }
 
-ReactDOM.render(<App />, document.getElementById('app'))
+const rootElement = document.getElementById('app')
+if (!rootElement) {
+  throw new Error('Elementul app nu a fost găsit')
+}
+
+ReactDOM.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  rootElement
+)
