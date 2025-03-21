@@ -10,6 +10,8 @@ const SignIn = (props) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const togglePasswordVisibility = () => {
@@ -18,34 +20,46 @@ const SignIn = (props) => {
 
   const handleSignIn = async (e) => {
     e.preventDefault();
-    console.log('Încercare de autentificare...');
-    console.log('Email trimis:', email);
-    console.log('Parolă trimisă:', password);
-
     try {
+      console.log('Încercare de autentificare pentru:', email);
+      console.log('Parola prezentă:', !!password);
+
       const response = await axios.post('http://localhost:4000/api/auth/login', {
         email,
         password
-      }, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
       });
 
-      console.log('Răspuns primit:', response.data);
-      
-      // Salvăm datele utilizatorului și token-ul
-      localStorage.setItem('user', JSON.stringify(response.data));
-      localStorage.setItem('token', response.data.token);
-      
-      alert('Autentificare reușită!');
-      navigate('/');
-    } catch (error) {
-      console.error('Eroare la autentificare:', error.response?.data || error.message);
-      if (error.response?.status === 400) {
-        alert(error.response.data.message);
+      console.log('Răspuns de la server:', response.data);
+
+      if (response.data.token) {
+        // Salvăm token-ul
+        localStorage.setItem('token', response.data.token);
+        
+        // Salvăm datele utilizatorului
+        const userData = {
+          id: response.data.user.id,
+          name: response.data.user.name,
+          email: response.data.user.email,
+          role: response.data.user.role
+        };
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        console.log('Date salvate în localStorage:', {
+          token: 'prezent',
+          user: userData
+        });
+
+        // Navigăm către pagina de profil
+        navigate('/profile');
       } else {
-        alert('Eroare la autentificare. Vă rugăm să încercați din nou.');
+        alert('Eroare la autentificare: Token-ul lipsește din răspuns');
+      }
+    } catch (error) {
+      console.error('Eroare la autentificare:', error);
+      if (error.response) {
+        alert(error.response.data.message || 'Eroare la autentificare');
+      } else {
+        alert('Eroare la conectarea cu serverul');
       }
     }
   };

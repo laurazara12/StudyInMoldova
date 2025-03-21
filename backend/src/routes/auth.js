@@ -124,6 +124,7 @@ router.post('/login', async (req, res) => {
 
       console.log('Autentificare reușită pentru:', email);
       res.json({
+        success: true,
         token,
         user: {
           id: user.id,
@@ -159,6 +160,44 @@ router.get('/check-users', (req, res) => {
     console.log('Utilizatori existenți:', users);
     res.json(users);
   });
+});
+
+// Ruta pentru obținerea datelor utilizatorului curent
+router.get('/me', authMiddleware, (req, res) => {
+  try {
+    db.get('SELECT id, name, email, role FROM users WHERE id = ?', [req.user.id], (err, user) => {
+      if (err) {
+        console.error('Error fetching user data:', err);
+        return res.status(500).json({
+          success: false,
+          message: 'Eroare la preluarea datelor utilizatorului'
+        });
+      }
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'Utilizatorul nu a fost găsit'
+        });
+      }
+
+      res.json({
+        success: true,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role
+        }
+      });
+    });
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Eroare la preluarea datelor utilizatorului'
+    });
+  }
 });
 
 module.exports = router;
