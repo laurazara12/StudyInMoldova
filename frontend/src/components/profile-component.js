@@ -37,6 +37,8 @@ const ProfileComponent = () => {
         
         if (response.data.success) {
           setUser(response.data.user);
+          // Preluăm documentele după ce avem datele utilizatorului
+          await fetchDocuments(token);
         } else {
           setError(response.data.message || 'Nu s-au putut prelua datele utilizatorului');
           navigate('/sign-in');
@@ -62,76 +64,26 @@ const ProfileComponent = () => {
     }
   }, [user, loading, navigate]);
 
-  useEffect(() => {
-    let isMounted = true;
+  const fetchDocuments = async (token) => {
+    try {
+      console.log('Preluare documente...');
+      const response = await axios.get('http://localhost:4000/api/documents/user-documents', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
 
-    const fetchDocuments = async () => {
-      if (loading || !user) return;
+      console.log('Răspuns documente:', response.data);
       
-      setLoading(true);
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          setError('Nu sunteți autentificat');
-          navigate('/sign-in');
-          return;
-        }
-
-        console.log('Încercare de obținere documente...');
-        const response = await axios.get('http://localhost:4000/api/documents/user-documents', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        console.log('Răspuns de la server:', response.data);
-        
-        if (isMounted) {
-          if (response.data.success) {
-            // Verificăm dacă avem documente noi încărcate
-            const newDocuments = response.data.documents.map(doc => ({
-              document_type: doc.document_type,
-              uploaded: true,
-              url: doc.file_path,
-              uploading: false,
-              progress: 0
-            }));
-
-            // Păstrăm documentele existente care nu sunt încărcate pe server
-            const existingDocuments = documents.filter(doc => !doc.uploaded);
-            const combinedDocuments = [...existingDocuments, ...newDocuments];
-
-            setDocuments(combinedDocuments);
-            setError(null);
-          } else {
-            setError(response.data.message || 'Nu s-au putut încărca documentele');
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching documents:', error);
-        if (isMounted) {
-          if (error.response?.status === 401) {
-            setError('Nu sunteți autentificat');
-            navigate('/sign-in');
-          } else {
-            setError(error.response?.data?.message || 'Eroare la încărcarea documentelor');
-          }
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
+      if (response.data.success) {
+        setDocuments(response.data.documents);
+      } else {
+        console.error('Eroare la preluarea documentelor:', response.data.message);
       }
-    };
-
-    if (user) {
-      fetchDocuments();
+    } catch (error) {
+      console.error('Eroare la preluarea documentelor:', error);
     }
-
-    return () => {
-      isMounted = false;
-    };
-  }, [user]);
+  };
 
   if (loading) {
     return <div className="profile-main">Se încarcă...</div>;
@@ -158,98 +110,68 @@ const ProfileComponent = () => {
     }
   };
 
-  const handleUpload = async (documentType) => {
-    const document = documents.find(doc => doc.document_type === documentType);
-    if (!document || !document.file) return;
-
-    setDocuments(prev => 
-      prev.map(doc => 
-        doc.document_type === documentType 
-          ? { ...doc, uploading: true, progress: 0 }
-          : doc
-      )
-    );
-
-    const formData = new FormData();
-    formData.append('file', document.file);
-    formData.append('documentType', documentType);
-
+  const handleUpload = async (documentType, file) => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('Nu sunteți autentificat');
       }
 
-      console.log('Token găsit:', token);
-      console.log('Încercare de încărcare document la:', 'http://localhost:4000/api/documents/upload');
+      const formData = new FormData();
+      formData.append('document', file);
+      formData.append('documentType', documentType);
+
+      console.log('Încărcare document:', {
+        documentType,
+        fileName: file?.name,
+        fileSize: file?.size
+      });
 
       const response = await axios.post('http://localhost:4000/api/documents/upload', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${token}`
-        },
-        onUploadProgress: (progressEvent) => {
-          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          setDocuments(prev => 
-            prev.map(doc => 
-              doc.document_type === documentType 
-                ? { ...doc, progress }
-                : doc
-            )
-          );
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
         }
       });
 
-      console.log('Răspuns de la server:', response.data);
+      console.log('Răspuns upload:', response.data);
 
-      if (response.data.success) {
-        // Actualizăm starea locală a documentului
-        setDocuments(prev => 
-          prev.map(doc => 
-            doc.document_type === documentType 
-              ? { ...doc, uploaded: true, uploading: false, progress: 0, url: response.data.file_path }
-              : doc
-          )
-        );
-        setError(null);
+      if (response.data.document) {
+        // Actualizăm lista de documente după upload
+        await fetchDocuments(token);
         alert('Document încărcat cu succes!');
       } else {
-        throw new Error(response.data.message || 'Nu s-a putut încărca documentul');
+        throw new Error('Eroare la încărcarea documentului');
       }
     } catch (error) {
-      console.error('Error uploading file:', error);
-      console.error('Error details:', error.response?.data || error.message);
-      setDocuments(prev => 
-        prev.map(doc => 
-          doc.document_type === documentType 
-            ? { ...doc, uploading: false }
-            : doc
-        )
-      );
-      setError(error.response?.data?.message || error.message || 'Eroare la încărcarea documentului');
-      alert(error.response?.data?.message || error.message || 'Eroare la încărcarea documentului');
+      console.error('Eroare la încărcarea documentului:', error);
+      alert(error.response?.data?.message || 'Eroare la încărcarea documentului');
     }
   };
 
   const handleDelete = async (documentType) => {
-    if (window.confirm(`Sigur doriți să ștergeți documentul de tip ${documentType}?`)) {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          throw new Error('Nu sunteți autentificat');
-        }
-
-        await axios.delete(`http://localhost:4000/api/documents/${documentType}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        setDocuments(prev => prev.filter(doc => doc.document_type !== documentType));
-      } catch (error) {
-        console.error('Error deleting document:', error);
-        setError(error.response?.data?.message || 'Eroare la ștergerea documentului');
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Nu sunteți autentificat');
       }
+
+      const response = await axios.delete(`http://localhost:4000/api/documents/${documentType}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.data.success) {
+        // Actualizăm lista de documente după ștergere
+        await fetchDocuments(token);
+        alert('Document șters cu succes!');
+      } else {
+        throw new Error('Eroare la ștergerea documentului');
+      }
+    } catch (error) {
+      console.error('Eroare la ștergerea documentului:', error);
+      alert(error.response?.data?.message || 'Eroare la ștergerea documentului');
     }
   };
 
@@ -328,7 +250,7 @@ const ProfileComponent = () => {
           📄
         </div>
         <h4 className="document-name">{documentName}</h4>
-        {document?.uploaded ? (
+        {document ? (
           <div>
             <p>Document încărcat</p>
             <div className="document-actions">
@@ -344,7 +266,7 @@ const ProfileComponent = () => {
               accept=".pdf,.jpg,.jpeg,.png"
             />
             <button 
-              onClick={() => handleUpload(documentType)}
+              onClick={() => document?.file && handleUpload(documentType, document.file)}
               disabled={!document?.file || document.uploading}
             >
               {document?.uploading ? 'Se încarcă...' : 'Încarcă'}
