@@ -12,63 +12,130 @@ const initialDocuments = {
 
 const ProfileComponent = () => {
   const navigate = useNavigate();
-  const storedUser = localStorage.getItem('user');
-  const user = storedUser ? JSON.parse(storedUser) : null;
-
-  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [documents, setDocuments] = useState([]);
 
   useEffect(() => {
-    if (!user) {
-      navigate('/sign-in');
-      return;
-    }
-  }, [user, navigate]);
-
-  useEffect(() => {
-    const fetchDocuments = async () => {
-      if (loading || !user) return;
-      
-      setLoading(true);
+    const fetchUserData = async () => {
       try {
-        if (!user.token) {
-          setError('Nu sunteți autentificat');
+        const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/sign-in');
           return;
         }
 
-        console.log('Încercare de obținere documente...');
-        const response = await axios.get('http://localhost:4000/api/documents/user-documents', {
+        console.log('Preluare date utilizator din baza de date...');
+        const response = await axios.get('http://localhost:4000/api/auth/me', {
           headers: {
-            'Authorization': `Bearer ${user.token}`
+            'Authorization': `Bearer ${token}`
           }
         });
 
         console.log('Răspuns de la server:', response.data);
         
         if (response.data.success) {
-          const formattedDocuments = response.data.documents.map(doc => ({
-            document_type: doc.document_type,
-            uploaded: true,
-            url: doc.file_path,
-            uploading: false,
-            progress: 0
-          }));
-          setDocuments(formattedDocuments);
-          setError(null);
+          setUser(response.data.user);
         } else {
-          setError(response.data.message || 'Nu s-au putut încărca documentele');
+          setError(response.data.message || 'Nu s-au putut prelua datele utilizatorului');
+          navigate('/sign-in');
         }
       } catch (error) {
-        console.error('Error fetching documents:', error);
-        setError(error.response?.data?.message || 'Eroare la încărcarea documentelor');
+        console.error('Eroare la preluarea datelor utilizatorului:', error);
+        if (error.response?.status === 401) {
+          navigate('/sign-in');
+        } else {
+          setError('Eroare la preluarea datelor utilizatorului');
+        }
       } finally {
         setLoading(false);
       }
     };
 
-    fetchDocuments();
-  }, [loading, user]);
+    fetchUserData();
+  }, [navigate]);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/sign-in');
+    }
+  }, [user, loading, navigate]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchDocuments = async () => {
+      if (loading || !user) return;
+      
+      setLoading(true);
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setError('Nu sunteți autentificat');
+          navigate('/sign-in');
+          return;
+        }
+
+        console.log('Încercare de obținere documente...');
+        const response = await axios.get('http://localhost:4000/api/documents/user-documents', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        console.log('Răspuns de la server:', response.data);
+        
+        if (isMounted) {
+          if (response.data.success) {
+            // Verificăm dacă avem documente noi încărcate
+            const newDocuments = response.data.documents.map(doc => ({
+              document_type: doc.document_type,
+              uploaded: true,
+              url: doc.file_path,
+              uploading: false,
+              progress: 0
+            }));
+
+            // Păstrăm documentele existente care nu sunt încărcate pe server
+            const existingDocuments = documents.filter(doc => !doc.uploaded);
+            const combinedDocuments = [...existingDocuments, ...newDocuments];
+
+            setDocuments(combinedDocuments);
+            setError(null);
+          } else {
+            setError(response.data.message || 'Nu s-au putut încărca documentele');
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching documents:', error);
+        if (isMounted) {
+          if (error.response?.status === 401) {
+            setError('Nu sunteți autentificat');
+            navigate('/sign-in');
+          } else {
+            setError(error.response?.data?.message || 'Eroare la încărcarea documentelor');
+          }
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    if (user) {
+      fetchDocuments();
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
+
+  if (loading) {
+    return <div className="profile-main">Se încarcă...</div>;
+  }
 
   if (!user) {
     return null;
@@ -108,18 +175,18 @@ const ProfileComponent = () => {
     formData.append('documentType', documentType);
 
     try {
-      const userData = JSON.parse(localStorage.getItem('user'));
-      if (!userData || !userData.token) {
+      const token = localStorage.getItem('token');
+      if (!token) {
         throw new Error('Nu sunteți autentificat');
       }
 
-      console.log('Token găsit:', userData.token);
+      console.log('Token găsit:', token);
       console.log('Încercare de încărcare document la:', 'http://localhost:4000/api/documents/upload');
 
       const response = await axios.post('http://localhost:4000/api/documents/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${userData.token}`
+          'Authorization': `Bearer ${token}`
         },
         onUploadProgress: (progressEvent) => {
           const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -136,24 +203,16 @@ const ProfileComponent = () => {
       console.log('Răspuns de la server:', response.data);
 
       if (response.data.success) {
-        const userData = JSON.parse(localStorage.getItem('user'));
-        const docResponse = await axios.get('http://localhost:4000/api/documents/user-documents', {
-          headers: {
-            'Authorization': `Bearer ${userData.token}`
-          }
-        });
-
-        if (docResponse.data.success) {
-          const formattedDocuments = docResponse.data.documents.map(doc => ({
-            document_type: doc.document_type,
-            uploaded: true,
-            url: doc.file_path,
-            uploading: false,
-            progress: 0
-          }));
-          setDocuments(formattedDocuments);
-          setError(null);
-        }
+        // Actualizăm starea locală a documentului
+        setDocuments(prev => 
+          prev.map(doc => 
+            doc.document_type === documentType 
+              ? { ...doc, uploaded: true, uploading: false, progress: 0, url: response.data.file_path }
+              : doc
+          )
+        );
+        setError(null);
+        alert('Document încărcat cu succes!');
       } else {
         throw new Error(response.data.message || 'Nu s-a putut încărca documentul');
       }
@@ -168,20 +227,21 @@ const ProfileComponent = () => {
         )
       );
       setError(error.response?.data?.message || error.message || 'Eroare la încărcarea documentului');
+      alert(error.response?.data?.message || error.message || 'Eroare la încărcarea documentului');
     }
   };
 
   const handleDelete = async (documentType) => {
     if (window.confirm(`Sigur doriți să ștergeți documentul de tip ${documentType}?`)) {
       try {
-        const userData = JSON.parse(localStorage.getItem('user'));
-        if (!userData || !userData.token) {
+        const token = localStorage.getItem('token');
+        if (!token) {
           throw new Error('Nu sunteți autentificat');
         }
 
         await axios.delete(`http://localhost:4000/api/documents/${documentType}`, {
           headers: {
-            'Authorization': `Bearer ${userData.token}`
+            'Authorization': `Bearer ${token}`
           }
         });
 
@@ -195,8 +255,8 @@ const ProfileComponent = () => {
 
   const handleDownload = async (documentType) => {
     try {
-      const userData = JSON.parse(localStorage.getItem('user'));
-      if (!userData || !userData.token) {
+      const token = localStorage.getItem('token');
+      if (!token) {
         setError('Nu sunteți autentificat');
         return;
       }
@@ -215,7 +275,7 @@ const ProfileComponent = () => {
         method: 'GET',
         responseType: 'blob',
         headers: {
-          'Authorization': `Bearer ${userData.token}`
+          'Authorization': `Bearer ${token}`
         }
       });
 
@@ -301,24 +361,26 @@ const ProfileComponent = () => {
         <h1 className="profile-heading">Profilul meu</h1>
       </div>
       <div className="profile-content">
-        <div className="profile-card">
-          <div className="profile-info">
-            <span className="info-label">Nume:</span>
-            <span className="info-value">{user.name}</span>
+        {user && (
+          <div className="profile-card">
+            <div className="profile-info">
+              <span className="info-label">Nume:</span>
+              <span className="info-value">{user.name || 'Nespecificat'}</span>
+            </div>
+            <div className="profile-info">
+              <span className="info-label">Email:</span>
+              <span className="info-value">{user.email || 'Nespecificat'}</span>
+            </div>
+            <div className="profile-info">
+              <span className="info-label">Rol:</span>
+              <span className="info-value">
+                {user.role === 'admin' ? 'Administrator' : 'Student'}
+              </span>
+            </div>
           </div>
-          <div className="profile-info">
-            <span className="info-label">Email:</span>
-            <span className="info-value">{user.email}</span>
-          </div>
-          <div className="profile-info">
-            <span className="info-label">Rol:</span>
-            <span className="info-value">
-              {user.role === 'admin' ? 'Administrator' : 'Student'}
-            </span>
-          </div>
-        </div>
+        )}
         
-        {user.role === 'admin' && (
+        {user?.role === 'admin' && (
           <div className="admin-panel">
             <h2 className="admin-heading">Panou Administrator</h2>
             <button

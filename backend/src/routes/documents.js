@@ -140,7 +140,7 @@ router.get('/user-documents', authMiddleware, async (req, res) => {
 });
 
 // Ruta pentru încărcarea documentelor
-router.post('/upload', authMiddleware, upload.single('document'), async (req, res) => {
+router.post('/upload', authMiddleware, upload.single('file'), async (req, res) => {
   try {
     console.log('Cerere de încărcare primită:', {
       body: req.body,
@@ -148,6 +148,14 @@ router.post('/upload', authMiddleware, upload.single('document'), async (req, re
       user: req.user,
       headers: req.headers
     });
+
+    if (!req.user || !req.user.id) {
+      console.error('Utilizator neautentificat sau fără ID');
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Utilizator neautentificat' 
+      });
+    }
 
     if (!req.file) {
       console.error('Nu s-a primit niciun fișier');
@@ -161,6 +169,12 @@ router.post('/upload', authMiddleware, upload.single('document'), async (req, re
     const documentType = req.body.documentType;
     const filePath = req.file.path;
 
+    console.log('Detalii încărcare:', {
+      userId,
+      documentType,
+      filePath
+    });
+
     if (!documentType) {
       console.error('Tipul documentului nu a fost specificat');
       return res.status(400).json({ 
@@ -170,7 +184,7 @@ router.post('/upload', authMiddleware, upload.single('document'), async (req, re
     }
 
     // Creăm directorul pentru utilizator dacă nu există
-    const userDir = path.join(__dirname, '../../../backend/uploads', userId.toString());
+    const userDir = path.join(__dirname, '../../uploads', userId.toString());
     if (!fs.existsSync(userDir)) {
       try {
         fs.mkdirSync(userDir, { recursive: true });
@@ -225,6 +239,11 @@ router.post('/upload', authMiddleware, upload.single('document'), async (req, re
             error: err.message
           });
         }
+
+        console.log('Document salvat cu succes:', {
+          documentId: this.lastID,
+          filePath: filePath
+        });
 
         res.status(200).json({
           success: true,
