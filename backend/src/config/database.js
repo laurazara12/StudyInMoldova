@@ -2,60 +2,144 @@
 const sqlite3 = require('sqlite3').verbose();
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
+const path = require('path');
+const fs = require('fs');
 
-const db = new sqlite3.Database(
-  process.env.DB_PATH,
-  sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
-  (err) => {
-    if (err) {
-      console.error('Eroare la conectarea la baza de date:', err);
-    } else {
-      console.log('Conectat la baza de date SQLite');
-      initializeDatabase();
-    }
-  }
-);
-
-function initializeDatabase() {
-  db.run(`
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      email TEXT UNIQUE NOT NULL,
-      password TEXT NOT NULL,
-      name TEXT,
-      role TEXT DEFAULT 'user',
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-  `, [], async (err) => {
-    if (err) {
-      console.error('Eroare la crearea tabelului:', err);
-    } else {
-      console.log('Tabel users creat sau existent');
-      await createAdminUser();
-    }
-  });
+// Creăm directorul pentru baza de date dacă nu există
+const dbDirectory = path.dirname(path.join(__dirname, 'database.sqlite'));
+if (!fs.existsSync(dbDirectory)) {
+  fs.mkdirSync(dbDirectory, { recursive: true });
 }
 
-async function createAdminUser() {
-  const adminEmail = 'admin@example.com';
-  const adminPassword = await bcrypt.hash('admin07', 10);
+const db = new sqlite3.Database(path.join(__dirname, 'database.sqlite'), (err) => {
+  if (err) {
+    console.error('Eroare la conectarea la baza de date:', err);
+  } else {
+    console.log('Conectat cu succes la baza de date SQLite');
+    
+    // Creăm tabelul users dacă nu există
+    db.run(`CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      email TEXT UNIQUE NOT NULL,
+      password TEXT NOT NULL,
+      role TEXT DEFAULT 'user'
+    )`, (err) => {
+      if (err) {
+        console.error('Eroare la crearea tabelului users:', err);
+      } else {
+        console.log('Tabelul users a fost creat sau există deja');
+      }
+    });
 
-  db.get('SELECT id FROM users WHERE email = ?', [adminEmail], (err, user) => {
-    if (!user) {
-      const trimmedName = 'Administrator'.trim();
-      db.run(
-        'INSERT INTO users (email, password, name, role) VALUES (?, ?, ?, ?)',
-        [adminEmail, adminPassword, trimmedName, 'admin'],
-        (err) => {
-          if (err) {
-            console.error('Eroare la crearea admin:', err);
-          } else {
-            console.log('Utilizator admin creat cu succes');
-          }
+    // Creăm tabelul documents dacă nu există
+    db.run(`CREATE TABLE IF NOT EXISTS documents (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      document_type TEXT NOT NULL,
+      file_path TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id),
+      UNIQUE(user_id, document_type)
+    )`, (err) => {
+      if (err) {
+        console.error('Eroare la crearea tabelului documents:', err);
+      } else {
+        console.log('Tabelul documents a fost creat sau există deja');
+      }
+    });
+  }
+});
+
+async function createAdminUser() {
+  try {
+    const adminEmail = 'admin@example.com';
+    const adminPassword = await bcrypt.hash('admin07', 10);
+    const testUserEmail = 'user3@example.com';
+    const testUserPassword = await bcrypt.hash('123', 10);
+
+    console.log('Începem crearea utilizatorilor...');
+
+    // Creăm admin-ul
+    const adminExists = await new Promise((resolve, reject) => {
+      db.get('SELECT id FROM users WHERE email = ?', [adminEmail], (err, user) => {
+        if (err) {
+          console.error('Eroare la verificarea admin:', err);
+          reject(err);
+        } else {
+          resolve(user);
         }
-      );
+      });
+    });
+
+    if (!adminExists) {
+      await new Promise((resolve, reject) => {
+        db.run(
+          'INSERT INTO users (email, password, name, role) VALUES (?, ?, ?, ?)',
+          [adminEmail, adminPassword, 'Administrator', 'admin'],
+          function(err) {
+            if (err) {
+              console.error('Eroare la crearea admin:', err);
+              reject(err);
+            } else {
+              console.log('Utilizator admin creat cu succes, ID:', this.lastID);
+              resolve();
+            }
+          }
+        );
+      });
+    } else {
+      console.log('Utilizator admin existent, ID:', adminExists.id);
     }
-  });
+
+    // Creăm utilizatorul de test
+    const testUserExists = await new Promise((resolve, reject) => {
+      db.get('SELECT id FROM users WHERE email = ?', [testUserEmail], (err, user) => {
+        if (err) {
+          console.error('Eroare la verificarea utilizatorului de test:', err);
+          reject(err);
+        } else {
+          resolve(user);
+        }
+      });
+    });
+
+    if (!testUserExists) {
+      await new Promise((resolve, reject) => {
+        db.run(
+          'INSERT INTO users (email, password, name, role) VALUES (?, ?, ?, ?)',
+          [testUserEmail, testUserPassword, 'User Test', 'user'],
+          function(err) {
+            if (err) {
+              console.error('Eroare la crearea utilizatorului de test:', err);
+              reject(err);
+            } else {
+              console.log('Utilizator de test creat cu succes, ID:', this.lastID);
+              resolve();
+            }
+          }
+        );
+      });
+    } else {
+      console.log('Utilizator de test existent, ID:', testUserExists.id);
+    }
+
+    // Verificăm dacă utilizatorii au fost creați
+    const verifyUsers = await new Promise((resolve, reject) => {
+      db.all('SELECT id, email, role FROM users', (err, rows) => {
+        if (err) {
+          console.error('Eroare la verificarea utilizatorilor:', err);
+          reject(err);
+        } else {
+          console.log('Utilizatori în baza de date:', rows);
+          resolve(rows);
+        }
+      });
+    });
+
+  } catch (error) {
+    console.error('Eroare în createAdminUser:', error);
+  }
 }
 
 module.exports = db;

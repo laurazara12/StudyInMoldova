@@ -70,3 +70,62 @@
     opacity: 0.9;
     transform: translateY(-2px);
   }
+
+  .document-upload-form {
+    background: var(--dl-color-gray-100);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    margin-top: 2rem;
+  }
+
+  .file-upload {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .file-upload label {
+    width: 150px;
+    font-weight: 600;
+    color: var(--dl-color-gray-700);
+  }
+
+  .file-upload input {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid var(--dl-color-gray-500);
+    border-radius: 5px;
+  }
+
+  .upload-button {
+    background-color: var(--dl-color-gray-black);
+    color: var(--dl-color-gray-white);
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .upload-button:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+  }
+
+  .profile-content {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .document-section {
+    flex: 1;
+    margin-left: 2rem;
+  }
+
+  .document-heading {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--dl-color-gray-black);
+  }
