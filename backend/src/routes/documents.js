@@ -54,212 +54,112 @@ const upload = multer({
 });
 
 // Ruta pentru obținerea documentelor utilizatorului
-router.get('/user-documents', authMiddleware, async (req, res) => {
+router.get('/user-documents', authMiddleware, (req, res) => {
   try {
-    console.log('Cerere pentru documente - Headers:', req.headers);
-    console.log('Cerere pentru documente - User:', req.user);
+    console.log('Preluare documente pentru utilizatorul:', req.user.id);
     
-    if (!req.user || !req.user.id) {
-      console.error('Utilizator neautentificat sau fără ID');
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Utilizator neautentificat' 
+    db.all('SELECT * FROM documents WHERE user_id = ?', [req.user.id], (err, documents) => {
+      if (err) {
+        console.error('Eroare la preluarea documentelor:', err);
+        return res.status(500).json({ message: 'Eroare la preluarea documentelor' });
+      }
+
+      console.log('Documente găsite:', documents.length);
+      res.json({
+        success: true,
+        documents: documents.map(doc => ({
+          id: doc.id,
+          document_type: doc.document_type,
+          file_path: doc.file_path,
+          created_at: doc.created_at,
+          uploaded: true
+        }))
       });
-    }
-
-    // Verificăm dacă tabelul documents există
-    const tableExists = await new Promise((resolve, reject) => {
-      db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='documents'", (err, row) => {
-        if (err) {
-          console.error('Eroare la verificarea tabelului documents:', err);
-          reject(err);
-        } else {
-          resolve(!!row);
-        }
-      });
-    });
-
-    if (!tableExists) {
-      console.error('Tabelul documents nu există');
-      return res.status(500).json({ 
-        success: false, 
-        message: 'Tabelul documents nu există' 
-      });
-    }
-
-    // Verificăm dacă utilizatorul există
-    const userExists = await new Promise((resolve, reject) => {
-      db.get('SELECT id FROM users WHERE id = ?', [req.user.id], (err, row) => {
-        if (err) {
-          console.error('Eroare la verificarea utilizatorului:', err);
-          reject(err);
-        } else {
-          resolve(!!row);
-        }
-      });
-    });
-
-    if (!userExists) {
-      console.error('Utilizatorul nu există în baza de date');
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Utilizatorul nu există' 
-      });
-    }
-
-    // Obținem documentele
-    const documents = await new Promise((resolve, reject) => {
-      db.all(
-        'SELECT * FROM documents WHERE user_id = ?',
-        [req.user.id],
-        (err, rows) => {
-          if (err) {
-            console.error('Eroare la interogarea documentelor:', err);
-            reject(err);
-          } else {
-            console.log('Documente găsite:', rows);
-            resolve(rows);
-          }
-        }
-      );
-    });
-
-    console.log('Răspuns pentru documente:', documents);
-    res.json({ 
-      success: true, 
-      documents: documents 
     });
   } catch (error) {
-    console.error('Eroare la obținerea documentelor:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Eroare la obținerea documentelor',
-      error: error.message 
-    });
+    console.error('Eroare la preluarea documentelor:', error);
+    res.status(500).json({ message: error.message });
   }
 });
 
 // Ruta pentru încărcarea documentelor
-router.post('/upload', authMiddleware, upload.single('file'), async (req, res) => {
+router.post('/upload', authMiddleware, upload.single('document'), async (req, res) => {
   try {
-    console.log('Cerere de încărcare primită:', {
-      body: req.body,
-      file: req.file,
-      user: req.user,
-      headers: req.headers
+    console.log('Încercare de upload document:', {
+      userId: req.user.id,
+      documentType: req.body.documentType,
+      hasFile: !!req.file
     });
-
-    if (!req.user || !req.user.id) {
-      console.error('Utilizator neautentificat sau fără ID');
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Utilizator neautentificat' 
-      });
-    }
 
     if (!req.file) {
-      console.error('Nu s-a primit niciun fișier');
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Nu s-a primit niciun fișier' 
-      });
+      console.log('Nu s-a găsit niciun fișier în request');
+      return res.status(400).json({ message: 'Nu s-a găsit niciun fișier' });
     }
 
-    const userId = req.user.id;
     const documentType = req.body.documentType;
-    const filePath = req.file.path;
-
-    console.log('Detalii încărcare:', {
-      userId,
-      documentType,
-      filePath
-    });
-
     if (!documentType) {
-      console.error('Tipul documentului nu a fost specificat');
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Tipul documentului este obligatoriu' 
-      });
+      console.log('Tipul documentului lipsește');
+      return res.status(400).json({ message: 'Tipul documentului este obligatoriu' });
     }
 
-    // Creăm directorul pentru utilizator dacă nu există
-    const userDir = path.join(__dirname, '../../uploads', userId.toString());
-    if (!fs.existsSync(userDir)) {
-      try {
-        fs.mkdirSync(userDir, { recursive: true });
-        console.log('Directorul utilizatorului a fost creat:', userDir);
-      } catch (error) {
-        console.error('Eroare la crearea directorului utilizatorului:', error);
-        return res.status(500).json({
-          success: false,
-          message: 'Eroare la crearea directorului utilizatorului'
-        });
-      }
-    }
-
-    // Verificăm dacă documentul există deja
-    const existingDocument = await new Promise((resolve, reject) => {
-      db.get(
-        'SELECT * FROM documents WHERE user_id = ? AND document_type = ?',
-        [userId, documentType],
-        (err, row) => {
-          if (err) {
-            console.error('Eroare la căutarea documentului existent:', err);
-            reject(err);
-          } else {
-            resolve(row);
-          }
-        }
-      );
-    });
-
-    if (existingDocument) {
-      // Ștergem fișierul vechi
-      try {
-        if (fs.existsSync(existingDocument.file_path)) {
-          fs.unlinkSync(existingDocument.file_path);
-          console.log('Fișierul vechi a fost șters:', existingDocument.file_path);
-        }
-      } catch (error) {
-        console.error('Eroare la ștergerea fișierului vechi:', error);
-      }
-    }
-
-    // Salvăm documentul în baza de date
-    db.run(
-      'INSERT OR REPLACE INTO documents (user_id, document_type, file_path) VALUES (?, ?, ?)',
-      [userId, documentType, filePath],
-      function(err) {
+    // Verificăm dacă există deja un document de acest tip pentru utilizator
+    db.get('SELECT * FROM documents WHERE user_id = ? AND document_type = ?', 
+      [req.user.id, documentType], 
+      async (err, existingDoc) => {
         if (err) {
-          console.error('Eroare la salvarea documentului în baza de date:', err);
-          return res.status(500).json({
-            success: false,
-            message: 'Eroare la salvarea documentului',
-            error: err.message
-          });
+          console.error('Eroare la verificarea documentului existent:', err);
+          return res.status(500).json({ message: 'Eroare la verificarea documentului existent' });
         }
 
-        console.log('Document salvat cu succes:', {
-          documentId: this.lastID,
-          filePath: filePath
-        });
+        const filePath = req.file.path;
+        console.log('Fișier salvat la:', filePath);
 
-        res.status(200).json({
-          success: true,
-          message: 'Document încărcat cu succes',
-          documentId: this.lastID,
-          filePath: filePath
-        });
+        if (existingDoc) {
+          // Actualizăm documentul existent
+          db.run('UPDATE documents SET file_path = ? WHERE user_id = ? AND document_type = ?',
+            [filePath, req.user.id, documentType],
+            function(err) {
+              if (err) {
+                console.error('Eroare la actualizarea documentului:', err);
+                return res.status(500).json({ message: 'Eroare la actualizarea documentului' });
+              }
+              console.log('Document actualizat cu succes');
+              res.json({ 
+                message: 'Document actualizat cu succes',
+                document: {
+                  id: existingDoc.id,
+                  documentType,
+                  filePath
+                }
+              });
+            }
+          );
+        } else {
+          // Inserăm un document nou
+          db.run('INSERT INTO documents (user_id, document_type, file_path) VALUES (?, ?, ?)',
+            [req.user.id, documentType, filePath],
+            function(err) {
+              if (err) {
+                console.error('Eroare la inserarea documentului:', err);
+                return res.status(500).json({ message: 'Eroare la salvarea documentului' });
+              }
+              console.log('Document nou salvat cu succes, ID:', this.lastID);
+              res.json({ 
+                message: 'Document salvat cu succes',
+                document: {
+                  id: this.lastID,
+                  documentType,
+                  filePath
+                }
+              });
+            }
+          );
+        }
       }
     );
   } catch (error) {
-    console.error('Eroare la încărcarea documentului:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Eroare la încărcarea documentului',
-      error: error.message
-    });
+    console.error('Eroare la upload document:', error);
+    res.status(500).json({ message: error.message });
   }
 });
 
