@@ -1,36 +1,60 @@
 .profile-main {
     width: 100%;
     max-width: 1200px;
-    padding: 2rem;
-    margin: 2rem auto;
+    padding: var(--dl-space-space-threeunits);
+    margin: var(--dl-space-space-threeunits) auto;
+    font-family: Roboto;
   }
   
   .profile-header {
-    margin-bottom: 2rem;
+    margin-bottom: var(--dl-space-space-unit);
+    text-align: center;
+    position: relative;
+  }
+  
+  .profile-header::after {
+    content: '';
+    display: block;
+    width: 100px;
+    height: 4px;
+    background-color: var(--dl-color-theme-primary1);
+    margin: var(--dl-space-space-unit) auto;
+    border-radius: 2px;
   }
   
   .profile-heading {
-    color: #333;
-    font-size: 24px;
-    text-align: center;
+    color: var(--dl-color-theme-primary1);
+    font-size: 2.5rem;
     font-weight: 700;
-    margin-bottom: 20px;
+    margin-bottom: var(--dl-space-space-halfunit);
+  }
+  
+  .profile-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--dl-space-space-unit);
+    margin-top: var(--dl-space-space-unit);
+  }
+  
+  .profile-info-section {
+    width: 100%;
+    background: var(--dl-color-theme-accent1);
+    border-radius: 15px;
+    padding: var(--dl-space-space-unit);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border: 2px solid var(--dl-color-theme-primary1);
   }
   
   .profile-card {
-    background: #ffffff;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: var(--dl-space-space-unit);
   }
   
   .profile-info {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid #eee;
+    padding: var(--dl-space-space-unit) 0;
+    border-bottom: 1px solid var(--dl-color-gray-200);
   }
   
   .profile-info:last-child {
@@ -39,97 +63,308 @@
   
   .info-label {
     font-weight: 600;
-    color: #333;
+    color: var(--dl-color-theme-primary1);
+    font-size: 1.1rem;
+    position: relative;
+    padding-left: var(--dl-space-space-unit);
+  }
+  
+  .info-label::before {
+    content: '•';
+    color: var(--dl-color-theme-primary1);
+    position: absolute;
+    left: 0;
   }
   
   .info-value {
-    color: #666;
+    color: var(--dl-color-theme-neutral-dark);
+    font-size: 1.1rem;
   }
   
-  .admin-panel {
-    background: var(--dl-color-gray-100);
-    padding: 2rem;
+  .document-section {
+    width: 100%;
+    background: var(--dl-color-theme-accent1);
     border-radius: 15px;
-    margin-top: 2rem;
+    padding: var(--dl-space-space-unit);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border: 2px solid var(--dl-color-theme-primary1);
   }
   
-  .admin-heading {
-    color: var(--dl-color-gray-black);
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
+  .document-heading {
+    font-size: 1.8rem;
+    margin-bottom: var(--dl-space-space-unit);
+    color: var(--dl-color-theme-primary1);
+    font-weight: 700;
+    text-align: center;
+    position: relative;
+    display: inline-block;
   }
   
-  .admin-button {
-    background-color: var(--dl-color-gray-black);
-    color: var(--dl-color-gray-white);
-    padding: 0.75rem 1.5rem;
+  .document-heading::after {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 3px;
+    background-color: var(--dl-color-theme-primary1);
+    margin-top: var(--dl-space-space-halfunit);
+    border-radius: 2px;
+  }
+  
+  .documents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--dl-space-space-unit);
+  }
+  
+  .document-card {
+    background: var(--dl-color-theme-accent1);
+    border-radius: 10px;
+    padding: var(--dl-space-space-unit);
+    transition: all 0.2s ease;
+    border: 1px solid var(--dl-color-gray-200);
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.05);
+  }
+  
+  .document-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+    border-color: var(--dl-color-theme-primary1);
+  }
+  
+  .document-icon {
+    font-size: 2.5rem;
+    margin-bottom: var(--dl-space-space-halfunit);
+    text-align: center;
+    color: var(--dl-color-theme-primary1);
+  }
+  
+  .document-name {
+    color: var(--dl-color-theme-primary1);
+    font-size: 1.3rem;
+    margin-bottom: var(--dl-space-space-halfunit);
+    font-weight: 600;
+    text-align: center;
+    position: relative;
+    display: inline-block;
+  }
+  
+  .document-name::after {
+    content: '';
+    display: block;
+    width: 50%;
+    height: 2px;
+    background-color: var(--dl-color-theme-primary1);
+    margin: var(--dl-space-space-halfunit) auto;
+    border-radius: 2px;
+  }
+  
+  .document-status {
+    text-align: center;
+  }
+  
+  .document-status-text {
+    color: var(--dl-color-theme-neutral-dark);
+    margin-bottom: var(--dl-space-space-unit);
+  }
+  
+  .document-actions {
+    display: flex;
+    gap: var(--dl-space-space-unit);
+    justify-content: center;
+    margin-top: var(--dl-space-space-unit);
+  }
+  
+  .document-actions button {
+    background-color: var(--dl-color-theme-primary1);
+    color: var(--dl-color-theme-accent1);
+    padding: var(--dl-space-space-halfunit) var(--dl-space-space-unit);
     border: none;
-    border-radius: 5px;
+    border-radius: var(--dl-radius-radius-buttonradius);
     cursor: pointer;
     font-weight: 600;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
+    font-family: Roboto;
+    display: flex;
+    align-items: center;
+    gap: var(--dl-space-space-halfunit);
+    position: relative;
+    overflow: hidden;
   }
   
-  .admin-button:hover {
-    opacity: 0.9;
+  .document-actions button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      120deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+    transition: 0.5s;
+  }
+  
+  .document-actions button:hover {
+    background-color: var(--dl-color-theme-primary2);
     transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
   }
-
-  .document-upload-form {
-    background: var(--dl-color-gray-100);
-    padding: 2rem;
-    border-radius: 15px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    margin-top: 2rem;
+  
+  .document-actions button:hover::before {
+    left: 100%;
   }
-
+  
+  .document-upload {
+    display: flex;
+    flex-direction: column;
+    gap: var(--dl-space-space-unit);
+    align-items: center;
+  }
+  
   .file-upload {
     display: flex;
     align-items: center;
-    margin-bottom: 1rem;
+    gap: var(--dl-space-space-unit);
+    width: 100%;
   }
-
+  
+  .file-upload input[type="file"] {
+    display: none;
+  }
+  
   .file-upload label {
-    width: 150px;
-    font-weight: 600;
-    color: var(--dl-color-gray-700);
-  }
-
-  .file-upload input {
-    flex: 1;
-    padding: 0.5rem;
-    border: 1px solid var(--dl-color-gray-500);
-    border-radius: 5px;
-  }
-
-  .upload-button {
-    background-color: var(--dl-color-gray-black);
-    color: var(--dl-color-gray-white);
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 5px;
+    background-color: var(--dl-color-theme-primary1);
+    color: var(--dl-color-theme-accent1);
+    padding: var(--dl-space-space-halfunit) var(--dl-space-space-unit);
+    border-radius: var(--dl-radius-radius-buttonradius);
     cursor: pointer;
     font-weight: 600;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
   }
-
-  .upload-button:hover {
-    opacity: 0.9;
+  
+  .file-upload label::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      120deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+    transition: 0.5s;
+  }
+  
+  .file-upload label:hover {
+    background-color: var(--dl-color-theme-primary2);
     transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
   }
-
-  .profile-content {
+  
+  .file-upload label:hover::before {
+    left: 100%;
+  }
+  
+  .upload-button {
+    background-color: var(--dl-color-theme-primary1);
+    color: var(--dl-color-theme-accent1);
+    padding: var(--dl-space-space-unit) var(--dl-space-space-twounits);
+    border: none;
+    border-radius: var(--dl-radius-radius-buttonradius);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    font-family: Roboto;
     display: flex;
-    justify-content: space-between;
+    align-items: center;
+    gap: var(--dl-space-space-halfunit);
+    position: relative;
+    overflow: hidden;
   }
-
-  .document-section {
-    flex: 1;
-    margin-left: 2rem;
+  
+  .upload-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      120deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+    transition: 0.5s;
   }
-
-  .document-heading {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    color: var(--dl-color-gray-black);
+  
+  .upload-button:hover:not(:disabled) {
+    background-color: var(--dl-color-theme-primary2);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .upload-button:hover:not(:disabled)::before {
+    left: 100%;
+  }
+  
+  .upload-button:disabled {
+    background-color: var(--dl-color-gray-400);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  
+  .button-icon {
+    font-size: 1.2rem;
+  }
+  
+  @media(max-width: 991px) {
+    .profile-content {
+      flex-direction: column;
+    }
+    
+    .documents-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .profile-info-section {
+      width: 100%;
+    }
+  }
+  
+  @media(max-width: 767px) {
+    .profile-main {
+      padding: var(--dl-space-space-unit);
+    }
+    
+    .profile-heading {
+      font-size: 2rem;
+    }
+    
+    .document-actions {
+      flex-direction: column;
+    }
+    
+    .document-actions button {
+      width: 100%;
+      justify-content: center;
+    }
+    
+    .file-upload {
+      flex-direction: column;
+    }
+    
+    .file-upload label {
+      width: 100%;
+      text-align: center;
+    }
   }
