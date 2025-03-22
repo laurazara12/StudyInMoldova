@@ -14,16 +14,17 @@
   padding: 48px;
   max-width: 1200px;
   align-self: center;
-  margin-top: 40px;
+  margin: 0;
   align-items: center;
   flex-direction: column;
+  background-color: var(--dl-color-gray-white);
 }
 
 .profile-header {
   width: 100%;
   display: flex;
   align-items: center;
-  margin-bottom: 48px;
+  margin-bottom: 0;
   flex-direction: column;
 }
 
@@ -32,7 +33,7 @@
   font-size: 48px;
   text-align: center;
   font-weight: 600;
-  margin-bottom: 16px;
+  margin-bottom: 0;
 }
 
 .profile-content {
@@ -46,10 +47,9 @@
   width: 100%;
   display: flex;
   padding: 32px;
-  background: white;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  background: var(--dl-color-gray-white);
   border-radius: 12px;
-  margin-bottom: 32px;
+  margin-bottom: 0;
   flex-direction: column;
 }
 
@@ -66,7 +66,7 @@
 .info-label {
   width: 120px;
   font-weight: 600;
-  margin-right: 24px;
+  margin-right: 0;
   color: var(--dl-color-gray-700);
 }
 
@@ -79,8 +79,8 @@
   width: 100%;
   display: flex;
   padding: 32px;
-  background: var(--dl-color-gray-100);
-  margin-top: 24px;
+  background: var(--dl-color-gray-white);
+  margin-top: 0;
   border-radius: 12px;
   flex-direction: column;
 }
@@ -89,7 +89,7 @@
   color: var(--dl-color-gray-black);
   font-size: 24px;
   font-weight: 600;
-  margin-bottom: 24px;
+  margin-bottom: 0;
 }
 
 .admin-actions {
@@ -153,6 +153,6 @@
 
   .info-label {
     width: 100%;
-    margin-bottom: 8px;
+    margin-bottom: 0;
   }
 }

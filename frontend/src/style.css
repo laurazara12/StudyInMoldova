@@ -50,6 +50,7 @@
   border-width: 1px;
   border-radius: 4px;
   background-color: var(--dl-color-theme-neutral-light);
+  font-size: 0.85rem;
 }
  
 .textarea {
@@ -91,6 +92,7 @@
   border-width: 1px;
   border-radius: var(--dl-radius-radius-inputradius);
   background-color: var(--dl-color-theme-neutral-light);
+  font-size: 0.85rem;
 }
  
 .thq-input:focus {
@@ -116,6 +118,7 @@
   padding-bottom: var(--dl-space-space-halfunit);
   justify-content: center;
   background-color: var(--dl-color-theme-primary1);
+  font-size: 0.85rem;
 }
  
 .thq-button-filled:hover {
@@ -143,6 +146,7 @@
   padding-right: var(--dl-space-space-oneandhalfunits);
   padding-bottom: var(--dl-space-space-halfunit);
   justify-content: center;
+  font-size: 0.85rem;
 }
  
 .thq-button-outline:hover {
@@ -170,6 +174,7 @@
   padding-right: var(--dl-space-space-oneandhalfunits);
   padding-bottom: var(--dl-space-space-halfunit);
   justify-content: center;
+  font-size: 0.85rem;
 }
  
 .thq-button-flat:hover {
@@ -180,34 +185,34 @@
 }
  
 .thq-heading-1 {
-  font-size: 48px;
+  font-size: 2rem;
   font-family: STIX Two Text;
   font-weight: 700;
   line-height: 1.5;
 }
  
 .thq-heading-2 {
-  font-size: 35px;
+  font-size: 1.5rem;
   font-family: STIX Two Text;
   font-weight: 600;
   line-height: 1.5;
 }
  
 .thq-heading-3 {
-  font-size: 26px;
+  font-size: 1.3rem;
   font-family: STIX Two Text;
   font-weight: 600;
   line-height: 1.5;
 }
  
 .thq-body-large {
-  font-size: 18px;
+  font-size: 0.85rem;
   font-family: Noto Sans;
   line-height: 1.5;
 }
  
 .thq-body-small {
-  font-size: 16px;
+  font-size: 0.85rem;
   font-family: Noto Sans;
   line-height: 1.5;
 }
@@ -222,7 +227,7 @@
 .thq-section-padding {
   width: 100%;
   display: flex;
-  padding: var(--dl-space-space-fiveunits);
+  padding: var(--dl-space-space-threeunits) var(--dl-space-space-fiveunits);
   position: relative;
   align-items: center;
   flex-direction: column;
@@ -389,6 +394,7 @@
   background-size: 200% 100%;
   background-position: 100%;
   -webkit-text-fill-color: transparent;
+  font-size: 0.85rem;
 }
  
 .thq-link:hover {
@@ -537,12 +543,6 @@
   z-index: -1;
   transform: scaleX(1);
 }
- 
-
- 
-
- 
-
  
 .36px {
   font-size: 36px;
