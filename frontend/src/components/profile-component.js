@@ -92,7 +92,7 @@ const ProfileComponent = () => {
   if (loading) {
     return (
       <div className="profile-container">
-        <div className="profile-main">Se încarcă...</div>
+        <div className="profile-main">Loading...</div>
         <Footer />
       </div>
     );
@@ -105,6 +105,21 @@ const ProfileComponent = () => {
   const handleFileChange = (event, documentType) => {
     const file = event.target.files[0];
     if (file) {
+      // Verificăm dimensiunea fișierului (5MB = 5 * 1024 * 1024 bytes)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size exceeds 5MB limit. Please choose a smaller file.');
+        event.target.value = ''; // Resetăm input-ul
+        return;
+      }
+
+      // Verificăm tipul fișierului
+      const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+      if (!allowedTypes.includes(file.type)) {
+        alert('Invalid file type. Please upload only PDF, JPG, JPEG, or PNG files.');
+        event.target.value = ''; // Resetăm input-ul
+        return;
+      }
+
       setDocuments(prev => {
         const existingDoc = prev.find(doc => doc.document_type === documentType);
         if (existingDoc) {
@@ -123,14 +138,14 @@ const ProfileComponent = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        throw new Error('Nu sunteți autentificat');
+        throw new Error('You are not authenticated');
       }
 
       const formData = new FormData();
       formData.append('document', file);
       formData.append('documentType', documentType);
 
-      console.log('Încărcare document:', {
+      console.log('Uploading document:', {
         documentType,
         fileName: file?.name,
         fileSize: file?.size
@@ -143,21 +158,20 @@ const ProfileComponent = () => {
         }
       });
 
-      console.log('Răspuns upload:', response.data);
+      console.log('Upload response:', response.data);
 
       if (response.data.document) {
-        // Actualizăm lista de documente după upload
         await fetchDocuments(token);
-        alert('Document încărcat cu succes!');
+        alert('Document uploaded successfully!');
       } else {
-        throw new Error(response.data.message || 'Eroare la încărcarea documentului');
+        throw new Error(response.data.message || 'Error uploading document');
       }
     } catch (error) {
-      console.error('Eroare la încărcarea documentului:', error);
+      console.error('Error uploading document:', error);
       if (error.response?.status === 401) {
-        alert('Nu sunteți autentificat');
+        alert('You are not authenticated');
       } else {
-        alert(error.response?.data?.message || 'Eroare la încărcarea documentului');
+        alert(error.response?.data?.message || 'Error uploading document');
       }
     }
   };
@@ -166,7 +180,7 @@ const ProfileComponent = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        throw new Error('Nu sunteți autentificat');
+        throw new Error('You are not authenticated');
       }
 
       const response = await axios.delete(`http://localhost:4000/api/documents/${documentType}`, {
@@ -176,20 +190,19 @@ const ProfileComponent = () => {
       });
 
       if (response.data.success) {
-        // Actualizăm lista de documente după ștergere
         await fetchDocuments(token);
-        alert('Document șters cu succes!');
+        alert('Document deleted successfully!');
       } else {
-        throw new Error(response.data.message || 'Eroare la ștergerea documentului');
+        throw new Error(response.data.message || 'Error deleting document');
       }
     } catch (error) {
-      console.error('Eroare la ștergerea documentului:', error);
+      console.error('Error deleting document:', error);
       if (error.response?.status === 404) {
-        alert('Documentul nu a fost găsit');
+        alert('Document not found');
       } else if (error.response?.status === 401) {
-        alert('Nu sunteți autentificat');
+        alert('You are not authenticated');
       } else {
-        alert(error.response?.data?.message || 'Eroare la ștergerea documentului');
+        alert(error.response?.data?.message || 'Error deleting document');
       }
     }
   };
@@ -198,11 +211,11 @@ const ProfileComponent = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        setError('Nu sunteți autentificat');
+        setError('You are not authenticated');
         return;
       }
 
-      console.log('Încercare de descărcare pentru:', documentType);
+      console.log('Attempting to download:', documentType);
 
       const response = await axios({
         url: `http://localhost:4000/api/documents/download/${documentType}`,
@@ -213,34 +226,31 @@ const ProfileComponent = () => {
         }
       });
 
-      // Verificăm tipul conținutului
       const contentType = response.headers['content-type'];
-      const contentDisposition = response.headers['content-disposition'];
+      console.log('Content-Type:', contentType);
+
+      // Găsim documentul în lista de documente pentru a obține numele original
+      const doc = documents.find(doc => doc.document_type === documentType);
+      let fileName;
+
+      if (doc && doc.file_path) {
+        // Extragem numele original al fișierului din calea completă
+        fileName = doc.file_path.split('/').pop();
+      } else {
+        // Dacă nu avem numele original, folosim numele documentului cu extensia corectă
+        const fileExtension = contentType === 'image/png' ? '.png' : 
+                            contentType === 'image/jpeg' || contentType === 'image/jpg' ? '.jpg' : 
+                            contentType === 'application/pdf' ? '.pdf' : '.pdf';
+        fileName = `${documentType}${fileExtension}`;
+      }
+
+      console.log('Downloading file as:', fileName);
+
+      // Creăm blob-ul cu tipul MIME corect
+      const blob = new Blob([response.data], { type: contentType });
+      const url = window.URL.createObjectURL(blob);
       
-      // Extragem numele original al fișierului din header-ul Content-Disposition
-      let fileName = `${documentType}_document`;
-      if (contentDisposition) {
-        const matches = /filename="(.+)"/.exec(contentDisposition);
-        if (matches && matches[1]) {
-          fileName = matches[1];
-        }
-      }
-
-      // Dacă nu avem numele original, determinăm extensia din tipul de conținut
-      if (!fileName.includes('.')) {
-        let extension = '';
-        if (contentType.includes('jpeg') || contentType.includes('jpg')) {
-          extension = '.jpg';
-        } else if (contentType.includes('png')) {
-          extension = '.png';
-        } else if (contentType.includes('pdf')) {
-          extension = '.pdf';
-        }
-        fileName += extension;
-      }
-
-      // Creăm un URL pentru blob și descărcăm fișierul
-      const url = window.URL.createObjectURL(new Blob([response.data], { type: contentType }));
+      // Creăm link-ul de descărcare
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', fileName);
@@ -249,15 +259,15 @@ const ProfileComponent = () => {
       link.remove();
       window.URL.revokeObjectURL(url);
 
-      console.log('Descărcare reușită pentru:', documentType);
+      console.log('Download successful for:', documentType);
     } catch (error) {
-      console.error('Eroare la descărcarea documentului:', error);
+      console.error('Error downloading document:', error);
       if (error.response?.status === 404) {
-        alert('Documentul nu a fost găsit');
+        alert('Document not found');
       } else if (error.response?.status === 401) {
-        alert('Nu sunteți autentificat');
+        alert('You are not authenticated');
       } else {
-        alert(error.response?.data?.message || 'Eroare la descărcarea documentului');
+        alert(error.response?.data?.message || 'Error downloading document');
       }
     }
   };
@@ -273,15 +283,15 @@ const ProfileComponent = () => {
         <h4 className="document-name">{documentName}</h4>
         {document?.uploaded ? (
           <div className="document-status">
-            <p className="document-status-text">Document încărcat</p>
+            <p className="document-status-text">Document uploaded</p>
             <div className="document-actions">
               <button onClick={() => handleDelete(documentType)}>
                 <span className="button-icon">🗑️</span>
-                Șterge
+                Delete
               </button>
               <button onClick={() => handleDownload(documentType)}>
                 <span className="button-icon">⬇️</span>
-                Descarcă
+                Download
               </button>
             </div>
           </div>
@@ -294,7 +304,7 @@ const ProfileComponent = () => {
                 accept=".pdf,.jpg,.jpeg,.png"
                 id={`file-${documentType}`}
               />
-              <label htmlFor={`file-${documentType}`}>Alege fișier</label>
+              <label htmlFor={`file-${documentType}`}>Choose file</label>
             </div>
             {document?.file && (
               <button 
@@ -302,7 +312,7 @@ const ProfileComponent = () => {
                 onClick={() => handleUpload(documentType, document.file)}
                 disabled={document.uploading}
               >
-                {document.uploading ? 'Se încarcă...' : 'Upload'}
+                {document.uploading ? 'Uploading...' : 'Upload'}
               </button>
             )}
           </div>
@@ -315,13 +325,13 @@ const ProfileComponent = () => {
     <div className="profile-container">
       <div className="profile-main">
         <div className="profile-header">
-          <h1 className="profile-heading">Profil Utilizator</h1>
+          <h1 className="profile-heading">User Profile</h1>
         </div>
         <div className="profile-content">
           <div className="profile-info-section">
             <div className="profile-card">
               <div className="profile-info">
-                <span className="info-label">Nume:</span>
+                <span className="info-label">Name:</span>
                 <span className="info-value">{user.name}</span>
               </div>
               <div className="profile-info">
@@ -329,21 +339,22 @@ const ProfileComponent = () => {
                 <span className="info-value">{user.email}</span>
               </div>
               <div className="profile-info">
-                <span className="info-label">Rol:</span>
+                <span className="info-label">Role:</span>
                 <span className="info-value">{user.role}</span>
               </div>
             </div>
           </div>
           <div className="document-section">
-            <h2 className="document-heading">Documente</h2>
+            <h2 className="document-heading">Documents</h2>
+            <p className="document-info">Please upload the following documents in PDF, JPG, JPEG, or PNG format. Maximum file size: 5MB. You will receive an error message if you try to upload a larger file.</p>
             <div className="documents-grid">
-              {renderDocumentUpload('passport', 'Pașaport')}
-              {renderDocumentUpload('diploma', 'Diplomă')}
-              {renderDocumentUpload('transcript', 'Foaie Matricolă')}
-              {renderDocumentUpload('photo', 'Foto')}
-              {renderDocumentUpload('medical', 'Certificat Medical')}
-              {renderDocumentUpload('insurance', 'Asigurare Medicală')}
-              {renderDocumentUpload('other', 'Alte Documente')}
+              {renderDocumentUpload('passport', 'Passport')}
+              {renderDocumentUpload('diploma', 'Diploma')}
+              {renderDocumentUpload('transcript', 'Transcript')}
+              {renderDocumentUpload('photo', 'Photo')}
+              {renderDocumentUpload('medical', 'Medical Certificate')}
+              {renderDocumentUpload('insurance', 'Health Insurance')}
+              {renderDocumentUpload('other', 'Other Documents')}
             </div>
           </div>
         </div>
