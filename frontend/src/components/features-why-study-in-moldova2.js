@@ -12,7 +12,7 @@ const FeaturesWhyStudyInMoldova2 = (props) => {
         <div className="features-why-study-in-moldova2-tabs-menu">
           <div
             onClick={() => setActiveTab(0)}
-            className="features-why-study-in-moldova2-tab-horizontal1"
+            className={`features-why-study-in-moldova2-tab-horizontal1 ${activeTab === 0 ? 'active' : ''}`}
           >
             <div className="features-why-study-in-moldova2-divider-container1">
               <div className="features-why-study-in-moldova2-container3"></div>
@@ -41,7 +41,7 @@ const FeaturesWhyStudyInMoldova2 = (props) => {
           </div>
           <div
             onClick={() => setActiveTab(1)}
-            className="features-why-study-in-moldova2-tab-horizontal2"
+            className={`features-why-study-in-moldova2-tab-horizontal2 ${activeTab === 1 ? 'active' : ''}`}
           >
             <div className="features-why-study-in-moldova2-divider-container2">
               <div className="features-why-study-in-moldova2-container4"></div>
@@ -71,7 +71,7 @@ const FeaturesWhyStudyInMoldova2 = (props) => {
           </div>
           <div
             onClick={() => setActiveTab(2)}
-            className="features-why-study-in-moldova2-tab-horizontal3"
+            className={`features-why-study-in-moldova2-tab-horizontal3 ${activeTab === 2 ? 'active' : ''}`}
           >
             <div className="features-why-study-in-moldova2-divider-container3">
               <div className="features-why-study-in-moldova2-container5"></div>
@@ -102,7 +102,7 @@ const FeaturesWhyStudyInMoldova2 = (props) => {
           </div>
         </div>
         <div className="features-why-study-in-moldova2-image-container">
-          {props.activeTab === 0 && (
+          {activeTab === 0 && (
             <img
               alt={props.feature1ImgAlt}
               src="https://raw.githubusercontent.com/laurazara12/Study-in-Moldova/refs/heads/main/images/WhatsApp%20Image%202024-11-15%20at%2014.32.59%20(4).jpeg"
@@ -110,7 +110,7 @@ const FeaturesWhyStudyInMoldova2 = (props) => {
               className="features-why-study-in-moldova2-image1 thq-img-ratio-16-9"
             />
           )}
-          {props.activeTab === 1 && (
+          {activeTab === 1 && (
             <img
               alt={props.feature2ImgAlt}
               src="https://raw.githubusercontent.com/laurazara12/Study-in-Moldova/refs/heads/main/images/IMG_4923.jpg"
@@ -118,7 +118,7 @@ const FeaturesWhyStudyInMoldova2 = (props) => {
               className="features-why-study-in-moldova2-image2 thq-img-ratio-16-9"
             />
           )}
-          {props.activeTab === 2 && (
+          {activeTab === 2 && (
             <img
               alt={props.feature3ImgAlt}
               loading="eager"

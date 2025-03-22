@@ -48,7 +48,9 @@
   justify-content: center;
 }
  
-.features-why-study-in-moldova1-tab-horizontal1 {
+.features-why-study-in-moldova1-tab-horizontal1,
+.features-why-study-in-moldova1-tab-horizontal2,
+.features-why-study-in-moldova1-tab-horizontal3 {
   gap: var(--dl-space-space-twounits);
   cursor: pointer;
   display: flex;
@@ -56,6 +58,20 @@
   align-self: stretch;
   align-items: flex-start;
   flex-shrink: 0;
+  padding: var(--dl-space-space-unit);
+  transition: background-color 0.3s ease;
+}
+
+.features-why-study-in-moldova1-tab-horizontal1:hover,
+.features-why-study-in-moldova1-tab-horizontal2:hover,
+.features-why-study-in-moldova1-tab-horizontal3:hover {
+  background-color: var(--dl-color-theme-secondary2);
+}
+
+.features-why-study-in-moldova1-tab-horizontal1.active,
+.features-why-study-in-moldova1-tab-horizontal2.active,
+.features-why-study-in-moldova1-tab-horizontal3.active {
+  background-color: var(--dl-color-theme-secondary2);
 }
  
 .features-why-study-in-moldova1-divider-container1 {

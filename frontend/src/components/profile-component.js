@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Footer from './footer';
 import './profile-component.css';
 
 const initialDocuments = {
@@ -89,7 +90,12 @@ const ProfileComponent = () => {
   };
 
   if (loading) {
-    return <div className="profile-main">Se încarcă...</div>;
+    return (
+      <div className="profile-container">
+        <div className="profile-main">Se încarcă...</div>
+        <Footer />
+      </div>
+    );
   }
 
   if (!user) {
@@ -144,11 +150,15 @@ const ProfileComponent = () => {
         await fetchDocuments(token);
         alert('Document încărcat cu succes!');
       } else {
-        throw new Error('Eroare la încărcarea documentului');
+        throw new Error(response.data.message || 'Eroare la încărcarea documentului');
       }
     } catch (error) {
       console.error('Eroare la încărcarea documentului:', error);
-      alert(error.response?.data?.message || 'Eroare la încărcarea documentului');
+      if (error.response?.status === 401) {
+        alert('Nu sunteți autentificat');
+      } else {
+        alert(error.response?.data?.message || 'Eroare la încărcarea documentului');
+      }
     }
   };
 
@@ -170,11 +180,17 @@ const ProfileComponent = () => {
         await fetchDocuments(token);
         alert('Document șters cu succes!');
       } else {
-        throw new Error('Eroare la ștergerea documentului');
+        throw new Error(response.data.message || 'Eroare la ștergerea documentului');
       }
     } catch (error) {
       console.error('Eroare la ștergerea documentului:', error);
-      alert(error.response?.data?.message || 'Eroare la ștergerea documentului');
+      if (error.response?.status === 404) {
+        alert('Documentul nu a fost găsit');
+      } else if (error.response?.status === 401) {
+        alert('Nu sunteți autentificat');
+      } else {
+        alert(error.response?.data?.message || 'Eroare la ștergerea documentului');
+      }
     }
   };
 
@@ -188,13 +204,6 @@ const ProfileComponent = () => {
 
       console.log('Încercare de descărcare pentru:', documentType);
 
-      // Găsim documentul în lista locală
-      const document = documents.find(doc => doc.document_type === documentType);
-      if (!document) {
-        setError('Documentul nu a fost găsit');
-        return;
-      }
-
       const response = await axios({
         url: `http://localhost:4000/api/documents/download/${documentType}`,
         method: 'GET',
@@ -206,26 +215,35 @@ const ProfileComponent = () => {
 
       // Verificăm tipul conținutului
       const contentType = response.headers['content-type'];
-      if (!contentType || !contentType.includes('application/')) {
-        // Dacă nu este un fișier, încercăm să citim mesajul de eroare
-        const reader = new FileReader();
-        reader.onload = () => {
-          try {
-            const errorData = JSON.parse(reader.result);
-            setError(errorData.message || 'Eroare la descărcarea documentului');
-          } catch (e) {
-            setError('Eroare la descărcarea documentului');
-          }
-        };
-        reader.readAsText(response.data);
-        return;
+      const contentDisposition = response.headers['content-disposition'];
+      
+      // Extragem numele original al fișierului din header-ul Content-Disposition
+      let fileName = `${documentType}_document`;
+      if (contentDisposition) {
+        const matches = /filename="(.+)"/.exec(contentDisposition);
+        if (matches && matches[1]) {
+          fileName = matches[1];
+        }
+      }
+
+      // Dacă nu avem numele original, determinăm extensia din tipul de conținut
+      if (!fileName.includes('.')) {
+        let extension = '';
+        if (contentType.includes('jpeg') || contentType.includes('jpg')) {
+          extension = '.jpg';
+        } else if (contentType.includes('png')) {
+          extension = '.png';
+        } else if (contentType.includes('pdf')) {
+          extension = '.pdf';
+        }
+        fileName += extension;
       }
 
       // Creăm un URL pentru blob și descărcăm fișierul
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: contentType }));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `${documentType}_document.pdf`);
+      link.setAttribute('download', fileName);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -235,11 +253,11 @@ const ProfileComponent = () => {
     } catch (error) {
       console.error('Eroare la descărcarea documentului:', error);
       if (error.response?.status === 404) {
-        setError('Documentul nu a fost găsit');
+        alert('Documentul nu a fost găsit');
       } else if (error.response?.status === 401) {
-        setError('Nu sunteți autentificat');
+        alert('Nu sunteți autentificat');
       } else {
-        setError(error.response?.data?.message || 'Eroare la descărcarea documentului');
+        alert(error.response?.data?.message || 'Eroare la descărcarea documentului');
       }
     }
   };
@@ -253,7 +271,7 @@ const ProfileComponent = () => {
           📄
         </div>
         <h4 className="document-name">{documentName}</h4>
-        {document ? (
+        {document?.uploaded ? (
           <div className="document-status">
             <p className="document-status-text">Document încărcat</p>
             <div className="document-actions">
@@ -278,13 +296,15 @@ const ProfileComponent = () => {
               />
               <label htmlFor={`file-${documentType}`}>Alege fișier</label>
             </div>
-            <button 
-              className="upload-button"
-              onClick={() => document?.file && handleUpload(documentType, document.file)}
-              disabled={!document?.file || document.uploading}
-            >
-              {document?.uploading ? 'Se încarcă...' : 'Încarcă document'}
-            </button>
+            {document?.file && (
+              <button 
+                className="upload-button"
+                onClick={() => handleUpload(documentType, document.file)}
+                disabled={document.uploading}
+              >
+                {document.uploading ? 'Se încarcă...' : 'Upload'}
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -292,42 +312,43 @@ const ProfileComponent = () => {
   };
 
   return (
-    <div className="profile-main">
-      <div className="profile-header">
-        <h1 className="profile-heading">Profil Utilizator</h1>
-      </div>
-
-      <div className="profile-content">
-        <div className="profile-info-section">
-          <div className="profile-card">
-            <div className="profile-info">
-              <span className="info-label">Nume:</span>
-              <span className="info-value">{user?.name || 'Nume nespecificat'}</span>
+    <div className="profile-container">
+      <div className="profile-main">
+        <div className="profile-header">
+          <h1 className="profile-heading">Profil Utilizator</h1>
+        </div>
+        <div className="profile-content">
+          <div className="profile-info-section">
+            <div className="profile-card">
+              <div className="profile-info">
+                <span className="info-label">Nume:</span>
+                <span className="info-value">{user.name}</span>
+              </div>
+              <div className="profile-info">
+                <span className="info-label">Email:</span>
+                <span className="info-value">{user.email}</span>
+              </div>
+              <div className="profile-info">
+                <span className="info-label">Rol:</span>
+                <span className="info-value">{user.role}</span>
+              </div>
             </div>
-            <div className="profile-info">
-              <span className="info-label">Email:</span>
-              <span className="info-value">{user?.email || 'Email nespecificat'}</span>
-            </div>
-            <div className="profile-info">
-              <span className="info-label">Rol:</span>
-              <span className="info-value">{user?.role === 'admin' ? 'Administrator' : 'Utilizator'}</span>
+          </div>
+          <div className="document-section">
+            <h2 className="document-heading">Documente</h2>
+            <div className="documents-grid">
+              {renderDocumentUpload('passport', 'Pașaport')}
+              {renderDocumentUpload('diploma', 'Diplomă')}
+              {renderDocumentUpload('transcript', 'Foaie Matricolă')}
+              {renderDocumentUpload('photo', 'Foto')}
+              {renderDocumentUpload('medical', 'Certificat Medical')}
+              {renderDocumentUpload('insurance', 'Asigurare Medicală')}
+              {renderDocumentUpload('other', 'Alte Documente')}
             </div>
           </div>
         </div>
-
-        <div className="document-section">
-          <h2 className="document-heading">Documente</h2>
-          <div className="documents-grid">
-            {renderDocumentUpload('passport', 'Pașaport')}
-            {renderDocumentUpload('diploma', 'Diplomă')}
-            {renderDocumentUpload('transcript', 'Foaie Matricolă')}
-            {renderDocumentUpload('photo', 'Foto')}
-            {renderDocumentUpload('medical', 'Certificat Medical')}
-            {renderDocumentUpload('insurance', 'Asigurare Medicală')}
-            {renderDocumentUpload('other', 'Alte Documente')}
-          </div>
-        </div>
       </div>
+      <Footer />
     </div>
   );
 };

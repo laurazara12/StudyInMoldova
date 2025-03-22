@@ -35,7 +35,7 @@ const FeaturesWhyStudyInMoldova1 = (props) => {
         <div className="features-why-study-in-moldova1-tabs-menu">
           <div
             onClick={() => setActiveTab(0)}
-            className="features-why-study-in-moldova1-tab-horizontal1"
+            className={`features-why-study-in-moldova1-tab-horizontal1 ${activeTab === 0 ? 'active' : ''}`}
           >
             <div className="features-why-study-in-moldova1-divider-container1">
               {activeTab === 0 && (
@@ -67,7 +67,7 @@ const FeaturesWhyStudyInMoldova1 = (props) => {
           </div>
           <div
             onClick={() => setActiveTab(1)}
-            className="features-why-study-in-moldova1-tab-horizontal2"
+            className={`features-why-study-in-moldova1-tab-horizontal2 ${activeTab === 1 ? 'active' : ''}`}
           >
             <div className="features-why-study-in-moldova1-divider-container2">
               {activeTab === 1 && (
@@ -99,7 +99,7 @@ const FeaturesWhyStudyInMoldova1 = (props) => {
           </div>
           <div
             onClick={() => setActiveTab(2)}
-            className="features-why-study-in-moldova1-tab-horizontal3"
+            className={`features-why-study-in-moldova1-tab-horizontal3 ${activeTab === 2 ? 'active' : ''}`}
           >
             <div className="features-why-study-in-moldova1-divider-container3">
               {activeTab === 2 && (
@@ -120,7 +120,7 @@ const FeaturesWhyStudyInMoldova1 = (props) => {
                 {props.feature2Description1 ?? (
                   <Fragment>
                     <span className="features-why-study-in-moldova1-text3">
-                      Moldova’s students show steady improvement in global
+                      Moldova's students show steady improvement in global
                       assessments, reflecting quality-driven reforms.
                     </span>
                   </Fragment>
