@@ -1,4 +1,13 @@
+.profile-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: 100%;
+    background-color: var(--dl-color-theme-neutral-light);
+}
+
 .profile-main {
+    flex: 1;
     width: 100%;
     max-width: 1000px;
     padding: var(--dl-space-space-unit);
@@ -68,7 +77,7 @@
 .info-label {
     font-weight: 600;
     color: var(--dl-color-theme-primary1);
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     position: relative;
     padding-left: var(--dl-space-space-halfunit);
     font-family: "Inter";
@@ -76,97 +85,74 @@
   
 .info-value {
     color: var(--dl-color-theme-neutral-dark);
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     font-family: "Noto Sans";
     line-height: 1.4;
 }
   
 .document-section {
     width: 100%;
-    background: var(--dl-color-theme-secondary1);
-    border-radius: var(--dl-radius-radius-cardradius);
-    padding: var(--dl-space-space-unit);
     display: flex;
     flex-direction: column;
+    gap: var(--dl-space-space-unit);
     align-items: center;
-    gap: var(--dl-space-space-halfunit);
 }
   
 .document-heading {
-    font-size: 1.3rem;
-    margin-bottom: var(--dl-space-space-halfunit);
-    color: var(--dl-color-theme-primary1);
-    font-weight: 700;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
     text-align: center;
+    color: var(--dl-color-theme-primary1);
+    font-family: "STIX Two Text";
     position: relative;
     display: inline-block;
-    font-family: "STIX Two Text";
 }
   
 .document-heading::after {
     content: '';
     display: block;
-    width: 100%;
+    width: 60px;
     height: 2px;
     background-color: var(--dl-color-theme-primary1);
-    margin-top: var(--dl-space-space-halfunit);
+    margin: var(--dl-space-space-halfunit) auto;
     border-radius: var(--dl-radius-radius-radius2);
 }
   
 .documents-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--dl-space-space-halfunit);
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: var(--dl-space-space-unit);
     width: 100%;
-    max-width: 800px;
-    margin: 0;
+    justify-items: center;
 }
   
 .document-card {
-    background: var(--dl-color-theme-secondary2);
-    border-radius: var(--dl-radius-radius-cardradius);
-    padding: var(--dl-space-space-unit);
-    position: relative;
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap: var(--dl-space-space-halfunit);
+    padding: var(--dl-space-space-unit);
+    background-color: var(--dl-color-theme-secondary2);
+    border-radius: var(--dl-radius-radius-buttonradius);
+    height: fit-content;
     width: 100%;
-    box-sizing: border-box;
-    transition: all 0.2s ease;
-}
-  
-.document-card:hover {
-    background: var(--dl-color-theme-secondary2);
-    transform: none;
+    max-width: 300px;
+    align-items: center;
+    text-align: center;
 }
   
 .document-icon {
     font-size: 1.5rem;
-    margin-bottom: 0;
+    margin: 0;
     text-align: center;
-    color: var(--dl-color-theme-primary1);
 }
   
 .document-name {
-    color: var(--dl-color-theme-primary1);
-    font-size: 0.9rem;
-    margin-bottom: 0;
-    font-weight: 600;
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0;
     text-align: center;
-    position: relative;
-    display: inline-block;
-    font-family: "Inter";
-}
-  
-.document-name::after {
-    content: '';
-    display: block;
-    width: 30%;
-    height: 1px;
-    background-color: var(--dl-color-theme-primary1);
-    margin: var(--dl-space-space-halfunit) auto;
-    border-radius: var(--dl-radius-radius-radius2);
+    width: 100%;
 }
   
 .document-status {
@@ -176,10 +162,8 @@
   
 .document-status-text {
     color: var(--dl-color-theme-neutral-dark);
-    margin-bottom: var(--dl-space-space-halfunit);
-    font-family: "Noto Sans";
-    line-height: 1.4;
-    font-size: 0.9rem;
+    text-align: center;
+    margin: 0;
 }
   
 .document-actions {
@@ -187,9 +171,7 @@
     flex-direction: column;
     gap: var(--dl-space-space-halfunit);
     justify-content: center;
-    margin-top: 0;
     width: 100%;
-    box-sizing: border-box;
 }
   
 .document-actions button {
@@ -206,7 +188,7 @@
     align-items: center;
     justify-content: center;
     gap: var(--dl-space-space-halfunit);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     width: 100%;
     text-align: center;
     box-sizing: border-box;
@@ -234,23 +216,13 @@
     display: flex;
     flex-direction: column;
     gap: var(--dl-space-space-halfunit);
-    align-items: center;
-    background: var(--dl-color-theme-secondary2);
     width: 100%;
-    border-radius: var(--dl-radius-radius-buttonradius);
-    overflow: hidden;
-    padding: var(--dl-space-space-unit);
+    align-items: center;
 }
   
 .file-upload {
-    display: flex;
-    align-items: center;
-    gap: var(--dl-space-space-halfunit);
     width: 100%;
-    background: var(--dl-color-theme-secondary2);
-    flex-direction: column;
-    border-radius: var(--dl-radius-radius-buttonradius);
-    overflow: hidden;
+    text-align: center;
 }
   
 .file-upload input[type="file"] {
@@ -258,36 +230,24 @@
 }
   
 .file-upload label {
+    width: 100%;
+    padding: var(--dl-space-space-halfunit) var(--dl-space-space-unit);
     background-color: var(--dl-color-theme-secondary2);
     color: var(--dl-color-theme-primary1);
-    padding: var(--dl-space-space-halfunit) var(--dl-space-space-unit);
-    border-radius: var(--dl-radius-radius-buttonradius);
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.2s ease;
-    position: relative;
-    width: 100%;
     text-align: center;
-    font-size: 0.85rem;
+    cursor: pointer;
+    border-radius: var(--dl-radius-radius-buttonradius);
+    transition: background-color 0.3s ease;
     display: block;
-    border: 1px solid var(--dl-color-theme-primary1);
-    font-family: "Inter";
-    box-sizing: border-box;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    height: 35px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
   
 .file-upload label:hover {
     background-color: var(--dl-color-theme-secondary1);
-    transform: none;
 }
   
 .upload-button {
+    width: 100%;
+    text-align: center;
     background-color: var(--dl-color-theme-primary1);
     color: var(--dl-color-theme-accent1);
     padding: var(--dl-space-space-halfunit) var(--dl-space-space-unit);
@@ -301,8 +261,7 @@
     align-items: center;
     justify-content: center;
     gap: var(--dl-space-space-halfunit);
-    width: 100%;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     box-sizing: border-box;
     white-space: nowrap;
     overflow: hidden;
