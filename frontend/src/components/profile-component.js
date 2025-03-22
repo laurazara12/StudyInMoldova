@@ -7,7 +7,10 @@ const initialDocuments = {
   diploma: { uploading: false, progress: 0, uploaded: false, file: null },
   transcript: { uploading: false, progress: 0, uploaded: false, file: null },
   passport: { uploading: false, progress: 0, uploaded: false, file: null },
-  photo: { uploading: false, progress: 0, uploaded: false, file: null }
+  photo: { uploading: false, progress: 0, uploaded: false, file: null },
+  medical: { uploading: false, progress: 0, uploaded: false, file: null },
+  insurance: { uploading: false, progress: 0, uploaded: false, file: null },
+  other: { uploading: false, progress: 0, uploaded: false, file: null }
 };
 
 const ProfileComponent = () => {
@@ -251,25 +254,36 @@ const ProfileComponent = () => {
         </div>
         <h4 className="document-name">{documentName}</h4>
         {document ? (
-          <div>
-            <p>Document încărcat</p>
+          <div className="document-status">
+            <p className="document-status-text">Document încărcat</p>
             <div className="document-actions">
-              <button onClick={() => handleDelete(documentType)}>Șterge</button>
-              <button onClick={() => handleDownload(documentType)}>Descarcă</button>
+              <button onClick={() => handleDelete(documentType)}>
+                <span className="button-icon">🗑️</span>
+                Șterge
+              </button>
+              <button onClick={() => handleDownload(documentType)}>
+                <span className="button-icon">⬇️</span>
+                Descarcă
+              </button>
             </div>
           </div>
         ) : (
-          <div>
-            <input
-              type="file"
-              onChange={(e) => handleFileChange(e, documentType)}
-              accept=".pdf,.jpg,.jpeg,.png"
-            />
+          <div className="document-upload">
+            <div className="file-upload">
+              <input
+                type="file"
+                onChange={(e) => handleFileChange(e, documentType)}
+                accept=".pdf,.jpg,.jpeg,.png"
+                id={`file-${documentType}`}
+              />
+              <label htmlFor={`file-${documentType}`}>Alege fișier</label>
+            </div>
             <button 
+              className="upload-button"
               onClick={() => document?.file && handleUpload(documentType, document.file)}
               disabled={!document?.file || document.uploading}
             >
-              {document?.uploading ? 'Se încarcă...' : 'Încarcă'}
+              {document?.uploading ? 'Se încarcă...' : 'Încarcă document'}
             </button>
           </div>
         )}
@@ -280,47 +294,37 @@ const ProfileComponent = () => {
   return (
     <div className="profile-main">
       <div className="profile-header">
-        <h1 className="profile-heading">Profilul meu</h1>
+        <h1 className="profile-heading">Profil Utilizator</h1>
       </div>
+
       <div className="profile-content">
-        {user && (
+        <div className="profile-info-section">
           <div className="profile-card">
             <div className="profile-info">
               <span className="info-label">Nume:</span>
-              <span className="info-value">{user.name || 'Nespecificat'}</span>
+              <span className="info-value">{user?.name || 'Nume nespecificat'}</span>
             </div>
             <div className="profile-info">
               <span className="info-label">Email:</span>
-              <span className="info-value">{user.email || 'Nespecificat'}</span>
+              <span className="info-value">{user?.email || 'Email nespecificat'}</span>
             </div>
             <div className="profile-info">
               <span className="info-label">Rol:</span>
-              <span className="info-value">
-                {user.role === 'admin' ? 'Administrator' : 'Student'}
-              </span>
+              <span className="info-value">{user?.role === 'admin' ? 'Administrator' : 'Utilizator'}</span>
             </div>
           </div>
-        )}
-        
-        {user?.role === 'admin' && (
-          <div className="admin-panel">
-            <h2 className="admin-heading">Panou Administrator</h2>
-            <button
-              className="admin-button"
-              onClick={() => navigate('/admin/users')}
-            >
-              Gestionare Utilizatori
-            </button>
-          </div>
-        )}
+        </div>
 
         <div className="document-section">
-          <h2 className="document-heading">Încărcare Documente</h2>
-          <div className="document-upload-form">
+          <h2 className="document-heading">Documente</h2>
+          <div className="documents-grid">
+            {renderDocumentUpload('passport', 'Pașaport')}
             {renderDocumentUpload('diploma', 'Diplomă')}
             {renderDocumentUpload('transcript', 'Foaie Matricolă')}
-            {renderDocumentUpload('passport', 'Pașaport')}
-            {renderDocumentUpload('photo', 'Fotografie')}
+            {renderDocumentUpload('photo', 'Foto')}
+            {renderDocumentUpload('medical', 'Certificat Medical')}
+            {renderDocumentUpload('insurance', 'Asigurare Medicală')}
+            {renderDocumentUpload('other', 'Alte Documente')}
           </div>
         </div>
       </div>
