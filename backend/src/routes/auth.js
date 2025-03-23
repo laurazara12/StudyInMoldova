@@ -142,12 +142,78 @@ router.post('/login', async (req, res) => {
 
 // Lista utilizatorilor (doar pentru admin)
 router.get('/users', authMiddleware, adminMiddleware, (req, res) => {
-  db.all('SELECT id, email, name, role, created_at FROM users', (err, users) => {
-    if (err) {
-      return res.status(500).json({ message: err.message });
+  try {
+    console.log('Începe preluarea utilizatorilor');
+    console.log('Utilizator curent:', req.user);
+
+    // Verificăm dacă utilizatorul este admin
+    if (!req.user || req.user.role !== 'admin') {
+      console.log('Acces interzis - utilizatorul nu este admin:', req.user);
+      return res.status(403).json({ 
+        message: 'Acces interzis. Doar administratorii pot accesa această pagină.' 
+      });
     }
-    res.json(users);
-  });
+
+    // Verificăm conexiunea la baza de date
+    db.get('SELECT 1', (err) => {
+      if (err) {
+        console.error('Eroare la conectarea la baza de date:', err);
+        return res.status(500).json({ 
+          message: 'Eroare la conectarea la baza de date',
+          error: err.message 
+        });
+      }
+
+      // Verificăm dacă tabela users există
+      db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='users'", (err, table) => {
+        if (err) {
+          console.error('Eroare la verificarea tabelei users:', err);
+          return res.status(500).json({ 
+            message: 'Eroare la verificarea structurii bazei de date',
+            error: err.message 
+          });
+        }
+
+        if (!table) {
+          console.error('Tabela users nu există');
+          return res.status(500).json({ 
+            message: 'Structura bazei de date invalidă',
+            error: 'Tabela users nu există'
+          });
+        }
+
+        // Query simplificat
+        const query = 'SELECT id, email, name, role FROM users';
+        console.log('Executare query:', query);
+
+        // Executăm query-ul
+        db.all(query, (err, users) => {
+          if (err) {
+            console.error('Eroare la preluarea utilizatorilor:', err);
+            return res.status(500).json({ 
+              message: 'Eroare la preluarea utilizatorilor',
+              error: err.message 
+            });
+          }
+
+          // Verificăm dacă avem date
+          if (!users) {
+            console.log('Nu s-au găsit utilizatori');
+            return res.json([]);
+          }
+
+          console.log('Utilizatori găsiți:', users.length);
+          res.json(users);
+        });
+      });
+    });
+  } catch (error) {
+    console.error('Eroare la preluarea utilizatorilor:', error);
+    res.status(500).json({ 
+      message: 'Eroare internă server',
+      error: error.message 
+    });
+  }
 });
 
 // Endpoint temporar pentru verificarea utilizatorilor (doar pentru dezvoltare)
@@ -198,6 +264,11 @@ router.get('/me', authMiddleware, (req, res) => {
       message: 'Eroare la preluarea datelor utilizatorului'
     });
   }
+});
+
+// Health check endpoint
+router.get('/health', (req, res) => {
+  res.json({ status: 'ok', message: 'Server is running' });
 });
 
 module.exports = router;

@@ -60,8 +60,8 @@ const Navbar = (props) => {
                 </button>
                 {user.role === 'admin' && (
                   <button className="navbar-login1 button">
-                    <Link to="/admin" className="navbar-navlink1">
-                      <span className="navbar-text37">Admin</span>
+                    <Link to="/dashboard" className="navbar-navlink1">
+                      <span className="navbar-text37">Dashboard</span>
                     </Link>
                   </button>
                 )}

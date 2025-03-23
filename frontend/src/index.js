@@ -20,6 +20,7 @@ import LivingInMoldova from './views/living-in-moldova'
 import Error404Page from './views/error404-page'
 import NotFound from './views/not-found'
 import Profile from './views/profile'
+import Dashboard from './views/admin/dashboard'
 import PrivateRoute from './components/PrivateRoute'
 
 const App = () => {
@@ -36,6 +37,8 @@ const App = () => {
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/living-in-moldova" element={<LivingInMoldova />} />
         <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+        <Route path="/admin" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/dashboard" element={<PrivateRoute requiredRole="admin"><Dashboard /></PrivateRoute>} />
         <Route path="/error404-page" element={<Error404Page />} />
         <Route path="*" element={<NotFound />} />
         <Route path="*" element={<Navigate to="/" replace />} />
