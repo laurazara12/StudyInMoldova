@@ -13,7 +13,7 @@ import NotFound from './views/not-found';
 import USMUniversityIndividualPage from './views/universities/usm-university-individual-page';
 import UTMUniversityIndividualPage from './views/universities/utm-university-individual-page';
 import PrivateRoute from './components/PrivateRoute';
-import ComponentName from './views/component-name';
+import Dashboard from './views/admin/dashboard';
 
 const App = () => {
   return (
@@ -28,6 +28,7 @@ const App = () => {
         <Route path="/universities/usm-university-individual-page" element={<USMUniversityIndividualPage />} />
         <Route path="/universities/utm-university-individual-page" element={<UTMUniversityIndividualPage />} />
         <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+        <Route path="/dashboard" element={<PrivateRoute requiredRole="admin"><Dashboard /></PrivateRoute>} />
         <Route path="/example" element={<ExampleComponent />} />
         <Route path="/old-path" element={<Navigate to="/new-path" />} />
         <Route path="*" element={<NotFound />} />

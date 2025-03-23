@@ -33,8 +33,9 @@ const storage = multer.diskStorage({
       const userData = req.user || {};
       const userName = userData.name || 'unknown';
       
-      // Creăm numele fișierului în formatul: tip_numeuser.extensie
-      const fileExtension = path.extname(file.originalname);
+      // Păstrăm numele și extensia originală a fișierului
+      const originalName = file.originalname;
+      const fileExtension = path.extname(originalName);
       const fileName = `${documentType}_${userName}${fileExtension}`;
       
       console.log('Numele fișierului generat:', fileName);
@@ -50,6 +51,10 @@ const upload = multer({
   storage: storage,
   limits: {
     fileSize: 5 * 1024 * 1024 // limită de 5MB
+  },
+  fileFilter: function (req, file, cb) {
+    // Acceptăm toate tipurile de fișiere
+    cb(null, true);
   }
 });
 
@@ -246,26 +251,6 @@ router.get('/download/:documentType', authMiddleware, async (req, res) => {
       });
     }
 
-    // Verificăm dacă tabelul documents există
-    const tableExists = await new Promise((resolve, reject) => {
-      db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='documents'", (err, row) => {
-        if (err) {
-          console.error('Eroare la verificarea tabelului documents:', err);
-          reject(err);
-        } else {
-          resolve(!!row);
-        }
-      });
-    });
-
-    if (!tableExists) {
-      console.error('Tabelul documents nu există');
-      return res.status(500).json({ 
-        success: false, 
-        message: 'Tabelul documents nu există' 
-      });
-    }
-
     // Găsim documentul în baza de date
     const document = await new Promise((resolve, reject) => {
       db.get(
@@ -314,8 +299,35 @@ router.get('/download/:documentType', authMiddleware, async (req, res) => {
     }
 
     // Setăm header-ele pentru descărcare
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename=${path.basename(document.file_path)}`);
+    const fileExtension = path.extname(document.file_path);
+    let contentType = 'application/octet-stream';
+    
+    // Determinăm content type-ul corect bazat pe extensia fișierului
+    switch (fileExtension.toLowerCase()) {
+      case '.pdf':
+        contentType = 'application/pdf';
+        break;
+      case '.jpg':
+      case '.jpeg':
+        contentType = 'image/jpeg';
+        break;
+      case '.png':
+        contentType = 'image/png';
+        break;
+      case '.doc':
+      case '.docx':
+        contentType = 'application/msword';
+        break;
+      case '.xls':
+      case '.xlsx':
+        contentType = 'application/vnd.ms-excel';
+        break;
+      default:
+        contentType = 'application/octet-stream';
+    }
+    
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', `attachment; filename="${path.basename(document.file_path)}"`);
 
     // Trimitem fișierul
     fs.createReadStream(document.file_path)

@@ -1,16 +1,14 @@
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
-
 import PropTypes from 'prop-types'
-
 import './sign-in.css'
 
 const SignIn = (props) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -20,49 +18,55 @@ const SignIn = (props) => {
 
   const handleSignIn = async (e) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
+
     try {
-      console.log('Încercare de autentificare pentru:', email);
-      console.log('Parola prezentă:', !!password);
+      if (!email || !password) {
+        setError('Te rugăm să completezi toate câmpurile');
+        setLoading(false);
+        return;
+      }
 
       const response = await axios.post('http://localhost:4000/api/auth/login', {
         email,
         password
       });
 
-      console.log('Răspuns de la server:', response.data);
-
-      if (response.data.token) {
-        // Salvăm token-ul
+      if (response.data.success && response.data.token) {
         localStorage.setItem('token', response.data.token);
-        
-        // Salvăm datele utilizatorului
-        const userData = {
-          id: response.data.user.id,
-          name: response.data.user.name,
-          email: response.data.user.email,
-          role: response.data.user.role
-        };
-        localStorage.setItem('user', JSON.stringify(userData));
-        
-        console.log('Date salvate în localStorage:', {
-          token: 'prezent',
-          user: userData
-        });
+        localStorage.setItem('user', JSON.stringify(response.data.user));
 
-        // Navigăm către pagina de profil
-        navigate('/profile');
+        // Redirecționare bazată pe rol
+        if (response.data.user.role === 'admin') {
+          navigate('/dashboard');
+        } else {
+          navigate('/profile');
+        }
       } else {
-        alert('Eroare la autentificare: Token-ul lipsește din răspuns');
+        setError('Eroare la autentificare: răspuns invalid de la server');
       }
     } catch (error) {
       console.error('Eroare la autentificare:', error);
       if (error.response) {
-        alert(error.response.data.message || 'Eroare la autentificare');
+        setError(error.response.data.message || 'Email sau parolă incorectă');
+      } else if (error.request) {
+        setError('Nu s-a putut conecta la server. Verifică conexiunea la internet.');
       } else {
-        alert('Eroare la conectarea cu serverul');
+        setError('A apărut o eroare neașteptată. Te rugăm să încerci din nou.');
       }
+    } finally {
+      setLoading(false);
     }
   };
+
+  // Adăugăm useEffect pentru cleanup
+  useEffect(() => {
+    return () => {
+      setError('');
+      setLoading(false);
+    };
+  }, []);
 
   return (
     <div className={`sign-in-container1 ${props.rootClassName} `}>
@@ -91,6 +95,11 @@ const SignIn = (props) => {
               )}
             </h2>
             <form className="sign-in-form2" onSubmit={handleSignIn}>
+              {error && (
+                <div className="error-message">
+                  {error}
+                </div>
+              )}
               <div className="sign-in-email">
                 <label
                   htmlFor="thq-sign-in-6-email"
@@ -143,13 +152,17 @@ const SignIn = (props) => {
                   Forgot password
                 </a>
               </div>
-              <button type="submit" className="sign-in-button1 thq-button-filled">
+              <button 
+                type="submit" 
+                className="sign-in-button1 thq-button-filled"
+                disabled={loading}
+              >
                 <span className="sign-in-text15 thq-body-small">
-                  {props.action1 ?? (
+                  {loading ? "Se încarcă..." : (props.action1 ?? (
                     <Fragment>
                       <span className="sign-in-text19">Sign In</span>
                     </Fragment>
-                  )}
+                  ))}
                 </span>
               </button>
             </form>

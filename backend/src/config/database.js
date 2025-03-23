@@ -18,18 +18,47 @@ const db = new sqlite3.Database(path.join(__dirname, 'database.sqlite'), (err) =
     console.log('Conectat cu succes la baza de date SQLite');
     
     // Creăm tabelul users dacă nu există
-    db.run(`CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      email TEXT UNIQUE NOT NULL,
-      password TEXT NOT NULL,
-      role TEXT DEFAULT 'user'
-    )`, (err) => {
+    db.run(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        name TEXT NOT NULL,
+        role TEXT DEFAULT 'user',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `, (err) => {
       if (err) {
-        console.error('Eroare la crearea tabelului users:', err);
-      } else {
-        console.log('Tabelul users a fost creat sau există deja');
+        console.error('Eroare la crearea tabelei users:', err);
+        return;
       }
+      console.log('Tabela users a fost creată cu succes');
+
+      // Verificăm dacă există utilizatorul admin
+      db.get('SELECT * FROM users WHERE email = ?', ['admin@example.com'], (err, admin) => {
+        if (err) {
+          console.error('Eroare la verificarea utilizatorului admin:', err);
+          return;
+        }
+
+        if (!admin) {
+          // Creăm utilizatorul admin dacă nu există
+          const hashedPassword = bcrypt.hashSync('admin07', 10);
+          db.run(
+            'INSERT INTO users (email, password, name, role, created_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)',
+            ['admin@example.com', hashedPassword, 'Admin', 'admin'],
+            (err) => {
+              if (err) {
+                console.error('Eroare la crearea utilizatorului admin:', err);
+                return;
+              }
+              console.log('Utilizatorul admin a fost creat cu succes');
+            }
+          );
+        } else {
+          console.log('Utilizatorul admin există deja');
+        }
+      });
     });
 
     // Creăm tabelul documents dacă nu există
@@ -46,6 +75,8 @@ const db = new sqlite3.Database(path.join(__dirname, 'database.sqlite'), (err) =
         console.error('Eroare la crearea tabelului documents:', err);
       } else {
         console.log('Tabelul documents a fost creat sau există deja');
+        // Creăm utilizatorul admin după ce tabelele sunt create
+        createAdminUser();
       }
     });
   }
