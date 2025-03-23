@@ -323,24 +323,52 @@
   letter-spacing: 0em;
 }
  
+.navbar {
+  background-color: #fff;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
 
- 
+.navbar-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
- 
+.navbar-brand {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  text-decoration: none;
+}
 
- 
+.navbar-links {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
 
- 
+.navbar-link {
+  color: #666;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+}
 
- 
+.navbar-link:hover {
+  color: #007bff;
+}
 
- 
+.navbar-link.active {
+  color: #007bff;
+  font-weight: 500;
+}
 
- 
-
- 
-
- 
 @media(max-width: 1200px) {
   .navbar-navbar-interactive {
     padding-top: var(--dl-space-space-unit);
