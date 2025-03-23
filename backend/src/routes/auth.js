@@ -266,6 +266,61 @@ router.get('/me', authMiddleware, (req, res) => {
   }
 });
 
+// Funcție helper pentru a obține un utilizator după ID
+const getUserById = (id) => {
+  return new Promise((resolve, reject) => {
+    db.get('SELECT * FROM users WHERE id = ?', [id], (err, user) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(user);
+    });
+  });
+};
+
+// Ruta pentru ștergerea unui utilizator
+router.delete('/users/:id', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const userId = req.params.id;
+    console.log('Încercare de ștergere pentru utilizatorul:', userId);
+    
+    // Verifică dacă utilizatorul există și nu este admin
+    const userToDelete = await getUserById(userId);
+    console.log('Utilizator găsit:', userToDelete);
+    
+    if (!userToDelete) {
+      console.log('Utilizatorul nu a fost găsit:', userId);
+      return res.status(404).json({ message: 'Utilizatorul nu a fost găsit' });
+    }
+    
+    if (userToDelete.role === 'admin') {
+      console.log('Încercare de ștergere a unui administrator:', userId);
+      return res.status(403).json({ message: 'Nu puteți șterge un administrator' });
+    }
+
+    // Șterge utilizatorul
+    const query = 'DELETE FROM users WHERE id = ?';
+    db.run(query, [userId], function(err) {
+      if (err) {
+        console.error('Eroare la ștergerea utilizatorului:', err);
+        return res.status(500).json({ message: 'Eroare la ștergerea utilizatorului' });
+      }
+      
+      if (this.changes === 0) {
+        console.log('Nu s-a șters niciun utilizator:', userId);
+        return res.status(404).json({ message: 'Utilizatorul nu a fost găsit' });
+      }
+      
+      console.log('Utilizator șters cu succes:', userId);
+      res.status(200).json({ message: 'Utilizator șters cu succes' });
+    });
+  } catch (error) {
+    console.error('Eroare la ștergerea utilizatorului:', error);
+    res.status(500).json({ message: 'Eroare internă server' });
+  }
+});
+
 // Health check endpoint
 router.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is running' });
