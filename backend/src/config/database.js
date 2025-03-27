@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 require('dotenv').config();
 const path = require('path');
 const fs = require('fs');
+const uuid = require('uuid');
 
 // Creăm directorul pentru baza de date dacă nu există
 const dbDirectory = path.dirname(path.join(__dirname, 'database.sqlite'));
@@ -11,75 +12,74 @@ if (!fs.existsSync(dbDirectory)) {
   fs.mkdirSync(dbDirectory, { recursive: true });
 }
 
+// Funcție pentru generarea unui UUID scurt (6 caractere)
+function generateShortUUID() {
+  return Math.random().toString(36).substring(2, 8);
+}
+
 const db = new sqlite3.Database(path.join(__dirname, 'database.sqlite'), (err) => {
   if (err) {
-    console.error('Eroare la conectarea la baza de date:', err);
-  } else {
-    console.log('Conectat cu succes la baza de date SQLite');
-    
-    // Creăm tabelul users dacă nu există
-    db.run(`
-      CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        email TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        name TEXT NOT NULL,
-        role TEXT DEFAULT 'user',
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `, (err) => {
-      if (err) {
-        console.error('Eroare la crearea tabelei users:', err);
-        return;
-      }
-      console.log('Tabela users a fost creată cu succes');
+    console.error('Eroare la deschiderea bazei de date:', err);
+    return;
+  }
+  console.log('Baza de date a fost deschisă cu succes');
 
-      // Verificăm dacă există utilizatorul admin
-      db.get('SELECT * FROM users WHERE email = ?', ['admin@example.com'], (err, admin) => {
+  // Creăm tabelul users dacă nu există
+  db.run(`CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    uuid TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    name TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'user',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`, (err) => {
+    if (err) {
+      console.error('Eroare la crearea tabelului users:', err);
+    } else {
+      console.log('Tabelul users a fost creat sau există deja');
+      // Adăugăm UUID-uri pentru utilizatorii care nu au
+      db.all('SELECT id FROM users WHERE uuid IS NULL', [], (err, users) => {
         if (err) {
-          console.error('Eroare la verificarea utilizatorului admin:', err);
+          console.error('Eroare la verificarea UUID-urilor:', err);
           return;
         }
 
-        if (!admin) {
-          // Creăm utilizatorul admin dacă nu există
-          const hashedPassword = bcrypt.hashSync('admin07', 10);
-          db.run(
-            'INSERT INTO users (email, password, name, role, created_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)',
-            ['admin@example.com', hashedPassword, 'Admin', 'admin'],
-            (err) => {
-              if (err) {
-                console.error('Eroare la crearea utilizatorului admin:', err);
-                return;
-              }
-              console.log('Utilizatorul admin a fost creat cu succes');
+        users.forEach(user => {
+          const shortUUID = generateShortUUID();
+          db.run('UPDATE users SET uuid = ? WHERE id = ?', [shortUUID, user.id], (err) => {
+            if (err) {
+              console.error(`Eroare la actualizarea UUID pentru utilizatorul ${user.id}:`, err);
+            } else {
+              console.log(`UUID scurt adăugat pentru utilizatorul ${user.id}: ${shortUUID}`);
             }
-          );
-        } else {
-          console.log('Utilizatorul admin există deja');
-        }
+          });
+        });
       });
-    });
 
-    // Creăm tabelul documents dacă nu există
-    db.run(`CREATE TABLE IF NOT EXISTS documents (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER NOT NULL,
-      document_type TEXT NOT NULL,
-      file_path TEXT NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (user_id) REFERENCES users(id),
-      UNIQUE(user_id, document_type)
-    )`, (err) => {
-      if (err) {
-        console.error('Eroare la crearea tabelului documents:', err);
-      } else {
-        console.log('Tabelul documents a fost creat sau există deja');
-        // Creăm utilizatorul admin după ce tabelele sunt create
-        createAdminUser();
-      }
-    });
-  }
+      // Creăm utilizatorul admin după ce tabelele sunt create
+      createAdminUser();
+    }
+  });
+
+  // Creăm tabelul documents dacă nu există
+  db.run(`CREATE TABLE IF NOT EXISTS documents (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    user_uuid TEXT NOT NULL,
+    document_type TEXT NOT NULL,
+    file_path TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (user_uuid) REFERENCES users(uuid),
+    UNIQUE(user_uuid, document_type)
+  )`, (err) => {
+    if (err) {
+      console.error('Eroare la crearea tabelului documents:', err);
+    } else {
+      console.log('Tabelul documents a fost creat sau există deja');
+    }
+  });
 });
 
 async function createAdminUser() {
@@ -105,15 +105,16 @@ async function createAdminUser() {
 
     if (!adminExists) {
       await new Promise((resolve, reject) => {
+        const adminUUID = generateShortUUID();
         db.run(
-          'INSERT INTO users (email, password, name, role) VALUES (?, ?, ?, ?)',
-          [adminEmail, adminPassword, 'Administrator', 'admin'],
+          'INSERT INTO users (uuid, email, password, name, role) VALUES (?, ?, ?, ?, ?)',
+          [adminUUID, adminEmail, adminPassword, 'Administrator', 'admin'],
           function(err) {
             if (err) {
               console.error('Eroare la crearea admin:', err);
               reject(err);
             } else {
-              console.log('Utilizator admin creat cu succes, ID:', this.lastID);
+              console.log('Utilizator admin creat cu succes, ID:', this.lastID, 'UUID:', adminUUID);
               resolve();
             }
           }
@@ -137,15 +138,16 @@ async function createAdminUser() {
 
     if (!testUserExists) {
       await new Promise((resolve, reject) => {
+        const testUserUUID = generateShortUUID();
         db.run(
-          'INSERT INTO users (email, password, name, role) VALUES (?, ?, ?, ?)',
-          [testUserEmail, testUserPassword, 'User Test', 'user'],
+          'INSERT INTO users (uuid, email, password, name, role) VALUES (?, ?, ?, ?, ?)',
+          [testUserUUID, testUserEmail, testUserPassword, 'Test User', 'user'],
           function(err) {
             if (err) {
               console.error('Eroare la crearea utilizatorului de test:', err);
               reject(err);
             } else {
-              console.log('Utilizator de test creat cu succes, ID:', this.lastID);
+              console.log('Utilizator de test creat cu succes, ID:', this.lastID, 'UUID:', testUserUUID);
               resolve();
             }
           }
@@ -154,22 +156,8 @@ async function createAdminUser() {
     } else {
       console.log('Utilizator de test existent, ID:', testUserExists.id);
     }
-
-    // Verificăm dacă utilizatorii au fost creați
-    const verifyUsers = await new Promise((resolve, reject) => {
-      db.all('SELECT id, email, role FROM users', (err, rows) => {
-        if (err) {
-          console.error('Eroare la verificarea utilizatorilor:', err);
-          reject(err);
-        } else {
-          console.log('Utilizatori în baza de date:', rows);
-          resolve(rows);
-        }
-      });
-    });
-
   } catch (error) {
-    console.error('Eroare în createAdminUser:', error);
+    console.error('Eroare la crearea utilizatorilor:', error);
   }
 }
 

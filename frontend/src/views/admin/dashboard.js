@@ -300,7 +300,6 @@ const Dashboard = () => {
                     <th>UUID</th>
                     <th>User</th>
                     <th>Document Type</th>
-                    <th>Size</th>
                     <th>Upload Date</th>
                     <th>Status</th>
                   </tr>
@@ -314,7 +313,6 @@ const Dashboard = () => {
                         <td>{doc.user_uuid}</td>
                         <td>{user ? user.name : 'Unknown'}</td>
                         <td>{doc.document_type}</td>
-                        <td>{doc.size ? `${(doc.size / 1024).toFixed(2)} KB` : 'N/A'}</td>
                         <td>{new Date(doc.created_at).toLocaleDateString('en-US')}</td>
                         <td className="status-success">Verified</td>
                       </tr>

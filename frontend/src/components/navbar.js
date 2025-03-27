@@ -63,7 +63,7 @@ const Navbar = (props) => {
                 </button>
                 {user.role === 'admin' && (
                   <button className="navbar-login1 button">
-                    <Link to="/admin/dashboard" className={`navbar-navlink1 ${location.pathname === '/admin/dashboard' ? 'active' : ''}`}>
+                    <Link to="/dashboard" className={`navbar-navlink1 ${location.pathname === '/admin/dashboard' ? 'active' : ''}`}>
                       <span className="navbar-text37">Dashboard</span>
                     </Link>
                   </button>
