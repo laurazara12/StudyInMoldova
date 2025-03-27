@@ -114,23 +114,26 @@ const Dashboard = () => {
     };
   }, [navigate, token, user?.role]);
 
-  const getDocumentStatus = (userId) => {
-    const userDocuments = documents.filter(doc => doc.user_id === userId);
+  const getDocumentStatus = (userUUID) => {
+    const userDocuments = documents.filter(doc => doc.user_uuid === userUUID);
+    console.log('Documente pentru utilizatorul', userUUID, ':', userDocuments);
+    
     const requiredDocuments = ['diploma', 'transcript', 'passport', 'photo'];
     const status = {};
 
     requiredDocuments.forEach(docType => {
-      const hasDocument = userDocuments.some(doc => doc.type === docType);
-      status[docType] = hasDocument ? 'Încărcat' : 'Lipsește';
+      const hasDocument = userDocuments.some(doc => doc.document_type === docType);
+      console.log('Verificare document', docType, ':', hasDocument);
+      status[docType] = hasDocument ? 'Uploaded' : 'Missing';
     });
 
     return status;
   };
 
-  const handleDeleteUser = async (userId) => {
+  const handleDeleteUser = async (userUUID) => {
     try {
-      console.log('Încercare de ștergere pentru utilizatorul:', userId);
-      const response = await axios.delete(`http://localhost:4000/api/auth/users/${userId}`, {
+      console.log('Încercare de ștergere pentru utilizatorul:', userUUID);
+      const response = await axios.delete(`http://localhost:4000/api/auth/users/${userUUID}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -140,7 +143,7 @@ const Dashboard = () => {
       console.log('Răspuns de la server:', response.data);
 
       if (response.status === 200) {
-        setUsers(users.filter(user => user.id !== userId));
+        setUsers(users.filter(user => user.uuid !== userUUID));
         setDeleteConfirmation(null);
       }
     } catch (err) {
@@ -158,8 +161,8 @@ const Dashboard = () => {
     }
   };
 
-  const confirmDelete = (userId) => {
-    setDeleteConfirmation(userId);
+  const confirmDelete = (userUUID) => {
+    setDeleteConfirmation(userUUID);
   };
 
   const cancelDelete = () => {
@@ -239,6 +242,7 @@ const Dashboard = () => {
                 <thead>
                   <tr>
                     <th>ID</th>
+                    <th>UUID</th>
                     <th>Name</th>
                     <th>Email</th>
                     <th>Role</th>
@@ -251,30 +255,31 @@ const Dashboard = () => {
                 </thead>
                 <tbody>
                   {users.map(user => {
-                    const docStatus = getDocumentStatus(user.id);
+                    const docStatus = getDocumentStatus(user.uuid);
                     return (
-                      <tr key={user.id}>
+                      <tr key={user.uuid}>
                         <td>{user.id}</td>
+                        <td>{user.uuid}</td>
                         <td>{user.name}</td>
                         <td>{user.email}</td>
                         <td>{user.role === 'admin' ? 'Administrator' : 'User'}</td>
-                        <td className={docStatus.diploma === 'Încărcat' ? 'status-success' : 'status-missing'}>
-                          {docStatus.diploma === 'Încărcat' ? 'Uploaded' : 'Missing'}
+                        <td className={docStatus.diploma === 'Uploaded' ? 'status-success' : 'status-missing'}>
+                          {docStatus.diploma}
                         </td>
-                        <td className={docStatus.transcript === 'Încărcat' ? 'status-success' : 'status-missing'}>
-                          {docStatus.transcript === 'Încărcat' ? 'Uploaded' : 'Missing'}
+                        <td className={docStatus.transcript === 'Uploaded' ? 'status-success' : 'status-missing'}>
+                          {docStatus.transcript}
                         </td>
-                        <td className={docStatus.passport === 'Încărcat' ? 'status-success' : 'status-missing'}>
-                          {docStatus.passport === 'Încărcat' ? 'Uploaded' : 'Missing'}
+                        <td className={docStatus.passport === 'Uploaded' ? 'status-success' : 'status-missing'}>
+                          {docStatus.passport}
                         </td>
-                        <td className={docStatus.photo === 'Încărcat' ? 'status-success' : 'status-missing'}>
-                          {docStatus.photo === 'Încărcat' ? 'Uploaded' : 'Missing'}
+                        <td className={docStatus.photo === 'Uploaded' ? 'status-success' : 'status-missing'}>
+                          {docStatus.photo}
                         </td>
                         <td>
                           {user.role !== 'admin' && (
                             <button 
                               className="delete-button"
-                              onClick={() => confirmDelete(user.id)}
+                              onClick={() => confirmDelete(user.uuid)}
                             >
                               Delete
                             </button>
@@ -292,20 +297,24 @@ const Dashboard = () => {
                 <thead>
                   <tr>
                     <th>ID</th>
+                    <th>UUID</th>
                     <th>User</th>
                     <th>Document Type</th>
+                    <th>Size</th>
                     <th>Upload Date</th>
                     <th>Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {documents.map(doc => {
-                    const user = users.find(u => u.id === doc.user_id);
+                    const user = users.find(u => u.uuid === doc.user_uuid);
                     return (
-                      <tr key={doc.id}>
+                      <tr key={`${doc.user_uuid}_${doc.document_type}`}>
                         <td>{doc.id}</td>
+                        <td>{doc.user_uuid}</td>
                         <td>{user ? user.name : 'Unknown'}</td>
-                        <td>{doc.type}</td>
+                        <td>{doc.document_type}</td>
+                        <td>{doc.size ? `${(doc.size / 1024).toFixed(2)} KB` : 'N/A'}</td>
                         <td>{new Date(doc.created_at).toLocaleDateString('en-US')}</td>
                         <td className="status-success">Verified</td>
                       </tr>
