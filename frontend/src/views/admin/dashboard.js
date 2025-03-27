@@ -12,6 +12,10 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('users');
   const [deleteConfirmation, setDeleteConfirmation] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterRole, setFilterRole] = useState('all');
+  const [filterDocumentType, setFilterDocumentType] = useState('all');
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user'));
@@ -169,6 +173,151 @@ const Dashboard = () => {
     setDeleteConfirmation(null);
   };
 
+  const handleDownloadDocument = async (documentType, userUUID) => {
+    try {
+      const response = await axios({
+        url: `http://localhost:4000/api/documents/download/${documentType}`,
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      // Obținem tipul MIME din header-ul Content-Type
+      const contentType = response.headers['content-type'];
+      
+      // Găsim documentul în lista de documente pentru a obține numele original
+      const doc = documents.find(doc => doc.document_type === documentType && doc.user_uuid === userUUID);
+      let fileName;
+
+      if (doc && doc.file_path) {
+        // Extragem numele original al fișierului din calea completă
+        fileName = doc.file_path.split('/').pop();
+      } else {
+        // Dacă nu avem numele original, folosim numele documentului cu extensia corectă
+        const fileExtension = contentType === 'image/png' ? '.png' : 
+                            contentType === 'image/jpeg' || contentType === 'image/jpg' ? '.jpg' : 
+                            contentType === 'application/pdf' ? '.pdf' : '.pdf';
+        fileName = `${documentType}${fileExtension}`;
+      }
+
+      // Creăm blob-ul cu tipul MIME corect
+      const blob = new Blob([response.data], { type: contentType });
+      const url = window.URL.createObjectURL(blob);
+      
+      // Creăm link-ul de descărcare
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Eroare la descărcarea documentului:', err);
+      alert('Eroare la descărcarea documentului');
+    }
+  };
+
+  const handleDeleteDocument = async (documentType, userUUID) => {
+    if (!window.confirm('Sigur doriți să ștergeți acest document?')) {
+      return;
+    }
+
+    try {
+      const response = await axios.delete(`http://localhost:4000/api/documents/${documentType}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.data.success) {
+        // Actualizăm lista de documente
+        setDocuments(documents.filter(doc => 
+          !(doc.document_type === documentType && doc.user_uuid === userUUID)
+        ));
+        alert('Document șters cu succes!');
+      }
+    } catch (err) {
+      console.error('Eroare la ștergerea documentului:', err);
+      alert('Eroare la ștergerea documentului');
+    }
+  };
+
+  const renderUserDocuments = (userUUID) => {
+    const userDocuments = documents.filter(doc => doc.user_uuid === userUUID);
+    
+    if (userDocuments.length === 0) {
+      return <p>Nu există documente încărcate</p>;
+    }
+
+    return (
+      <div className="user-documents">
+        <h4>Documente încărcate:</h4>
+        <div className="dashboard-table-container">
+          <table className="dashboard-table">
+            <thead>
+              <tr>
+                <th>Tip Document</th>
+                <th>Data Încărcării</th>
+                <th>Acțiuni</th>
+              </tr>
+            </thead>
+            <tbody>
+              {userDocuments.map((doc) => (
+                <tr key={doc.id}>
+                  <td>{doc.document_type}</td>
+                  <td>{new Date(doc.created_at).toLocaleDateString('en-US')}</td>
+                  <td>
+                    <div className="action-buttons">
+                      <button 
+                        onClick={() => handleDownloadDocument(doc.document_type, userUUID)}
+                        className="download-button"
+                      >
+                        Descarcă
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteDocument(doc.document_type, userUUID)}
+                        className="delete-button"
+                      >
+                        Șterge
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = 
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.uuid.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesRole = filterRole === 'all' || user.role === filterRole;
+    
+    return matchesSearch && matchesRole;
+  });
+
+  const filteredDocuments = documents.filter(doc => {
+    const user = users.find(u => u.uuid === doc.user_uuid);
+    const matchesSearch = 
+      (user?.name.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
+      doc.document_type.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesType = filterDocumentType === 'all' || doc.document_type === filterDocumentType;
+    
+    return matchesSearch && matchesType;
+  });
+
   if (loading) {
     return (
       <div className="dashboard-page">
@@ -204,36 +353,59 @@ const Dashboard = () => {
         <div className="dashboard-content">
           <div className="dashboard-header">
             <h1>Admin Dashboard</h1>
+            <div className="tab-buttons">
+              <button 
+                className={`tab-button ${activeTab === 'users' ? 'active' : ''}`}
+                onClick={() => setActiveTab('users')}
+              >
+                Users
+              </button>
+              <button 
+                className={`tab-button ${activeTab === 'documents' ? 'active' : ''}`}
+                onClick={() => setActiveTab('documents')}
+              >
+                Documents
+              </button>
+            </div>
           </div>
 
-          <div className="dashboard-stats">
-            <div className="stat-card">
-              <h3>Total Users</h3>
-              <p>{users.length}</p>
+          <div className="dashboard-filters">
+            <div className="search-box">
+              <input
+                type="text"
+                placeholder="Caută..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search-input"
+              />
             </div>
-            <div className="stat-card">
-              <h3>Active Users</h3>
-              <p>{users.filter(user => user.role === 'user').length}</p>
-            </div>
-            <div className="stat-card">
-              <h3>Administrators</h3>
-              <p>{users.filter(user => user.role === 'admin').length}</p>
-            </div>
-          </div>
-
-          <div className="dashboard-tabs">
-            <button 
-              className={`tab-button ${activeTab === 'users' ? 'active' : ''}`}
-              onClick={() => setActiveTab('users')}
-            >
-              Users
-            </button>
-            <button 
-              className={`tab-button ${activeTab === 'documents' ? 'active' : ''}`}
-              onClick={() => setActiveTab('documents')}
-            >
-              Documents
-            </button>
+            {activeTab === 'users' ? (
+              <div className="filter-box">
+                <select
+                  value={filterRole}
+                  onChange={(e) => setFilterRole(e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="all">Toate rolurile</option>
+                  <option value="admin">Administratori</option>
+                  <option value="user">Utilizatori</option>
+                </select>
+              </div>
+            ) : (
+              <div className="filter-box">
+                <select
+                  value={filterDocumentType}
+                  onChange={(e) => setFilterDocumentType(e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="all">Toate tipurile</option>
+                  <option value="diploma">Diplomă</option>
+                  <option value="transcript">Transcript</option>
+                  <option value="passport">Pașaport</option>
+                  <option value="photo">Fotografie</option>
+                </select>
+              </div>
+            )}
           </div>
 
           {activeTab === 'users' ? (
@@ -254,7 +426,7 @@ const Dashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map(user => {
+                  {filteredUsers.map(user => {
                     const docStatus = getDocumentStatus(user.uuid);
                     return (
                       <tr key={user.uuid}>
@@ -276,14 +448,22 @@ const Dashboard = () => {
                           {docStatus.photo}
                         </td>
                         <td>
-                          {user.role !== 'admin' && (
+                          <div className="action-buttons">
                             <button 
-                              className="delete-button"
-                              onClick={() => confirmDelete(user.uuid)}
+                              className="view-documents-button"
+                              onClick={() => setSelectedUser(user)}
                             >
-                              Delete
+                              View Docs
                             </button>
-                          )}
+                            {user.role !== 'admin' && (
+                              <button 
+                                className="delete-button"
+                                onClick={() => confirmDelete(user.uuid)}
+                              >
+                                Delete
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );
@@ -297,29 +477,56 @@ const Dashboard = () => {
                 <thead>
                   <tr>
                     <th>ID</th>
-                    <th>UUID</th>
                     <th>User</th>
                     <th>Document Type</th>
                     <th>Upload Date</th>
-                    <th>Status</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {documents.map(doc => {
+                  {filteredDocuments.map(doc => {
                     const user = users.find(u => u.uuid === doc.user_uuid);
                     return (
                       <tr key={`${doc.user_uuid}_${doc.document_type}`}>
                         <td>{doc.id}</td>
-                        <td>{doc.user_uuid}</td>
                         <td>{user ? user.name : 'Unknown'}</td>
                         <td>{doc.document_type}</td>
                         <td>{new Date(doc.created_at).toLocaleDateString('en-US')}</td>
-                        <td className="status-success">Verified</td>
+                        <td>
+                          <div className="action-buttons">
+                            <button 
+                              className="download-button"
+                              onClick={() => handleDownloadDocument(doc.document_type, doc.user_uuid)}
+                            >
+                              Download
+                            </button>
+                            <button 
+                              className="delete-button"
+                              onClick={() => handleDeleteDocument(doc.document_type, doc.user_uuid)}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
                       </tr>
                     );
                   })}
                 </tbody>
               </table>
+            </div>
+          )}
+
+          {selectedUser && (
+            <div className="modal-overlay">
+              <div className="modal-content documents-modal">
+                <div className="modal-header">
+                  <h3>Documente pentru {selectedUser.name}</h3>
+                  <button className="close-button" onClick={() => setSelectedUser(null)}>
+                    Închide
+                  </button>
+                </div>
+                {renderUserDocuments(selectedUser.uuid)}
+              </div>
             </div>
           )}
 
