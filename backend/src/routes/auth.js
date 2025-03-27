@@ -5,11 +5,42 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../config/database');
 const { authMiddleware, adminMiddleware } = require('../middleware/auth');
+const { v4: uuidv4 } = require('uuid');
+
+// Funcție pentru generarea unui UUID scurt (6 caractere)
+function generateShortUUID() {
+  return Math.random().toString(36).substring(2, 8);
+}
+
+// Adăugăm UUID-uri scurte pentru utilizatorii existenți
+function addShortUUIDsToUsers() {
+  db.all('SELECT id FROM users WHERE uuid IS NULL', [], (err, users) => {
+    if (err) {
+      console.error('Eroare la selectarea utilizatorilor:', err);
+      return;
+    }
+
+    users.forEach(user => {
+      const shortUUID = generateShortUUID();
+      db.run('UPDATE users SET uuid = ? WHERE id = ?', [shortUUID, user.id], (err) => {
+        if (err) {
+          console.error(`Eroare la actualizarea UUID pentru utilizatorul ${user.id}:`, err);
+        } else {
+          console.log(`UUID scurt adăugat pentru utilizatorul ${user.id}: ${shortUUID}`);
+        }
+      });
+    });
+  });
+}
+
+// Rulăm funcția la pornirea serverului
+addShortUUIDsToUsers();
 
 // Înregistrare
 router.post('/signup', async (req, res) => {
   try {
     const { email, password, name } = req.body;
+    const shortUUID = generateShortUUID(); // Generăm un UUID scurt
     console.log('Încercare de înregistrare pentru:', email);
     console.log('Datele primite:', { email, name, password: password ? 'prezent' : 'lipsă' });
 
@@ -25,8 +56,8 @@ router.post('/signup', async (req, res) => {
     console.log('Parola hash-uită generată');
 
     db.run(
-      'INSERT INTO users (email, password, name) VALUES (?, ?, ?)',
-      [email, hashedPassword, name],
+      'INSERT INTO users (uuid, email, password, name) VALUES (?, ?, ?, ?)',
+      [shortUUID, email, hashedPassword, name],
       function(err) {
         if (err) {
           console.error('Eroare la înregistrare:', err);
@@ -36,7 +67,7 @@ router.post('/signup', async (req, res) => {
           return res.status(500).json({ message: err.message });
         }
 
-        console.log('Utilizator creat cu succes, ID:', this.lastID);
+        console.log('Utilizator creat cu succes, UUID:', shortUUID);
 
         const token = jwt.sign(
           { id: this.lastID, role: 'user' },
@@ -49,7 +80,12 @@ router.post('/signup', async (req, res) => {
         res.status(201).json({
           message: 'Utilizator creat cu succes',
           token,
-          user: { id: this.lastID, email, name, role: 'user' }
+          user: { 
+            uuid: shortUUID,
+            email, 
+            name, 
+            role: 'user' 
+          }
         });
       }
     );
@@ -89,7 +125,7 @@ router.post('/login', async (req, res) => {
       }
 
       console.log('Utilizator găsit:', user ? {
-        id: user.id,
+        uuid: user.uuid,
         email: user.email,
         name: user.name,
         role: user.role,
@@ -127,7 +163,7 @@ router.post('/login', async (req, res) => {
         success: true,
         token,
         user: {
-          id: user.id,
+          uuid: user.uuid,
           email: user.email,
           name: user.name,
           role: user.role
@@ -154,58 +190,55 @@ router.get('/users', authMiddleware, adminMiddleware, (req, res) => {
       });
     }
 
-    // Verificăm conexiunea la baza de date
-    db.get('SELECT 1', (err) => {
+    // Mai întâi, ne asigurăm că toți utilizatorii au UUID
+    db.all('SELECT id FROM users WHERE uuid IS NULL', [], (err, usersWithoutUuid) => {
       if (err) {
-        console.error('Eroare la conectarea la baza de date:', err);
-        return res.status(500).json({ 
-          message: 'Eroare la conectarea la baza de date',
-          error: err.message 
-        });
+        console.error('Eroare la verificarea UUID-urilor:', err);
+        return res.status(500).json({ message: 'Eroare la verificarea UUID-urilor' });
       }
 
-      // Verificăm dacă tabela users există
-      db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='users'", (err, table) => {
-        if (err) {
-          console.error('Eroare la verificarea tabelei users:', err);
-          return res.status(500).json({ 
-            message: 'Eroare la verificarea structurii bazei de date',
-            error: err.message 
+      // Adăugăm UUID pentru utilizatorii care nu au
+      const promises = usersWithoutUuid.map(user => {
+        return new Promise((resolve, reject) => {
+          const uuid = uuidv4();
+          db.run('UPDATE users SET uuid = ? WHERE id = ?', [uuid, user.id], (err) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve();
+            }
           });
-        }
-
-        if (!table) {
-          console.error('Tabela users nu există');
-          return res.status(500).json({ 
-            message: 'Structura bazei de date invalidă',
-            error: 'Tabela users nu există'
-          });
-        }
-
-        // Query simplificat
-        const query = 'SELECT id, email, name, role FROM users';
-        console.log('Executare query:', query);
-
-        // Executăm query-ul
-        db.all(query, (err, users) => {
-          if (err) {
-            console.error('Eroare la preluarea utilizatorilor:', err);
-            return res.status(500).json({ 
-              message: 'Eroare la preluarea utilizatorilor',
-              error: err.message 
-            });
-          }
-
-          // Verificăm dacă avem date
-          if (!users) {
-            console.log('Nu s-au găsit utilizatori');
-            return res.json([]);
-          }
-
-          console.log('Utilizatori găsiți:', users.length);
-          res.json(users);
         });
       });
+
+      Promise.all(promises)
+        .then(() => {
+          // După ce am adăugat UUID-urile, preluăm toți utilizatorii
+          const query = 'SELECT uuid, email, name, role FROM users';
+          console.log('Executare query:', query);
+
+          db.all(query, (err, users) => {
+            if (err) {
+              console.error('Eroare la preluarea utilizatorilor:', err);
+              return res.status(500).json({ 
+                message: 'Eroare la preluarea utilizatorilor',
+                error: err.message 
+              });
+            }
+
+            if (!users) {
+              console.log('Nu s-au găsit utilizatori');
+              return res.json([]);
+            }
+
+            console.log('Utilizatori găsiți:', users.length);
+            res.json(users);
+          });
+        })
+        .catch(error => {
+          console.error('Eroare la actualizarea UUID-urilor:', error);
+          res.status(500).json({ message: 'Eroare la actualizarea UUID-urilor' });
+        });
     });
   } catch (error) {
     console.error('Eroare la preluarea utilizatorilor:', error);
@@ -299,7 +332,7 @@ router.delete('/users/:id', authMiddleware, adminMiddleware, async (req, res) =>
       return res.status(403).json({ message: 'Nu puteți șterge un administrator' });
     }
 
-    // Șterge utilizatorul
+    // Șterge doar utilizatorul, păstrând documentele
     const query = 'DELETE FROM users WHERE id = ?';
     db.run(query, [userId], function(err) {
       if (err) {
@@ -324,6 +357,51 @@ router.delete('/users/:id', authMiddleware, adminMiddleware, async (req, res) =>
 // Health check endpoint
 router.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is running' });
+});
+
+// Ruta pentru înregistrare
+router.post('/register', async (req, res) => {
+  try {
+    const { email, password, name } = req.body;
+    const uuid = uuidv4(); // Generează un UUID unic
+
+    // Verifică dacă emailul există deja
+    db.get('SELECT * FROM users WHERE email = ?', [email], async (err, user) => {
+      if (err) {
+        console.error('Eroare la verificarea emailului:', err);
+        return res.status(500).json({ message: 'Eroare la înregistrare' });
+      }
+
+      if (user) {
+        return res.status(400).json({ message: 'Emailul este deja înregistrat' });
+      }
+
+      // Creează utilizatorul nou cu UUID
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const query = 'INSERT INTO users (uuid, email, password, name) VALUES (?, ?, ?, ?)';
+      
+      db.run(query, [uuid, email, hashedPassword, name], function(err) {
+        if (err) {
+          console.error('Eroare la crearea utilizatorului:', err);
+          return res.status(500).json({ message: 'Eroare la înregistrare' });
+        }
+
+        res.status(201).json({ 
+          message: 'Utilizator înregistrat cu succes',
+          user: {
+            id: this.lastID,
+            uuid: uuid,
+            email: email,
+            name: name,
+            role: 'user'
+          }
+        });
+      });
+    });
+  } catch (error) {
+    console.error('Eroare la înregistrare:', error);
+    res.status(500).json({ message: 'Eroare la înregistrare' });
+  }
 });
 
 module.exports = router;
