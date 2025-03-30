@@ -13,14 +13,13 @@ const LivingInMoldova = () => {
         <meta property="og:title" content="Living in Moldova - Study In Moldova" />
       </Helmet>
       <Navbar rootClassName="navbar-root-class-name" />
-      <div className="living-in-moldova-content">
-        <div className="living-in-moldova-header">
-          <h1 className="living-in-moldova-heading">Living in Moldova</h1>
-          <p className="living-in-moldova-subheading">
-            Your friendly guide to student life in Moldova - practical tips and estimated costs to help you plan your stay
-          </p>
+      <div className="living-in-moldova-header">
+        <div className="living-in-moldova-header-content">
+          <h1>Living in Moldova</h1>
+          <p>Discover the charm of student life in Moldova - from affordable living to rich cultural experiences</p>
         </div>
-
+      </div>
+      <div className="living-in-moldova-content">
         <div className="living-in-moldova-grid">
           <div className="living-in-moldova-card">
             <h2 className="living-in-moldova-card-title">Currency & Cost of Living</h2>
@@ -84,7 +83,7 @@ const LivingInMoldova = () => {
                 🚌 Good news: Students get special discounts on monthly passes!
               </div>
               <div className="living-in-moldova-links">
-                <a href="https://chisinau.md/en/transport" target="_blank" rel="noopener noreferrer" className="living-in-moldova-link">Chișinău Transport Guide →</a>
+                <Link to="/living-in-moldova/transportation-guide" className="living-in-moldova-link">Chișinău Transport Guide →</Link>
               </div>
             </div>
           </div>
