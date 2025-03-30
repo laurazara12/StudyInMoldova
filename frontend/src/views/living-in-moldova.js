@@ -1,507 +1,175 @@
-import React, { Fragment } from 'react'
+import React from 'react';
+import { Helmet } from 'react-helmet';
+import { Link } from 'react-router-dom';
+import Navbar from '../components/navbar';
+import Footer from '../components/footer';
+import './living-in-moldova.css';
 
-import { Helmet } from 'react-helmet'
-
-import Navbar from '../components/navbar'
-import LivingInMoldova1 from '../components/living-in-moldova1'
-import Footer from '../components/footer'
-import './living-in-moldova.css'
-
-const LivingInMoldova = (props) => {
+const LivingInMoldova = () => {
   return (
     <div className="living-in-moldova-container">
       <Helmet>
-        <title>LivingInMoldova - exported project</title>
-        <meta
-          property="og:title"
-          content="LivingInMoldova - exported project"
-        />
+        <title>Living in Moldova - Study In Moldova</title>
+        <meta property="og:title" content="Living in Moldova - Study In Moldova" />
       </Helmet>
-      <Navbar
-        text={
-          <Fragment>
-            <span className="living-in-moldova-text100">Study In Moldova</span>
-          </Fragment>
-        }
-        login={
-          <Fragment>
-            <span className="living-in-moldova-text101">Login</span>
-          </Fragment>
-        }
-        text2={
-          <Fragment>
-            <span className="living-in-moldova-text102">Living In Moldova</span>
-          </Fragment>
-        }
-        text3={
-          <Fragment>
-            <span className="living-in-moldova-text103">Programmes</span>
-          </Fragment>
-        }
-        text4={
-          <Fragment>
-            <span className="living-in-moldova-text104">Help You Choose</span>
-          </Fragment>
-        }
-        text5={
-          <Fragment>
-            <span className="living-in-moldova-text105">Universities</span>
-          </Fragment>
-        }
-        text6={
-          <Fragment>
-            <span className="living-in-moldova-text106">Plan Your Studies</span>
-          </Fragment>
-        }
-        login1={
-          <Fragment>
-            <span className="living-in-moldova-text107">Login</span>
-          </Fragment>
-        }
-        text12={
-          <Fragment>
-            <span className="living-in-moldova-text108">About</span>
-          </Fragment>
-        }
-        text13={
-          <Fragment>
-            <span className="living-in-moldova-text109">Features</span>
-          </Fragment>
-        }
-        text14={
-          <Fragment>
-            <span className="living-in-moldova-text110">Pricing</span>
-          </Fragment>
-        }
-        text15={
-          <Fragment>
-            <span className="living-in-moldova-text111">Team</span>
-          </Fragment>
-        }
-        text16={
-          <Fragment>
-            <span className="living-in-moldova-text112">Blog</span>
-          </Fragment>
-        }
-        register={
-          <Fragment>
-            <span className="living-in-moldova-text113">Register</span>
-          </Fragment>
-        }
-        register1={
-          <Fragment>
-            <span className="living-in-moldova-text114">Register</span>
-          </Fragment>
-        }
-        rootClassName="navbarroot-class-name8"
-      ></Navbar>
-      <LivingInMoldova1
-        heading1={
-          <Fragment>
-            <span className="living-in-moldova-text115">Living In Moldova</span>
-          </Fragment>
-        }
-        content1={
-          <Fragment>
-            <span className="living-in-moldova-text116">
-              Discover essential information before starting your jurney.
-            </span>
-          </Fragment>
-        }
-        content2={
-          <Fragment>
-            <span className="living-in-moldova-text117">
-              Do not hesitate to contact for any topic we might have missed !
-            </span>
-          </Fragment>
-        }
-        heading2={
-          <Fragment>
-            <span className="living-in-moldova-text118">
-              Do you have a particular question?
-            </span>
-          </Fragment>
-        }
-        action1={
-          <Fragment>
-            <span className="living-in-moldova-text119">Contact</span>
-          </Fragment>
-        }
-        info1={
-          <Fragment>
-            <span className="living-in-moldova-text120">
-              <span>
-                Moldova is one of the most affordable countries in Europe for
-                students. A student’s monthly expenses, including rent, food,
-                transport, and leisure, range between €300-€600.
-              </span>
-              <br></br>
-              <br></br>
-              <span>
-                Rent: €100-€300/month (shared or dormitory housing is cheaper)
-              </span>
-              <br></br>
-              <span>Food: €100-€200/month</span>
-              <br></br>
-              <span>
-                Transport: €5-€15/month (public transport is very cheap)
-              </span>
-              <br></br>
-              <span>Leisure &amp; entertainment: €50-€150/month</span>
-              <br></br>
-              <span>
-                👉 Tip: Students can save money by shopping at local markets and
-                using public transport.
-              </span>
-            </span>
-          </Fragment>
-        }
-        info2={
-          <Fragment>
-            <span className="living-in-moldova-text133">Cost of Living</span>
-          </Fragment>
-        }
-        info2Title={
-          <Fragment>
-            <span className="living-in-moldova-text134">Transportation</span>
-          </Fragment>
-        }
-        info4={
-          <Fragment>
-            <span className="living-in-moldova-text135">
-              <span>
-                International students can work part-time while studying, but
-                job options are limited if you don’t speak Romanian or Russian.
-              </span>
-              <br></br>
-              <br></br>
-              <span>
-                Part-time jobs: Tutoring, freelance work, hospitality (cafés,
-                restaurants).
-              </span>
-              <br></br>
-              <span>
-                Internships: Some universities offer career services to help
-                students find work experience.
-              </span>
-              <br></br>
-              <span>
-                Work after graduation: Some students stay in Moldova to work,
-                especially in IT, healthcare, and business sectors.
-              </span>
-              <br></br>
-              <span>
-                👉 Tip: Consider learning basic Romanian or Russian to increase
-                job opportunities!
-              </span>
-            </span>
-          </Fragment>
-        }
-        info4Title={
-          <Fragment>
-            <span className="living-in-moldova-text146">
-              Work &amp; Career Opportunities
-              <span
-                dangerouslySetInnerHTML={{
-                  __html: ' ',
-                }}
-              />
-            </span>
-          </Fragment>
-        }
-        info3={
-          <Fragment>
-            <span className="living-in-moldova-text147">
-              <span>
-                Moldovan cuisine is a delicious mix of Eastern European and
-                Balkan flavors.
-              </span>
-              <br></br>
-              <br></br>
-              <span>Affordable student meals: €2-€5 at local restaurants</span>
-              <br></br>
-              <span>Popular dishes:</span>
-              <br></br>
-              <span>
-                Mămăligă (cornmeal porridge, often served with cheese &amp; sour
-                cream)
-              </span>
-              <br></br>
-              <span>
-                Plăcinte (savory pastries filled with cheese, potatoes, or
-                cabbage)
-              </span>
-              <br></br>
-              <span>Sarmale (stuffed cabbage rolls)</span>
-              <br></br>
-              <span>
-                🛒 Grocery shopping: Supermarkets like Linella, Nr. 1, and
-                Kaufland offer budget-friendly prices.
-              </span>
-            </span>
-          </Fragment>
-        }
-        info3Title={
-          <Fragment>
-            <span className="living-in-moldova-text162">Food &amp; Dining</span>
-          </Fragment>
-        }
-        info6={
-          <Fragment>
-            <span className="living-in-moldova-text163">
-              <span>Students in Moldova can choose between:</span>
-              <br></br>
-              <br></br>
-              <span>
-                University dormitories – Affordable (€50-€100/month) but with
-                shared facilities.
-              </span>
-              <br></br>
-              <span>
-                Private rentals – Apartments range from €150-€400/month
-                depending on location and size.
-              </span>
-              <br></br>
-              <span>Shared apartments – A popular option to save on rent.</span>
-              <br></br>
-              <span>
-                📌 Chișinău, the capital, has the highest rental costs, while
-                smaller cities offer cheaper housing.
-              </span>
-            </span>
-          </Fragment>
-        }
-        info22={
-          <Fragment>
-            <span className="living-in-moldova-text174">
-              <span>
-                Moldova has an affordable and efficient public transport system.
-              </span>
-              <br></br>
-              <br></br>
-              <span>
-                Trolleybuses &amp; buses – Tickets cost €0.20-€0.30 per ride.
-              </span>
-              <br></br>
-              <span>
-                Minibuses (marshrutkas) – Faster than buses, costing around
-                €0.30 per ride.
-              </span>
-              <br></br>
-              <span>
-                Taxis &amp; ride-sharing – Bolt and Yandex Go are popular apps.
-              </span>
-              <br></br>
-              <span>
-                🚲 Tip: Walking or biking is easy in cities like Chișinău, where
-                most universities are centrally located.
-              </span>
-            </span>
-          </Fragment>
-        }
-        info62={
-          <Fragment>
-            <span className="living-in-moldova-text185">
-              Accommodation
-              <span
-                dangerouslySetInnerHTML={{
-                  __html: ' ',
-                }}
-              />
-            </span>
-          </Fragment>
-        }
-        info9Title={
-          <Fragment>
-            <span className="living-in-moldova-text186">
-              Culture &amp; Language
-            </span>
-          </Fragment>
-        }
-        info7={
-          <Fragment>
-            <span className="living-in-moldova-text187">
-              <span>
-                All international students must have health insurance while
-                studying in Moldova.
-              </span>
-              <br></br>
-              <br></br>
-              <span>
-                Public healthcare is available, but many prefer private clinics
-                for faster service.
-              </span>
-              <br></br>
-              <span>
-                Private health insurance costs around €50-€150 per year and
-                covers most medical services.
-              </span>
-              <br></br>
-              <span>
-                💡 Tip: Many universities offer student medical services at
-                affordable rates.
-              </span>
-            </span>
-          </Fragment>
-        }
-        info7Title={
-          <Fragment>
-            <span className="living-in-moldova-text196">
-              Healthcare &amp; Insurance
-            </span>
-          </Fragment>
-        }
-        info8={
-          <Fragment>
-            <span className="living-in-moldova-text197">
-              <span>
-                Moldova has a vibrant student community with many social,
-                cultural, and sports activities.
-              </span>
-              <br></br>
-              <br></br>
-              <span>
-                Student organizations – Many universities have international
-                student clubs.
-              </span>
-              <br></br>
-              <span>
-                Events &amp; festivals – Experience Moldovan traditions at
-                events like Wine Festival (October) or Martisor Festival
-                (March).
-              </span>
-              <br></br>
-              <span>
-                Nightlife &amp; cafes – Chișinău has affordable bars, clubs, and
-                coffee shops popular among students.
-              </span>
-              <br></br>
-              <span>
-                💡 Tip: Join university Facebook groups or Telegram chats to
-                meet fellow students!
-              </span>
-            </span>
-          </Fragment>
-        }
-        info8Title={
-          <Fragment>
-            <span className="living-in-moldova-text208">
-              Student Life &amp; Social Activities
-              <span
-                dangerouslySetInnerHTML={{
-                  __html: ' ',
-                }}
-              />
-            </span>
-          </Fragment>
-        }
-        info9={
-          <Fragment>
-            <span className="living-in-moldova-text209">
-              <br></br>
-              <span>Official language: Romanian</span>
-              <br></br>
-              <span>
-                Other spoken languages: Russian, Gagauz, English (in academic
-                settings)
-              </span>
-              <br></br>
-              <span>Cultural sites:</span>
-              <br></br>
-              <span>Orheiul Vechi – Ancient rock monastery</span>
-              <br></br>
-              <span>
-                Cricova Winery – One of the world’s largest underground wine
-                cellars
-              </span>
-              <br></br>
-              <span>
-                Chișinău’s museums &amp; theaters – Perfect for history and art
-                lovers
-              </span>
-              <br></br>
-              <span>
-                💡 Tip: Even though many people speak Russian, learning basic
-                Romanian will help with daily life!
-              </span>
-            </span>
-          </Fragment>
-        }
-      ></LivingInMoldova1>
-      <Footer
-        link5={
-          <Fragment>
-            <span className="living-in-moldova-text224">Link 5</span>
-          </Fragment>
-        }
-        action1={
-          <Fragment>
-            <span className="living-in-moldova-text225">Subscribe</span>
-          </Fragment>
-        }
-        content1={
-          <Fragment>
-            <span className="living-in-moldova-text226">Subscribe</span>
-          </Fragment>
-        }
-        content3={
-          <Fragment>
-            <span className="living-in-moldova-text227">
-              © 2024
-              <span
-                dangerouslySetInnerHTML={{
-                  __html: ' ',
-                }}
-              />
-            </span>
-          </Fragment>
-        }
-        link1={
-          <Fragment>
-            <span className="living-in-moldova-text228">Link 1</span>
-          </Fragment>
-        }
-        privacyLink={
-          <Fragment>
-            <span className="living-in-moldova-text229">Privacy Policy</span>
-          </Fragment>
-        }
-        cookiesLink={
-          <Fragment>
-            <span className="living-in-moldova-text230">Cookies Settings</span>
-          </Fragment>
-        }
-        link3={
-          <Fragment>
-            <span className="living-in-moldova-text231">Link 3</span>
-          </Fragment>
-        }
-        link4={
-          <Fragment>
-            <span className="living-in-moldova-text232">Link 4</span>
-          </Fragment>
-        }
-        link2={
-          <Fragment>
-            <span className="living-in-moldova-text233">Link 2</span>
-          </Fragment>
-        }
-        termsLink={
-          <Fragment>
-            <span className="living-in-moldova-text234">Terms of Service</span>
-          </Fragment>
-        }
-        content2={
-          <Fragment>
-            <span className="living-in-moldova-text235">
-              By subscribing you agree to with our Privacy Policy and provide
-              consent to receive updates from our company.
-            </span>
-          </Fragment>
-        }
-      ></Footer>
-    </div>
-  )
-}
+      <Navbar rootClassName="navbar-root-class-name" />
+      <div className="living-in-moldova-content">
+        <div className="living-in-moldova-header">
+          <h1 className="living-in-moldova-heading">Living in Moldova</h1>
+          <p className="living-in-moldova-subheading">
+            Your friendly guide to student life in Moldova - practical tips and estimated costs to help you plan your stay
+          </p>
+        </div>
 
-export default LivingInMoldova
+        <div className="living-in-moldova-grid">
+          <div className="living-in-moldova-card">
+            <h2 className="living-in-moldova-card-title">Currency & Cost of Living</h2>
+            <div className="living-in-moldova-card-content">
+              <span>About Moldovan Currency:</span>
+              <span>• Official currency: Moldovan Leu (MDL)</span>
+              <span>• Current exchange rates (approximate):</span>
+              <span>  - 1 EUR ≈ 19.5 MDL</span>
+              <span>  - 1 USD ≈ 17.8 MDL</span>
+              <span>  - 1 GBP ≈ 22.5 MDL</span>
+              <span>Monthly Budget Breakdown (in EUR):</span>
+              <span>• A place to stay: around €150-€300</span>
+              <span>• Food and groceries: about €200-€300</span>
+              <span>• Getting around: roughly €20-€30</span>
+              <span>• Utilities (water, electricity): around €50-€80</span>
+              <span>• Fun and entertainment: about €50-€100</span>
+              <div className="living-in-moldova-tip">
+                💡 Total monthly budget: approximately €500-€800 (this is just a guide - your actual costs may vary)
+              </div>
+              <div className="living-in-moldova-links">
+                <Link to="/universities" className="living-in-moldova-link">Check University Costs →</Link>
+                <Link to="/programms" className="living-in-moldova-link">Explore Program Fees →</Link>
+              </div>
+            </div>
+          </div>
+
+          <div className="living-in-moldova-card">
+            <h2 className="living-in-moldova-card-title">Accommodation</h2>
+            <div className="living-in-moldova-card-content">
+              <span>You have several options for where to live:</span>
+              <span>• Student dorms: around €50-€100/month (most budget-friendly)</span>
+              <span>• Private apartments: about €200-€400/month (more privacy)</span>
+              <span>• Shared apartments: roughly €150-€250/month (good balance)</span>
+              <span>Popular areas for students:</span>
+              <span>• Centru (city center) - Close to everything, including universities</span>
+              <span>• Botanica - Quiet and peaceful, great for studying</span>
+              <span>• Râșcani - Budget-friendly and well-connected by public transport</span>
+              <div className="living-in-moldova-tip">
+                🏠 Pro tip: Start with university accommodation - it's easier to find private housing once you're here and know the city better
+              </div>
+              <div className="living-in-moldova-links">
+                <Link to="/universities/usm-university-individual-page" className="living-in-moldova-link">USM Student Housing Info →</Link>
+                <Link to="/universities/utm-university-individual-page" className="living-in-moldova-link">UTM Student Housing Info →</Link>
+              </div>
+            </div>
+          </div>
+
+          <div className="living-in-moldova-card">
+            <h2 className="living-in-moldova-card-title">Transportation</h2>
+            <div className="living-in-moldova-card-content">
+              <span>Getting around is easy and affordable:</span>
+              <span>• Bus rides: about €0.30 each</span>
+              <span>• Trolleybus: around €0.30 per ride</span>
+              <span>• Monthly pass: roughly €10-€15 (best value)</span>
+              <span>• Taxi rides: starting from €1.50</span>
+              <span>Handy apps to download:</span>
+              <span>• Yandex.Taxi - The most popular taxi app here</span>
+              <span>• Uber - Also available in Chișinău</span>
+              <span>• Google Maps - Great for planning your routes</span>
+              <div className="living-in-moldova-tip">
+                🚌 Good news: Students get special discounts on monthly passes!
+              </div>
+              <div className="living-in-moldova-links">
+                <a href="https://chisinau.md/en/transport" target="_blank" rel="noopener noreferrer" className="living-in-moldova-link">Chișinău Transport Guide →</a>
+              </div>
+            </div>
+          </div>
+
+          <div className="living-in-moldova-card">
+            <h2 className="living-in-moldova-card-title">Food & Dining</h2>
+            <div className="living-in-moldova-card-content">
+              <span>Try these local favorites:</span>
+              <span>• Mămăligă (cornmeal porridge) - A traditional staple</span>
+              <span>• Plăcinte (savory pastries) - Perfect for quick meals</span>
+              <span>• Sarmale (stuffed cabbage rolls) - A must-try!</span>
+              <span>• Zeamă (chicken soup) - Great for cold days</span>
+              <span>Budget-friendly options:</span>
+              <span>• Student cafeterias: around €2-€4 per meal</span>
+              <span>• Local restaurants: about €5-€10 per meal</span>
+              <span>• Weekly groceries: roughly €30-€50</span>
+              <div className="living-in-moldova-tip">
+                🛒 Shopping tip: Look for student discounts at supermarkets like Linella, Nr. 1, and Kaufland
+              </div>
+              <div className="living-in-moldova-links">
+                <a href="https://www.moldova.travel/en/things-to-do/food-and-drink" target="_blank" rel="noopener noreferrer" className="living-in-moldova-link">Discover Moldovan Cuisine →</a>
+              </div>
+            </div>
+          </div>
+
+          <div className="living-in-moldova-card">
+            <h2 className="living-in-moldova-card-title">Healthcare & Insurance</h2>
+            <div className="living-in-moldova-card-content">
+              <span>Important things to know:</span>
+              <span>• Health insurance is required for all students</span>
+              <span>• Insurance costs: around €50-€150 per year</span>
+              <span>• Most medical services are covered</span>
+              <span>Where to get help:</span>
+              <span>• Your university's medical center</span>
+              <span>• Public hospitals in the city</span>
+              <span>• Private clinics (if needed)</span>
+              <div className="living-in-moldova-tip">
+                🏥 Remember: Always keep your insurance card with you - you never know when you might need it
+              </div>
+              <div className="living-in-moldova-links">
+                <Link to="/contact" className="living-in-moldova-link">Get Help with Insurance →</Link>
+              </div>
+            </div>
+          </div>
+
+          <div className="living-in-moldova-card">
+            <h2 className="living-in-moldova-card-title">Culture & Language</h2>
+            <div className="living-in-moldova-card-content">
+              <span>Languages you'll hear:</span>
+              <span>• Romanian is the official language</span>
+              <span>• Russian is widely spoken</span>
+              <span>• English is common in academic settings</span>
+              <span>Fun cultural experiences:</span>
+              <span>• Wine festivals (especially in September)</span>
+              <span>• Traditional music events</span>
+              <span>• Local markets - great for fresh produce</span>
+              <div className="living-in-moldova-tip">
+                🌍 Pro tip: Learning a few basic Romanian phrases will make your daily life much easier!
+              </div>
+              <div className="living-in-moldova-links">
+                <Link to="/programms" className="living-in-moldova-link">Find Language Courses →</Link>
+                <a href="https://www.moldova.travel/en/things-to-do/culture" target="_blank" rel="noopener noreferrer" className="living-in-moldova-link">Explore Cultural Events →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="living-in-moldova-contact">
+          <h2 className="living-in-moldova-contact-title">Need More Information?</h2>
+          <p className="living-in-moldova-contact-text">
+            Have questions about life in Moldova? We're here to help! Whether you need advice about accommodation, transportation, or daily life, our team is ready to assist you. We can also help with university applications and visa requirements.
+          </p>
+          <div className="living-in-moldova-contact-links">
+            <Link to="/contact" className="living-in-moldova-contact-button">
+              Get in Touch
+            </Link>
+            <Link to="/about" className="living-in-moldova-contact-button">
+              Plan Your Studies
+            </Link>
+          </div>
+        </div>
+      </div>
+      <Footer rootClassName="footer-root-class-name" />
+    </div>
+  );
+};
+
+export default LivingInMoldova;
