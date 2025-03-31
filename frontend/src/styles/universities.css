@@ -1,125 +1,192 @@
 .universities-container {
-  padding: 2rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem;
   max-width: 1200px;
   margin: 0 auto;
 }
 
 .universities-title {
-  text-align: center;
-  margin-bottom: 2rem;
+  font-size: 2rem;
   color: #333;
-  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
 }
 
 .universities-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  padding: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  margin-top: 1.5rem;
 }
 
 .university-card {
   background: white;
-  border-radius: 10px;
+  border-radius: 6px;
   overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
 }
 
 .university-card:hover {
-  transform: translateY(-5px);
-}
-
-.university-image-container {
-  width: 100%;
-  height: 200px;
-  overflow: hidden;
+  transform: translateY(-3px);
 }
 
 .university-image {
   width: 100%;
-  height: 100%;
+  height: 140px;
   object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.university-card:hover .university-image {
-  transform: scale(1.05);
 }
 
 .university-content {
-  padding: 1.5rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
-.university-name {
-  font-size: 1.5rem;
+.university-content h2 {
+  margin: 0 0 0.2rem 0;
   color: #333;
-  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  line-height: 1.2;
+}
+
+.university-type {
+  color: #666;
+  font-size: 0.8rem;
+  margin-bottom: 0.4rem;
+  font-weight: 500;
 }
 
 .university-location {
   color: #666;
-  font-size: 1rem;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.university-ranking {
+  color: #2196F3;
+  font-weight: bold;
   margin-bottom: 1rem;
 }
 
+.university-details {
+  margin-top: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.university-details h3 {
+  color: #333;
+  font-size: 0.9rem;
+  margin: 0.2rem 0;
+}
+
+.programs-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.programs-list li {
+  padding: 0.3rem 0;
+  color: #666;
+}
+
+.tuition-fees {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  padding: 0.5rem;
+}
+
+.tuition-fees li {
+  padding: 0.3rem 0;
+  color: #333;
+  font-size: 0.85rem;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #eee;
+}
+
+.tuition-fees li:last-child {
+  border-bottom: none;
+}
+
+.tuition-fees li strong {
+  color: #2196F3;
+  font-weight: 600;
+}
+
 .university-description {
-  color: #444;
-  line-height: 1.6;
-  margin-bottom: 1.5rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  color: #666;
+  line-height: 1.3;
+  margin-top: 0.3rem;
+  font-size: 0.75rem;
 }
 
 .university-actions {
-  display: flex;
-  gap: 1rem;
   margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  padding-top: 0.5rem;
+  border-top: 1px solid #eee;
 }
 
-.university-website-btn,
-.university-details-btn {
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
+.btn {
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
   text-decoration: none;
   font-weight: 500;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s;
+  text-align: center;
+  font-size: 0.8rem;
 }
 
-.university-website-btn {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.university-website-btn:hover {
-  background-color: #45a049;
-}
-
-.university-details-btn {
+.btn-primary {
   background-color: #2196F3;
   color: white;
 }
 
-.university-details-btn:hover {
+.btn-primary:hover {
   background-color: #1976D2;
 }
 
+.btn-secondary {
+  background-color: #f5f5f5;
+  color: #333;
+  width: 100%;
+}
+
+.btn-secondary:hover {
+  background-color: #e0e0e0;
+}
+
 .admin-controls {
-  margin: 20px 0;
-  text-align: right;
-  padding: 0 20px;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
 }
 
 .add-university-btn {
   background-color: #4CAF50;
   color: white;
-  padding: 10px 20px;
+  padding: 0.6rem 1.2rem;
   border: none;
-  border-radius: 5px;
+  border-radius: 4px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 0.9rem;
   transition: background-color 0.3s;
 }
 
@@ -128,52 +195,80 @@
 }
 
 .add-university-form {
+  width: 100%;
   max-width: 600px;
-  margin: 20px auto;
-  padding: 20px;
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
   background-color: #f9f9f9;
-  border-radius: 8px;
+  border-radius: 6px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .add-university-form input,
 .add-university-form textarea {
   width: 100%;
-  padding: 10px;
-  margin: 8px 0;
+  padding: 0.6rem;
+  margin-bottom: 0.8rem;
   border: 1px solid #ddd;
   border-radius: 4px;
-  box-sizing: border-box;
+  font-size: 0.9rem;
 }
 
 .add-university-form textarea {
-  height: 100px;
+  min-height: 80px;
   resize: vertical;
 }
 
 .submit-university-btn {
-  background-color: #4CAF50;
+  background-color: #2196F3;
   color: white;
-  padding: 12px 20px;
+  padding: 0.6rem 1.2rem;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  width: 100%;
-  margin-top: 10px;
-  font-size: 16px;
+  font-size: 0.9rem;
+  transition: background-color 0.3s;
 }
 
 .submit-university-btn:hover {
-  background-color: #45a049;
+  background-color: #1976D2;
 }
 
 .universities-loading,
 .universities-error {
   text-align: center;
-  padding: 20px;
-  font-size: 18px;
+  padding: 1.5rem;
+  font-size: 1rem;
+  color: #666;
 }
 
-.universities-error {
-  color: #ff0000;
+@media (max-width: 768px) {
+  .universities-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .add-university-form {
+    padding: 1rem;
+  }
+  
+  .university-actions {
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .university-card {
+    min-height: 380px;
+  }
+  
+  .university-image {
+    height: 130px;
+  }
+  
+  .university-content {
+    padding: 0.8rem;
+  }
 } 
