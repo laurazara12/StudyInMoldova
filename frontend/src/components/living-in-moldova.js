@@ -2,7 +2,7 @@ import React, { Fragment } from 'react'
 
 import PropTypes from 'prop-types'
 
-import './living-in-moldova1.css'
+import './living-in-moldova.css'
 
 const LivingInMoldova1 = (props) => {
   return (

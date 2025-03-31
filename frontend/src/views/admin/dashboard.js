@@ -256,11 +256,11 @@ const Dashboard = () => {
 
     return (
       <div className="user-documents">
-        <h4>Documente încărcate:</h4>
         <div className="dashboard-table-container">
           <table className="dashboard-table">
             <thead>
               <tr>
+                <th>ID</th>
                 <th>Tip Document</th>
                 <th>Data Încărcării</th>
                 <th>Acțiuni</th>
@@ -269,6 +269,7 @@ const Dashboard = () => {
             <tbody>
               {userDocuments.map((doc) => (
                 <tr key={doc.id}>
+                  <td>{doc.id}</td>
                   <td>{doc.document_type}</td>
                   <td>{new Date(doc.created_at).toLocaleDateString('en-US')}</td>
                   <td>
@@ -371,13 +372,18 @@ const Dashboard = () => {
 
           <div className="dashboard-filters">
             <div className="search-box">
-              <input
-                type="text"
-                placeholder="Caută..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="search-input"
-              />
+              <div className="search-input-wrapper">
+                <i className="fas fa-search search-icon"></i>
+                <input
+                  type="text"
+                  className="search-input"
+                  placeholder={activeTab === 'users' 
+                    ? "Caută după nume, email sau UUID..." 
+                    : "Caută după nume utilizator sau tip document..."}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
             </div>
             {activeTab === 'users' ? (
               <div className="filter-box">
@@ -435,35 +441,115 @@ const Dashboard = () => {
                         <td>{user.name}</td>
                         <td>{user.email}</td>
                         <td>{user.role === 'admin' ? 'Administrator' : 'User'}</td>
-                        <td className={docStatus.diploma === 'Uploaded' ? 'status-success' : 'status-missing'}>
-                          {docStatus.diploma}
-                        </td>
-                        <td className={docStatus.transcript === 'Uploaded' ? 'status-success' : 'status-missing'}>
-                          {docStatus.transcript}
-                        </td>
-                        <td className={docStatus.passport === 'Uploaded' ? 'status-success' : 'status-missing'}>
-                          {docStatus.passport}
-                        </td>
-                        <td className={docStatus.photo === 'Uploaded' ? 'status-success' : 'status-missing'}>
-                          {docStatus.photo}
+                        <td>
+                          <div className="document-cell">
+                            <span className={docStatus.diploma === 'Uploaded' ? 'status-success' : 'status-missing'}>
+                              {docStatus.diploma}
+                            </span>
+                            {docStatus.diploma === 'Uploaded' && (
+                              <div className="document-actions">
+                                <button 
+                                  className="download-button"
+                                  onClick={() => handleDownloadDocument('diploma', user.uuid)}
+                                >
+                                  <i className="fas fa-download"></i>
+                                </button>
+                                <button 
+                                  className="delete-button"
+                                  onClick={() => handleDeleteDocument('diploma', user.uuid)}
+                                >
+                                  <i className="fas fa-trash"></i>
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </td>
                         <td>
-                          <div className="action-buttons">
-                            <button 
-                              className="view-documents-button"
-                              onClick={() => setSelectedUser(user)}
-                            >
-                              View Docs
-                            </button>
-                            {user.role !== 'admin' && (
+                          <div className="document-cell">
+                            <span className={docStatus.transcript === 'Uploaded' ? 'status-success' : 'status-missing'}>
+                              {docStatus.transcript}
+                            </span>
+                            {docStatus.transcript === 'Uploaded' && (
+                              <div className="document-actions">
+                                <button 
+                                  className="download-button"
+                                  onClick={() => handleDownloadDocument('transcript', user.uuid)}
+                                >
+                                  <i className="fas fa-download"></i>
+                                </button>
+                                <button 
+                                  className="delete-button"
+                                  onClick={() => handleDeleteDocument('transcript', user.uuid)}
+                                >
+                                  <i className="fas fa-trash"></i>
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                        <td>
+                          <div className="document-cell">
+                            <span className={docStatus.passport === 'Uploaded' ? 'status-success' : 'status-missing'}>
+                              {docStatus.passport}
+                            </span>
+                            {docStatus.passport === 'Uploaded' && (
+                              <div className="document-actions">
+                                <button 
+                                  className="download-button"
+                                  onClick={() => handleDownloadDocument('passport', user.uuid)}
+                                >
+                                  <i className="fas fa-download"></i>
+                                </button>
+                                <button 
+                                  className="delete-button"
+                                  onClick={() => handleDeleteDocument('passport', user.uuid)}
+                                >
+                                  <i className="fas fa-trash"></i>
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                        <td>
+                          <div className="document-cell">
+                            <span className={docStatus.photo === 'Uploaded' ? 'status-success' : 'status-missing'}>
+                              {docStatus.photo}
+                            </span>
+                            {docStatus.photo === 'Uploaded' && (
+                              <div className="document-actions">
+                                <button 
+                                  className="download-button"
+                                  onClick={() => handleDownloadDocument('photo', user.uuid)}
+                                >
+                                  <i className="fas fa-download"></i>
+                                </button>
+                                <button 
+                                  className="delete-button"
+                                  onClick={() => handleDeleteDocument('photo', user.uuid)}
+                                >
+                                  <i className="fas fa-trash"></i>
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                        <td>
+                          {user.role !== 'admin' && (
+                            <div className="action-buttons">
+                              <button 
+                                className="view-documents-button"
+                                onClick={() => setSelectedUser(user)}
+                              >
+                                <i className="fas fa-eye"></i> View Docs
+                              </button>
                               <button 
                                 className="delete-button"
                                 onClick={() => confirmDelete(user.uuid)}
                               >
                                 Delete
                               </button>
-                            )}
-                          </div>
+                            </div>
+                          )}
                         </td>
                       </tr>
                     );

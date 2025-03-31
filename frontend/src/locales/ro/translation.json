@@ -1,0 +1,17 @@
+{
+  "universities": {
+    "title": "Universități",
+    "loading": "Se încarcă universitățile...",
+    "error": "A apărut o eroare la încărcarea universităților",
+    "addNew": "Adaugă o nouă universitate",
+    "cancelAdd": "Anulează adăugarea",
+    "form": {
+      "name": "Numele universității",
+      "description": "Descrierea universității",
+      "location": "Locația",
+      "imageUrl": "URL-ul imaginii",
+      "website": "Website-ul universității",
+      "submit": "Adaugă universitatea"
+    }
+  }
+} 

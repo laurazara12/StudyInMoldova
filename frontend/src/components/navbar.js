@@ -37,13 +37,13 @@ const Navbar = (props) => {
         </div>
         <div data-thq="thq-navbar-nav" className="navbar-desktop-menu">
           <nav className="navbar-links1">
-            <Link to="/" className={`navbar-text11 ${location.pathname === '/' ? 'active' : ''}`}>
+            <Link to="/living-in-moldova" className={`navbar-text11 ${location.pathname === '/living-in-moldova' ? 'active' : ''}`}>
               <span className="navbar-text35">Living In Moldova</span>
             </Link>
-            <Link to="/about" className={`navbar-text12 ${location.pathname === '/about' ? 'active' : ''}`}>
+            <Link to="/plan-your-studies" className={`navbar-text12 ${location.pathname === '/plan-your-studies' ? 'active' : ''}`}>
               <span className="navbar-text23">Plan Your Studies</span>
             </Link>
-            <Link to="/contact" className={`navbar-text13 ${location.pathname === '/contact' ? 'active' : ''}`}>
+            <Link to="/universities" className={`navbar-text13 ${location.pathname === '/universities' ? 'active' : ''}`}>
               <span className="navbar-text32">Universities</span>
             </Link>
             <Link to="/programms" className={`navbar-text14 ${location.pathname === '/programms' ? 'active' : ''}`}>
@@ -106,13 +106,13 @@ const Navbar = (props) => {
               </div>
             </div>
             <nav className="navbar-links2">
-              <Link to="/" className={`navbar-text16 ${location.pathname === '/' ? 'active' : ''}`}>
+              <Link to="/living-in-moldova" className={`navbar-text16 ${location.pathname === '/living-in-moldova' ? 'active' : ''}`}>
                 <span className="navbar-text35">Living In Moldova</span>
               </Link>
-              <Link to="/about" className={`navbar-text17 ${location.pathname === '/about' ? 'active' : ''}`}>
+              <Link to="/plan-your-studies" className={`navbar-text17 ${location.pathname === '/plan-your-studies' ? 'active' : ''}`}>
                 <span className="navbar-text23">Plan Your Studies</span>
               </Link>
-              <Link to="/contact" className={`navbar-text18 ${location.pathname === '/contact' ? 'active' : ''}`}>
+              <Link to="/universities" className={`navbar-text18 ${location.pathname === '/universities' ? 'active' : ''}`}>
                 <span className="navbar-text32">Universities</span>
               </Link>
               <Link to="/programms" className={`navbar-text19 ${location.pathname === '/programms' ? 'active' : ''}`}>

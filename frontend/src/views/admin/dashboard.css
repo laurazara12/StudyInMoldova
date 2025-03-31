@@ -133,6 +133,19 @@
 .view-documents-button {
   background-color: #007bff;
   color: white;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.view-documents-button i {
+  font-size: 0.8rem;
 }
 
 .view-documents-button:hover {
@@ -369,13 +382,13 @@
 
   .action-buttons {
     flex-direction: column;
+    gap: 0.3rem;
   }
 
   .view-documents-button,
-  .download-button,
   .delete-button {
     width: 100%;
-    padding: 0.4rem;
+    justify-content: center;
   }
 
   .modal-content {
@@ -406,7 +419,7 @@
 }
 
 .documents-modal {
-  max-width: 800px;
+  max-width: 1000px;
   width: 95%;
 }
 
@@ -435,20 +448,27 @@
   margin-top: 1rem;
 }
 
-.user-documents h4 {
-  margin-bottom: 1rem;
-  color: #666;
-  font-size: 1.1rem;
-}
-
 .user-documents .dashboard-table {
   margin-top: 0;
+  width: 100%;
 }
 
 .user-documents .dashboard-table th,
 .user-documents .dashboard-table td {
   padding: 0.8rem;
   font-size: 0.9rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.user-documents .dashboard-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+}
+
+.user-documents .dashboard-table tr:hover {
+  background-color: #f8f9fa;
 }
 
 .user-documents .action-buttons {
@@ -460,6 +480,10 @@
 .user-documents .delete-button {
   padding: 0.4rem 0.8rem;
   font-size: 0.8rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 @media (max-width: 768px) {
@@ -508,18 +532,39 @@
   min-width: 200px;
 }
 
+.search-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  font-size: 0.9rem;
+}
+
 .search-input {
   width: 100%;
-  padding: 0.6rem 1rem;
+  padding: 0.6rem 1rem 0.6rem 2.5rem;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 0.9rem;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
+  background-color: #fff;
 }
 
 .search-input:focus {
   outline: none;
   border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.search-input::placeholder {
+  color: #999;
+  font-size: 0.85rem;
 }
 
 .filter-box {
@@ -556,5 +601,69 @@
   .search-input,
   .filter-select {
     width: 100%;
+  }
+}
+
+.document-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.document-actions {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.document-actions .download-button,
+.document-actions .delete-button {
+  padding: 0.3rem 0.5rem;
+  font-size: 0.8rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.document-actions .download-button {
+  background-color: #28a745;
+  color: white;
+}
+
+.document-actions .download-button:hover {
+  background-color: #218838;
+}
+
+.document-actions .delete-button {
+  background-color: #dc3545;
+  color: white;
+}
+
+.document-actions .delete-button:hover {
+  background-color: #c82333;
+}
+
+.document-actions i {
+  font-size: 0.8rem;
+}
+
+@media (max-width: 768px) {
+  .document-cell {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+
+  .document-actions {
+    width: 100%;
+  }
+
+  .document-actions .download-button,
+  .document-actions .delete-button {
+    width: 100%;
+    padding: 0.3rem;
   }
 } 

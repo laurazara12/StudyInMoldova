@@ -1,19 +1,85 @@
-import React, { Fragment } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Helmet } from 'react-helmet'
 
 import Navbar from '../components/navbar'
 import SearchBar from '../components/search-bar'
-import UniversityPresentation from '../components/university-presentation'
+import UniversityPresentation from '../components/UniversityPresentation'
 import Footer from '../components/footer'
+import universityService from '../services/universityService'
 import './universities.css'
+import { useAuth } from '../contexts/AuthContext'
 
-const Universities = (props) => {
+const Universities = () => {
+  const { t } = useTranslation()
+  const { user } = useAuth()
+  const [universities, setUniversities] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newUniversity, setNewUniversity] = useState({
+    name: '',
+    description: '',
+    location: '',
+    imageUrl: '',
+    website: ''
+  });
+
+  useEffect(() => {
+    fetchUniversities();
+  }, []);
+
+  const fetchUniversities = async () => {
+    try {
+      const data = await universityService.getAllUniversities();
+      setUniversities(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddUniversity = async (e) => {
+    e.preventDefault();
+    try {
+      await universityService.createUniversity(newUniversity);
+      setNewUniversity({
+        name: '',
+        description: '',
+        location: '',
+        imageUrl: '',
+        website: ''
+      });
+      setShowAddForm(false);
+      fetchUniversities();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewUniversity(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  if (loading) {
+    return <div className="universities-loading">{t('universities.loading')}</div>;
+  }
+
+  if (error) {
+    return <div className="universities-error">{t('universities.error')}</div>;
+  }
+
   return (
     <div className="universities-container">
       <Helmet>
-        <title>Universities - exported project</title>
-        <meta property="og:title" content="Universities - exported project" />
+        <title>{t('universities.title')} | Study in Moldova</title>
+        <meta name="description" content={t('universities.metaDescription')} />
       </Helmet>
       <Navbar
         text={
@@ -107,96 +173,70 @@ const Universities = (props) => {
           </Fragment>
         }
       ></SearchBar>
-      <UniversityPresentation
-        rootClassName="university-presentationroot-class-name"
-        universityName="Moldova State University"
-        universityContactUniversityButtonUrl="https://international.usm.md/"
-        universityState={
-          <Fragment>
-            <span className="universities-text27">Public University </span>
-          </Fragment>
-        }
-        universityImage="https://raw.githubusercontent.com/laurazara12/Study-in-Moldova/refs/heads/main/images/1b28fedef0a20c48308bae0e7b4f7b9a.jpg"
-        seeMoreButton={
-          <Fragment>
-            <span className="universities-text28">See More</span>
-          </Fragment>
-        }
-        universityDescription={
-          <Fragment>
-            <span className="universities-text29">
-              Moldova State University (USM) is the leading public university in
-              Moldova, located in the capital, Chișinău. Offers a wide range of
-              programs across various faculties, including law, economics,
-              international relations, and engineering. With a strong reputation
-              in education and research, USM has partnerships with universities
-              worldwide and welcomes students from over 80 countries.
-            </span>
-          </Fragment>
-        }
-      ></UniversityPresentation>
-      <UniversityPresentation
-        universityName="Moldova Technical University"
-        universityContactUniversityButtonUrl="https://utm.md/en/"
-        universityState={
-          <Fragment>
-            <span className="universities-text30">Public University </span>
-          </Fragment>
-        }
-        universityImage="https://raw.githubusercontent.com/laurazara12/Study-in-Moldova/refs/heads/main/images/utm-main.webp"
-        seeMoreButton={
-          <Fragment>
-            <span className="universities-text31">See More</span>
-          </Fragment>
-        }
-        universityDescription={
-          <Fragment>
-            <span className="universities-text32">
-              The Technical University of Moldova (UTM) is the engineering and
-              technology institution in the country, shaping the future through
-              innovation, research, and academic excellence.
-              <span
-                dangerouslySetInnerHTML={{
-                  __html: ' ',
-                }}
-              />
-            </span>
-          </Fragment>
-        }
-      ></UniversityPresentation>
-      <UniversityPresentation
-        universityName="Nicolae Testimitanu State University of Medicine and Pharmacy "
-        universityState={
-          <Fragment>
-            <span className="universities-text33">Public University</span>
-          </Fragment>
-        }
-        seeMoreButton={
-          <Fragment>
-            <span className="universities-text34">See More</span>
-          </Fragment>
-        }
-        universityDescription={
-          <Fragment>
-            <span className="universities-text35">
-              The Nicolae Testemițanu State University of Medicine and Pharmacy
-              is Moldova’s leading medical institution, known for its high
-              academic standards and modern facilities. With a strong emphasis
-              on practical training, international collaboration, and
-              cutting-edge research, the university prepares students for
-              successful medical careers worldwide. It offers English-taught
-              programs, making it an excellent choice for international
-              students.
-            </span>
-          </Fragment>
-        }
-        universityRankingText="Ranking Web of Universities (Webometrics) place 3657 ( first place in Moldova ) "
-        universityLink="https://admission.usmf.md/en"
-        tuitionFeesMaster="  "
-        tuitionFeesPHD="  "
-        tuitionFeesBachelor="Integrated: 4000 -  7000 Euro / Year  "
-        universityImage="/images/dsc_5137-1000w.jpeg"
-      ></UniversityPresentation>
+      {user?.role === 'admin' && (
+        <div className="admin-controls">
+          <button 
+            className="add-university-btn"
+            onClick={() => setShowAddForm(!showAddForm)}
+          >
+            {showAddForm ? t('universities.cancelAdd') : t('universities.addNew')}
+          </button>
+        </div>
+      )}
+      {showAddForm && (
+        <form className="add-university-form" onSubmit={handleAddUniversity}>
+          <input
+            type="text"
+            name="name"
+            placeholder={t('universities.form.name')}
+            value={newUniversity.name}
+            onChange={handleInputChange}
+            required
+          />
+          <textarea
+            name="description"
+            placeholder={t('universities.form.description')}
+            value={newUniversity.description}
+            onChange={handleInputChange}
+            required
+          />
+          <input
+            type="text"
+            name="location"
+            placeholder={t('universities.form.location')}
+            value={newUniversity.location}
+            onChange={handleInputChange}
+            required
+          />
+          <input
+            type="url"
+            name="imageUrl"
+            placeholder={t('universities.form.imageUrl')}
+            value={newUniversity.imageUrl}
+            onChange={handleInputChange}
+            required
+          />
+          <input
+            type="url"
+            name="website"
+            placeholder={t('universities.form.website')}
+            value={newUniversity.website}
+            onChange={handleInputChange}
+            required
+          />
+          <button type="submit" className="submit-university-btn">
+            {t('universities.form.submit')}
+          </button>
+        </form>
+      )}
+      <div className="universities-grid">
+        {universities.map((university) => (
+          <UniversityPresentation
+            key={university.id}
+            university={university}
+          />
+        ))}
+      </div>
       <Footer
         link5={
           <Fragment>
@@ -215,14 +255,7 @@ const Universities = (props) => {
         }
         content3={
           <Fragment>
-            <span className="universities-text39">
-              © 2024
-              <span
-                dangerouslySetInnerHTML={{
-                  __html: ' ',
-                }}
-              />
-            </span>
+            <span className="universities-text39">© 2024</span>
           </Fragment>
         }
         link1={

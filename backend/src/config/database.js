@@ -1,5 +1,5 @@
 // /backend/src/config/database.js
-const sqlite3 = require('sqlite3').verbose();
+const { Sequelize } = require('sequelize');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
 const path = require('path');
@@ -17,69 +17,84 @@ function generateShortUUID() {
   return Math.random().toString(36).substring(2, 8);
 }
 
-const db = new sqlite3.Database(path.join(__dirname, 'database.sqlite'), (err) => {
-  if (err) {
-    console.error('Eroare la deschiderea bazei de date:', err);
-    return;
+const sequelize = new Sequelize({
+  dialect: 'sqlite',
+  storage: path.join(__dirname, 'database.sqlite'),
+  logging: false
+});
+
+const db = sequelize.define('users', {
+  id: {
+    type: Sequelize.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  uuid: {
+    type: Sequelize.TEXT,
+    unique: true,
+    allowNull: false
+  },
+  email: {
+    type: Sequelize.TEXT,
+    unique: true,
+    allowNull: false
+  },
+  password: {
+    type: Sequelize.TEXT,
+    allowNull: false
+  },
+  name: {
+    type: Sequelize.TEXT,
+    allowNull: false
+  },
+  role: {
+    type: Sequelize.TEXT,
+    allowNull: false,
+    defaultValue: 'user'
+  },
+  created_at: {
+    type: Sequelize.DATE,
+    defaultValue: Sequelize.NOW
   }
-  console.log('Baza de date a fost deschisă cu succes');
+}, {
+  tableName: 'users',
+  timestamps: false
+});
 
-  // Creăm tabelul users dacă nu există
-  db.run(`CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    uuid TEXT UNIQUE NOT NULL,
-    email TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    name TEXT NOT NULL,
-    role TEXT NOT NULL DEFAULT 'user',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )`, (err) => {
-    if (err) {
-      console.error('Eroare la crearea tabelului users:', err);
-    } else {
-      console.log('Tabelul users a fost creat sau există deja');
-      // Adăugăm UUID-uri pentru utilizatorii care nu au
-      db.all('SELECT id FROM users WHERE uuid IS NULL', [], (err, users) => {
-        if (err) {
-          console.error('Eroare la verificarea UUID-urilor:', err);
-          return;
-        }
-
-        users.forEach(user => {
-          const shortUUID = generateShortUUID();
-          db.run('UPDATE users SET uuid = ? WHERE id = ?', [shortUUID, user.id], (err) => {
-            if (err) {
-              console.error(`Eroare la actualizarea UUID pentru utilizatorul ${user.id}:`, err);
-            } else {
-              console.log(`UUID scurt adăugat pentru utilizatorul ${user.id}: ${shortUUID}`);
-            }
-          });
-        });
-      });
-
-      // Creăm utilizatorul admin după ce tabelele sunt create
-      createAdminUser();
+const documents = sequelize.define('documents', {
+  id: {
+    type: Sequelize.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  user_id: {
+    type: Sequelize.INTEGER,
+    allowNull: false
+  },
+  user_uuid: {
+    type: Sequelize.TEXT,
+    allowNull: false
+  },
+  document_type: {
+    type: Sequelize.TEXT,
+    allowNull: false
+  },
+  file_path: {
+    type: Sequelize.TEXT,
+    allowNull: false
+  },
+  created_at: {
+    type: Sequelize.DATE,
+    defaultValue: Sequelize.NOW
+  }
+}, {
+  tableName: 'documents',
+  timestamps: false,
+  uniqueKeys: {
+    documents_unique: {
+      fields: ['user_uuid', 'document_type']
     }
-  });
-
-  // Creăm tabelul documents dacă nu există
-  db.run(`CREATE TABLE IF NOT EXISTS documents (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    user_uuid TEXT NOT NULL,
-    document_type TEXT NOT NULL,
-    file_path TEXT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (user_uuid) REFERENCES users(uuid),
-    UNIQUE(user_uuid, document_type)
-  )`, (err) => {
-    if (err) {
-      console.error('Eroare la crearea tabelului documents:', err);
-    } else {
-      console.log('Tabelul documents a fost creat sau există deja');
-    }
-  });
+  }
 });
 
 async function createAdminUser() {
@@ -92,66 +107,30 @@ async function createAdminUser() {
     console.log('Începem crearea utilizatorilor...');
 
     // Creăm admin-ul
-    const adminExists = await new Promise((resolve, reject) => {
-      db.get('SELECT id FROM users WHERE email = ?', [adminEmail], (err, user) => {
-        if (err) {
-          console.error('Eroare la verificarea admin:', err);
-          reject(err);
-        } else {
-          resolve(user);
-        }
-      });
-    });
+    const adminExists = await db.findOne({ where: { email: adminEmail } });
 
     if (!adminExists) {
-      await new Promise((resolve, reject) => {
-        const adminUUID = generateShortUUID();
-        db.run(
-          'INSERT INTO users (uuid, email, password, name, role) VALUES (?, ?, ?, ?, ?)',
-          [adminUUID, adminEmail, adminPassword, 'Administrator', 'admin'],
-          function(err) {
-            if (err) {
-              console.error('Eroare la crearea admin:', err);
-              reject(err);
-            } else {
-              console.log('Utilizator admin creat cu succes, ID:', this.lastID, 'UUID:', adminUUID);
-              resolve();
-            }
-          }
-        );
+      await db.create({
+        uuid: generateShortUUID(),
+        email: adminEmail,
+        password: adminPassword,
+        name: 'Administrator',
+        role: 'admin'
       });
     } else {
       console.log('Utilizator admin existent, ID:', adminExists.id);
     }
 
     // Creăm utilizatorul de test
-    const testUserExists = await new Promise((resolve, reject) => {
-      db.get('SELECT id FROM users WHERE email = ?', [testUserEmail], (err, user) => {
-        if (err) {
-          console.error('Eroare la verificarea utilizatorului de test:', err);
-          reject(err);
-        } else {
-          resolve(user);
-        }
-      });
-    });
+    const testUserExists = await db.findOne({ where: { email: testUserEmail } });
 
     if (!testUserExists) {
-      await new Promise((resolve, reject) => {
-        const testUserUUID = generateShortUUID();
-        db.run(
-          'INSERT INTO users (uuid, email, password, name, role) VALUES (?, ?, ?, ?, ?)',
-          [testUserUUID, testUserEmail, testUserPassword, 'Test User', 'user'],
-          function(err) {
-            if (err) {
-              console.error('Eroare la crearea utilizatorului de test:', err);
-              reject(err);
-            } else {
-              console.log('Utilizator de test creat cu succes, ID:', this.lastID, 'UUID:', testUserUUID);
-              resolve();
-            }
-          }
-        );
+      await db.create({
+        uuid: generateShortUUID(),
+        email: testUserEmail,
+        password: testUserPassword,
+        name: 'Test User',
+        role: 'user'
       });
     } else {
       console.log('Utilizator de test existent, ID:', testUserExists.id);
@@ -161,4 +140,13 @@ async function createAdminUser() {
   }
 }
 
-module.exports = db;
+sequelize.sync({ force: false })
+  .then(() => {
+    console.log('Baza de date sincronizată cu succes');
+    createAdminUser();
+  })
+  .catch((error) => {
+    console.error('Eroare la sincronizarea bazei de date:', error);
+  });
+
+module.exports = sequelize;

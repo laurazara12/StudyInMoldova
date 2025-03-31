@@ -7,9 +7,23 @@ const { authMiddleware } = require('../middleware/auth');
 
 const router = express.Router();
 
+// Verificăm și creăm directorul uploads dacă nu există
+const uploadsDir = path.join(__dirname, '../../uploads');
+if (!fs.existsSync(uploadsDir)) {
+  try {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+    console.log('Directorul uploads a fost creat:', uploadsDir);
+  } catch (error) {
+    console.error('Eroare la crearea directorului uploads:', error);
+  }
+}
+
 // Configurare multer pentru încărcarea fișierelor
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
+    console.log('Începem procesul de salvare a fișierului...');
+    console.log('Date utilizator:', req.user);
+    
     // Obținem UUID-ul utilizatorului
     db.get('SELECT uuid FROM users WHERE id = ?', [req.user.id], (err, user) => {
       if (err) {
@@ -17,13 +31,16 @@ const storage = multer.diskStorage({
         return cb(err);
       }
 
+      console.log('Date utilizator găsite:', user);
+
       if (!user || !user.uuid) {
         console.error('UUID-ul utilizatorului nu a fost găsit');
         return cb(new Error('UUID-ul utilizatorului nu a fost găsit'));
       }
 
       // Creăm un director pentru utilizator folosind UUID-ul scurt
-      const userDir = path.join(__dirname, '../../uploads', user.uuid);
+      const userDir = path.join(uploadsDir, user.uuid);
+      console.log('Calea directorului utilizatorului:', userDir);
       
       // Creăm directorul dacă nu există
       if (!fs.existsSync(userDir)) {
@@ -41,6 +58,7 @@ const storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     try {
+      console.log('Date fișier primit:', file);
       const documentType = req.body.documentType || 'unknown';
       const userData = req.user || {};
       const userName = userData.name || 'unknown';
@@ -102,10 +120,13 @@ router.get('/user-documents', authMiddleware, (req, res) => {
 // Ruta pentru încărcarea documentelor
 router.post('/upload', authMiddleware, upload.single('document'), async (req, res) => {
   try {
-    console.log('Încercare de upload document:', {
+    console.log('Începem procesul de upload...');
+    console.log('Date request:', {
       userId: req.user.id,
       documentType: req.body.documentType,
-      hasFile: !!req.file
+      hasFile: !!req.file,
+      file: req.file,
+      body: req.body
     });
 
     if (!req.file) {
@@ -119,12 +140,20 @@ router.post('/upload', authMiddleware, upload.single('document'), async (req, re
       return res.status(400).json({ message: 'Tipul documentului este obligatoriu' });
     }
 
+    // Verificăm dacă fișierul a fost salvat corect
+    if (!fs.existsSync(req.file.path)) {
+      console.error('Fișierul nu a fost salvat la calea:', req.file.path);
+      return res.status(500).json({ message: 'Fișierul nu a fost salvat corect' });
+    }
+
     // Obținem UUID-ul utilizatorului
     db.get('SELECT uuid FROM users WHERE id = ?', [req.user.id], async (err, user) => {
       if (err) {
         console.error('Eroare la obținerea UUID-ului utilizatorului:', err);
         return res.status(500).json({ message: 'Eroare la obținerea datelor utilizatorului' });
       }
+
+      console.log('Date utilizator găsite:', user);
 
       if (!user || !user.uuid) {
         console.error('UUID-ul utilizatorului nu a fost găsit');
@@ -145,8 +174,8 @@ router.post('/upload', authMiddleware, upload.single('document'), async (req, re
 
           if (existingDoc) {
             // Actualizăm documentul existent
-            db.run('UPDATE documents SET file_path = ? WHERE user_id = ? AND document_type = ?',
-              [filePath, req.user.id, documentType],
+            db.run('UPDATE documents SET file_path = ?, user_uuid = ? WHERE user_id = ? AND document_type = ?',
+              [filePath, user.uuid, req.user.id, documentType],
               function(err) {
                 if (err) {
                   console.error('Eroare la actualizarea documentului:', err);
@@ -165,8 +194,8 @@ router.post('/upload', authMiddleware, upload.single('document'), async (req, re
             );
           } else {
             // Inserăm un document nou
-            db.run('INSERT INTO documents (user_id, document_type, file_path) VALUES (?, ?, ?)',
-              [req.user.id, documentType, filePath],
+            db.run('INSERT INTO documents (user_id, user_uuid, document_type, file_path) VALUES (?, ?, ?, ?)',
+              [req.user.id, user.uuid, documentType, filePath],
               function(err) {
                 if (err) {
                   console.error('Eroare la inserarea documentului:', err);
@@ -194,78 +223,34 @@ router.post('/upload', authMiddleware, upload.single('document'), async (req, re
 });
 
 // Ruta pentru ștergerea documentelor
-router.delete('/:documentType', authMiddleware, (req, res) => {
+router.delete('/:type', authMiddleware, async (req, res) => {
   try {
-    const { documentType } = req.params;
-    const userId = req.user ? req.user.id : null;
+    const { type } = req.params;
+    const { message } = req.body; // Mesajul opțional pentru notificare
 
-    if (!userId) {
-      console.error('userId nu este disponibil în req.user');
-      return res.status(401).json({ success: false, message: 'Utilizator neautentificat.' });
+    // Verifică dacă utilizatorul este admin
+    const user = await db.get('SELECT role FROM users WHERE uuid = ?', [req.user.uuid]);
+    if (user.role !== 'admin') {
+      return res.status(403).json({ message: 'Acces interzis' });
     }
 
-    console.log(`Cerere de ștergere primită pentru documentType: ${documentType}, userId: ${userId}`);
+    // Șterge documentul
+    await db.run(
+      'DELETE FROM documents WHERE document_type = ? AND user_uuid = ?',
+      [type, req.user.uuid]
+    );
 
-    // Obținem UUID-ul utilizatorului
-    db.get('SELECT uuid FROM users WHERE id = ?', [userId], (err, user) => {
-      if (err) {
-        console.error('Eroare la obținerea UUID-ului utilizatorului:', err);
-        return res.status(500).json({ success: false, message: 'Eroare la obținerea datelor utilizatorului' });
-      }
+    // Adaugă notificare pentru utilizator
+    const notificationMessage = message || `Documentul de tip ${type} a fost șters de către administrator.`;
+    await db.run(
+      'INSERT INTO notifications (user_uuid, message, type) VALUES (?, ?, ?)',
+      [req.user.uuid, notificationMessage, 'document_deleted']
+    );
 
-      if (!user || !user.uuid) {
-        console.error('UUID-ul utilizatorului nu a fost găsit');
-        return res.status(500).json({ success: false, message: 'UUID-ul utilizatorului nu a fost găsit' });
-      }
-
-      db.get(
-        'SELECT file_path FROM documents WHERE user_id = ? AND document_type = ?',
-        [userId, documentType],
-        (err, row) => {
-          if (err) {
-            console.error('Eroare la căutarea documentului:', err);
-            return res.status(500).json({ success: false });
-          }
-          if (!row) {
-            console.log('Documentul nu a fost găsit în baza de date.');
-            return res.status(404).json({ success: false, message: 'Documentul nu a fost găsit.' });
-          }
-
-          const filePath = row.file_path;
-          console.log(`Calea fișierului pentru ștergere: ${filePath}`);
-
-          fs.access(filePath, fs.constants.F_OK | fs.constants.W_OK, (err) => {
-            if (err) {
-              console.error('Fișierul nu poate fi accesat sau șters:', err);
-              return res.status(500).json({ success: false, message: 'Fișierul nu poate fi accesat sau șters.' });
-            }
-
-            fs.unlink(filePath, (err) => {
-              if (err) {
-                console.error('Eroare la ștergerea fișierului:', err);
-                return res.status(500).json({ success: false });
-              }
-
-              db.run(
-                'DELETE FROM documents WHERE user_id = ? AND document_type = ?',
-                [userId, documentType],
-                (err) => {
-                  if (err) {
-                    console.error('Eroare la ștergerea documentului din baza de date:', err);
-                    return res.status(500).json({ success: false });
-                  }
-                  console.log('Document șters cu succes.');
-                  res.json({ success: true });
-                }
-              );
-            });
-          });
-        }
-      );
-    });
+    res.json({ success: true });
   } catch (error) {
-    console.error('Eroare neașteptată:', error);
-    res.status(500).json({ success: false, message: 'Eroare internă server.' });
+    console.error('Eroare la ștergerea documentului:', error);
+    res.status(500).json({ message: 'Eroare la ștergerea documentului' });
   }
 });
 
@@ -414,6 +399,35 @@ router.get('/download/:documentType', authMiddleware, async (req, res) => {
         message: 'Eroare internă server' 
       });
     }
+  }
+});
+
+// Ruta pentru obținerea tuturor documentelor (pentru administrator)
+router.get('/', authMiddleware, (req, res) => {
+  try {
+    // Verificăm dacă utilizatorul este administrator
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Acces interzis. Doar administratorii pot vedea toate documentele.' });
+    }
+
+    console.log('Preluare toate documentele pentru administrator');
+    
+    db.all(`
+      SELECT d.*, u.uuid as user_uuid, u.name as user_name, u.email as user_email 
+      FROM documents d 
+      JOIN users u ON d.user_id = u.id
+    `, [], (err, documents) => {
+      if (err) {
+        console.error('Eroare la preluarea documentelor:', err);
+        return res.status(500).json({ message: 'Eroare la preluarea documentelor' });
+      }
+
+      console.log('Documente găsite:', documents.length);
+      res.json(documents);
+    });
+  } catch (error) {
+    console.error('Eroare la preluarea documentelor:', error);
+    res.status(500).json({ message: error.message });
   }
 });
 
