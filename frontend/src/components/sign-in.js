@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import PropTypes from 'prop-types'
 import './sign-in.css'
+import { API_BASE_URL, handleApiError } from '../config/api.config'
+import { useAuth } from '../contexts/AuthContext'
 
 const SignIn = (props) => {
   const [email, setEmail] = useState('');
@@ -11,50 +13,41 @@ const SignIn = (props) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleSignIn = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      if (!email || !password) {
-        setError('Te rugăm să completezi toate câmpurile');
-        setLoading(false);
-        return;
-      }
-
-      const response = await axios.post('http://localhost:4000/api/auth/login', {
+      const response = await axios.post(`${API_BASE_URL}/auth/login`, {
         email,
         password
       });
 
-      if (response.data.success && response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-
-        // Redirecționare bazată pe rol
+      // Verificăm dacă avem un răspuns valid și token
+      if (response.data && response.data.token) {
+        // Salvăm token-ul și datele utilizatorului
+        login(response.data.user, response.data.token);
+        
+        // Redirecționăm către dashboard în funcție de rol
         if (response.data.user.role === 'admin') {
           navigate('/dashboard');
         } else {
-          navigate('/profile');
+          navigate('/dashboard');
         }
       } else {
-        setError('Eroare la autentificare: răspuns invalid de la server');
+        setError('Autentificare eșuată. Vă rugăm să verificați credențialele.');
       }
     } catch (error) {
       console.error('Eroare la autentificare:', error);
-      if (error.response) {
-        setError(error.response.data.message || 'Email sau parolă incorectă');
-      } else if (error.request) {
-        setError('Nu s-a putut conecta la server. Verifică conexiunea la internet.');
-      } else {
-        setError('A apărut o eroare neașteptată. Te rugăm să încerci din nou.');
-      }
+      const errorMessage = error.response?.data?.message || 'A apărut o eroare la autentificare. Vă rugăm să încercați din nou.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -94,7 +87,7 @@ const SignIn = (props) => {
                 </Fragment>
               )}
             </h2>
-            <form className="sign-in-form2" onSubmit={handleSignIn}>
+            <form className="sign-in-form2" onSubmit={handleSubmit}>
               {error && (
                 <div className="error-message">
                   {error}
