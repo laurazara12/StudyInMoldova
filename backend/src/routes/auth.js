@@ -3,354 +3,257 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const db = require('../config/database');
+const { User } = require('../models');
 const { authMiddleware, adminMiddleware } = require('../middleware/auth');
 const { v4: uuidv4 } = require('uuid');
 
-// Funcție pentru generarea unui UUID scurt (6 caractere)
+// Function to generate a short UUID (6 characters)
 function generateShortUUID() {
   return Math.random().toString(36).substring(2, 8);
 }
 
-// Adăugăm UUID-uri scurte pentru utilizatorii existenți
-function addShortUUIDsToUsers() {
-  db.all('SELECT id FROM users WHERE uuid IS NULL', [], (err, users) => {
-    if (err) {
-      console.error('Eroare la selectarea utilizatorilor:', err);
-      return;
-    }
+// Add short UUIDs to existing users
+async function addShortUUIDsToUsers() {
+  try {
+    // Use raw query to avoid the createdAt column issue
+    const users = await User.sequelize.query(
+      'SELECT id, uuid FROM users WHERE uuid IS NULL',
+      { type: User.sequelize.QueryTypes.SELECT }
+    );
 
-    users.forEach(user => {
+    for (const user of users) {
       const shortUUID = generateShortUUID();
-      db.run('UPDATE users SET uuid = ? WHERE id = ?', [shortUUID, user.id], (err) => {
-        if (err) {
-          console.error(`Eroare la actualizarea UUID pentru utilizatorul ${user.id}:`, err);
-        } else {
-          console.log(`UUID scurt adăugat pentru utilizatorul ${user.id}: ${shortUUID}`);
+      await User.sequelize.query(
+        'UPDATE users SET uuid = ? WHERE id = ?',
+        {
+          replacements: [shortUUID, user.id],
+          type: User.sequelize.QueryTypes.UPDATE
         }
-      });
-    });
-  });
+      );
+      console.log(`Short UUID added for user ${user.id}: ${shortUUID}`);
+    }
+  } catch (error) {
+    console.error('Error updating UUIDs:', error);
+  }
 }
 
-// Rulăm funcția la pornirea serverului
+// Run the function when the server starts
 addShortUUIDsToUsers();
 
-// Înregistrare
+// Registration
 router.post('/signup', async (req, res) => {
   try {
     const { email, password, name } = req.body;
-    const shortUUID = generateShortUUID(); // Generăm un UUID scurt
-    console.log('Încercare de înregistrare pentru:', email);
-    console.log('Datele primite:', { email, name, password: password ? 'prezent' : 'lipsă' });
+    const shortUUID = generateShortUUID();
+    console.log('Registration attempt for:', email);
+    console.log('Received data:', { email, name, password: password ? 'present' : 'missing' });
 
     if (!email || !password || !name) {
-      console.log('Date lipsă:', { email: !!email, password: !!password, name: !!name });
+      console.log('Missing data:', { email: !!email, password: !!password, name: !!name });
       return res.status(400).json({ 
-        message: 'Toate câmpurile sunt obligatorii',
+        message: 'All fields are required',
         received: { email: !!email, password: !!password, name: !!name }
       });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log('Parola hash-uită generată');
+    console.log('Password hashed');
 
-    db.run(
-      'INSERT INTO users (uuid, email, password, name) VALUES (?, ?, ?, ?)',
-      [shortUUID, email, hashedPassword, name],
-      function(err) {
-        if (err) {
-          console.error('Eroare la înregistrare:', err);
-          if (err.message.includes('UNIQUE constraint failed')) {
-            return res.status(400).json({ message: 'Email-ul este deja înregistrat' });
-          }
-          return res.status(500).json({ message: err.message });
-        }
+    const user = await User.create({
+      uuid: shortUUID,
+      email,
+      password: hashedPassword,
+      name,
+      role: 'user'
+    });
 
-        console.log('Utilizator creat cu succes, UUID:', shortUUID);
+    console.log('User created successfully, UUID:', shortUUID);
 
-        const token = jwt.sign(
-          { id: this.lastID, role: 'user' },
-          process.env.JWT_SECRET,
-          { expiresIn: '1h' }
-        );
-
-        console.log('Token generat pentru utilizatorul nou');
-
-        res.status(201).json({
-          message: 'Utilizator creat cu succes',
-          token,
-          user: { 
-            uuid: shortUUID,
-            email, 
-            name, 
-            role: 'user' 
-          }
-        });
-      }
+    const token = jwt.sign(
+      { id: user.id, role: 'user' },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
     );
+
+    console.log('Token generated for new user');
+
+    res.status(201).json({
+      message: 'User created successfully',
+      token,
+      user: { 
+        uuid: shortUUID,
+        email, 
+        name, 
+        role: 'user' 
+      }
+    });
   } catch (error) {
-    console.error('Eroare la înregistrare:', error);
+    console.error('Registration error:', error);
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      return res.status(400).json({ message: 'Email is already registered' });
+    }
     res.status(500).json({ message: error.message });
   }
 });
 
-// Autentificare
+// Login
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log('Încercare de autentificare pentru:', email);
-    console.log('Datele primite:', { email, password: password ? 'prezent' : 'lipsă' });
-    console.log('Body complet:', req.body);
+    console.log('Login attempt for:', email);
 
     if (!email || !password) {
-      console.log('Date lipsă:', { email: !!email, password: !!password });
+      console.log('Missing data:', { email: !!email, password: !!password });
       return res.status(400).json({ 
-        message: 'Email și parola sunt obligatorii',
+        message: 'Email and password are required',
         received: { email: !!email, password: !!password }
       });
     }
 
-    // Verificăm dacă emailul este valid
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      console.log('Email invalid:', email);
-      return res.status(400).json({ message: 'Format email invalid' });
+    const user = await User.findOne({ where: { email } });
+    
+    if (!user) {
+      console.log('User not found for email:', email);
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    db.get('SELECT * FROM users WHERE email = ?', [email], async (err, user) => {
-      if (err) {
-        console.error('Eroare la căutarea utilizatorului:', err);
-        return res.status(500).json({ message: err.message });
-      }
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    
+    if (!isValidPassword) {
+      console.log('Invalid password for user:', email);
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
 
-      console.log('Utilizator găsit:', user ? {
+    console.log('Login successful for:', email);
+
+    const token = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    res.json({
+      message: 'Login successful',
+      token,
+      user: {
         uuid: user.uuid,
         email: user.email,
         name: user.name,
-        role: user.role,
-        hasPassword: !!user.password
-      } : 'Nu există');
-
-      if (!user) {
-        console.log('Utilizatorul nu a fost găsit în baza de date');
-        return res.status(400).json({ message: 'Email sau parolă incorectă' });
+        role: user.role
       }
-
-      if (!user.password) {
-        console.log('Utilizatorul nu are parolă setată');
-        return res.status(400).json({ message: 'Cont invalid - parola nu este setată' });
-      }
-
-      console.log('Verificare parolă...');
-      const validPassword = await bcrypt.compare(password, user.password);
-      console.log('Parola validă:', validPassword);
-
-      if (!validPassword) {
-        console.log('Parola nu este corectă.');
-        return res.status(400).json({ message: 'Email sau parolă incorectă' });
-      }
-
-      console.log('Generare token...');
-      const token = jwt.sign(
-        { id: user.id, role: user.role },
-        process.env.JWT_SECRET,
-        { expiresIn: '1h' }
-      );
-
-      console.log('Autentificare reușită pentru:', email);
-      res.json({
-        success: true,
-        token,
-        user: {
-          uuid: user.uuid,
-          email: user.email,
-          name: user.name,
-          role: user.role
-        }
-      });
     });
   } catch (error) {
-    console.error('Eroare la autentificare:', error);
+    console.error('Login error:', error);
     res.status(500).json({ message: error.message });
   }
 });
 
-// Lista utilizatorilor (doar pentru admin)
-router.get('/users', authMiddleware, adminMiddleware, (req, res) => {
+// Get current user data
+router.get('/me', authMiddleware, async (req, res) => {
   try {
-    console.log('Începe preluarea utilizatorilor');
-    console.log('Utilizator curent:', req.user);
+    const user = await User.findOne({
+      where: { id: req.user.id },
+      attributes: ['id', 'name', 'email', 'role', 'uuid']
+    });
 
-    // Verificăm dacă utilizatorul este admin
-    if (!req.user || req.user.role !== 'admin') {
-      console.log('Acces interzis - utilizatorul nu este admin:', req.user);
-      return res.status(403).json({ 
-        message: 'Acces interzis. Doar administratorii pot accesa această pagină.' 
+    if (!user) {
+      console.log('User not found');
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
       });
     }
 
-    // Mai întâi, ne asigurăm că toți utilizatorii au UUID
-    db.all('SELECT id FROM users WHERE uuid IS NULL', [], (err, usersWithoutUuid) => {
-      if (err) {
-        console.error('Eroare la verificarea UUID-urilor:', err);
-        return res.status(500).json({ message: 'Eroare la verificarea UUID-urilor' });
+    console.log('User data found:', user);
+    res.json({
+      success: true,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        uuid: user.uuid
       }
-
-      // Adăugăm UUID pentru utilizatorii care nu au
-      const promises = usersWithoutUuid.map(user => {
-        return new Promise((resolve, reject) => {
-          const uuid = uuidv4();
-          db.run('UPDATE users SET uuid = ? WHERE id = ?', [uuid, user.id], (err) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve();
-            }
-          });
-        });
-      });
-
-      Promise.all(promises)
-        .then(() => {
-          // După ce am adăugat UUID-urile, preluăm toți utilizatorii
-          const query = 'SELECT uuid, email, name, role FROM users';
-          console.log('Executare query:', query);
-
-          db.all(query, (err, users) => {
-            if (err) {
-              console.error('Eroare la preluarea utilizatorilor:', err);
-              return res.status(500).json({ 
-                message: 'Eroare la preluarea utilizatorilor',
-                error: err.message 
-              });
-            }
-
-            if (!users) {
-              console.log('Nu s-au găsit utilizatori');
-              return res.json([]);
-            }
-
-            console.log('Utilizatori găsiți:', users.length);
-            res.json(users);
-          });
-        })
-        .catch(error => {
-          console.error('Eroare la actualizarea UUID-urilor:', error);
-          res.status(500).json({ message: 'Eroare la actualizarea UUID-urilor' });
-        });
-    });
-  } catch (error) {
-    console.error('Eroare la preluarea utilizatorilor:', error);
-    res.status(500).json({ 
-      message: 'Eroare internă server',
-      error: error.message 
-    });
-  }
-});
-
-// Endpoint temporar pentru verificarea utilizatorilor (doar pentru dezvoltare)
-router.get('/check-users', (req, res) => {
-  db.all('SELECT id, email, name, role FROM users', (err, users) => {
-    if (err) {
-      console.error('Eroare la verificarea utilizatorilor:', err);
-      return res.status(500).json({ message: err.message });
-    }
-    console.log('Utilizatori existenți:', users);
-    res.json(users);
-  });
-});
-
-// Ruta pentru obținerea datelor utilizatorului curent
-router.get('/me', authMiddleware, (req, res) => {
-  try {
-    db.get('SELECT id, name, email, role FROM users WHERE id = ?', [req.user.id], (err, user) => {
-      if (err) {
-        console.error('Error fetching user data:', err);
-        return res.status(500).json({
-          success: false,
-          message: 'Eroare la preluarea datelor utilizatorului'
-        });
-      }
-
-      if (!user) {
-        return res.status(404).json({
-          success: false,
-          message: 'Utilizatorul nu a fost găsit'
-        });
-      }
-
-      res.json({
-        success: true,
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role
-        }
-      });
     });
   } catch (error) {
     console.error('Error fetching user data:', error);
     res.status(500).json({
       success: false,
-      message: 'Eroare la preluarea datelor utilizatorului'
+      message: 'Error fetching user data'
     });
   }
 });
 
-// Funcție helper pentru a obține un utilizator după ID
+// List users (only for admin)
+router.get('/users', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    console.log('Starting user retrieval');
+    console.log('Current user:', req.user);
+
+    const users = await User.findAll({
+      attributes: ['id', 'uuid', 'email', 'name', 'role'],
+      order: [['id', 'DESC']]
+    });
+
+    console.log('Users found:', users.length);
+    res.json(users);
+  } catch (error) {
+    console.error('Error retrieving users:', error);
+    res.status(500).json({ message: 'Error retrieving users' });
+  }
+});
+
+// Temporary endpoint for checking users (only for development)
+router.get('/check-users', (req, res) => {
+  User.findAll().then(users => {
+    console.log('Existing users:', users);
+    res.json(users);
+  }).catch(err => {
+    console.error('Error checking users:', err);
+    res.status(500).json({ message: err.message });
+  });
+});
+
+// Helper function to get a user by ID
 const getUserById = (id) => {
   return new Promise((resolve, reject) => {
-    db.get('SELECT * FROM users WHERE id = ?', [id], (err, user) => {
-      if (err) {
-        reject(err);
-        return;
+    User.findByPk(id).then(user => {
+      if (user) {
+        resolve(user);
+      } else {
+        reject(new Error('User not found'));
       }
-      resolve(user);
-    });
+    }).catch(reject);
   });
 };
 
-// Ruta pentru ștergerea unui utilizator
+// Delete a user
 router.delete('/users/:id', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const userId = req.params.id;
-    console.log('Încercare de ștergere pentru utilizatorul:', userId);
+    console.log('Delete attempt for user:', userId);
     
-    // Verifică dacă utilizatorul există și nu este admin
+    // Check if the user exists and is not admin
     const userToDelete = await getUserById(userId);
-    console.log('Utilizator găsit:', userToDelete);
+    console.log('User found:', userToDelete);
     
     if (!userToDelete) {
-      console.log('Utilizatorul nu a fost găsit:', userId);
-      return res.status(404).json({ message: 'Utilizatorul nu a fost găsit' });
+      console.log('User not found:', userId);
+      return res.status(404).json({ message: 'User not found' });
     }
     
     if (userToDelete.role === 'admin') {
-      console.log('Încercare de ștergere a unui administrator:', userId);
-      return res.status(403).json({ message: 'Nu puteți șterge un administrator' });
+      console.log('Delete attempt for admin:', userId);
+      return res.status(403).json({ message: 'Cannot delete an administrator' });
     }
 
-    // Șterge doar utilizatorul, păstrând documentele
-    const query = 'DELETE FROM users WHERE id = ?';
-    db.run(query, [userId], function(err) {
-      if (err) {
-        console.error('Eroare la ștergerea utilizatorului:', err);
-        return res.status(500).json({ message: 'Eroare la ștergerea utilizatorului' });
-      }
-      
-      if (this.changes === 0) {
-        console.log('Nu s-a șters niciun utilizator:', userId);
-        return res.status(404).json({ message: 'Utilizatorul nu a fost găsit' });
-      }
-      
-      console.log('Utilizator șters cu succes:', userId);
-      res.status(200).json({ message: 'Utilizator șters cu succes' });
-    });
+    // Delete only the user, keeping the documents
+    await userToDelete.destroy();
+    console.log('User deleted successfully:', userId);
+    res.status(200).json({ message: 'User deleted successfully' });
   } catch (error) {
-    console.error('Eroare la ștergerea utilizatorului:', error);
-    res.status(500).json({ message: 'Eroare internă server' });
+    console.error('Error deleting user:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 
@@ -366,37 +269,41 @@ router.post('/register', async (req, res) => {
     const uuid = uuidv4(); // Generează un UUID unic
 
     // Verifică dacă emailul există deja
-    db.get('SELECT * FROM users WHERE email = ?', [email], async (err, user) => {
-      if (err) {
-        console.error('Eroare la verificarea emailului:', err);
-        return res.status(500).json({ message: 'Eroare la înregistrare' });
-      }
-
+    User.findOne({ where: { email } }).then(user => {
       if (user) {
         return res.status(400).json({ message: 'Emailul este deja înregistrat' });
       }
 
       // Creează utilizatorul nou cu UUID
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const query = 'INSERT INTO users (uuid, email, password, name) VALUES (?, ?, ?, ?)';
-      
-      db.run(query, [uuid, email, hashedPassword, name], function(err) {
-        if (err) {
+      bcrypt.hash(password, 10).then(hashedPassword => {
+        User.create({
+          uuid,
+          email,
+          password: hashedPassword,
+          name,
+          role: 'user'
+        }).then(user => {
+          res.status(201).json({ 
+            message: 'Utilizator înregistrat cu succes',
+            user: {
+              id: user.id,
+              uuid: user.uuid,
+              email: user.email,
+              name: user.name,
+              role: user.role
+            }
+          });
+        }).catch(err => {
           console.error('Eroare la crearea utilizatorului:', err);
-          return res.status(500).json({ message: 'Eroare la înregistrare' });
-        }
-
-        res.status(201).json({ 
-          message: 'Utilizator înregistrat cu succes',
-          user: {
-            id: this.lastID,
-            uuid: uuid,
-            email: email,
-            name: name,
-            role: 'user'
-          }
+          res.status(500).json({ message: 'Eroare la înregistrare' });
         });
+      }).catch(err => {
+        console.error('Eroare la hash-area parolei:', err);
+        res.status(500).json({ message: 'Eroare la înregistrare' });
       });
+    }).catch(err => {
+      console.error('Eroare la verificarea emailului:', err);
+      res.status(500).json({ message: 'Eroare la înregistrare' });
     });
   } catch (error) {
     console.error('Eroare la înregistrare:', error);

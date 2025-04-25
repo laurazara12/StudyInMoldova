@@ -1,9 +1,9 @@
 const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
-const db = require('../config/database');
 const path = require('path');
 const { authMiddleware } = require('../middleware/auth');
+const { User, Document } = require('../config/database');
 
 const router = express.Router();
 
@@ -12,66 +12,61 @@ const uploadsDir = path.join(__dirname, '../../uploads');
 if (!fs.existsSync(uploadsDir)) {
   try {
     fs.mkdirSync(uploadsDir, { recursive: true });
-    console.log('Directorul uploads a fost creat:', uploadsDir);
+    console.log('Directory uploads created:', uploadsDir);
   } catch (error) {
-    console.error('Eroare la crearea directorului uploads:', error);
+    console.error('Error creating uploads directory:', error);
   }
 }
 
 // Configurare multer pentru încărcarea fișierelor
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    console.log('Începem procesul de salvare a fișierului...');
-    console.log('Date utilizator:', req.user);
+  destination: async function (req, file, cb) {
+    console.log('Starting file save process...');
+    console.log('User data:', req.user);
     
-    // Obținem UUID-ul utilizatorului
-    db.get('SELECT uuid FROM users WHERE id = ?', [req.user.id], (err, user) => {
-      if (err) {
-        console.error('Eroare la obținerea UUID-ului utilizatorului:', err);
-        return cb(err);
-      }
-
-      console.log('Date utilizator găsite:', user);
+    try {
+      // Get user UUID
+      const user = await User.findOne({
+        where: { id: req.user.id },
+        attributes: ['uuid']
+      });
 
       if (!user || !user.uuid) {
-        console.error('UUID-ul utilizatorului nu a fost găsit');
-        return cb(new Error('UUID-ul utilizatorului nu a fost găsit'));
+        console.error('User UUID not found');
+        return cb(new Error('User UUID not found'));
       }
 
-      // Creăm un director pentru utilizator folosind UUID-ul scurt
+      // Create user directory using UUID
       const userDir = path.join(uploadsDir, user.uuid);
-      console.log('Calea directorului utilizatorului:', userDir);
+      console.log('User directory path:', userDir);
       
-      // Creăm directorul dacă nu există
+      // Create directory if it doesn't exist
       if (!fs.existsSync(userDir)) {
-        try {
-          fs.mkdirSync(userDir, { recursive: true });
-          console.log('Directorul utilizatorului a fost creat:', userDir);
-        } catch (error) {
-          console.error('Eroare la crearea directorului utilizatorului:', error);
-          return cb(error);
-        }
+        fs.mkdirSync(userDir, { recursive: true });
+        console.log('User directory created:', userDir);
       }
       
       cb(null, userDir);
-    });
+    } catch (error) {
+      console.error('Error in destination handler:', error);
+      cb(error);
+    }
   },
   filename: function (req, file, cb) {
     try {
-      console.log('Date fișier primit:', file);
+      console.log('File data received:', file);
       const documentType = req.body.documentType || 'unknown';
       const userData = req.user || {};
       const userName = userData.name || 'unknown';
       
-      // Păstrăm numele și extensia originală a fișierului
       const originalName = file.originalname;
       const fileExtension = path.extname(originalName);
       const fileName = `${documentType}_${userName}${fileExtension}`;
       
-      console.log('Numele fișierului generat:', fileName);
+      console.log('Generated filename:', fileName);
       cb(null, fileName);
     } catch (error) {
-      console.error('Eroare la generarea numelui fișierului:', error);
+      console.error('Error generating filename:', error);
       cb(error);
     }
   }
@@ -80,48 +75,74 @@ const storage = multer.diskStorage({
 const upload = multer({ 
   storage: storage,
   limits: {
-    fileSize: 5 * 1024 * 1024 // limită de 5MB
+    fileSize: 5 * 1024 * 1024 // 5MB limit
   },
   fileFilter: function (req, file, cb) {
-    // Acceptăm toate tipurile de fișiere
     cb(null, true);
   }
 });
 
-// Ruta pentru obținerea documentelor utilizatorului
-router.get('/user-documents', authMiddleware, (req, res) => {
+// Get all documents (for admin)
+router.get('/', authMiddleware, async (req, res) => {
   try {
-    console.log('Preluare documente pentru utilizatorul:', req.user.id);
-    
-    db.all('SELECT * FROM documents WHERE user_id = ?', [req.user.id], (err, documents) => {
-      if (err) {
-        console.error('Eroare la preluarea documentelor:', err);
-        return res.status(500).json({ message: 'Eroare la preluarea documentelor' });
-      }
+    console.log('Retrieving all documents');
+    console.log('Current user:', req.user);
 
-      console.log('Documente găsite:', documents.length);
-      res.json({
-        success: true,
-        documents: documents.map(doc => ({
-          id: doc.id,
-          document_type: doc.document_type,
-          file_path: doc.file_path,
-          created_at: doc.created_at,
-          uploaded: true
-        }))
+    if (!req.user || req.user.role !== 'admin') {
+      console.log('Access denied - user is not admin:', req.user);
+      return res.status(403).json({ 
+        message: 'Access denied. Only administrators can access this page.' 
       });
+    }
+    
+    const documents = await Document.findAll({
+      attributes: ['id', 'user_id', 'user_uuid', 'document_type', 'file_path', 'created_at'],
+      order: [['created_at', 'DESC']],
+      include: [{
+        model: User,
+        attributes: ['name', 'email'],
+        as: 'user'
+      }]
     });
+
+    console.log('Documents found:', documents.length);
+    res.json(documents);
   } catch (error) {
-    console.error('Eroare la preluarea documentelor:', error);
+    console.error('Error retrieving documents:', error);
     res.status(500).json({ message: error.message });
   }
 });
 
-// Ruta pentru încărcarea documentelor
+// Get user documents
+router.get('/user-documents', authMiddleware, async (req, res) => {
+  try {
+    console.log('Retrieving documents for user:', req.user.id);
+    
+    const documents = await Document.findAll({
+      where: { user_id: req.user.id },
+      attributes: ['id', 'document_type', 'file_path', 'created_at'],
+      order: [['created_at', 'DESC']]
+    });
+
+    console.log('Documents found:', documents.length);
+    res.json(documents.map(doc => ({
+      id: doc.id,
+      document_type: doc.document_type,
+      file_path: doc.file_path,
+      created_at: doc.created_at,
+      uploaded: true
+    })));
+  } catch (error) {
+    console.error('Error retrieving documents:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Upload document
 router.post('/upload', authMiddleware, upload.single('document'), async (req, res) => {
   try {
-    console.log('Începem procesul de upload...');
-    console.log('Date request:', {
+    console.log('Starting upload process...');
+    console.log('Request data:', {
       userId: req.user.id,
       documentType: req.body.documentType,
       hasFile: !!req.file,
@@ -130,94 +151,81 @@ router.post('/upload', authMiddleware, upload.single('document'), async (req, re
     });
 
     if (!req.file) {
-      console.log('Nu s-a găsit niciun fișier în request');
-      return res.status(400).json({ message: 'Nu s-a găsit niciun fișier' });
+      console.log('No file found in request');
+      return res.status(400).json({ message: 'No file found' });
     }
 
     const documentType = req.body.documentType;
     if (!documentType) {
-      console.log('Tipul documentului lipsește');
-      return res.status(400).json({ message: 'Tipul documentului este obligatoriu' });
+      console.log('Document type is missing');
+      return res.status(400).json({ message: 'Document type is required' });
     }
 
-    // Verificăm dacă fișierul a fost salvat corect
     if (!fs.existsSync(req.file.path)) {
-      console.error('Fișierul nu a fost salvat la calea:', req.file.path);
-      return res.status(500).json({ message: 'Fișierul nu a fost salvat corect' });
+      console.error('File was not saved at path:', req.file.path);
+      return res.status(500).json({ message: 'File was not saved correctly' });
     }
 
-    // Obținem UUID-ul utilizatorului
-    db.get('SELECT uuid FROM users WHERE id = ?', [req.user.id], async (err, user) => {
-      if (err) {
-        console.error('Eroare la obținerea UUID-ului utilizatorului:', err);
-        return res.status(500).json({ message: 'Eroare la obținerea datelor utilizatorului' });
-      }
-
-      console.log('Date utilizator găsite:', user);
-
-      if (!user || !user.uuid) {
-        console.error('UUID-ul utilizatorului nu a fost găsit');
-        return res.status(500).json({ message: 'UUID-ul utilizatorului nu a fost găsit' });
-      }
-
-      // Verificăm dacă există deja un document de acest tip pentru utilizator
-      db.get('SELECT * FROM documents WHERE user_id = ? AND document_type = ?', 
-        [req.user.id, documentType],
-        async (err, existingDoc) => {
-          if (err) {
-            console.error('Eroare la verificarea documentului existent:', err);
-            return res.status(500).json({ message: 'Eroare la verificarea documentului existent' });
-          }
-
-          const filePath = req.file.path;
-          console.log('Fișier salvat la:', filePath);
-
-          if (existingDoc) {
-            // Actualizăm documentul existent
-            db.run('UPDATE documents SET file_path = ?, user_uuid = ? WHERE user_id = ? AND document_type = ?',
-              [filePath, user.uuid, req.user.id, documentType],
-              function(err) {
-                if (err) {
-                  console.error('Eroare la actualizarea documentului:', err);
-                  return res.status(500).json({ message: 'Eroare la actualizarea documentului' });
-                }
-                console.log('Document actualizat cu succes');
-                res.json({ 
-                  message: 'Document actualizat cu succes',
-                  document: {
-                    id: existingDoc.id,
-                    documentType,
-                    filePath
-                  }
-                });
-              }
-            );
-          } else {
-            // Inserăm un document nou
-            db.run('INSERT INTO documents (user_id, user_uuid, document_type, file_path) VALUES (?, ?, ?, ?)',
-              [req.user.id, user.uuid, documentType, filePath],
-              function(err) {
-                if (err) {
-                  console.error('Eroare la inserarea documentului:', err);
-                  return res.status(500).json({ message: 'Eroare la salvarea documentului' });
-                }
-                console.log('Document nou salvat cu succes, ID:', this.lastID);
-                res.json({ 
-                  message: 'Document salvat cu succes',
-                  document: {
-                    id: this.lastID,
-                    documentType,
-                    filePath
-                  }
-                });
-              }
-            );
-          }
-        }
-      );
+    // Get user UUID
+    const user = await User.findOne({
+      where: { id: req.user.id },
+      attributes: ['uuid']
     });
+
+    if (!user || !user.uuid) {
+      console.error('User UUID not found');
+      return res.status(500).json({ message: 'User UUID not found' });
+    }
+
+    // Check if document already exists
+    let document = await Document.findOne({
+      where: {
+        user_id: req.user.id,
+        document_type: documentType
+      }
+    });
+
+    const filePath = req.file.path;
+    console.log('File saved at:', filePath);
+
+    if (document) {
+      // Update existing document
+      document = await document.update({
+        file_path: filePath,
+        created_at: new Date()
+      });
+      console.log('Document updated successfully');
+      res.json({ 
+        message: 'Document updated successfully',
+        document: {
+          id: document.id,
+          documentType,
+          filePath,
+          created_at: document.created_at
+        }
+      });
+    } else {
+      // Create new document
+      document = await Document.create({
+        user_id: req.user.id,
+        user_uuid: user.uuid,
+        document_type: documentType,
+        file_path: filePath,
+        created_at: new Date()
+      });
+      console.log('Document created successfully');
+      res.json({ 
+        message: 'Document uploaded successfully',
+        document: {
+          id: document.id,
+          documentType,
+          filePath,
+          created_at: document.created_at
+        }
+      });
+    }
   } catch (error) {
-    console.error('Eroare la upload document:', error);
+    console.error('Error uploading document:', error);
     res.status(500).json({ message: error.message });
   }
 });
@@ -229,22 +237,31 @@ router.delete('/:type', authMiddleware, async (req, res) => {
     const { message } = req.body; // Mesajul opțional pentru notificare
 
     // Verifică dacă utilizatorul este admin
-    const user = await db.get('SELECT role FROM users WHERE uuid = ?', [req.user.uuid]);
+    const user = await User.findOne({
+      where: { uuid: req.user.uuid },
+      attributes: ['role']
+    });
     if (user.role !== 'admin') {
       return res.status(403).json({ message: 'Acces interzis' });
     }
 
     // Șterge documentul
-    await db.run(
-      'DELETE FROM documents WHERE document_type = ? AND user_uuid = ?',
-      [type, req.user.uuid]
-    );
+    await Document.destroy({
+      where: {
+        document_type: type,
+        user_uuid: req.user.uuid
+      }
+    });
 
     // Adaugă notificare pentru utilizator
     const notificationMessage = message || `Documentul de tip ${type} a fost șters de către administrator.`;
-    await db.run(
-      'INSERT INTO notifications (user_uuid, message, type) VALUES (?, ?, ?)',
-      [req.user.uuid, notificationMessage, 'document_deleted']
+    await User.update(
+      {
+        last_notification: new Date()
+      },
+      {
+        where: { uuid: req.user.uuid }
+      }
     );
 
     res.json({ success: true });
@@ -275,15 +292,9 @@ router.get('/download/:documentType', authMiddleware, async (req, res) => {
     }
 
     // Obținem UUID-ul utilizatorului
-    const user = await new Promise((resolve, reject) => {
-      db.get('SELECT uuid FROM users WHERE id = ?', [userId], (err, user) => {
-        if (err) {
-          console.error('Eroare la obținerea UUID-ului utilizatorului:', err);
-          reject(err);
-        } else {
-          resolve(user);
-        }
-      });
+    const user = await User.findOne({
+      where: { id: userId },
+      attributes: ['uuid']
     });
 
     if (!user || !user.uuid) {
@@ -295,20 +306,12 @@ router.get('/download/:documentType', authMiddleware, async (req, res) => {
     }
 
     // Găsim documentul în baza de date
-    const document = await new Promise((resolve, reject) => {
-      db.get(
-        'SELECT * FROM documents WHERE user_id = ? AND document_type = ?',
-        [userId, documentType],
-        (err, row) => {
-          if (err) {
-            console.error('Eroare la căutarea documentului:', err);
-            reject(err);
-          } else {
-            console.log('Document găsit în baza de date:', row);
-            resolve(row);
-          }
-        }
-      );
+    const document = await Document.findOne({
+      where: {
+        user_id: userId,
+        document_type: documentType
+      },
+      attributes: ['file_path']
     });
 
     if (!document) {
@@ -399,35 +402,6 @@ router.get('/download/:documentType', authMiddleware, async (req, res) => {
         message: 'Eroare internă server' 
       });
     }
-  }
-});
-
-// Ruta pentru obținerea tuturor documentelor (pentru administrator)
-router.get('/', authMiddleware, (req, res) => {
-  try {
-    // Verificăm dacă utilizatorul este administrator
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Acces interzis. Doar administratorii pot vedea toate documentele.' });
-    }
-
-    console.log('Preluare toate documentele pentru administrator');
-    
-    db.all(`
-      SELECT d.*, u.uuid as user_uuid, u.name as user_name, u.email as user_email 
-      FROM documents d 
-      JOIN users u ON d.user_id = u.id
-    `, [], (err, documents) => {
-      if (err) {
-        console.error('Eroare la preluarea documentelor:', err);
-        return res.status(500).json({ message: 'Eroare la preluarea documentelor' });
-      }
-
-      console.log('Documente găsite:', documents.length);
-      res.json(documents);
-    });
-  } catch (error) {
-    console.error('Eroare la preluarea documentelor:', error);
-    res.status(500).json({ message: error.message });
   }
 });
 
