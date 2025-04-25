@@ -117,7 +117,19 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    const isValidPassword = await bcrypt.compare(password, user.password);
+    // Verifică parola în două moduri:
+    // 1. Direct (pentru parolele hardcodate)
+    // 2. Cu bcrypt (pentru parolele hash-uite)
+    let isValidPassword = false;
+    
+    // Verifică dacă parola din baza de date este hash-uită
+    if (user.password.startsWith('$2a$') || user.password.startsWith('$2b$')) {
+      // Parola este hash-uită, folosește bcrypt
+      isValidPassword = await bcrypt.compare(password, user.password);
+    } else {
+      // Parola nu este hash-uită, verifică direct
+      isValidPassword = (password === user.password);
+    }
     
     if (!isValidPassword) {
       console.log('Invalid password for user:', email);
