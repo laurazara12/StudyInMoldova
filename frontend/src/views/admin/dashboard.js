@@ -4,10 +4,12 @@ import axios from 'axios';
 import Navbar from '../../components/navbar';
 import Footer from '../../components/footer';
 import './dashboard.css';
+import { API_BASE_URL, getAuthHeaders, handleApiError } from '../../config/api.config';
 
 const Dashboard = () => {
   const [users, setUsers] = useState([]);
   const [documents, setDocuments] = useState([]);
+  const [universities, setUniversities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('users');
@@ -16,6 +18,32 @@ const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all');
   const [filterDocumentType, setFilterDocumentType] = useState('all');
+  const [filterType, setFilterType] = useState('');
+  const [filterLocation, setFilterLocation] = useState('');
+  const [showAddUniversityForm, setShowAddUniversityForm] = useState(false);
+  const [showEditUniversityForm, setShowEditUniversityForm] = useState(false);
+  const [editingUniversity, setEditingUniversity] = useState(null);
+  const [newUniversity, setNewUniversity] = useState({
+    name: '',
+    type: 'Public',
+    description: '',
+    location: '',
+    imageUrl: '',
+    website: '',
+    ranking: '',
+    tuitionFees: {
+      bachelor: '',
+      master: '',
+      phd: ''
+    },
+    programs: [],
+    contactInfo: {
+      email: '',
+      phone: '',
+      address: ''
+    }
+  });
+  const [sortBy, setSortBy] = useState('name');
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user'));
@@ -33,11 +61,8 @@ const Dashboard = () => {
 
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/auth/users', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+        const response = await axios.get(`${API_BASE_URL}/auth/users`, {
+          headers: getAuthHeaders()
         });
         
         if (!isMounted) return;
@@ -50,17 +75,18 @@ const Dashboard = () => {
         }
       } catch (err) {
         if (!isMounted) return;
-        handleError(err);
+        const error = handleApiError(err);
+        setError(error.message);
+        if (error.status === 401) {
+          navigate('/sign-in');
+        }
       }
     };
 
     const fetchDocuments = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/documents', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+        const response = await axios.get(`${API_BASE_URL}/documents`, {
+          headers: getAuthHeaders()
         });
 
         if (!isMounted) return;
@@ -70,7 +96,22 @@ const Dashboard = () => {
         }
       } catch (err) {
         if (!isMounted) return;
-        console.error('Eroare la încărcarea documentelor:', err);
+        const error = handleApiError(err);
+        console.error('Eroare la încărcarea documentelor:', error);
+      }
+    };
+
+    const fetchUniversities = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/universities`, {
+          headers: getAuthHeaders()
+        });
+        if (isMounted) {
+          setUniversities(response.data);
+        }
+      } catch (error) {
+        const apiError = handleApiError(error);
+        console.error('Eroare la încărcarea universităților:', apiError);
       }
     };
 
@@ -111,12 +152,16 @@ const Dashboard = () => {
       }
     };
 
+    if (activeTab === 'universities') {
+      fetchUniversities();
+    }
+
     initializeDashboard();
 
     return () => {
       isMounted = false;
     };
-  }, [navigate, token, user?.role]);
+  }, [navigate, token, user?.role, activeTab]);
 
   const getDocumentStatus = (userUUID) => {
     const userDocuments = documents.filter(doc => doc.user_uuid === userUUID);
@@ -256,7 +301,7 @@ const Dashboard = () => {
 
     return (
       <div className="user-documents">
-        <div className="dashboard-table-container">
+        <div className="user-documents-table-container">
           <table className="dashboard-table">
             <thead>
               <tr>
@@ -319,6 +364,115 @@ const Dashboard = () => {
     return matchesSearch && matchesType;
   });
 
+  const filteredUniversities = universities
+    .filter(university => {
+      const matchesSearch = university.name.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesType = !filterType || university.type.toLowerCase() === filterType.toLowerCase();
+      const matchesLocation = !filterLocation || university.location === filterLocation;
+      return matchesSearch && matchesType && matchesLocation;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return a.name.localeCompare(b.name);
+        case 'name_desc':
+          return b.name.localeCompare(a.name);
+        case 'location':
+          return a.location.localeCompare(b.location);
+        case 'type':
+          return a.type.localeCompare(b.type);
+        default:
+          return 0;
+      }
+    });
+
+  const handleAddUniversity = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post('http://localhost:4000/api/universities', newUniversity);
+      setShowAddUniversityForm(false);
+      setNewUniversity({
+        name: '',
+        type: 'Public',
+        description: '',
+        location: '',
+        imageUrl: '',
+        website: '',
+        ranking: '',
+        tuitionFees: {
+          bachelor: '',
+          master: '',
+          phd: ''
+        },
+        programs: [],
+        contactInfo: {
+          email: '',
+          phone: '',
+          address: ''
+        }
+      });
+      // Reîncărcăm lista de universități
+      const response = await axios.get('http://localhost:4000/api/universities');
+      setUniversities(response.data);
+    } catch (error) {
+      console.error('Eroare la adăugarea universității:', error);
+      setError('Eroare la adăugarea universității');
+    }
+  };
+
+  const handleUniversityInputChange = (e) => {
+    const { name, value } = e.target;
+    if (name.includes('.')) {
+      const [parent, child] = name.split('.');
+      setNewUniversity(prev => ({
+        ...prev,
+        [parent]: {
+          ...prev[parent],
+          [child]: value
+        }
+      }));
+    } else {
+      setNewUniversity(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+  };
+
+  const handleEditUniversity = (university) => {
+    setEditingUniversity(university);
+    setShowEditUniversityForm(true);
+  };
+
+  const handleUpdateUniversity = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.put(`http://localhost:4000/api/universities/${editingUniversity.id}`, editingUniversity);
+      setShowEditUniversityForm(false);
+      setEditingUniversity(null);
+      // Reîncărcăm lista de universități
+      const response = await axios.get('http://localhost:4000/api/universities');
+      setUniversities(response.data);
+    } catch (error) {
+      console.error('Eroare la actualizarea universității:', error);
+      setError('Eroare la actualizarea universității');
+    }
+  };
+
+  const handleDeleteUniversity = async (universityId) => {
+    if (window.confirm('Sigur doriți să ștergeți această universitate?')) {
+      try {
+        await axios.delete(`http://localhost:4000/api/universities/${universityId}`);
+        // Reîncărcăm lista de universități
+        const response = await axios.get('http://localhost:4000/api/universities');
+        setUniversities(response.data);
+      } catch (error) {
+        console.error('Eroare la ștergerea universității:', error);
+        setError('Eroare la ștergerea universității');
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="dashboard-page">
@@ -367,6 +521,12 @@ const Dashboard = () => {
               >
                 Documents
               </button>
+              <button 
+                className={`tab-button ${activeTab === 'universities' ? 'active' : ''}`}
+                onClick={() => setActiveTab('universities')}
+              >
+                Universities
+              </button>
             </div>
           </div>
 
@@ -379,7 +539,7 @@ const Dashboard = () => {
                   className="search-input"
                   placeholder={activeTab === 'users' 
                     ? "Caută după nume, email sau UUID..." 
-                    : "Caută după nume utilizator sau tip document..."}
+                    : activeTab === 'documents' ? "Caută după nume utilizator sau tip document..." : "Caută după nume universități..."}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -397,7 +557,7 @@ const Dashboard = () => {
                   <option value="user">Utilizatori</option>
                 </select>
               </div>
-            ) : (
+            ) : activeTab === 'documents' ? (
               <div className="filter-box">
                 <select
                   value={filterDocumentType}
@@ -411,15 +571,498 @@ const Dashboard = () => {
                   <option value="photo">Fotografie</option>
                 </select>
               </div>
+            ) : (
+              <div className="filter-section universities-filter">
+                <div className="filter-group">
+                  <label>Tip:</label>
+                  <select
+                    value={filterType}
+                    onChange={(e) => setFilterType(e.target.value)}
+                    className="filter-select"
+                  >
+                    <option value="">Toate tipurile</option>
+                    <option value="public">Public</option>
+                    <option value="private">Privat</option>
+                  </select>
+                </div>
+                <div className="filter-group">
+                  <label>Locație:</label>
+                  <select
+                    value={filterLocation}
+                    onChange={(e) => setFilterLocation(e.target.value)}
+                    className="filter-select"
+                  >
+                    <option value="">Toate locațiile</option>
+                    <option value="Chișinău">Chișinău</option>
+                    <option value="Bălți">Bălți</option>
+                    <option value="Cahul">Cahul</option>
+                    <option value="Comrat">Comrat</option>
+                  </select>
+                </div>
+                <div className="filter-group">
+                  <label>Sortare:</label>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="filter-select"
+                  >
+                    <option value="name">Nume (A-Z)</option>
+                    <option value="name_desc">Nume (Z-A)</option>
+                    <option value="location">Locație (A-Z)</option>
+                    <option value="type">Tip (A-Z)</option>
+                  </select>
+                </div>
+                <button 
+                  className="clear-filters-button"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setFilterType('');
+                    setFilterLocation('');
+                    setSortBy('name');
+                  }}
+                >
+                  Curăță Filtrele
+                </button>
+              </div>
             )}
           </div>
 
+          {activeTab === 'universities' && (
+            <>
+              <div className="dashboard-actions">
+                <button 
+                  className="add-button"
+                  onClick={() => setShowAddUniversityForm(true)}
+                >
+                  Add University
+                </button>
+              </div>
+
+              <div className="universities-table-container">
+                <table className="dashboard-table">
+                  <thead>
+                    <tr>
+                      <th>Nume</th>
+                      <th>Tip</th>
+                      <th>Locație</th>
+                      <th>Website</th>
+                      <th>Acțiuni</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredUniversities.map(university => (
+                      <tr key={university.id}>
+                        <td>{university.name}</td>
+                        <td>{university.type}</td>
+                        <td>{university.location}</td>
+                        <td>
+                          <a href={university.website} target="_blank" rel="noopener noreferrer">
+                            {university.website}
+                          </a>
+                        </td>
+                        <td>
+                          <div className="action-buttons">
+                            <button 
+                              className="edit-button"
+                              onClick={() => handleEditUniversity(university)}
+                            >
+                              Editează
+                            </button>
+                            <button 
+                              className="delete-button"
+                              onClick={() => handleDeleteUniversity(university.id)}
+                            >
+                              Șterge
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {showAddUniversityForm && (
+                <div className="modal-overlay">
+                  <div className="modal-content">
+                    <h2>Add New University</h2>
+                    <form onSubmit={handleAddUniversity}>
+                      <div className="form-group">
+                        <label>Name:</label>
+                        <input
+                          type="text"
+                          name="name"
+                          value={newUniversity.name}
+                          onChange={handleUniversityInputChange}
+                          required
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label>Type:</label>
+                        <select
+                          name="type"
+                          value={newUniversity.type}
+                          onChange={handleUniversityInputChange}
+                          required
+                        >
+                          <option value="Public">Public</option>
+                          <option value="Private">Private</option>
+                        </select>
+                      </div>
+
+                      <div className="form-group">
+                        <label>Description:</label>
+                        <textarea
+                          name="description"
+                          value={newUniversity.description}
+                          onChange={handleUniversityInputChange}
+                          required
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label>Location:</label>
+                        <input
+                          type="text"
+                          name="location"
+                          value={newUniversity.location}
+                          onChange={handleUniversityInputChange}
+                          required
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label>Image URL:</label>
+                        <input
+                          type="url"
+                          name="imageUrl"
+                          value={newUniversity.imageUrl}
+                          onChange={handleUniversityInputChange}
+                          required
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label>Website:</label>
+                        <input
+                          type="url"
+                          name="website"
+                          value={newUniversity.website}
+                          onChange={handleUniversityInputChange}
+                          required
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label>Ranking:</label>
+                        <input
+                          type="text"
+                          name="ranking"
+                          value={newUniversity.ranking}
+                          onChange={handleUniversityInputChange}
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label>Tuition Fees:</label>
+                        <div className="nested-form-group">
+                          <input
+                            type="text"
+                            name="tuitionFees.bachelor"
+                            placeholder="Bachelor"
+                            value={newUniversity.tuitionFees.bachelor}
+                            onChange={handleUniversityInputChange}
+                          />
+                          <input
+                            type="text"
+                            name="tuitionFees.master"
+                            placeholder="Master"
+                            value={newUniversity.tuitionFees.master}
+                            onChange={handleUniversityInputChange}
+                          />
+                          <input
+                            type="text"
+                            name="tuitionFees.phd"
+                            placeholder="PhD"
+                            value={newUniversity.tuitionFees.phd}
+                            onChange={handleUniversityInputChange}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="form-group">
+                        <label>Contact Info:</label>
+                        <div className="nested-form-group">
+                          <input
+                            type="email"
+                            name="contactInfo.email"
+                            placeholder="Email"
+                            value={newUniversity.contactInfo.email}
+                            onChange={handleUniversityInputChange}
+                          />
+                          <input
+                            type="tel"
+                            name="contactInfo.phone"
+                            placeholder="Phone"
+                            value={newUniversity.contactInfo.phone}
+                            onChange={handleUniversityInputChange}
+                          />
+                          <input
+                            type="text"
+                            name="contactInfo.address"
+                            placeholder="Address"
+                            value={newUniversity.contactInfo.address}
+                            onChange={handleUniversityInputChange}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="modal-buttons">
+                        <button 
+                          type="button" 
+                          className="cancel-button"
+                          onClick={() => setShowAddUniversityForm(false)}
+                        >
+                          Cancel
+                        </button>
+                        <button type="submit" className="confirm-button">
+                          Add University
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
+
+              {showEditUniversityForm && editingUniversity && (
+                <div className="modal-overlay">
+                  <div className="modal-content">
+                    <h2>Editează Universitatea</h2>
+                    <form onSubmit={handleUpdateUniversity}>
+                      <div className="form-group">
+                        <label>Nume:</label>
+                        <input
+                          type="text"
+                          name="name"
+                          value={editingUniversity.name}
+                          onChange={(e) => setEditingUniversity({
+                            ...editingUniversity,
+                            name: e.target.value
+                          })}
+                          required
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label>Tip:</label>
+                        <select
+                          name="type"
+                          value={editingUniversity.type}
+                          onChange={(e) => setEditingUniversity({
+                            ...editingUniversity,
+                            type: e.target.value
+                          })}
+                          required
+                        >
+                          <option value="Public">Public</option>
+                          <option value="Private">Private</option>
+                        </select>
+                      </div>
+
+                      <div className="form-group">
+                        <label>Descriere:</label>
+                        <textarea
+                          name="description"
+                          value={editingUniversity.description}
+                          onChange={(e) => setEditingUniversity({
+                            ...editingUniversity,
+                            description: e.target.value
+                          })}
+                          required
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label>Locație:</label>
+                        <input
+                          type="text"
+                          name="location"
+                          value={editingUniversity.location}
+                          onChange={(e) => setEditingUniversity({
+                            ...editingUniversity,
+                            location: e.target.value
+                          })}
+                          required
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label>URL Imagine:</label>
+                        <input
+                          type="url"
+                          name="imageUrl"
+                          value={editingUniversity.imageUrl}
+                          onChange={(e) => setEditingUniversity({
+                            ...editingUniversity,
+                            imageUrl: e.target.value
+                          })}
+                          required
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label>Website:</label>
+                        <input
+                          type="url"
+                          name="website"
+                          value={editingUniversity.website}
+                          onChange={(e) => setEditingUniversity({
+                            ...editingUniversity,
+                            website: e.target.value
+                          })}
+                          required
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label>Ranking:</label>
+                        <input
+                          type="text"
+                          name="ranking"
+                          value={editingUniversity.ranking}
+                          onChange={(e) => setEditingUniversity({
+                            ...editingUniversity,
+                            ranking: e.target.value
+                          })}
+                        />
+                      </div>
+
+                      <div className="nested-form-group">
+                        <h3>Taxe de Școlarizare</h3>
+                        <div className="form-group">
+                          <label>Licență:</label>
+                          <input
+                            type="text"
+                            name="tuitionFees.bachelor"
+                            value={editingUniversity.tuitionFees?.bachelor || ''}
+                            onChange={(e) => setEditingUniversity({
+                              ...editingUniversity,
+                              tuitionFees: {
+                                ...editingUniversity.tuitionFees,
+                                bachelor: e.target.value
+                              }
+                            })}
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label>Master:</label>
+                          <input
+                            type="text"
+                            name="tuitionFees.master"
+                            value={editingUniversity.tuitionFees?.master || ''}
+                            onChange={(e) => setEditingUniversity({
+                              ...editingUniversity,
+                              tuitionFees: {
+                                ...editingUniversity.tuitionFees,
+                                master: e.target.value
+                              }
+                            })}
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label>Doctorat:</label>
+                          <input
+                            type="text"
+                            name="tuitionFees.phd"
+                            value={editingUniversity.tuitionFees?.phd || ''}
+                            onChange={(e) => setEditingUniversity({
+                              ...editingUniversity,
+                              tuitionFees: {
+                                ...editingUniversity.tuitionFees,
+                                phd: e.target.value
+                              }
+                            })}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="nested-form-group">
+                        <h3>Informații de Contact</h3>
+                        <div className="form-group">
+                          <label>Email:</label>
+                          <input
+                            type="email"
+                            name="contactInfo.email"
+                            value={editingUniversity.contactInfo?.email || ''}
+                            onChange={(e) => setEditingUniversity({
+                              ...editingUniversity,
+                              contactInfo: {
+                                ...editingUniversity.contactInfo,
+                                email: e.target.value
+                              }
+                            })}
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label>Telefon:</label>
+                          <input
+                            type="tel"
+                            name="contactInfo.phone"
+                            value={editingUniversity.contactInfo?.phone || ''}
+                            onChange={(e) => setEditingUniversity({
+                              ...editingUniversity,
+                              contactInfo: {
+                                ...editingUniversity.contactInfo,
+                                phone: e.target.value
+                              }
+                            })}
+                          />
+                        </div>
+                        <div className="form-group">
+                          <label>Adresă:</label>
+                          <input
+                            type="text"
+                            name="contactInfo.address"
+                            value={editingUniversity.contactInfo?.address || ''}
+                            onChange={(e) => setEditingUniversity({
+                              ...editingUniversity,
+                              contactInfo: {
+                                ...editingUniversity.contactInfo,
+                                address: e.target.value
+                              }
+                            })}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="modal-buttons">
+                        <button type="submit" className="confirm-button">
+                          Salvează Modificările
+                        </button>
+                        <button
+                          type="button"
+                          className="cancel-button"
+                          onClick={() => {
+                            setShowEditUniversityForm(false);
+                            setEditingUniversity(null);
+                          }}
+                        >
+                          Anulează
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
           {activeTab === 'users' ? (
-            <div className="dashboard-table-container">
+            <div className="users-table-container">
               <table className="dashboard-table">
                 <thead>
                   <tr>
-                    <th>ID</th>
                     <th>UUID</th>
                     <th>Name</th>
                     <th>Email</th>
@@ -436,7 +1079,6 @@ const Dashboard = () => {
                     const docStatus = getDocumentStatus(user.uuid);
                     return (
                       <tr key={user.uuid}>
-                        <td>{user.id}</td>
                         <td>{user.uuid}</td>
                         <td>{user.name}</td>
                         <td>{user.email}</td>
@@ -557,8 +1199,8 @@ const Dashboard = () => {
                 </tbody>
               </table>
             </div>
-          ) : (
-            <div className="dashboard-table-container">
+          ) : activeTab === 'documents' ? (
+            <div className="documents-table-container">
               <table className="dashboard-table">
                 <thead>
                   <tr>
@@ -600,7 +1242,7 @@ const Dashboard = () => {
                 </tbody>
               </table>
             </div>
-          )}
+          ) : null}
 
           {selectedUser && (
             <div className="modal-overlay">
