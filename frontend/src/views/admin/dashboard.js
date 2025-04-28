@@ -20,6 +20,14 @@ const Dashboard = () => {
   const [filterDocumentType, setFilterDocumentType] = useState('all');
   const [filterType, setFilterType] = useState('');
   const [filterLocation, setFilterLocation] = useState('');
+  const [filterDegree, setFilterDegree] = useState('all');
+  const [filterFaculty, setFilterFaculty] = useState('');
+  const [filterLanguage, setFilterLanguage] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterDateRange, setFilterDateRange] = useState({ start: '', end: '' });
+  const [filterCredits, setFilterCredits] = useState({ min: '', max: '' });
+  const [filterTuitionFee, setFilterTuitionFee] = useState({ min: '', max: '' });
+  const [filterRanking, setFilterRanking] = useState({ min: '', max: '' });
   const [showAddUniversityForm, setShowAddUniversityForm] = useState(false);
   const [showEditUniversityForm, setShowEditUniversityForm] = useState(false);
   const [editingUniversity, setEditingUniversity] = useState(null);
@@ -195,62 +203,62 @@ const Dashboard = () => {
     };
   }, [navigate, token, user?.role, activeTab]);
 
-  const getDocumentStatus = (userUUID) => {
-    const userDocuments = documents.filter(doc => doc.user_uuid === userUUID);
-    console.log('Documente pentru utilizatorul', userUUID, ':', userDocuments);
+  const getDocumentStatus = (userId) => {
+    const userDocuments = documents.filter(doc => doc.user_id === userId);
+    console.log('Documents for user', userId, ':', userDocuments);
     
     const requiredDocuments = ['diploma', 'transcript', 'passport', 'photo'];
     const status = {};
 
     requiredDocuments.forEach(docType => {
       const hasDocument = userDocuments.some(doc => doc.document_type === docType);
-      console.log('Verificare document', docType, ':', hasDocument);
+      console.log('Checking document', docType, ':', hasDocument);
       status[docType] = hasDocument ? 'Uploaded' : 'Missing';
     });
 
     return status;
   };
 
-  const handleDeleteUser = async (userUUID) => {
+  const handleDeleteUser = async (userId) => {
     try {
-      console.log('Încercare de ștergere pentru utilizatorul:', userUUID);
-      const response = await axios.delete(`http://localhost:4000/api/auth/users/${userUUID}`, {
+      console.log('Attempting to delete user:', userId);
+      const response = await axios.delete(`http://localhost:4000/api/auth/users/${userId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
 
-      console.log('Răspuns de la server:', response.data);
+      console.log('Server response:', response.data);
 
       if (response.status === 200) {
-        setUsers(users.filter(user => user.uuid !== userUUID));
+        setUsers(users.filter(user => user.id !== userId));
         setDeleteConfirmation(null);
       }
     } catch (err) {
-      console.error('Eroare la ștergerea utilizatorului:', err);
+      console.error('Error deleting user:', err);
       if (err.response) {
-        console.log('Răspuns de eroare:', err.response.data);
-        setError(err.response.data.message || 'Nu s-a putut șterge utilizatorul');
+        console.log('Error response:', err.response.data);
+        setError(err.response.data.message || 'Could not delete user');
       } else if (err.request) {
-        console.log('Nu s-a primit răspuns de la server');
-        setError('Nu s-a putut conecta la server. Verificați conexiunea la internet.');
+        console.log('No response received from server');
+        setError('Could not connect to server. Please check your internet connection.');
       } else {
-        console.log('Eroare la configurarea cererii:', err.message);
-        setError('Eroare la ștergerea utilizatorului. Vă rugăm să încercați din nou.');
+        console.log('Error setting up request:', err.message);
+        setError('Error deleting user. Please try again.');
       }
     }
   };
 
-  const confirmDelete = (userUUID) => {
-    setDeleteConfirmation(userUUID);
+  const confirmDelete = (userId) => {
+    setDeleteConfirmation(userId);
   };
 
   const cancelDelete = () => {
     setDeleteConfirmation(null);
   };
 
-  const handleDownloadDocument = async (documentType, userUUID) => {
+  const handleDownloadDocument = async (documentType, userId) => {
     try {
       const response = await axios({
         url: `http://localhost:4000/api/documents/download/${documentType}`,
@@ -262,29 +270,23 @@ const Dashboard = () => {
         }
       });
 
-      // Obținem tipul MIME din header-ul Content-Type
       const contentType = response.headers['content-type'];
       
-      // Găsim documentul în lista de documente pentru a obține numele original
-      const doc = documents.find(doc => doc.document_type === documentType && doc.user_uuid === userUUID);
+      const doc = documents.find(doc => doc.document_type === documentType && doc.user_id === userId);
       let fileName;
 
       if (doc && doc.file_path) {
-        // Extragem numele original al fișierului din calea completă
         fileName = doc.file_path.split('/').pop();
       } else {
-        // Dacă nu avem numele original, folosim numele documentului cu extensia corectă
         const fileExtension = contentType === 'image/png' ? '.png' : 
                             contentType === 'image/jpeg' || contentType === 'image/jpg' ? '.jpg' : 
                             contentType === 'application/pdf' ? '.pdf' : '.pdf';
         fileName = `${documentType}${fileExtension}`;
       }
 
-      // Creăm blob-ul cu tipul MIME corect
       const blob = new Blob([response.data], { type: contentType });
       const url = window.URL.createObjectURL(blob);
       
-      // Creăm link-ul de descărcare
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', fileName);
@@ -298,8 +300,8 @@ const Dashboard = () => {
     }
   };
 
-  const handleDeleteDocument = async (documentType, userUUID) => {
-    if (!window.confirm('Sigur doriți să ștergeți acest document?')) {
+  const handleDeleteDocument = async (documentType, userId) => {
+    if (!window.confirm('Are you sure you want to delete this document?')) {
       return;
     }
 
@@ -312,23 +314,22 @@ const Dashboard = () => {
       });
 
       if (response.data.success) {
-        // Actualizăm lista de documente
         setDocuments(documents.filter(doc => 
-          !(doc.document_type === documentType && doc.user_uuid === userUUID)
+          !(doc.document_type === documentType && doc.user_id === userId)
         ));
-        alert('Document șters cu succes!');
+        alert('Document deleted successfully!');
       }
     } catch (err) {
-      console.error('Eroare la ștergerea documentului:', err);
-      alert('Eroare la ștergerea documentului');
+      console.error('Error deleting document:', err);
+      alert('Error deleting document');
     }
   };
 
-  const renderUserDocuments = (userUUID) => {
-    const userDocuments = documents.filter(doc => doc.user_uuid === userUUID);
+  const renderUserDocuments = (userId) => {
+    const userDocuments = documents.filter(doc => doc.user_id === userId);
     
     if (userDocuments.length === 0) {
-      return <p>Nu există documente încărcate</p>;
+      return <p>No documents uploaded</p>;
     }
 
     return (
@@ -338,9 +339,9 @@ const Dashboard = () => {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Tip Document</th>
-                <th>Data Încărcării</th>
-                <th>Acțiuni</th>
+                <th>Document Type</th>
+                <th>Upload Date</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -352,16 +353,16 @@ const Dashboard = () => {
                   <td>
                     <div className="action-buttons">
                       <button 
-                        onClick={() => handleDownloadDocument(doc.document_type, userUUID)}
+                        onClick={() => handleDownloadDocument(doc.document_type, userId)}
                         className="download-button"
                       >
-                        Descarcă
+                        Download
                       </button>
                       <button 
-                        onClick={() => handleDeleteDocument(doc.document_type, userUUID)}
+                        onClick={() => handleDeleteDocument(doc.document_type, userId)}
                         className="delete-button"
                       >
-                        Șterge
+                        Delete
                       </button>
                     </div>
                   </td>
@@ -378,22 +379,31 @@ const Dashboard = () => {
     const matchesSearch = 
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.uuid.toLowerCase().includes(searchTerm.toLowerCase());
+      user.id.toString().includes(searchTerm.toLowerCase());
     
     const matchesRole = filterRole === 'all' || user.role === filterRole;
+    const matchesStatus = filterStatus === 'all' || 
+      (filterStatus === 'active' && user.status === 'active') ||
+      (filterStatus === 'inactive' && user.status === 'inactive');
     
-    return matchesSearch && matchesRole;
+    const matchesDateRange = (!filterDateRange.start || new Date(user.created_at) >= new Date(filterDateRange.start)) &&
+                           (!filterDateRange.end || new Date(user.created_at) <= new Date(filterDateRange.end));
+    
+    return matchesSearch && matchesRole && matchesStatus && matchesDateRange;
   });
 
   const filteredDocuments = documents.filter(doc => {
-    const user = users.find(u => u.uuid === doc.user_uuid);
+    const user = users.find(u => u.id === doc.user_id);
     const matchesSearch = 
       (user?.name.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
       doc.document_type.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesType = filterDocumentType === 'all' || doc.document_type === filterDocumentType;
     
-    return matchesSearch && matchesType;
+    const matchesDateRange = (!filterDateRange.start || new Date(doc.created_at) >= new Date(filterDateRange.start)) &&
+                           (!filterDateRange.end || new Date(doc.created_at) <= new Date(filterDateRange.end));
+    
+    return matchesSearch && matchesType && matchesDateRange;
   });
 
   const filteredUniversities = universities.filter(uni => {
@@ -406,7 +416,35 @@ const Dashboard = () => {
     const matchesLocation = filterLocation === '' || 
       uni.location.toLowerCase().includes(filterLocation.toLowerCase());
     
-    return matchesSearch && matchesType && matchesLocation;
+    const matchesRanking = (!filterRanking.min || uni.ranking >= parseInt(filterRanking.min)) &&
+                         (!filterRanking.max || uni.ranking <= parseInt(filterRanking.max));
+    
+    const matchesTuitionFee = (!filterTuitionFee.min || 
+                             (uni.tuitionFees?.bachelor && parseInt(uni.tuitionFees.bachelor) >= parseInt(filterTuitionFee.min))) &&
+                            (!filterTuitionFee.max || 
+                             (uni.tuitionFees?.bachelor && parseInt(uni.tuitionFees.bachelor) <= parseInt(filterTuitionFee.max)));
+    
+    return matchesSearch && matchesType && matchesLocation && matchesRanking && matchesTuitionFee;
+  });
+
+  const filteredPrograms = programs.filter(program => {
+    const matchesSearch = searchTerm === '' || 
+      program.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      program.faculty.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesDegree = filterDegree === 'all' || program.degree === filterDegree;
+    const matchesFaculty = filterFaculty === '' || program.faculty === filterFaculty;
+    const matchesLanguage = filterLanguage === '' || 
+      (Array.isArray(program.languages) && program.languages.includes(filterLanguage));
+    
+    const matchesCredits = (!filterCredits.min || program.credits >= parseInt(filterCredits.min)) &&
+                         (!filterCredits.max || program.credits <= parseInt(filterCredits.max));
+    
+    const matchesTuitionFee = (!filterTuitionFee.min || program.tuitionFee >= parseInt(filterTuitionFee.min)) &&
+                            (!filterTuitionFee.max || program.tuitionFee <= parseInt(filterTuitionFee.max));
+    
+    return matchesSearch && matchesDegree && matchesFaculty && matchesLanguage && 
+           matchesCredits && matchesTuitionFee;
   });
 
   const handleAddUniversity = async (e) => {
@@ -620,6 +658,15 @@ const Dashboard = () => {
     }
   };
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ro-RO', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
   if (loading) {
     return (
       <div className="dashboard-page">
@@ -691,7 +738,7 @@ const Dashboard = () => {
                   type="text"
                   className="search-input"
                   placeholder={activeTab === 'users' 
-                    ? "Caută după nume, email sau UUID..." 
+                    ? "Caută după nume, email sau ID..." 
                     : activeTab === 'documents' ? "Caută după nume utilizator sau tip document..." : "Caută după nume universități..."}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -699,52 +746,128 @@ const Dashboard = () => {
               </div>
             </div>
             {activeTab === 'users' ? (
-              <div className="filter-box">
-                <select
-                  value={filterRole}
-                  onChange={(e) => setFilterRole(e.target.value)}
-                  className="filter-select"
+              <div className="filter-section users-filter">
+                <div className="filter-group">
+                  <label>Role:</label>
+                  <select
+                    value={filterRole}
+                    onChange={(e) => setFilterRole(e.target.value)}
+                    className="filter-select"
+                  >
+                    <option value="all">All Roles</option>
+                    <option value="admin">Administrators</option>
+                    <option value="user">Users</option>
+                  </select>
+                </div>
+                <div className="filter-group">
+                  <label>Status:</label>
+                  <select
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                    className="filter-select"
+                  >
+                    <option value="all">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+                <div className="filter-group">
+                  <label>Date Range:</label>
+                  <div className="date-range-inputs">
+                    <input
+                      type="date"
+                      value={filterDateRange.start}
+                      onChange={(e) => setFilterDateRange({...filterDateRange, start: e.target.value})}
+                      className="date-input"
+                    />
+                    <span>to</span>
+                    <input
+                      type="date"
+                      value={filterDateRange.end}
+                      onChange={(e) => setFilterDateRange({...filterDateRange, end: e.target.value})}
+                      className="date-input"
+                    />
+                  </div>
+                </div>
+                <button 
+                  className="clear-filters-button"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setFilterRole('all');
+                    setFilterStatus('all');
+                    setFilterDateRange({ start: '', end: '' });
+                  }}
                 >
-                  <option value="all">Toate rolurile</option>
-                  <option value="admin">Administratori</option>
-                  <option value="user">Utilizatori</option>
-                </select>
+                  Clear Filters
+                </button>
               </div>
             ) : activeTab === 'documents' ? (
-              <div className="filter-box">
-                <select
-                  value={filterDocumentType}
-                  onChange={(e) => setFilterDocumentType(e.target.value)}
-                  className="filter-select"
+              <div className="filter-section documents-filter">
+                <div className="filter-group">
+                  <label>Document Type:</label>
+                  <select
+                    value={filterDocumentType}
+                    onChange={(e) => setFilterDocumentType(e.target.value)}
+                    className="filter-select"
+                  >
+                    <option value="all">All Types</option>
+                    <option value="diploma">Diploma</option>
+                    <option value="transcript">Transcript</option>
+                    <option value="passport">Passport</option>
+                    <option value="photo">Photo</option>
+                  </select>
+                </div>
+                <div className="filter-group">
+                  <label>Date Range:</label>
+                  <div className="date-range-inputs">
+                    <input
+                      type="date"
+                      value={filterDateRange.start}
+                      onChange={(e) => setFilterDateRange({...filterDateRange, start: e.target.value})}
+                      className="date-input"
+                    />
+                    <span>to</span>
+                    <input
+                      type="date"
+                      value={filterDateRange.end}
+                      onChange={(e) => setFilterDateRange({...filterDateRange, end: e.target.value})}
+                      className="date-input"
+                    />
+                  </div>
+                </div>
+                <button 
+                  className="clear-filters-button"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setFilterDocumentType('all');
+                    setFilterDateRange({ start: '', end: '' });
+                  }}
                 >
-                  <option value="all">Toate tipurile</option>
-                  <option value="diploma">Diplomă</option>
-                  <option value="transcript">Transcript</option>
-                  <option value="passport">Pașaport</option>
-                  <option value="photo">Fotografie</option>
-                </select>
+                  Clear Filters
+                </button>
               </div>
-            ) : (
+            ) : activeTab === 'universities' ? (
               <div className="filter-section universities-filter">
                 <div className="filter-group">
+                  <label>Type:</label>
                   <select
                     value={filterType}
                     onChange={(e) => setFilterType(e.target.value)}
                     className="filter-select"
                   >
-                    <option value="">Toate tipurile</option>
+                    <option value="">All Types</option>
                     <option value="public">Public</option>
-                    <option value="private">Privat</option>
+                    <option value="private">Private</option>
                   </select>
                 </div>
                 <div className="filter-group">
-                  <label>Locație:</label>
+                  <label>Location:</label>
                   <select
                     value={filterLocation}
                     onChange={(e) => setFilterLocation(e.target.value)}
                     className="filter-select"
                   >
-                    <option value="">Toate locațiile</option>
+                    <option value="">All Locations</option>
                     <option value="Chișinău">Chișinău</option>
                     <option value="Bălți">Bălți</option>
                     <option value="Cahul">Cahul</option>
@@ -752,16 +875,60 @@ const Dashboard = () => {
                   </select>
                 </div>
                 <div className="filter-group">
-                  <label>Sortare:</label>
+                  <label>Ranking Range:</label>
+                  <div className="range-inputs">
+                    <input
+                      type="number"
+                      placeholder="Min"
+                      value={filterRanking.min}
+                      onChange={(e) => setFilterRanking({...filterRanking, min: e.target.value})}
+                      className="range-input"
+                    />
+                    <span>to</span>
+                    <input
+                      type="number"
+                      placeholder="Max"
+                      value={filterRanking.max}
+                      onChange={(e) => setFilterRanking({...filterRanking, max: e.target.value})}
+                      className="range-input"
+                    />
+                  </div>
+                </div>
+                <div className="filter-group">
+                  <label>Tuition Fee Range:</label>
+                  <div className="range-inputs">
+                    <input
+                      type="number"
+                      placeholder="Min"
+                      value={filterTuitionFee.min}
+                      onChange={(e) => setFilterTuitionFee({...filterTuitionFee, min: e.target.value})}
+                      className="range-input"
+                    />
+                    <span>to</span>
+                    <input
+                      type="number"
+                      placeholder="Max"
+                      value={filterTuitionFee.max}
+                      onChange={(e) => setFilterTuitionFee({...filterTuitionFee, max: e.target.value})}
+                      className="range-input"
+                    />
+                  </div>
+                </div>
+                <div className="filter-group">
+                  <label>Sort:</label>
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
                     className="filter-select"
                   >
-                    <option value="name">Nume (A-Z)</option>
-                    <option value="name_desc">Nume (Z-A)</option>
-                    <option value="location">Locație (A-Z)</option>
-                    <option value="type">Tip (A-Z)</option>
+                    <option value="name">Name (A-Z)</option>
+                    <option value="name_desc">Name (Z-A)</option>
+                    <option value="location">Location (A-Z)</option>
+                    <option value="type">Type (A-Z)</option>
+                    <option value="ranking">Ranking (Low-High)</option>
+                    <option value="ranking_desc">Ranking (High-Low)</option>
+                    <option value="tuition">Tuition Fee (Low-High)</option>
+                    <option value="tuition_desc">Tuition Fee (High-Low)</option>
                   </select>
                 </div>
                 <button 
@@ -770,13 +937,110 @@ const Dashboard = () => {
                     setSearchTerm('');
                     setFilterType('');
                     setFilterLocation('');
+                    setFilterRanking({ min: '', max: '' });
+                    setFilterTuitionFee({ min: '', max: '' });
                     setSortBy('name');
                   }}
                 >
-                  Curăță Filtrele
+                  Clear Filters
                 </button>
               </div>
-            )}
+            ) : activeTab === 'programs' ? (
+              <div className="filter-section programs-filter">
+                <div className="filter-group">
+                  <label>Degree:</label>
+                  <select
+                    value={filterDegree}
+                    onChange={(e) => setFilterDegree(e.target.value)}
+                    className="filter-select"
+                  >
+                    <option value="all">All Degrees</option>
+                    <option value="Bachelor">Bachelor</option>
+                    <option value="Master">Master</option>
+                    <option value="PhD">PhD</option>
+                  </select>
+                </div>
+                <div className="filter-group">
+                  <label>Faculty:</label>
+                  <select
+                    value={filterFaculty}
+                    onChange={(e) => setFilterFaculty(e.target.value)}
+                    className="filter-select"
+                  >
+                    <option value="">All Faculties</option>
+                    {[...new Set(programs.map(p => p.faculty))].map(faculty => (
+                      <option key={faculty} value={faculty}>{faculty}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="filter-group">
+                  <label>Language:</label>
+                  <select
+                    value={filterLanguage}
+                    onChange={(e) => setFilterLanguage(e.target.value)}
+                    className="filter-select"
+                  >
+                    <option value="">All Languages</option>
+                    {[...new Set(programs.flatMap(p => Array.isArray(p.languages) ? p.languages : []))].map(lang => (
+                      <option key={lang} value={lang}>{lang}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="filter-group">
+                  <label>Credits Range:</label>
+                  <div className="range-inputs">
+                    <input
+                      type="number"
+                      placeholder="Min"
+                      value={filterCredits.min}
+                      onChange={(e) => setFilterCredits({...filterCredits, min: e.target.value})}
+                      className="range-input"
+                    />
+                    <span>to</span>
+                    <input
+                      type="number"
+                      placeholder="Max"
+                      value={filterCredits.max}
+                      onChange={(e) => setFilterCredits({...filterCredits, max: e.target.value})}
+                      className="range-input"
+                    />
+                  </div>
+                </div>
+                <div className="filter-group">
+                  <label>Tuition Fee Range:</label>
+                  <div className="range-inputs">
+                    <input
+                      type="number"
+                      placeholder="Min"
+                      value={filterTuitionFee.min}
+                      onChange={(e) => setFilterTuitionFee({...filterTuitionFee, min: e.target.value})}
+                      className="range-input"
+                    />
+                    <span>to</span>
+                    <input
+                      type="number"
+                      placeholder="Max"
+                      value={filterTuitionFee.max}
+                      onChange={(e) => setFilterTuitionFee({...filterTuitionFee, max: e.target.value})}
+                      className="range-input"
+                    />
+                  </div>
+                </div>
+                <button 
+                  className="clear-filters-button"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setFilterDegree('all');
+                    setFilterFaculty('');
+                    setFilterLanguage('');
+                    setFilterCredits({ min: '', max: '' });
+                    setFilterTuitionFee({ min: '', max: '' });
+                  }}
+                >
+                  Clear Filters
+                </button>
+              </div>
+            ) : null}
           </div>
 
           {activeTab === 'universities' && (
@@ -798,11 +1062,11 @@ const Dashboard = () => {
                 <table className="dashboard-table">
                   <thead>
                     <tr>
-                      <th>Nume</th>
-                      <th>Tip</th>
-                      <th>Locație</th>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Location</th>
                       <th>Website</th>
-                      <th>Acțiuni</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -889,18 +1153,18 @@ const Dashboard = () => {
                       </div>
 
                       <div className="form-group">
-                        <label>Image URL sau cale relativă:</label>
+                        <label>Image URL or relative path:</label>
                         <input
                           type="text"
                           name="imageUrl"
                           value={newUniversity.imageUrl}
                           onChange={handleUniversityInputChange}
-                          placeholder="URL sau cale relativă (ex: /images/universities/example.jpg)"
+                          placeholder="URL or relative path (ex: /images/universities/example.jpg)"
                           required
                         />
                         <small className="form-text text-muted">
-                          Puteți introduce fie un URL complet (ex: https://example.com/image.jpg) 
-                          fie o cale relativă în proiect (ex: /images/universities/example.jpg)
+                          You can enter either a complete URL (ex: https://example.com/image.jpg) 
+                          or a relative path in the project (ex: /images/universities/example.jpg)
                         </small>
                       </div>
 
@@ -1100,9 +1364,9 @@ const Dashboard = () => {
                       </div>
 
                       <div className="nested-form-group">
-                        <h3>Taxe de Școlarizare</h3>
+                        <h3>Tuition Fees</h3>
                         <div className="form-group">
-                          <label>Licență:</label>
+                          <label>Bachelor:</label>
                           <input
                             type="text"
                             name="tuitionFees.bachelor"
@@ -1132,7 +1396,7 @@ const Dashboard = () => {
                           />
                         </div>
                         <div className="form-group">
-                          <label>Doctorat:</label>
+                          <label>PhD:</label>
                           <input
                             type="text"
                             name="tuitionFees.phd"
@@ -1149,7 +1413,7 @@ const Dashboard = () => {
                       </div>
 
                       <div className="nested-form-group">
-                        <h3>Informații de Contact</h3>
+                        <h3>Contact Information</h3>
                         <div className="form-group">
                           <label>Email:</label>
                           <input
@@ -1166,7 +1430,7 @@ const Dashboard = () => {
                           />
                         </div>
                         <div className="form-group">
-                          <label>Telefon:</label>
+                          <label>Phone:</label>
                           <input
                             type="tel"
                             name="contactInfo.phone"
@@ -1181,7 +1445,7 @@ const Dashboard = () => {
                           />
                         </div>
                         <div className="form-group">
-                          <label>Adresă:</label>
+                          <label>Address:</label>
                           <input
                             type="text"
                             name="contactInfo.address"
@@ -1238,19 +1502,19 @@ const Dashboard = () => {
                 <table className="dashboard-table">
                   <thead>
                     <tr>
-                      <th>Nume</th>
-                      <th>Facultate</th>
-                      <th>Grad</th>
-                      <th>Credite</th>
-                      <th>Limbă</th>
-                      <th>Durată</th>
-                      <th>Taxă</th>
-                      <th>Universitate</th>
-                      <th>Acțiuni</th>
+                      <th>Name</th>
+                      <th>Faculty</th>
+                      <th>Degree</th>
+                      <th>Credits</th>
+                      <th>Language</th>
+                      <th>Duration</th>
+                      <th>Fee</th>
+                      <th>University</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {programs.map(program => (
+                    {filteredPrograms.map(program => (
                       <tr key={program.id}>
                         <td>{program.name}</td>
                         <td>{program.faculty}</td>
@@ -1577,7 +1841,7 @@ const Dashboard = () => {
               <table className="dashboard-table">
                 <thead>
                   <tr>
-                    <th>UUID</th>
+                    <th>ID</th>
                     <th>Name</th>
                     <th>Email</th>
                     <th>Role</th>
@@ -1590,10 +1854,10 @@ const Dashboard = () => {
                 </thead>
                 <tbody>
                   {filteredUsers.map(user => {
-                    const docStatus = getDocumentStatus(user.uuid);
+                    const docStatus = getDocumentStatus(user.id);
                     return (
-                      <tr key={user.uuid}>
-                        <td>{user.uuid}</td>
+                      <tr key={user.id}>
+                        <td>{user.id}</td>
                         <td>{user.name}</td>
                         <td>{user.email}</td>
                         <td>{user.role === 'admin' ? 'Administrator' : 'User'}</td>
@@ -1606,13 +1870,13 @@ const Dashboard = () => {
                               <div className="document-actions">
                                 <button 
                                   className="download-button"
-                                  onClick={() => handleDownloadDocument('diploma', user.uuid)}
+                                  onClick={() => handleDownloadDocument('diploma', user.id)}
                                 >
                                   <i className="fas fa-download"></i>
                                 </button>
                                 <button 
                                   className="delete-button"
-                                  onClick={() => handleDeleteDocument('diploma', user.uuid)}
+                                  onClick={() => handleDeleteDocument('diploma', user.id)}
                                 >
                                   <i className="fas fa-trash"></i>
                                 </button>
@@ -1629,13 +1893,13 @@ const Dashboard = () => {
                               <div className="document-actions">
                                 <button 
                                   className="download-button"
-                                  onClick={() => handleDownloadDocument('transcript', user.uuid)}
+                                  onClick={() => handleDownloadDocument('transcript', user.id)}
                                 >
                                   <i className="fas fa-download"></i>
                                 </button>
                                 <button 
                                   className="delete-button"
-                                  onClick={() => handleDeleteDocument('transcript', user.uuid)}
+                                  onClick={() => handleDeleteDocument('transcript', user.id)}
                                 >
                                   <i className="fas fa-trash"></i>
                                 </button>
@@ -1652,13 +1916,13 @@ const Dashboard = () => {
                               <div className="document-actions">
                                 <button 
                                   className="download-button"
-                                  onClick={() => handleDownloadDocument('passport', user.uuid)}
+                                  onClick={() => handleDownloadDocument('passport', user.id)}
                                 >
                                   <i className="fas fa-download"></i>
                                 </button>
                                 <button 
                                   className="delete-button"
-                                  onClick={() => handleDeleteDocument('passport', user.uuid)}
+                                  onClick={() => handleDeleteDocument('passport', user.id)}
                                 >
                                   <i className="fas fa-trash"></i>
                                 </button>
@@ -1675,13 +1939,13 @@ const Dashboard = () => {
                               <div className="document-actions">
                                 <button 
                                   className="download-button"
-                                  onClick={() => handleDownloadDocument('photo', user.uuid)}
+                                  onClick={() => handleDownloadDocument('photo', user.id)}
                                 >
                                   <i className="fas fa-download"></i>
                                 </button>
                                 <button 
                                   className="delete-button"
-                                  onClick={() => handleDeleteDocument('photo', user.uuid)}
+                                  onClick={() => handleDeleteDocument('photo', user.id)}
                                 >
                                   <i className="fas fa-trash"></i>
                                 </button>
@@ -1700,7 +1964,7 @@ const Dashboard = () => {
                               </button>
                               <button 
                                 className="delete-button"
-                                onClick={() => confirmDelete(user.uuid)}
+                                onClick={() => confirmDelete(user.id)}
                               >
                                 Delete
                               </button>
@@ -1727,9 +1991,9 @@ const Dashboard = () => {
                 </thead>
                 <tbody>
                   {filteredDocuments.map(doc => {
-                    const user = users.find(u => u.uuid === doc.user_uuid);
+                    const user = users.find(u => u.id === doc.user_id);
                     return (
-                      <tr key={`${doc.user_uuid}_${doc.document_type}`}>
+                      <tr key={`${doc.user_id}_${doc.document_type}`}>
                         <td>{doc.id}</td>
                         <td>{user ? user.name : 'Unknown'}</td>
                         <td>{doc.document_type}</td>
@@ -1738,13 +2002,13 @@ const Dashboard = () => {
                           <div className="action-buttons">
                             <button 
                               className="download-button"
-                              onClick={() => handleDownloadDocument(doc.document_type, doc.user_uuid)}
+                              onClick={() => handleDownloadDocument(doc.document_type, doc.user_id)}
                             >
                               Download
                             </button>
                             <button 
                               className="delete-button"
-                              onClick={() => handleDeleteDocument(doc.document_type, doc.user_uuid)}
+                              onClick={() => handleDeleteDocument(doc.document_type, doc.user_id)}
                             >
                               Delete
                             </button>
@@ -1762,12 +2026,12 @@ const Dashboard = () => {
             <div className="modal-overlay">
               <div className="modal-content documents-modal">
                 <div className="modal-header">
-                  <h3>Documente pentru {selectedUser.name}</h3>
+                  <h3>Documents for {selectedUser.name}</h3>
                   <button className="close-button" onClick={() => setSelectedUser(null)}>
-                    Închide
+                    Close
                   </button>
                 </div>
-                {renderUserDocuments(selectedUser.uuid)}
+                {renderUserDocuments(selectedUser.id)}
               </div>
             </div>
           )}
