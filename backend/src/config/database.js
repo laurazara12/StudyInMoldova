@@ -1,152 +1,95 @@
 // /backend/src/config/database.js
 const { Sequelize } = require('sequelize');
-const bcrypt = require('bcryptjs');
 require('dotenv').config();
 const path = require('path');
 const fs = require('fs');
-const uuid = require('uuid');
 
-// Creăm directorul pentru baza de date dacă nu există
-const dbDirectory = path.dirname(path.join(__dirname, 'database.sqlite'));
-if (!fs.existsSync(dbDirectory)) {
-  fs.mkdirSync(dbDirectory, { recursive: true });
-}
+// Configurare directoare
+const DB_DIR = path.join(__dirname, '../../data');
+const DB_FILE = path.join(DB_DIR, 'database.sqlite');
+const BACKUP_DIR = path.join(DB_DIR, 'backups');
 
-// Funcție pentru generarea unui UUID scurt (6 caractere)
-function generateShortUUID() {
-  return Math.random().toString(36).substring(2, 8);
-}
+// Creare directoare necesare
+[DB_DIR, BACKUP_DIR].forEach(dir => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+});
 
+// Funcție pentru backup
+const createBackup = () => {
+  if (fs.existsSync(DB_FILE)) {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const backupFile = path.join(BACKUP_DIR, `backup-${timestamp}.sqlite`);
+    fs.copyFileSync(DB_FILE, backupFile);
+    console.log(`Backup creat: ${backupFile}`);
+  }
+};
+
+// Verificare dacă baza de date există
+const dbExists = fs.existsSync(DB_FILE);
+
+// Configurare Sequelize
 const sequelize = new Sequelize({
   dialect: 'sqlite',
-  storage: path.join(__dirname, 'database.sqlite'),
+  storage: DB_FILE,
   logging: false
 });
 
-const db = sequelize.define('users', {
-  id: {
-    type: Sequelize.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
-  },
-  uuid: {
-    type: Sequelize.TEXT,
-    unique: true,
-    allowNull: false
-  },
-  email: {
-    type: Sequelize.TEXT,
-    unique: true,
-    allowNull: false
-  },
-  password: {
-    type: Sequelize.TEXT,
-    allowNull: false
-  },
-  name: {
-    type: Sequelize.TEXT,
-    allowNull: false
-  },
-  role: {
-    type: Sequelize.TEXT,
-    allowNull: false,
-    defaultValue: 'user'
-  },
-  created_at: {
-    type: Sequelize.DATE,
-    defaultValue: Sequelize.NOW
-  }
-}, {
-  tableName: 'users',
-  timestamps: false
-});
+// Import models
+const UserModel = require('../models/user');
+const UniversityModel = require('../models/university');
+const DocumentModel = require('../models/document');
+const ProgramModel = require('../models/program');
 
-const documents = sequelize.define('documents', {
-  id: {
-    type: Sequelize.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
-  },
-  user_id: {
-    type: Sequelize.INTEGER,
-    allowNull: false
-  },
-  user_uuid: {
-    type: Sequelize.TEXT,
-    allowNull: false
-  },
-  document_type: {
-    type: Sequelize.TEXT,
-    allowNull: false
-  },
-  file_path: {
-    type: Sequelize.TEXT,
-    allowNull: false
-  },
-  created_at: {
-    type: Sequelize.DATE,
-    defaultValue: Sequelize.NOW
-  }
-}, {
-  tableName: 'documents',
-  timestamps: false,
-  uniqueKeys: {
-    documents_unique: {
-      fields: ['user_uuid', 'document_type']
-    }
-  }
-});
+// Initialize models
+const User = UserModel(sequelize);
+const University = UniversityModel(sequelize);
+const Document = DocumentModel(sequelize);
+const Program = ProgramModel(sequelize);
 
-async function createAdminUser() {
+// Define relationships
+Program.belongsTo(University, { foreignKey: 'universityId' });
+University.hasMany(Program, { foreignKey: 'universityId' });
+
+// Funcție pentru sincronizare sigură
+const safeSync = async () => {
   try {
-    const adminEmail = 'admin@example.com';
-    const adminPassword = await bcrypt.hash('admin07', 10);
-    const testUserEmail = 'user3@example.com';
-    const testUserPassword = await bcrypt.hash('123', 10);
-
-    console.log('Începem crearea utilizatorilor...');
-
-    // Creăm admin-ul
-    const adminExists = await db.findOne({ where: { email: adminEmail } });
-
-    if (!adminExists) {
-      await db.create({
-        uuid: generateShortUUID(),
-        email: adminEmail,
-        password: adminPassword,
-        name: 'Administrator',
-        role: 'admin'
-      });
-    } else {
-      console.log('Utilizator admin existent, ID:', adminExists.id);
+    // Verificăm dacă baza de date există și este accesibilă
+    if (dbExists) {
+      try {
+        // Testăm conexiunea
+        await sequelize.authenticate();
+        console.log('Conexiune la baza de date verificată.');
+      } catch (error) {
+        console.error('Eroare la conectarea la baza de date:', error);
+        return;
+      }
     }
 
-    // Creăm utilizatorul de test
-    const testUserExists = await db.findOne({ where: { email: testUserEmail } });
+    // Sincronizăm doar dacă este necesar
+    await sequelize.sync({ 
+      alter: true,
+      force: false,
+      validate: true
+    });
 
-    if (!testUserExists) {
-      await db.create({
-        uuid: generateShortUUID(),
-        email: testUserEmail,
-        password: testUserPassword,
-        name: 'Test User',
-        role: 'user'
-      });
-    } else {
-      console.log('Utilizator de test existent, ID:', testUserExists.id);
-    }
-  } catch (error) {
-    console.error('Eroare la crearea utilizatorilor:', error);
-  }
-}
-
-sequelize.sync({ force: false })
-  .then(() => {
     console.log('Baza de date sincronizată cu succes');
-    createAdminUser();
-  })
-  .catch((error) => {
+  } catch (error) {
     console.error('Eroare la sincronizarea bazei de date:', error);
-  });
+  }
+};
 
-module.exports = sequelize;
+// Executăm sincronizarea inițială
+safeSync();
+
+// Exportăm funcțiile și modelele
+module.exports = {
+  sequelize,
+  User,
+  University,
+  Document,
+  Program,
+  createBackup,
+  safeSync
+};
