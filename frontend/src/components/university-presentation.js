@@ -27,7 +27,9 @@ const UniversityPresentation = ({ university }) => {
         </div>
         <p className="university-description-small">{university.description}</p>
         {university.website && (
-          <a href={university.website} className="university-link-small" target="_blank" rel="noopener noreferrer">{university.website}</a>
+          <div className="university-link-wrapper">
+            <a href={university.website} className="university-link-small" target="_blank" rel="noopener noreferrer">{university.website}</a>
+          </div>
         )}
         <div className="university-details-row">
           <div className="university-details-col">

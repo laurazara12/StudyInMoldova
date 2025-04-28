@@ -201,6 +201,13 @@
   text-overflow: unset;
 }
 
+.university-link-wrapper {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.3rem;
+}
+
 .university-link {
   color: #BF4408;
   font-size: 1rem;
@@ -513,9 +520,13 @@
 .university-link-small {
   font-size: 0.7rem !important;
   color: #e65103 !important;
-  margin-bottom: 0.5rem;
-  display: block;
+  display: inline;
   word-break: break-all;
+  margin-bottom: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  max-width: 100%;
 }
 .university-details-title-small {
   font-size: 0.75rem !important;
