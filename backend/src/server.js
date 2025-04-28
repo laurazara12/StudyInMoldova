@@ -3,9 +3,11 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const { authMiddleware } = require('./middleware/auth');
-const { sequelize } = require('./config/database');
+const { sequelize, safeSync } = require('./config/database');
 const universitiesRouter = require('./routes/universities');
 const programsRouter = require('./routes/programs');
+const authRouter = require('./routes/auth');
+const documentsRouter = require('./routes/documents');
 require('dotenv').config();
 
 const app = express();
@@ -32,14 +34,10 @@ if (!fs.existsSync(uploadsDir)) {
 app.use('/uploads', express.static(path.join(__dirname, '../../backend/uploads')));
 
 // Importăm rutele
-const authRoutes = require('./routes/auth');
-const documentsRoutes = require('./routes/documents');
-
-// Folosim rutele
-app.use('/api/auth', authRoutes);
-app.use('/api/documents', authMiddleware, documentsRoutes);
 app.use('/api/universities', universitiesRouter);
 app.use('/api/programs', programsRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/documents', documentsRouter);
 
 // Ruta pentru verificarea stării serverului
 app.get('/api/health', (req, res) => {
@@ -54,57 +52,96 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../../frontend/build', 'index.html'));
 });
 
-// Sincronizare baza de date
-sequelize.sync({ alter: true }).then(() => {
-  console.log('Database synchronized');
-}).catch(err => {
-  console.error('Error synchronizing database:', err);
-});
+// Verificăm dacă există un argument pentru forțarea recreării tabelelor
+const forceSync = process.argv.includes('--force-sync');
 
-// Gestionare erori
+// Sincronizăm baza de date
+if (forceSync) {
+  console.log('Se forțează recrearea tabelelor...');
+  safeSync(true).then(() => {
+    console.log('Sincronizarea forțată a fost finalizată.');
+    createAdminUser();
+  }).catch(err => {
+    console.error('Eroare la sincronizarea forțată:', err);
+  });
+} else {
+  safeSync().then(() => {
+    console.log('Sincronizarea normală a fost finalizată.');
+    createAdminUser();
+  }).catch(err => {
+    console.error('Eroare la sincronizarea normală:', err);
+  });
+}
+
+// Funcție pentru crearea unui utilizator admin
+async function createAdminUser() {
+  try {
+    const { User } = require('./models');
+    const bcrypt = require('bcryptjs');
+    
+    // Verificăm dacă există deja un utilizator admin
+    const adminExists = await User.findOne({ where: { email: 'admin@example.com' } });
+    
+    if (!adminExists) {
+      console.log('Se creează utilizatorul admin...');
+      const hashedPassword = await bcrypt.hash('123', 10);
+      
+      await User.create({
+        name: 'Administrator',
+        email: 'admin@example.com',
+        password: hashedPassword,
+        role: 'admin'
+      });
+      
+      console.log('Utilizatorul admin a fost creat cu succes.');
+    } else {
+      console.log('Utilizatorul admin există deja.');
+    }
+  } catch (error) {
+    console.error('Eroare la crearea utilizatorului admin:', error);
+  }
+}
+
+// Middleware pentru gestionarea erorilor
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ 
-    message: 'A apărut o eroare internă',
-    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    message: 'A apărut o eroare pe server', 
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined 
   });
 });
 
-// Funcție pentru închiderea sigură a serverului
-const gracefulShutdown = (signal) => {
-  console.log(`\nPrimit semnal ${signal}. Închidere server în mod sigur...`);
-  
-  // Setăm un timeout pentru închidere forțată dacă procesul durează prea mult
-  const forceShutdown = setTimeout(() => {
-    console.error('Serverul nu s-a închis în timp util. Închidere forțată.');
-    process.exit(1);
-  }, 10000); // 10 secunde timeout
-  
-  // Închidem serverul HTTP
-  server.close(() => {
-    console.log('Server HTTP închis.');
-    
-    // Închidem conexiunea la baza de date
-    sequelize.close()
-      .then(() => {
-        console.log('Conexiune la baza de date închisă.');
-        clearTimeout(forceShutdown);
-        process.exit(0);
-      })
-      .catch(err => {
-        console.error('Eroare la închiderea conexiunii la baza de date:', err);
-        clearTimeout(forceShutdown);
-        process.exit(1);
-      });
-  });
-};
-
-// Pornire server
+// Pornim serverul
 const server = app.listen(PORT, () => {
   console.log(`Serverul rulează pe portul ${PORT}`);
 });
 
-// Gestionare semnale de oprire
+// Gestionare închidere sigură
+const gracefulShutdown = async (signal) => {
+  console.log(`Semnal primit: ${signal}. Se închide serverul...`);
+  
+  // Închidem serverul HTTP
+  server.close(() => {
+    console.log('Serverul HTTP a fost închis.');
+    
+    // Închidem conexiunea la baza de date
+    sequelize.close().then(() => {
+      console.log('Conexiunea la baza de date a fost închisă.');
+      process.exit(0);
+    }).catch(err => {
+      console.error('Eroare la închiderea conexiunii la baza de date:', err);
+      process.exit(1);
+    });
+  });
+  
+  // Setăm un timeout pentru a forța închiderea dacă durează prea mult
+  setTimeout(() => {
+    console.error('Serverul nu s-a închis în timp util. Se forțează închiderea.');
+    process.exit(1);
+  }, 10000);
+};
+
+// Ascultăm semnalele de închidere
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
@@ -116,7 +153,7 @@ process.on('uncaughtException', (err) => {
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Promisiune nerezolvată:', reason);
-  gracefulShutdown('unhandledRejection');
+  // Nu închidem serverul aici, doar logăm eroarea
 });
 
 // Gestionare erori de memorie
