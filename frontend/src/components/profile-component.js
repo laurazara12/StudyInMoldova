@@ -221,57 +221,58 @@ const ProfileComponent = () => {
     handleUpload(type);
   };
 
-  const handleUpload = async (type) => {
-    const { file } = uploadStatus[type];
-    if (!file) return;
-
-    setUploadStatus(prev => ({
-      ...prev,
-      [type]: { ...prev[type], uploading: true, progress: 0 }
-    }));
-
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('document_type', type);
-
+  const handleUpload = async (documentType) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/documents`, formData, {
-        headers: {
-          ...getAuthHeaders(),
-          'Content-Type': 'multipart/form-data'
-        }
+      const uploadStatusForType = uploadStatus[documentType];
+      if (!uploadStatusForType?.file) {
+        console.error('Nu există fișier selectat pentru upload');
+        return;
+      }
+
+      setUploadStatus(prev => ({
+        ...prev,
+        [documentType]: { ...prev[documentType], uploading: true }
+      }));
+
+      const formData = new FormData();
+      formData.append('file', uploadStatusForType.file);
+      formData.append('document_type', documentType);
+
+      console.log('Încărcare document:', {
+        documentType,
+        fileName: uploadStatusForType.file.name,
+        fileSize: uploadStatusForType.file.size
       });
 
-      if (response.data && response.data.document) {
-        // Salvăm documentul în localStorage
-        const updatedStatus = {
-          ...uploadStatus,
-          [type]: { 
-            ...uploadStatus[type], 
-            uploading: false, 
-            progress: 100,
-            uploaded: true,
-            filePath: response.data.document.file_path,
-            fileName: file.name,
-            uploadDate: new Date().toISOString()
+      const response = await axios.post(
+        `${API_BASE_URL}/api/documents/upload`,
+        formData,
+        {
+          headers: {
+            ...getAuthHeaders(),
+            'Content-Type': 'multipart/form-data'
           }
-        };
-        setUploadStatus(updatedStatus);
-        localStorage.setItem('uploadedDocuments', JSON.stringify(updatedStatus));
+        }
+      );
 
-        // Actualizează lista de documente
+      console.log('Răspuns upload:', response.data);
+
+      if (response.data.success) {
+        setUploadStatus(prev => ({
+          ...prev,
+          [documentType]: { ...prev[documentType], uploading: false, uploaded: true }
+        }));
         await fetchDocuments(localStorage.getItem('token'));
-        alert('Document încărcat cu succes');
       } else {
-        throw new Error('Răspuns invalid de la server');
+        throw new Error(response.data.message || 'Eroare la încărcarea documentului');
       }
     } catch (error) {
       console.error('Upload error:', error);
       setUploadStatus(prev => ({
         ...prev,
-        [type]: { ...prev[type], uploading: false, progress: 0 }
+        [documentType]: { ...prev[documentType], uploading: false, error: error.message }
       }));
-      alert(error.response?.data?.message || 'Eroare la încărcarea documentului');
+      setError('Eroare la încărcarea documentului. Vă rugăm să încercați din nou.');
     }
   };
 
