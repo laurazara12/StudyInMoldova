@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Footer from './footer';
 import './profile-component.css';
+import { API_BASE_URL, getAuthHeaders, handleApiError } from '../config/api.config';
 
 const initialDocuments = {
   diploma: { uploading: false, progress: 0, uploaded: false, file: null },
@@ -33,28 +34,28 @@ const ProfileComponent = () => {
         }
 
         console.log('Preluare date utilizator din baza de date...');
-        const response = await axios.get('http://localhost:4000/api/auth/me', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+        const response = await axios.get(`${API_BASE_URL}/auth/me`, {
+          headers: getAuthHeaders()
         });
 
         console.log('Răspuns de la server:', response.data);
         
         if (response.data.success) {
           setUser(response.data.user);
-          // Preluăm documentele după ce avem datele utilizatorului
-          await fetchDocuments(token);
+          if (response.data.user.role !== 'admin') {
+            await fetchDocuments(token);
+          }
         } else {
           setError(response.data.message || 'Nu s-au putut prelua datele utilizatorului');
           navigate('/sign-in');
         }
       } catch (error) {
-        console.error('Eroare la preluarea datelor utilizatorului:', error);
-        if (error.response?.status === 401) {
+        const apiError = handleApiError(error);
+        console.error('Eroare la preluarea datelor utilizatorului:', apiError);
+        if (apiError.status === 401) {
           navigate('/sign-in');
         } else {
-          setError('Eroare la preluarea datelor utilizatorului');
+          setError(apiError.message);
         }
       } finally {
         setLoading(false);
@@ -73,21 +74,22 @@ const ProfileComponent = () => {
   const fetchDocuments = async (token) => {
     try {
       console.log('Preluare documente...');
-      const response = await axios.get('http://localhost:4000/api/documents/user-documents', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await axios.get(`${API_BASE_URL}/documents/user-documents`, {
+        headers: getAuthHeaders()
       });
 
       console.log('Răspuns documente:', response.data);
       
-      if (response.data.success) {
-        setDocuments(response.data.documents);
+      if (Array.isArray(response.data)) {
+        setDocuments(response.data);
       } else {
-        console.error('Eroare la preluarea documentelor:', response.data.message);
+        console.error('Format invalid pentru documente:', response.data);
+        setDocuments([]);
       }
     } catch (error) {
-      console.error('Eroare la preluarea documentelor:', error);
+      const apiError = handleApiError(error);
+      console.error('Eroare la preluarea documentelor:', apiError);
+      setDocuments([]);
     }
   };
 
@@ -106,36 +108,36 @@ const ProfileComponent = () => {
 
   const handleFileChange = (type, event) => {
     const file = event.target.files[0];
-    if (file) {
-      // Verificăm dimensiunea fișierului (5MB = 5 * 1024 * 1024 bytes)
-      if (file.size > 5 * 1024 * 1024) {
-        alert('Dimensiunea fișierului depășește limita de 5MB. Vă rugăm să alegeți un fișier mai mic.');
-        event.target.value = ''; // Resetăm input-ul
-        return;
-      }
+    if (!file) return;
 
-      // Verificăm tipul fișierului
-      const allowedTypes = [
-        'application/pdf',
-        'image/jpeg',
-        'image/jpg',
-        'image/png',
-        'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/vnd.ms-excel',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      ];
-      if (!allowedTypes.includes(file.type)) {
-        alert('Tip de fișier invalid. Vă rugăm să încărcați doar fișiere PDF, JPG, JPEG, PNG, DOC, DOCX, XLS sau XLSX.');
-        event.target.value = ''; // Resetăm input-ul
-        return;
-      }
-
-      setUploadStatus(prev => ({
-        ...prev,
-        [type]: { ...prev[type], file }
-      }));
+    // Verifică dimensiunea fișierului (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Fișierul este prea mare. Dimensiunea maximă permisă este de 5MB.');
+      event.target.value = '';
+      return;
     }
+
+    // Verifică tipul fișierului
+    const allowedTypes = [
+      'application/pdf',
+      'image/jpeg',
+      'image/png',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      alert('Tip de fișier neacceptat. Folosiți doar PDF, JPG, PNG, DOC, DOCX, XLS sau XLSX.');
+      event.target.value = '';
+      return;
+    }
+
+    setUploadStatus(prev => ({
+      ...prev,
+      [type]: { ...prev[type], file }
+    }));
   };
 
   const handleUpload = async (type) => {
@@ -149,89 +151,97 @@ const ProfileComponent = () => {
 
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('type', type);
+    formData.append('document_type', type);
 
     try {
-      const response = await fetch('/api/documents/upload', {
-        method: 'POST',
-        body: formData,
+      const response = await axios.post(`${API_BASE_URL}/documents/upload`, formData, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          ...getAuthHeaders(),
+          'Content-Type': 'multipart/form-data'
         }
       });
 
-      if (!response.ok) {
-        throw new Error('Upload failed');
+      // Verificăm dacă avem un document în răspuns
+      if (response.data && response.data.document) {
+        setUploadStatus(prev => ({
+          ...prev,
+          [type]: { 
+            ...prev[type], 
+            uploading: false, 
+            progress: 100,
+            uploaded: true,
+            filePath: response.data.document.file_path
+          }
+        }));
+
+        // Actualizează lista de documente
+        await fetchDocuments(localStorage.getItem('token'));
+        alert('Document încărcat cu succes');
+      } else {
+        throw new Error('Răspuns invalid de la server');
       }
-
-      const data = await response.json();
-      setUploadStatus(prev => ({
-        ...prev,
-        [type]: { 
-          ...prev[type], 
-          uploading: false, 
-          progress: 100,
-          uploaded: true,
-          filePath: data.filePath
-        }
-      }));
-
-      // Actualizează lista de documente
-      setDocuments(prev => prev.map(doc => 
-        doc.name.toLowerCase() === type ? { ...doc, uploaded: true, filePath: data.filePath } : doc
-      ));
     } catch (error) {
       console.error('Upload error:', error);
       setUploadStatus(prev => ({
         ...prev,
         [type]: { ...prev[type], uploading: false, progress: 0 }
       }));
+      alert(error.response?.data?.message || 'Eroare la încărcarea documentului');
     }
   };
 
   const handleDelete = async (documentType) => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('You are not authenticated');
+      const document = documents.find(doc => doc.document_type === documentType);
+      if (!document) {
+        alert('Documentul nu a fost găsit');
+        return;
       }
 
-      const response = await axios.delete(`http://localhost:4000/api/documents/${documentType}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      if (!window.confirm('Sunteți sigur că doriți să ștergeți acest document?')) {
+        return;
+      }
+
+      const response = await axios.delete(`${API_BASE_URL}/documents/${document.id}`, {
+        headers: getAuthHeaders()
       });
 
-      if (response.data.success) {
-        await fetchDocuments(token);
-        alert('Document deleted successfully!');
-      } else {
-        throw new Error(response.data.message || 'Error deleting document');
+      if (response.data.message === 'Document șters cu succes') {
+        setDocuments(prev => prev.filter(doc => doc.id !== document.id));
+        setUploadStatus(prev => ({
+          ...prev,
+          [documentType]: { ...prev[documentType], file: null, uploaded: false }
+        }));
+        alert('Document șters cu succes');
       }
     } catch (error) {
-      console.error('Error deleting document:', error);
-      if (error.response?.status === 404) {
-        alert('Document not found');
-      } else if (error.response?.status === 401) {
-        alert('You are not authenticated');
-      } else {
-        alert(error.response?.data?.message || 'Error deleting document');
-      }
+      const apiError = handleApiError(error);
+      console.error('Eroare la ștergerea documentului:', apiError);
+      alert(apiError.message || 'Eroare la ștergerea documentului');
     }
   };
 
   const handleDownload = async (documentType) => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setError('You are not authenticated');
+      const doc = documents.find(doc => doc.document_type === documentType);
+      if (!doc) {
+        alert('Documentul nu a fost găsit');
         return;
       }
 
-      console.log('Attempting to download:', documentType);
+      console.log('Încercare descărcare:', documentType);
 
+      // Obținem token-ul din localStorage
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Nu sunteți autentificat. Vă rugăm să vă autentificați din nou.');
+        navigate('/sign-in');
+        return;
+      }
+
+      // Folosim axios pentru a descărca fișierul cu header-ul de autorizare
       const response = await axios({
-        url: `http://localhost:4000/api/documents/download/${documentType}`,
+        url: `${API_BASE_URL}/documents/download/${doc.id}`,
         method: 'GET',
         responseType: 'blob',
         headers: {
@@ -239,48 +249,38 @@ const ProfileComponent = () => {
         }
       });
 
-      const contentType = response.headers['content-type'];
-      console.log('Content-Type:', contentType);
-
-      // Găsim documentul în lista de documente pentru a obține numele original
-      const doc = documents.find(doc => doc.document_type === documentType);
-      let fileName;
-
-      if (doc && doc.file_path) {
-        // Extragem numele original al fișierului din calea completă
-        fileName = doc.file_path.split('/').pop();
-      } else {
-        // Dacă nu avem numele original, folosim numele documentului cu extensia corectă
-        const fileExtension = contentType === 'image/png' ? '.png' : 
-                            contentType === 'image/jpeg' || contentType === 'image/jpg' ? '.jpg' : 
-                            contentType === 'application/pdf' ? '.pdf' : '.pdf';
-        fileName = `${documentType}${fileExtension}`;
-      }
-
-      console.log('Downloading file as:', fileName);
-
-      // Creăm blob-ul cu tipul MIME corect
-      const blob = new Blob([response.data], { type: contentType });
+      // Creăm un URL pentru blob-ul descărcat
+      const blob = new Blob([response.data], { type: response.headers['content-type'] });
       const url = window.URL.createObjectURL(blob);
       
-      // Creăm link-ul de descărcare
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', fileName);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+      // Creăm un element temporar pentru descărcare
+      const downloadLink = window.document.createElement('a');
+      downloadLink.href = url;
+      downloadLink.setAttribute('download', doc.file_path ? doc.file_path.split('/').pop() : `${documentType}.pdf`);
+      window.document.body.appendChild(downloadLink);
+      downloadLink.click();
+      
+      // Curățăm
+      window.document.body.removeChild(downloadLink);
       window.URL.revokeObjectURL(url);
-
-      console.log('Download successful for:', documentType);
+      
+      console.log('Descărcare inițiată pentru:', documentType);
     } catch (error) {
-      console.error('Error downloading document:', error);
-      if (error.response?.status === 404) {
-        alert('Document not found');
-      } else if (error.response?.status === 401) {
-        alert('You are not authenticated');
+      console.error('Eroare detaliată la descărcare:', error);
+      
+      if (error.response) {
+        if (error.response.status === 404) {
+          alert('Documentul nu a fost găsit pe server');
+        } else if (error.response.status === 401) {
+          alert('Nu sunteți autentificat. Vă rugăm să vă autentificați din nou.');
+          navigate('/sign-in');
+        } else {
+          alert(`Eroare la descărcarea documentului: ${error.response.data?.message || 'Eroare necunoscută'}`);
+        }
+      } else if (error.request) {
+        alert('Nu s-a putut conecta la server. Verificați conexiunea la internet.');
       } else {
-        alert(error.response?.data?.message || 'Error downloading document');
+        alert(`Eroare la descărcarea documentului: ${error.message}`);
       }
     }
   };
@@ -353,20 +353,22 @@ const ProfileComponent = () => {
             </div>
           </div>
         </div>
-        <div className="document-section">
-          <h2 className="document-heading">Documents</h2>
-          <p className="document-info">Please upload the following documents in PDF, JPG, JPEG, PNG, DOC, DOCX, XLS, or XLSX format. Maximum file size: 5MB. You will receive an error message if you try to upload a larger file.</p>
-          <div className="documents-grid">
-            {renderDocumentUpload('passport', 'Passport')}
-            {renderDocumentUpload('diploma', 'Diploma')}
-            {renderDocumentUpload('transcript', 'Transcript')}
-            {renderDocumentUpload('photo', 'Photo')}
-            {renderDocumentUpload('medical', 'Medical Certificate')}
-            {renderDocumentUpload('insurance', 'Health Insurance')}
-            {renderDocumentUpload('other', 'Other Documents')}
-            {renderDocumentUpload('cv', 'CV')}
+        {user.role !== 'admin' && (
+          <div className="document-section">
+            <h2 className="document-heading">Documents</h2>
+            <p className="document-info">Please upload the following documents in PDF, JPG, JPEG, PNG, DOC, DOCX, XLS, or XLSX format. Maximum file size: 5MB. You will receive an error message if you try to upload a larger file.</p>
+            <div className="documents-grid">
+              {renderDocumentUpload('passport', 'Passport')}
+              {renderDocumentUpload('diploma', 'Diploma')}
+              {renderDocumentUpload('transcript', 'Transcript')}
+              {renderDocumentUpload('photo', 'Photo')}
+              {renderDocumentUpload('medical', 'Medical Certificate')}
+              {renderDocumentUpload('insurance', 'Health Insurance')}
+              {renderDocumentUpload('other', 'Other Documents')}
+              {renderDocumentUpload('cv', 'CV')}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
