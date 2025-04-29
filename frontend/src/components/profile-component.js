@@ -86,7 +86,7 @@ const ProfileComponent = () => {
         }
 
         console.log('Retrieving user data from database...');
-        const response = await axios.get(`${API_BASE_URL}/auth/me`, {
+        const response = await axios.get(`${API_BASE_URL}/api/auth/me`, {
           headers: getAuthHeaders()
         });
 
@@ -128,14 +128,38 @@ const ProfileComponent = () => {
   const fetchDocuments = async (token) => {
     try {
       console.log('Preluare documente...');
-      const response = await axios.get(`${API_BASE_URL}/documents/user-documents`, {
+      const response = await axios.get(`${API_BASE_URL}/api/documents/user-documents`, {
         headers: getAuthHeaders()
       });
 
       console.log('Răspuns documente:', response.data);
       
-      if (Array.isArray(response.data)) {
-        setDocuments(response.data);
+      if (response.data && Array.isArray(response.data)) {
+        // Verificăm dacă documentul există fizic și are status valid
+        const validDocuments = response.data.filter(doc => {
+          // Verificăm dacă documentul are toate câmpurile necesare
+          if (!doc.id || !doc.document_type || !doc.file_path) {
+            console.log('Document invalid - lipsesc câmpuri necesare:', doc);
+            return false;
+          }
+
+          // Verificăm statusul documentului
+          if (doc.status === 'deleted') {
+            console.log('Document șters:', doc);
+            return false;
+          }
+
+          // Verificăm dacă documentul este marcat ca încărcat
+          if (!doc.uploaded) {
+            console.log('Document neîncărcat:', doc);
+            return false;
+          }
+
+          return true;
+        });
+        
+        setDocuments(validDocuments);
+        console.log('Documente valide setate:', validDocuments);
       } else {
         console.error('Format invalid pentru documente:', response.data);
         setDocuments([]);
@@ -211,7 +235,7 @@ const ProfileComponent = () => {
     formData.append('document_type', type);
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/documents/upload`, formData, {
+      const response = await axios.post(`${API_BASE_URL}/api/documents`, formData, {
         headers: {
           ...getAuthHeaders(),
           'Content-Type': 'multipart/form-data'
@@ -263,7 +287,7 @@ const ProfileComponent = () => {
         return;
       }
 
-      const response = await axios.delete(`${API_BASE_URL}/documents/${document.id}`, {
+      const response = await axios.delete(`${API_BASE_URL}/api/documents/${document.id}`, {
         headers: getAuthHeaders()
       });
 
@@ -425,6 +449,17 @@ const ProfileComponent = () => {
     }
   };
 
+  async function cleanupDocuments() {
+    try {
+      await axios.post(`${API_BASE_URL}/documents/cleanup`, {}, {
+        headers: getAuthHeaders()
+      });
+      await fetchDocuments(localStorage.getItem('token'));
+    } catch (error) {
+      console.error('Eroare la curățarea documentelor:', error);
+    }
+  }
+
   return (
     <div className="profile-container">
       <div className="profile-header">
@@ -570,14 +605,16 @@ const ProfileComponent = () => {
               <h2>Upload Documents</h2>
               <div className="documents-grid">
                 {documentTypes.map((docType) => {
-                  const document = documents.find(d => d.type === docType.id);
+                  const document = documents.find(d => d.document_type === docType.id);
                   const uploadStatusForType = uploadStatus[docType.id];
+                  const isDocumentValid = document && document.status !== 'deleted' && document.uploaded;
+                  
                   return (
                     <div key={docType.id} className="document-item">
                       <div className="document-info">
                         <h3>{docType.name}</h3>
                         <p>{docType.description}</p>
-                        {document && (
+                        {isDocumentValid && (
                           <>
                             <p>Status: {document.status}</p>
                             <p>Uploaded: {new Date(document.uploadDate).toLocaleDateString()}</p>
@@ -585,7 +622,7 @@ const ProfileComponent = () => {
                         )}
                       </div>
                       <div className="document-actions">
-                        {document || uploadStatusForType?.uploaded ? (
+                        {isDocumentValid ? (
                           <>
                             <button 
                               className="download-button"
@@ -600,24 +637,29 @@ const ProfileComponent = () => {
                               Delete
                             </button>
                           </>
-                        ) : uploadStatusForType?.file ? (
-                          <button 
-                            className="upload-button"
-                            onClick={() => handleUpload(docType.id)}
-                            disabled={uploadStatusForType.uploading}
-                          >
-                            {uploadStatusForType.uploading ? 'Uploading...' : 'Upload'}
-                          </button>
                         ) : (
-                          <button 
-                            className="choose-button"
-                            onClick={() => {
-                              fileInputRef.current.click();
-                              fileInputRef.current.dataset.documentType = docType.id;
-                            }}
-                          >
-                            Choose File
-                          </button>
+                          <>
+                            {uploadStatusForType?.file && !uploadStatusForType?.uploaded && (
+                              <button 
+                                className="upload-button"
+                                onClick={() => handleUpload(docType.id)}
+                                disabled={uploadStatusForType.uploading}
+                              >
+                                {uploadStatusForType.uploading ? 'Uploading...' : 'Upload'}
+                              </button>
+                            )}
+                            {(!uploadStatusForType?.file || uploadStatusForType?.uploaded) && (
+                              <button 
+                                className="choose-button"
+                                onClick={() => {
+                                  fileInputRef.current.click();
+                                  fileInputRef.current.dataset.documentType = docType.id;
+                                }}
+                              >
+                                Choose File
+                              </button>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>
@@ -634,6 +676,13 @@ const ProfileComponent = () => {
                   handleFileChange(documentType, event);
                 }}
               />
+
+              <div className="documents-header">
+                <h3>Documentele mele</h3>
+                <button onClick={cleanupDocuments} className="cleanup-button">
+                  Curăță documente invalide
+                </button>
+              </div>
             </div>
           )}
         </div>
