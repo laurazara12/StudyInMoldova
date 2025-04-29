@@ -2,13 +2,13 @@ const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
-const { authMiddleware } = require('../middleware/auth');
+const { authMiddleware, adminMiddleware } = require('../middleware/auth');
 const { User, Document } = require('../config/database');
 
 const router = express.Router();
 
 // Verificăm și creăm directorul uploads dacă nu există
-const uploadsDir = path.join(__dirname, '../../uploads');
+const uploadsDir = path.join(__dirname, '../../backend/uploads');
 if (!fs.existsSync(uploadsDir)) {
   try {
     fs.mkdirSync(uploadsDir, { recursive: true });
@@ -20,64 +20,67 @@ if (!fs.existsSync(uploadsDir)) {
 
 // Configurare multer pentru încărcarea fișierelor
 const storage = multer.diskStorage({
-  destination: async function (req, file, cb) {
-    console.log('Starting file save process...');
-    console.log('User data:', req.user);
+  destination: function (req, file, cb) {
+    // Get user ID
+    const userId = req.user.id;
     
-    try {
-      // Get user UUID
-      const user = await User.findOne({
-        where: { id: req.user.id },
-        attributes: ['uuid']
-      });
-
-      if (!user || !user.uuid) {
-        console.error('User UUID not found');
-        return cb(new Error('User UUID not found'));
-      }
-
-      // Create user directory using UUID
-      const userDir = path.join(uploadsDir, user.uuid);
-      console.log('User directory path:', userDir);
-      
-      // Create directory if it doesn't exist
-      if (!fs.existsSync(userDir)) {
-        fs.mkdirSync(userDir, { recursive: true });
-        console.log('User directory created:', userDir);
-      }
-      
-      cb(null, userDir);
-    } catch (error) {
-      console.error('Error in destination handler:', error);
-      cb(error);
+    // Create user directory using user ID
+    const userDir = path.join(uploadsDir, userId.toString());
+    if (!fs.existsSync(userDir)) {
+      fs.mkdirSync(userDir, { recursive: true });
     }
+    
+    cb(null, userDir);
   },
   filename: function (req, file, cb) {
-    try {
-      console.log('File data received:', file);
-      const documentType = req.body.documentType || 'unknown';
-      const userData = req.user || {};
-      const userName = userData.name || 'unknown';
+    // Păstrăm numele original al fișierului
+    const originalFilename = file.originalname;
+    const userDir = path.join(uploadsDir, req.user.id.toString());
+    const filePath = path.join(userDir, originalFilename);
+    
+    // Verificăm dacă există deja un fișier cu același nume
+    if (fs.existsSync(filePath)) {
+      // Adăugăm un sufix unic doar dacă există deja un fișier cu același nume
+      const fileExtension = path.extname(originalFilename);
+      const fileNameWithoutExt = originalFilename.substring(0, originalFilename.length - fileExtension.length);
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      const newFilename = `${fileNameWithoutExt}-${uniqueSuffix}${fileExtension}`;
       
-      const originalName = file.originalname;
-      const fileExtension = path.extname(originalName);
-      const fileName = `${documentType}_${userName}${fileExtension}`;
+      console.log('Fișier cu același nume există, se adaugă sufix:', {
+        originalName: originalFilename,
+        newFilename: newFilename
+      });
       
-      console.log('Generated filename:', fileName);
-      cb(null, fileName);
-    } catch (error) {
-      console.error('Error generating filename:', error);
-      cb(error);
+      cb(null, newFilename);
+    } else {
+      console.log('Păstrare nume original fișier:', {
+        originalName: originalFilename
+      });
+      
+      cb(null, originalFilename);
     }
   }
 });
 
-const upload = multer({ 
+const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
+    fileSize: 10 * 1024 * 1024 // 10MB limit
   },
   fileFilter: function (req, file, cb) {
+    // Verifică tipul de fișier
+    const allowedTypes = [
+      'application/pdf',
+      'image/jpeg',
+      'image/png',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    ];
+    if (!allowedTypes.includes(file.mimetype)) {
+      return cb(new Error('Tip de fișier neacceptat. Folosiți doar PDF, JPG, PNG, DOC, DOCX, XLS sau XLSX.'), false);
+    }
     cb(null, true);
   }
 });
@@ -120,287 +123,494 @@ router.get('/user-documents', authMiddleware, async (req, res) => {
     
     const documents = await Document.findAll({
       where: { user_id: req.user.id },
-      attributes: ['id', 'document_type', 'file_path', 'created_at'],
-      order: [['created_at', 'DESC']]
+      attributes: ['id', 'type', 'path', 'createdAt', 'status', 'filename', 'originalName'],
+      order: [['createdAt', 'DESC']]
     });
 
     console.log('Documents found:', documents.length);
     res.json(documents.map(doc => ({
       id: doc.id,
-      document_type: doc.document_type,
-      file_path: doc.file_path,
-      created_at: doc.created_at,
-      uploaded: true
+      document_type: doc.type,
+      file_path: doc.path,
+      created_at: doc.createdAt,
+      status: doc.status || 'pending',
+      filename: doc.filename,
+      originalName: doc.originalName,
+      uploaded: true,
+      uploadDate: doc.createdAt
     })));
   } catch (error) {
     console.error('Error retrieving documents:', error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Error retrieving documents', error: error.message });
   }
 });
 
 // Upload document
-router.post('/upload', authMiddleware, upload.single('document'), async (req, res) => {
+router.post('/upload', authMiddleware, upload.single('file'), async (req, res) => {
   try {
-    console.log('Starting upload process...');
-    console.log('Request data:', {
-      userId: req.user.id,
-      documentType: req.body.documentType,
-      hasFile: !!req.file,
-      file: req.file,
-      body: req.body
-    });
+    console.log('Încărcare document nou...');
+    console.log('Request body:', req.body);
+    console.log('Request file:', req.file);
+    console.log('User:', req.user);
 
     if (!req.file) {
-      console.log('No file found in request');
-      return res.status(400).json({ message: 'No file found' });
+      console.log('Nu s-a încărcat niciun fișier');
+      return res.status(400).json({ 
+        success: false,
+        message: 'Nu s-a încărcat niciun fișier',
+        details: 'Este necesar să încărcați un fișier'
+      });
     }
 
-    const documentType = req.body.documentType;
-    if (!documentType) {
-      console.log('Document type is missing');
-      return res.status(400).json({ message: 'Document type is required' });
+    const { document_type } = req.body;
+    
+    if (!document_type) {
+      console.log('Tipul documentului lipsește');
+      // Șterge fișierul temporar
+      if (fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
+      return res.status(400).json({ 
+        success: false,
+        message: 'Tipul documentului este obligatoriu',
+        details: 'Specificați tipul documentului în câmpul document_type'
+      });
     }
 
+    // Verifică dacă tipul documentului este valid
+    const validTypes = ['passport', 'diploma', 'transcript', 'cv', 'other'];
+    if (!validTypes.includes(document_type)) {
+      console.log('Tip de document invalid:', document_type);
+      // Șterge fișierul temporar
+      if (fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
+      return res.status(400).json({ 
+        success: false,
+        message: 'Tip de document invalid',
+        details: 'Tipul documentului trebuie să fie unul dintre: ' + validTypes.join(', ')
+      });
+    }
+
+    // Verifică dacă fișierul există
     if (!fs.existsSync(req.file.path)) {
-      console.error('File was not saved at path:', req.file.path);
-      return res.status(500).json({ message: 'File was not saved correctly' });
+      console.log('Fișierul nu există la calea:', req.file.path);
+      return res.status(500).json({ 
+        success: false,
+        message: 'Eroare la încărcarea fișierului',
+        details: 'Fișierul nu a fost salvat corect'
+      });
     }
 
-    // Get user UUID
-    const user = await User.findOne({
-      where: { id: req.user.id },
-      attributes: ['uuid']
+    // Păstrăm numele original al fișierului
+    const originalFilename = req.file.originalname;
+    const newPath = path.join(path.dirname(req.file.path), originalFilename);
+    
+    console.log('Redenumire fișier:', {
+      oldPath: req.file.path,
+      newPath: newPath
     });
+    
+    fs.renameSync(req.file.path, newPath);
+    req.file.path = newPath;
+    req.file.filename = originalFilename;
 
-    if (!user || !user.uuid) {
-      console.error('User UUID not found');
-      return res.status(500).json({ message: 'User UUID not found' });
-    }
-
-    // Check if document already exists
-    let document = await Document.findOne({
-      where: {
+    // Verifică dacă există deja un document de acest tip
+    const existingDocument = await Document.findOne({
+      where: { 
         user_id: req.user.id,
-        document_type: documentType
+        type: document_type 
       }
     });
 
-    const filePath = req.file.path;
-    console.log('File saved at:', filePath);
-
-    if (document) {
-      // Update existing document
-      document = await document.update({
-        file_path: filePath,
-        created_at: new Date()
+    if (existingDocument) {
+      console.log('Document existent găsit, se actualizează...');
+      // Șterge fișierul vechi
+      if (fs.existsSync(existingDocument.path)) {
+        fs.unlinkSync(existingDocument.path);
+        console.log('Fișier vechi șters:', existingDocument.path);
+      }
+      
+      // Actualizează documentul existent
+      await existingDocument.update({
+        path: req.file.path,
+        status: 'pending',
+        filename: req.file.filename,
+        originalName: req.file.originalname
       });
-      console.log('Document updated successfully');
-      res.json({ 
-        message: 'Document updated successfully',
-        document: {
-          id: document.id,
-          documentType,
-          filePath,
-          created_at: document.created_at
-        }
-      });
-    } else {
-      // Create new document
-      document = await Document.create({
-        user_id: req.user.id,
-        user_uuid: user.uuid,
-        document_type: documentType,
-        file_path: filePath,
-        created_at: new Date()
-      });
-      console.log('Document created successfully');
-      res.json({ 
-        message: 'Document uploaded successfully',
-        document: {
-          id: document.id,
-          documentType,
-          filePath,
-          created_at: document.created_at
-        }
+      
+      console.log('Document actualizat cu succes');
+      return res.json({ 
+        success: true,
+        message: 'Document actualizat cu succes',
+        document: existingDocument
       });
     }
+
+    // Creează un document nou
+    console.log('Se creează document nou...');
+    const document = await Document.create({
+      user_id: req.user.id,
+      type: document_type,
+      filename: req.file.filename,
+      originalName: req.file.originalname,
+      path: req.file.path,
+      status: 'pending'
+    });
+
+    console.log('Document creat cu succes:', document);
+    return res.status(201).json({
+      success: true,
+      message: 'Document încărcat cu succes',
+      document: document
+    });
   } catch (error) {
-    console.error('Error uploading document:', error);
-    res.status(500).json({ message: error.message });
+    console.error('Eroare la încărcarea documentului:', error);
+    // Șterge fișierul temporar în caz de eroare
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+    return res.status(500).json({ 
+      success: false,
+      message: 'Eroare la încărcarea documentului',
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 });
 
-// Ruta pentru ștergerea documentelor
-router.delete('/:type', authMiddleware, async (req, res) => {
+// Obține toate documentele unui utilizator
+router.get('/my-documents', authMiddleware, async (req, res) => {
   try {
-    const { type } = req.params;
-    const { message } = req.body; // Mesajul opțional pentru notificare
-
-    // Verifică dacă utilizatorul este admin
-    const user = await User.findOne({
-      where: { uuid: req.user.uuid },
-      attributes: ['role']
+    const documents = await Document.findAll({
+      where: { user_id: req.user.id },
+      attributes: ['id', 'user_id', 'document_type', 'file_path', 'created_at'],
+      order: [['created_at', 'DESC']]
     });
-    if (user.role !== 'admin') {
-      return res.status(403).json({ message: 'Acces interzis' });
+
+    res.json(documents);
+  } catch (error) {
+    console.error('Eroare la obținerea documentelor:', error);
+    res.status(500).json({ message: 'Eroare la obținerea documentelor' });
+  }
+});
+
+// Obține toate documentele (doar pentru admin)
+router.get('/all-documents', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const documents = await Document.findAll({
+      attributes: ['id', 'user_id', 'document_type', 'file_path', 'created_at'],
+      order: [['created_at', 'DESC']]
+    });
+
+    res.json(documents);
+  } catch (error) {
+    console.error('Eroare la obținerea documentelor:', error);
+    res.status(500).json({ message: 'Eroare la obținerea documentelor' });
+  }
+});
+
+// Șterge un document
+router.delete('/:id', authMiddleware, async (req, res) => {
+  try {
+    console.log('Încercare ștergere document:', req.params.id);
+    
+    const document = await Document.findOne({
+      where: { id: req.params.id, user_id: req.user.id }
+    });
+
+    if (!document) {
+      console.log('Document negăsit pentru ID:', req.params.id);
+      return res.status(404).json({ 
+        success: false,
+        message: 'Documentul nu a fost găsit',
+        details: 'Documentul cu ID-ul specificat nu există în baza de date'
+      });
     }
 
-    // Șterge documentul
-    await Document.destroy({
-      where: {
-        document_type: type,
-        user_uuid: req.user.uuid
-      }
+    console.log('Document găsit:', {
+      id: document.id,
+      path: document.path,
+      exists: fs.existsSync(document.path)
     });
 
-    // Adaugă notificare pentru utilizator
-    const notificationMessage = message || `Documentul de tip ${type} a fost șters de către administrator.`;
-    await User.update(
-      {
-        last_notification: new Date()
-      },
-      {
-        where: { uuid: req.user.uuid }
-      }
-    );
+    // Verifică dacă calea există și este validă
+    const absolutePath = path.resolve(document.path);
+    const uploadsDirAbsolute = path.resolve(uploadsDir);
+    
+    console.log('Căi:', {
+      documentPath: absolutePath,
+      uploadsDir: uploadsDirAbsolute,
+      isInUploadsDir: absolutePath.startsWith(uploadsDirAbsolute)
+    });
 
-    res.json({ success: true });
+    // Șterge fișierul
+    if (fs.existsSync(absolutePath)) {
+      try {
+        fs.unlinkSync(absolutePath);
+        console.log('Fișier șters cu succes:', absolutePath);
+      } catch (error) {
+        console.error('Eroare la ștergerea fișierului:', error);
+        return res.status(500).json({ 
+          success: false,
+          message: 'Eroare la ștergerea fișierului',
+          error: error.message
+        });
+      }
+    } else {
+      console.log('Fișierul nu există la calea:', absolutePath);
+    }
+
+    // Șterge documentul din baza de date
+    await document.destroy();
+    console.log('Document șters din baza de date');
+
+    res.json({ 
+      success: true,
+      message: 'Document șters cu succes',
+      details: 'Documentul și fișierul asociat au fost șterse cu succes'
+    });
+  } catch (error) {
+    console.error('Eroare la ștergerea documentului:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la ștergerea documentului',
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+});
+
+// Șterge un document (doar pentru admin)
+router.delete('/admin/:id', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    console.log('Încercare ștergere document (admin):', req.params.id);
+    
+    const document = await Document.findOne({
+      where: { id: req.params.id }
+    });
+
+    if (!document) {
+      console.log('Document negăsit pentru ID:', req.params.id);
+      return res.status(404).json({ message: 'Documentul nu a fost găsit' });
+    }
+
+    console.log('Document găsit:', {
+      id: document.id,
+      path: document.path,
+      exists: fs.existsSync(document.path)
+    });
+
+    // Verifică dacă calea există și este validă
+    const absolutePath = path.resolve(document.path);
+    const uploadsDirAbsolute = path.resolve(uploadsDir);
+    
+    console.log('Căi:', {
+      documentPath: absolutePath,
+      uploadsDir: uploadsDirAbsolute,
+      isInUploadsDir: absolutePath.startsWith(uploadsDirAbsolute)
+    });
+
+    // Șterge fișierul
+    if (fs.existsSync(absolutePath)) {
+      try {
+        fs.unlinkSync(absolutePath);
+        console.log('Fișier șters cu succes:', absolutePath);
+      } catch (error) {
+        console.error('Eroare la ștergerea fișierului:', error);
+        return res.status(500).json({ message: 'Eroare la ștergerea fișierului' });
+      }
+    } else {
+      console.log('Fișierul nu există la calea:', absolutePath);
+    }
+
+    // Șterge documentul din baza de date
+    await document.destroy();
+    console.log('Document șters din baza de date');
+
+    res.json({ message: 'Document șters cu succes' });
   } catch (error) {
     console.error('Eroare la ștergerea documentului:', error);
     res.status(500).json({ message: 'Eroare la ștergerea documentului' });
   }
 });
 
-// Ruta pentru descărcarea documentelor
-router.get('/download/:documentType', authMiddleware, async (req, res) => {
+// Funcție pentru curățarea documentelor orfane
+async function cleanupOrphanedDocuments() {
   try {
-    const { documentType } = req.params;
-    const userId = req.user?.id;
-
-    console.log('Cerere de descărcare primită:', {
-      documentType,
-      userId,
-      user: req.user
-    });
-
-    if (!userId) {
-      console.error('Utilizator neautentificat');
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Utilizator neautentificat' 
+    console.log('Începe curățarea documentelor orfane...');
+    const documents = await Document.findAll();
+    console.log('Documente găsite:', documents.length);
+    
+    for (const doc of documents) {
+      const absolutePath = path.resolve(doc.path);
+      const uploadsDirAbsolute = path.resolve(uploadsDir);
+      
+      console.log('Verificare document:', {
+        id: doc.id,
+        path: absolutePath,
+        exists: fs.existsSync(absolutePath),
+        isInUploadsDir: absolutePath.startsWith(uploadsDirAbsolute)
       });
+      
+      if (!fs.existsSync(absolutePath) || !absolutePath.startsWith(uploadsDirAbsolute)) {
+        console.log('Document orfan găsit:', {
+          id: doc.id,
+          path: absolutePath
+        });
+        await doc.destroy();
+        console.log('Document orfan șters:', doc.id);
+      }
     }
+    console.log('Curățarea documentelor orfane finalizată');
+  } catch (error) {
+    console.error('Eroare la curățarea documentelor orfane:', error);
+  }
+}
 
-    // Obținem UUID-ul utilizatorului
-    const user = await User.findOne({
-      where: { id: userId },
-      attributes: ['uuid']
-    });
-
-    if (!user || !user.uuid) {
-      console.error('UUID-ul utilizatorului nu a fost găsit');
-      return res.status(500).json({ 
-        success: false, 
-        message: 'UUID-ul utilizatorului nu a fost găsit' 
-      });
-    }
-
-    // Găsim documentul în baza de date
+// Download document
+router.get('/download/:id', authMiddleware, async (req, res) => {
+  try {
+    console.log('Încercare descărcare document:', req.params.id);
+    
     const document = await Document.findOne({
-      where: {
-        user_id: userId,
-        document_type: documentType
-      },
-      attributes: ['file_path']
+      where: { id: req.params.id, user_id: req.user.id }
     });
 
     if (!document) {
-      console.log('Documentul nu a fost găsit în baza de date');
+      console.log('Document negăsit pentru ID:', req.params.id);
       return res.status(404).json({ 
-        success: false, 
-        message: 'Documentul nu a fost găsit' 
-      });
-    }
-
-    console.log('Calea fișierului:', document.file_path);
-
-    // Verificăm dacă fișierul există
-    if (!fs.existsSync(document.file_path)) {
-      console.error('Fișierul nu există la calea:', document.file_path);
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Fișierul nu a fost găsit' 
-      });
-    }
-
-    // Verificăm permisiunile fișierului
-    try {
-      fs.accessSync(document.file_path, fs.constants.R_OK);
-    } catch (error) {
-      console.error('Nu avem permisiuni de citire pentru fișier:', error);
-      return res.status(403).json({
         success: false,
-        message: 'Nu avem acces la fișier'
+        message: 'Documentul nu a fost găsit',
+        details: 'Documentul cu ID-ul specificat nu există în baza de date'
       });
     }
 
-    // Setăm header-ele pentru descărcare
-    const fileExtension = path.extname(document.file_path);
-    let contentType = 'application/octet-stream';
-    
-    // Determinăm content type-ul corect bazat pe extensia fișierului
-    switch (fileExtension.toLowerCase()) {
-      case '.pdf':
-        contentType = 'application/pdf';
-        break;
-      case '.jpg':
-      case '.jpeg':
-        contentType = 'image/jpeg';
-        break;
-      case '.png':
-        contentType = 'image/png';
-        break;
-      case '.doc':
-      case '.docx':
-        contentType = 'application/msword';
-        break;
-      case '.xls':
-      case '.xlsx':
-        contentType = 'application/vnd.ms-excel';
-        break;
-      default:
-        contentType = 'application/octet-stream';
-    }
-    
-    res.setHeader('Content-Type', contentType);
-    res.setHeader('Content-Disposition', `attachment; filename="${path.basename(document.file_path)}"`);
+    console.log('Document găsit:', {
+      id: document.id,
+      path: document.path,
+      exists: fs.existsSync(document.path)
+    });
 
-    // Trimitem fișierul
-    fs.createReadStream(document.file_path)
-      .on('error', (error) => {
-        console.error('Eroare la citirea fișierului:', error);
-        if (!res.headersSent) {
-          res.status(500).json({ 
-            success: false, 
-            message: 'Eroare la citirea fișierului' 
-          });
-        }
-      })
-      .pipe(res)
-      .on('error', (error) => {
-        console.error('Eroare la trimiterea răspunsului:', error);
-      })
-      .on('finish', () => {
-        console.log('Fișier trimis cu succes');
+    // Verifică dacă calea există și este validă
+    const absolutePath = path.resolve(document.path);
+    const uploadsDirAbsolute = path.resolve(uploadsDir);
+    
+    console.log('Căi:', {
+      documentPath: absolutePath,
+      uploadsDir: uploadsDirAbsolute,
+      isInUploadsDir: absolutePath.startsWith(uploadsDirAbsolute)
+    });
+
+    if (!fs.existsSync(absolutePath)) {
+      console.log('Fișierul nu există la calea:', absolutePath);
+      // Șterge înregistrarea din baza de date dacă fișierul nu există
+      await document.destroy();
+      return res.status(404).json({ 
+        success: false,
+        message: 'Fișierul nu a fost găsit',
+        details: 'Fișierul fizic nu există pe server'
       });
+    }
 
+    if (!absolutePath.startsWith(uploadsDirAbsolute)) {
+      console.log('Cale invalidă:', absolutePath);
+      return res.status(400).json({ 
+        success: false,
+        message: 'Cale invalidă',
+        details: 'Calea fișierului nu este în directorul uploads'
+      });
+    }
+
+    // Setează header-urile pentru descărcare
+    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(document.originalName)}"`);
+    res.setHeader('Content-Type', 'application/octet-stream');
+
+    // Trimite fișierul
+    const fileStream = fs.createReadStream(absolutePath);
+    fileStream.on('error', (error) => {
+      console.error('Eroare la citirea fișierului:', error);
+      if (!res.headersSent) {
+        res.status(500).json({ 
+          success: false,
+          message: 'Eroare la citirea fișierului',
+          error: error.message
+        });
+      }
+    });
+
+    fileStream.pipe(res);
   } catch (error) {
-    console.error('Eroare la procesarea cererii de descărcare:', error);
+    console.error('Eroare la descărcarea documentului:', error);
     if (!res.headersSent) {
       res.status(500).json({ 
-        success: false, 
-        message: 'Eroare internă server' 
+        success: false,
+        message: 'Eroare la descărcarea documentului',
+        error: error.message,
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
       });
+    }
+  }
+});
+
+// Descarcă un document (doar pentru admin)
+router.get('/admin/download/:id', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    console.log('Încercare descărcare document (admin):', req.params.id);
+    
+    const document = await Document.findOne({
+      where: { id: req.params.id }
+    });
+
+    if (!document) {
+      console.log('Document negăsit pentru ID:', req.params.id);
+      return res.status(404).json({ message: 'Documentul nu a fost găsit' });
+    }
+
+    console.log('Document găsit:', {
+      id: document.id,
+      path: document.path,
+      exists: fs.existsSync(document.path)
+    });
+
+    // Verifică dacă calea există și este validă
+    const absolutePath = path.resolve(document.path);
+    const uploadsDirAbsolute = path.resolve(uploadsDir);
+    
+    console.log('Căi:', {
+      documentPath: absolutePath,
+      uploadsDir: uploadsDirAbsolute,
+      isInUploadsDir: absolutePath.startsWith(uploadsDirAbsolute)
+    });
+
+    if (!fs.existsSync(absolutePath)) {
+      console.log('Fișierul nu există la calea:', absolutePath);
+      return res.status(404).json({ message: 'Fișierul nu a fost găsit' });
+    }
+
+    if (!absolutePath.startsWith(uploadsDirAbsolute)) {
+      console.log('Cale invalidă:', absolutePath);
+      return res.status(400).json({ message: 'Cale invalidă' });
+    }
+
+    // Setează header-urile pentru descărcare
+    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(document.originalName)}"`);
+    res.setHeader('Content-Type', 'application/octet-stream');
+
+    // Trimite fișierul
+    const fileStream = fs.createReadStream(absolutePath);
+    fileStream.on('error', (error) => {
+      console.error('Eroare la citirea fișierului:', error);
+      if (!res.headersSent) {
+        res.status(500).json({ message: 'Eroare la citirea fișierului' });
+      }
+    });
+
+    fileStream.pipe(res);
+  } catch (error) {
+    console.error('Eroare la descărcarea documentului:', error);
+    if (!res.headersSent) {
+      res.status(500).json({ message: 'Eroare la descărcarea documentului' });
     }
   }
 });

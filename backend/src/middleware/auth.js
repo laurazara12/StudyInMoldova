@@ -1,61 +1,74 @@
 // /backend/src/middleware/auth.js
 const jwt = require('jsonwebtoken');
-const db = require('../config/database');
+const { User } = require('../config/database');
 
-const authMiddleware = (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
     console.log('Auth Header:', authHeader);
 
     if (!authHeader) {
-      console.log('Token-ul lipsește din header');
-      return res.status(401).json({ message: 'Token-ul lipsește' });
+      console.log('Token is missing from header');
+      return res.status(401).json({ message: 'Token is missing' });
     }
 
     const token = authHeader.split(' ')[1];
-    console.log('Token extras:', token ? 'prezent' : 'lipsă');
+    console.log('Extracted token:', token ? 'present' : 'missing');
 
     if (!token) {
-      console.log('Token-ul lipsește după split');
-      return res.status(401).json({ message: 'Token-ul lipsește' });
+      console.log('Token is missing after split');
+      return res.status(401).json({ message: 'Token is missing' });
+    }
+
+    if (!process.env.JWT_SECRET) {
+      console.error('JWT_SECRET is not configured');
+      return res.status(500).json({ message: 'Server configuration error' });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('Token decodat:', { id: decoded.id, role: decoded.role });
+    console.log('Decoded token:', { id: decoded.id, role: decoded.role });
 
-    db.get('SELECT * FROM users WHERE id = ?', [decoded.id], (err, user) => {
-      if (err) {
-        console.error('Eroare la căutarea utilizatorului:', err);
-        return res.status(500).json({ message: 'Eroare la verificarea utilizatorului' });
-      }
-
-      if (!user) {
-        console.log('Utilizatorul nu a fost găsit');
-        return res.status(401).json({ message: 'Utilizatorul nu există' });
-      }
-
-      req.user = {
-        id: user.id,
-        email: user.email,
-        role: user.role
-      };
-      console.log('Utilizator setat în request:', req.user);
-      next();
+    const user = await User.findByPk(decoded.id, {
+      attributes: [
+        'id', 
+        'email', 
+        'role', 
+        'name',
+        'phone',
+        'date_of_birth',
+        'country_of_origin',
+        'nationality',
+        'desired_study_level',
+        'preferred_study_field',
+        'desired_academic_year',
+        'preferred_study_language',
+        'estimated_budget',
+        'accommodation_preferences'
+      ]
     });
-  } catch (error) {
-    console.error('Eroare la verificarea token-ului:', error);
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ message: 'Token-ul a expirat' });
+
+    if (!user) {
+      console.log('User not found');
+      return res.status(401).json({ message: 'User does not exist' });
     }
-    return res.status(401).json({ message: 'Token invalid' });
+
+    req.user = user;
+    console.log('User set in request:', req.user);
+    next();
+  } catch (error) {
+    console.error('Error verifying token:', error);
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Token has expired' });
+    }
+    return res.status(401).json({ message: 'Invalid token' });
   }
 };
 
 const adminMiddleware = (req, res, next) => {
-  console.log('Verificare rol admin pentru:', req.user);
+  console.log('Checking admin role for:', req.user);
   if (!req.user || req.user.role !== 'admin') {
-    console.log('Acces interzis - rol neautorizat');
-    return res.status(403).json({ message: 'Acces interzis. Doar administratorii pot accesa această pagină.' });
+    console.log('Access denied - unauthorized role');
+    return res.status(403).json({ message: 'Access denied. Only administrators can access this page.' });
   }
   next();
 };

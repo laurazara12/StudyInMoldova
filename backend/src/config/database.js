@@ -52,8 +52,23 @@ const Program = ProgramModel(sequelize);
 Program.belongsTo(University, { foreignKey: 'universityId' });
 University.hasMany(Program, { foreignKey: 'universityId' });
 
+// Funcție pentru verificarea existenței tabelelor
+const checkTablesExist = async () => {
+  try {
+    // Verificăm dacă tabela users există
+    const result = await sequelize.query(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name='users'",
+      { type: sequelize.QueryTypes.SELECT }
+    );
+    return result.length > 0;
+  } catch (error) {
+    console.error('Eroare la verificarea tabelelor:', error);
+    return false;
+  }
+};
+
 // Funcție pentru sincronizare sigură
-const safeSync = async () => {
+const safeSync = async (force = false) => {
   try {
     // Verificăm dacă baza de date există și este accesibilă
     if (dbExists) {
@@ -67,12 +82,25 @@ const safeSync = async () => {
       }
     }
 
-    // Sincronizăm doar dacă este necesar
-    await sequelize.sync({ 
-      alter: true,
-      force: false,
-      validate: true
-    });
+    // Verificăm dacă tabelele există
+    const tablesExist = await checkTablesExist();
+    
+    if (tablesExist) {
+      console.log('Tabelele există în baza de date.');
+    } else {
+      console.log('Tabelele nu există în baza de date.');
+    }
+
+    // Sincronizăm cu opțiunile corespunzătoare
+    if (force || !dbExists || !tablesExist) {
+      console.log('Se creează tabelele în baza de date...');
+      await sequelize.sync({ force: false });
+      console.log('Tabelele au fost create cu succes.');
+    } else {
+      console.log('Se actualizează schema bazei de date...');
+      await sequelize.sync({ alter: true });
+      console.log('Schema bazei de date a fost actualizată cu succes.');
+    }
 
     console.log('Baza de date sincronizată cu succes');
   } catch (error) {

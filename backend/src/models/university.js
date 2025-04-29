@@ -1,32 +1,56 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
 
-const University = sequelize.define('University', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
-  },
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  description: {
-    type: DataTypes.TEXT,
-    allowNull: false
-  },
-  location: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  imageUrl: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  website: {
-    type: DataTypes.STRING,
-    allowNull: false
-  }
-});
+module.exports = (sequelize) => {
+  const University = sequelize.define('University', {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    type: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: false
+    },
+    location: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    imageUrl: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    website: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    ranking: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    tuitionFees: {
+      type: DataTypes.JSON,
+      allowNull: true
+    },
+    programs: {
+      type: DataTypes.JSON,
+      allowNull: true
+    },
+    contactInfo: {
+      type: DataTypes.JSON,
+      allowNull: true
+    }
+  }, {
+    tableName: 'Universities',
+    timestamps: false
+  });
 
-module.exports = University;
+  return University;
+}; 

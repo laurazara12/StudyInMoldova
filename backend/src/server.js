@@ -33,11 +33,11 @@ if (!fs.existsSync(uploadsDir)) {
 // Configurare directorul pentru fișiere statice
 app.use('/uploads', express.static(path.join(__dirname, '../../backend/uploads')));
 
-// Importăm rutele
-app.use('/api/universities', universitiesRouter);
+// Rute API
 app.use('/api/programs', programsRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/documents', documentsRouter);
+app.use('/api/universities', universitiesRouter);
 
 // Ruta pentru verificarea stării serverului
 app.get('/api/health', (req, res) => {

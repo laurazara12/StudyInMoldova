@@ -5,46 +5,11 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
 const { authMiddleware, adminMiddleware } = require('../middleware/auth');
-const { v4: uuidv4 } = require('uuid');
-
-// Function to generate a short UUID (6 characters)
-function generateShortUUID() {
-  return Math.random().toString(36).substring(2, 8);
-}
-
-// Add short UUIDs to existing users
-async function addShortUUIDsToUsers() {
-  try {
-    // Use raw query to avoid the createdAt column issue
-    const users = await User.sequelize.query(
-      'SELECT id, uuid FROM users WHERE uuid IS NULL',
-      { type: User.sequelize.QueryTypes.SELECT }
-    );
-
-    for (const user of users) {
-      const shortUUID = generateShortUUID();
-      await User.sequelize.query(
-        'UPDATE users SET uuid = ? WHERE id = ?',
-        {
-          replacements: [shortUUID, user.id],
-          type: User.sequelize.QueryTypes.UPDATE
-        }
-      );
-      console.log(`Short UUID added for user ${user.id}: ${shortUUID}`);
-    }
-  } catch (error) {
-    console.error('Error updating UUIDs:', error);
-  }
-}
-
-// Run the function when the server starts
-addShortUUIDsToUsers();
 
 // Registration
 router.post('/signup', async (req, res) => {
   try {
     const { email, password, name } = req.body;
-    const shortUUID = generateShortUUID();
     console.log('Registration attempt for:', email);
     console.log('Received data:', { email, name, password: password ? 'present' : 'missing' });
 
@@ -60,14 +25,13 @@ router.post('/signup', async (req, res) => {
     console.log('Password hashed');
 
     const user = await User.create({
-      uuid: shortUUID,
       email,
       password: hashedPassword,
       name,
       role: 'user'
     });
 
-    console.log('User created successfully, UUID:', shortUUID);
+    console.log('User created successfully');
 
     const token = jwt.sign(
       { id: user.id, role: 'user' },
@@ -81,7 +45,6 @@ router.post('/signup', async (req, res) => {
       message: 'User created successfully',
       token,
       user: { 
-        uuid: shortUUID,
         email, 
         name, 
         role: 'user' 
@@ -148,7 +111,6 @@ router.post('/login', async (req, res) => {
       message: 'Login successful',
       token,
       user: {
-        uuid: user.uuid,
         email: user.email,
         name: user.name,
         role: user.role
@@ -163,35 +125,56 @@ router.post('/login', async (req, res) => {
 // Get current user data
 router.get('/me', authMiddleware, async (req, res) => {
   try {
-    const user = await User.findOne({
-      where: { id: req.user.id },
-      attributes: ['id', 'name', 'email', 'role', 'uuid']
+    console.log('GET /api/auth/me - Începere procesare cerere');
+    console.log('User ID din token:', req.user.id);
+    
+    const user = await User.findByPk(req.user.id, {
+      attributes: [
+        'id', 
+        'name', 
+        'email', 
+        'role', 
+        'phone',
+        'date_of_birth',
+        'country_of_origin',
+        'nationality',
+        'desired_study_level',
+        'preferred_study_field',
+        'desired_academic_year',
+        'preferred_study_language',
+        'estimated_budget',
+        'accommodation_preferences'
+      ]
     });
 
+    console.log('Rezultat căutare utilizator:', user ? 'Utilizator găsit' : 'Utilizator negăsit');
+
     if (!user) {
-      console.log('User not found');
+      console.log('Utilizatorul nu a fost găsit pentru ID:', req.user.id);
       return res.status(404).json({
         success: false,
         message: 'User not found'
       });
     }
 
-    console.log('User data found:', user);
+    console.log('Date utilizator găsite:', {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    });
+
     res.json({
       success: true,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        uuid: user.uuid
-      }
+      user
     });
   } catch (error) {
-    console.error('Error fetching user data:', error);
+    console.error('Eroare detaliată la preluarea datelor utilizatorului:', error);
+    console.error('Stack trace:', error.stack);
     res.status(500).json({
       success: false,
-      message: 'Error fetching user data'
+      message: 'Error fetching user data',
+      error: error.message
     });
   }
 });
@@ -203,7 +186,7 @@ router.get('/users', authMiddleware, adminMiddleware, async (req, res) => {
     console.log('Current user:', req.user);
 
     const users = await User.findAll({
-      attributes: ['id', 'uuid', 'email', 'name', 'role'],
+      attributes: ['id', 'email', 'name', 'role'],
       order: [['id', 'DESC']]
     });
 
@@ -278,7 +261,6 @@ router.get('/health', (req, res) => {
 router.post('/register', async (req, res) => {
   try {
     const { email, password, name } = req.body;
-    const uuid = uuidv4(); // Generează un UUID unic
 
     // Verifică dacă emailul există deja
     User.findOne({ where: { email } }).then(user => {
@@ -286,10 +268,9 @@ router.post('/register', async (req, res) => {
         return res.status(400).json({ message: 'Emailul este deja înregistrat' });
       }
 
-      // Creează utilizatorul nou cu UUID
+      // Creează utilizatorul nou
       bcrypt.hash(password, 10).then(hashedPassword => {
         User.create({
-          uuid,
           email,
           password: hashedPassword,
           name,
@@ -299,7 +280,6 @@ router.post('/register', async (req, res) => {
             message: 'Utilizator înregistrat cu succes',
             user: {
               id: user.id,
-              uuid: user.uuid,
               email: user.email,
               name: user.name,
               role: user.role
@@ -320,6 +300,61 @@ router.post('/register', async (req, res) => {
   } catch (error) {
     console.error('Eroare la înregistrare:', error);
     res.status(500).json({ message: 'Eroare la înregistrare' });
+  }
+});
+
+// Update user profile
+router.put('/update-profile', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Utilizatorul nu a fost găsit'
+      });
+    }
+
+    // Actualizează doar câmpurile permise
+    const allowedFields = [
+      'name',
+      'phone',
+      'date_of_birth',
+      'country_of_origin',
+      'nationality',
+      'desired_study_level',
+      'preferred_study_field',
+      'desired_academic_year',
+      'preferred_study_language',
+      'estimated_budget',
+      'accommodation_preferences'
+    ];
+
+    const updateData = {};
+    allowedFields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        updateData[field] = req.body[field];
+      }
+    });
+
+    await user.update(updateData);
+
+    res.json({
+      success: true,
+      message: 'Profilul a fost actualizat cu succes',
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        ...updateData
+      }
+    });
+  } catch (error) {
+    console.error('Eroare la actualizarea profilului:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Eroare la actualizarea profilului'
+    });
   }
 });
 
