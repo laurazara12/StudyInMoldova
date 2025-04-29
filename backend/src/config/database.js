@@ -108,9 +108,6 @@ const safeSync = async (force = false) => {
   }
 };
 
-// Executăm sincronizarea inițială
-safeSync();
-
 // Exportăm funcțiile și modelele
 module.exports = {
   sequelize,
