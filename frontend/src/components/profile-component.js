@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Footer from './footer';
@@ -16,13 +16,65 @@ const initialDocuments = {
   cv: { uploading: false, progress: 0, uploaded: false, file: null }
 };
 
+const documentTypes = [
+  { id: 'diploma', name: 'Diploma', description: 'High school diploma or equivalent' },
+  { id: 'transcript', name: 'Transcript', description: 'High school transcript with grades' },
+  { id: 'passport', name: 'Passport', description: 'Valid passport' },
+  { id: 'photo', name: 'Photo', description: 'Recent 3x4 photo' },
+  { id: 'medical', name: 'Medical Certificate', description: 'Medical certificate' },
+  { id: 'insurance', name: 'Health Insurance', description: 'Health insurance' },
+  { id: 'other', name: 'Other Documents', description: 'Other documents' },
+  { id: 'cv', name: 'CV', description: 'Curriculum Vitae' }
+];
+
 const ProfileComponent = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [documents, setDocuments] = useState([]);
-  const [uploadStatus, setUploadStatus] = useState(initialDocuments);
+  const [uploadStatus, setUploadStatus] = useState(() => {
+    const savedDocuments = localStorage.getItem('uploadedDocuments');
+    if (savedDocuments) {
+      const parsedDocuments = JSON.parse(savedDocuments);
+      return {
+        ...initialDocuments,
+        ...parsedDocuments
+      };
+    }
+    return initialDocuments;
+  });
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    full_name: '',
+    email: '',
+    phone: '',
+    date_of_birth: '',
+    country_of_origin: '',
+    nationality: '',
+    desired_study_level: '',
+    preferred_study_field: '',
+    desired_academic_year: '',
+    preferred_study_language: '',
+    estimated_budget: '',
+    accommodation_preferences: ''
+  });
+  const [userData, setUserData] = useState(null);
+  const fileInputRef = useRef(null);
+  const [activeTab, setActiveTab] = useState(() => {
+    // Încărcăm tab-ul activ din localStorage sau folosim 'profile' ca default
+    return localStorage.getItem('activeProfileTab') || 'profile';
+  });
+
+  // Salvăm tab-ul activ în localStorage când se schimbă
+  useEffect(() => {
+    localStorage.setItem('activeProfileTab', activeTab);
+  }, [activeTab]);
+
+  // Salvăm documentele în localStorage când se schimbă
+  useEffect(() => {
+    localStorage.setItem('uploadedDocuments', JSON.stringify(uploadStatus));
+  }, [uploadStatus]);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -33,20 +85,22 @@ const ProfileComponent = () => {
           return;
         }
 
-        console.log('Preluare date utilizator din baza de date...');
+        console.log('Retrieving user data from database...');
         const response = await axios.get(`${API_BASE_URL}/auth/me`, {
           headers: getAuthHeaders()
         });
 
-        console.log('Răspuns de la server:', response.data);
+        console.log('Server response:', response.data);
+        console.log('User data:', response.data.user);
         
         if (response.data.success) {
           setUser(response.data.user);
+          setUserData(response.data.user);
           if (response.data.user.role !== 'admin') {
             await fetchDocuments(token);
           }
         } else {
-          setError(response.data.message || 'Nu s-au putut prelua datele utilizatorului');
+          setError(response.data.message || 'Could not retrieve user data');
           navigate('/sign-in');
         }
       } catch (error) {
@@ -138,6 +192,9 @@ const ProfileComponent = () => {
       ...prev,
       [type]: { ...prev[type], file }
     }));
+
+    // După ce fișierul este validat, începe upload-ul
+    handleUpload(type);
   };
 
   const handleUpload = async (type) => {
@@ -161,18 +218,22 @@ const ProfileComponent = () => {
         }
       });
 
-      // Verificăm dacă avem un document în răspuns
       if (response.data && response.data.document) {
-        setUploadStatus(prev => ({
-          ...prev,
+        // Salvăm documentul în localStorage
+        const updatedStatus = {
+          ...uploadStatus,
           [type]: { 
-            ...prev[type], 
+            ...uploadStatus[type], 
             uploading: false, 
             progress: 100,
             uploaded: true,
-            filePath: response.data.document.file_path
+            filePath: response.data.document.file_path,
+            fileName: file.name,
+            uploadDate: new Date().toISOString()
           }
-        }));
+        };
+        setUploadStatus(updatedStatus);
+        localStorage.setItem('uploadedDocuments', JSON.stringify(updatedStatus));
 
         // Actualizează lista de documente
         await fetchDocuments(localStorage.getItem('token'));
@@ -207,11 +268,15 @@ const ProfileComponent = () => {
       });
 
       if (response.data.message === 'Document șters cu succes') {
+        // Ștergem documentul din localStorage
+        const updatedStatus = {
+          ...uploadStatus,
+          [documentType]: { ...uploadStatus[documentType], file: null, uploaded: false, filePath: null, fileName: null, uploadDate: null }
+        };
+        setUploadStatus(updatedStatus);
+        localStorage.setItem('uploadedDocuments', JSON.stringify(updatedStatus));
+        
         setDocuments(prev => prev.filter(doc => doc.id !== document.id));
-        setUploadStatus(prev => ({
-          ...prev,
-          [documentType]: { ...prev[documentType], file: null, uploaded: false }
-        }));
         alert('Document șters cu succes');
       }
     } catch (error) {
@@ -285,91 +350,424 @@ const ProfileComponent = () => {
     }
   };
 
-  const renderDocumentUpload = (documentType, documentName) => {
-    const document = documents.find(doc => doc.document_type === documentType);
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     
-    return (
-      <div className="document-card">
-        <div className="document-icon">
-          📄
-        </div>
-        <h4 className="document-name">{documentName}</h4>
-        {document?.uploaded ? (
-          <div className="document-status">
-            <p className="document-status-text">Document uploaded</p>
-            <div className="document-actions">
-              <button onClick={() => handleDelete(documentType)}>
-                <span className="button-icon">🗑️</span>
-                Delete
-              </button>
-              <button onClick={() => handleDownload(documentType)}>
-                <span className="button-icon">⬇️</span>
-                Download
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="document-upload">
-            <div className="file-upload">
-              <input
-                type="file"
-                onChange={(e) => handleFileChange(documentType, e)}
-                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"
-                id={`file-${documentType}`}
-              />
-              <label htmlFor={`file-${documentType}`}>Choose file</label>
-            </div>
-            {uploadStatus[documentType].file && (
-              <button 
-                className="upload-button"
-                onClick={() => handleUpload(documentType)}
-                disabled={uploadStatus[documentType].uploading}
-              >
-                {uploadStatus[documentType].uploading ? 'Uploading...' : 'Upload'}
-              </button>
-            )}
-          </div>
-        )}
-      </div>
-    );
+    try {
+      console.log('Salvare date profil:', formData);
+      
+      // Trimite doar câmpurile care au fost modificate
+      const updatedFields = {};
+      Object.keys(formData).forEach(key => {
+        if (formData[key] !== userData[key]) {
+          updatedFields[key] = formData[key];
+        }
+      });
+      
+      // Dacă nu există câmpuri modificate, închide modalul
+      if (Object.keys(updatedFields).length === 0) {
+        alert('Nu s-au făcut modificări');
+        setIsEditing(false);
+        return;
+      }
+      
+      const response = await axios.put(`${API_BASE_URL}/auth/update-profile`, updatedFields, {
+        headers: getAuthHeaders()
+      });
+      
+      if (response.data.success) {
+        // Actualizează datele utilizatorului în interfață
+        setUserData(prev => ({
+          ...prev,
+          ...updatedFields
+        }));
+        
+        alert('Profilul a fost actualizat cu succes!');
+        setIsEditing(false);
+      } else {
+        alert(response.data.message || 'Eroare la actualizarea profilului');
+      }
+    } catch (error) {
+      const apiError = handleApiError(error);
+      console.error('Eroare la actualizarea profilului:', apiError);
+      alert(apiError.message || 'Eroare la actualizarea profilului');
+    }
+  };
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const getDocumentTypeLabel = (documentType) => {
+    switch (documentType) {
+      case 'passport':
+        return 'Passport';
+      case 'diploma':
+        return 'Diploma';
+      case 'transcript':
+        return 'Transcript';
+      case 'photo':
+        return 'Photo';
+      case 'medical':
+        return 'Medical Certificate';
+      case 'insurance':
+        return 'Health Insurance';
+      case 'other':
+        return 'Other Documents';
+      case 'cv':
+        return 'CV';
+      default:
+        return documentType;
+    }
   };
 
   return (
     <div className="profile-container">
-      <div className="profile-content">
-        <div className="profile-info-section">
-          <div className="profile-card">
-            <div className="profile-info">
-              <span className="info-label">Name:</span>
-              <span className="info-value">{user.name}</span>
+      <div className="profile-header">
+        <div className="profile-tabs">
+          <button 
+            className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`}
+            onClick={() => setActiveTab('profile')}
+            style={{
+              backgroundColor: activeTab === 'profile' ? '#ff6b35' : 'transparent',
+              color: activeTab === 'profile' ? '#fff' : '#ff6b35',
+              border: '1px solid #ff6b35'
+            }}
+          >
+            My Profile
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'studies' ? 'active' : ''}`}
+            onClick={() => setActiveTab('studies')}
+            style={{
+              backgroundColor: activeTab === 'studies' ? '#ff6b35' : 'transparent',
+              color: activeTab === 'studies' ? '#fff' : '#ff6b35',
+              border: '1px solid #ff6b35'
+            }}
+          >
+            Plan Your Studies
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'documents' ? 'active' : ''}`}
+            onClick={() => setActiveTab('documents')}
+            style={{
+              backgroundColor: activeTab === 'documents' ? '#ff6b35' : 'transparent',
+              color: activeTab === 'documents' ? '#fff' : '#ff6b35',
+              border: '1px solid #ff6b35'
+            }}
+          >
+            Upload Documents
+          </button>
+        </div>
+        <button 
+          className="edit-button" 
+          onClick={() => {
+            setFormData({
+              full_name: userData?.name || '',
+              email: userData?.email || '',
+              phone: userData?.phone || '',
+              date_of_birth: userData?.date_of_birth || '',
+              country_of_origin: userData?.country_of_origin || '',
+              nationality: userData?.nationality || '',
+              desired_study_level: userData?.desired_study_level || '',
+              preferred_study_field: userData?.preferred_study_field || '',
+              desired_academic_year: userData?.desired_academic_year || '',
+              preferred_study_language: userData?.preferred_study_language || '',
+              estimated_budget: userData?.estimated_budget || '',
+              accommodation_preferences: userData?.accommodation_preferences || ''
+            });
+            setIsEditing(true);
+          }}
+          style={{
+            backgroundColor: '#e0e0e0',
+            color: '#555',
+            border: '1px solid #ccc'
+          }}
+        >
+          Edit Profile
+        </button>
+      </div>
+
+      {loading ? (
+        <div className="loading">Se încarcă...</div>
+      ) : error ? (
+        <div className="error">{error}</div>
+      ) : (
+        <div className="profile-content">
+          {/* Secțiunea Profilul meu */}
+          {activeTab === 'profile' && (
+            <div className="profile-section">
+              <h2>My Profile</h2>
+              <div className="info-grid">
+                <div className="info-item">
+                  <span className="info-label">Full Name:</span>
+                  <span className="info-value">{userData?.name || 'Not specified'}</span>
+                </div>
+                <div className="info-item">
+                  <label>Email:</label>
+                  <span>{userData && userData.email ? userData.email : 'Not specified'}</span>
+                </div>
+                <div className="info-item">
+                  <label>Phone:</label>
+                  <span>{userData && userData.phone ? userData.phone : 'Not specified'}</span>
+                </div>
+                <div className="info-item">
+                  <label>Date of Birth:</label>
+                  <span>{userData && userData.date_of_birth ? new Date(userData.date_of_birth).toLocaleDateString('en-US') : 'Not specified'}</span>
+                </div>
+                <div className="info-item">
+                  <label>Country of Origin:</label>
+                  <span>{userData && userData.country_of_origin ? userData.country_of_origin : 'Not specified'}</span>
+                </div>
+                <div className="info-item">
+                  <label>Nationality:</label>
+                  <span>{userData && userData.nationality ? userData.nationality : 'Not specified'}</span>
+                </div>
+              </div>
             </div>
-            <div className="profile-info">
-              <span className="info-label">Email:</span>
-              <span className="info-value">{user.email}</span>
+          )}
+
+          {/* Secțiunea Plan Your Studies */}
+          {activeTab === 'studies' && (
+            <div className="profile-section">
+              <h2>Plan Your Studies</h2>
+              <div className="info-grid">
+                <div className="info-item">
+                  <label>Desired Study Level:</label>
+                  <span>{userData && userData.desired_study_level ? userData.desired_study_level : 'Not specified'}</span>
+                </div>
+                <div className="info-item">
+                  <label>Preferred Field of Study:</label>
+                  <span>{userData && userData.preferred_study_field ? userData.preferred_study_field : 'Not specified'}</span>
+                </div>
+                <div className="info-item">
+                  <label>Desired Academic Year:</label>
+                  <span>{userData && userData.desired_academic_year ? userData.desired_academic_year : 'Not specified'}</span>
+                </div>
+                <div className="info-item">
+                  <label>Preferred Study Language:</label>
+                  <span>{userData && userData.preferred_study_language ? userData.preferred_study_language : 'Not specified'}</span>
+                </div>
+                <div className="info-item">
+                  <label>Estimated Budget (EUR):</label>
+                  <span>{userData && userData.estimated_budget ? `${userData.estimated_budget} EUR` : 'Not specified'}</span>
+                </div>
+                <div className="info-item">
+                  <label>Accommodation Preferences:</label>
+                  <span>{userData && userData.accommodation_preferences ? userData.accommodation_preferences : 'Not specified'}</span>
+                </div>
+              </div>
             </div>
-            <div className="profile-info">
-              <span className="info-label">Role:</span>
-              <span className="info-value">{user.role}</span>
+          )}
+
+          {/* Secțiunea Încarcă documente */}
+          {activeTab === 'documents' && (
+            <div className="profile-section">
+              <h2>Upload Documents</h2>
+              <div className="documents-grid">
+                {documentTypes.map((docType) => {
+                  const document = documents.find(d => d.type === docType.id);
+                  const uploadStatusForType = uploadStatus[docType.id];
+                  return (
+                    <div key={docType.id} className="document-item">
+                      <div className="document-info">
+                        <h3>{docType.name}</h3>
+                        <p>{docType.description}</p>
+                        {document && (
+                          <>
+                            <p>Status: {document.status}</p>
+                            <p>Uploaded: {new Date(document.uploadDate).toLocaleDateString()}</p>
+                          </>
+                        )}
+                      </div>
+                      <div className="document-actions">
+                        {document || uploadStatusForType?.uploaded ? (
+                          <>
+                            <button 
+                              className="download-button"
+                              onClick={() => handleDownload(docType.id)}
+                            >
+                              Download
+                            </button>
+                            <button 
+                              className="delete-button"
+                              onClick={() => handleDelete(docType.id)}
+                            >
+                              Delete
+                            </button>
+                          </>
+                        ) : uploadStatusForType?.file ? (
+                          <button 
+                            className="upload-button"
+                            onClick={() => handleUpload(docType.id)}
+                            disabled={uploadStatusForType.uploading}
+                          >
+                            {uploadStatusForType.uploading ? 'Uploading...' : 'Upload'}
+                          </button>
+                        ) : (
+                          <button 
+                            className="choose-button"
+                            onClick={() => {
+                              fileInputRef.current.click();
+                              fileInputRef.current.dataset.documentType = docType.id;
+                            }}
+                          >
+                            Choose File
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: 'none' }}
+                onChange={(event) => {
+                  const documentType = event.target.dataset.documentType;
+                  handleFileChange(documentType, event);
+                }}
+              />
             </div>
+          )}
+        </div>
+      )}
+
+      {/* Modal de editare */}
+      {isEditing && (
+        <div className="edit-modal">
+          <div className="edit-modal-content">
+            <h2>Edit Profile</h2>
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label>Full Name:</label>
+                <input
+                  type="text"
+                  name="full_name"
+                  value={formData.full_name}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Phone:</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="form-group">
+                <label>Date of Birth:</label>
+                <input
+                  type="date"
+                  name="date_of_birth"
+                  value={formData.date_of_birth}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="form-group">
+                <label>Country of Origin:</label>
+                <input
+                  type="text"
+                  name="country_of_origin"
+                  value={formData.country_of_origin}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="form-group">
+                <label>Nationality:</label>
+                <input
+                  type="text"
+                  name="nationality"
+                  value={formData.nationality}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="form-group">
+                <label>Desired Study Level:</label>
+                <select
+                  name="desired_study_level"
+                  value={formData.desired_study_level}
+                  onChange={handleChange}
+                >
+                  <option value="">Select level</option>
+                  <option value="bachelor">Bachelor's</option>
+                  <option value="master">Master's</option>
+                  <option value="doctorate">Doctorate</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Preferred Field of Study:</label>
+                <input
+                  type="text"
+                  name="preferred_study_field"
+                  value={formData.preferred_study_field}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="form-group">
+                <label>Desired Academic Year:</label>
+                <input
+                  type="text"
+                  name="desired_academic_year"
+                  value={formData.desired_academic_year}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="form-group">
+                <label>Preferred Study Language:</label>
+                <select
+                  name="preferred_study_language"
+                  value={formData.preferred_study_language}
+                  onChange={handleChange}
+                >
+                  <option value="">Select language</option>
+                  <option value="romanian">Romanian</option>
+                  <option value="english">English</option>
+                  <option value="russian">Russian</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Estimated Budget (EUR):</label>
+                <input
+                  type="number"
+                  name="estimated_budget"
+                  value={formData.estimated_budget}
+                  onChange={handleChange}
+                  min="0"
+                />
+              </div>
+              <div className="form-group">
+                <label>Accommodation Preferences:</label>
+                <select
+                  name="accommodation_preferences"
+                  value={formData.accommodation_preferences}
+                  onChange={handleChange}
+                >
+                  <option value="">Select preference</option>
+                  <option value="dormitory">Student Dormitory</option>
+                  <option value="apartment">Private Apartment</option>
+                  <option value="hostel">Hostel</option>
+                </select>
+              </div>
+              <div className="form-actions">
+                <button type="submit" className="save-button">Save</button>
+                <button type="button" className="cancel-button" onClick={() => setIsEditing(false)}>
+                  Cancel
+                </button>
+              </div>
+            </form>
           </div>
         </div>
-        {user.role !== 'admin' && (
-          <div className="document-section">
-            <h2 className="document-heading">Documents</h2>
-            <p className="document-info">Please upload the following documents in PDF, JPG, JPEG, PNG, DOC, DOCX, XLS, or XLSX format. Maximum file size: 5MB. You will receive an error message if you try to upload a larger file.</p>
-            <div className="documents-grid">
-              {renderDocumentUpload('passport', 'Passport')}
-              {renderDocumentUpload('diploma', 'Diploma')}
-              {renderDocumentUpload('transcript', 'Transcript')}
-              {renderDocumentUpload('photo', 'Photo')}
-              {renderDocumentUpload('medical', 'Medical Certificate')}
-              {renderDocumentUpload('insurance', 'Health Insurance')}
-              {renderDocumentUpload('other', 'Other Documents')}
-              {renderDocumentUpload('cv', 'CV')}
-            </div>
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 };
