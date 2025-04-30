@@ -19,26 +19,37 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        isIn: [['diploma', 'transcript', 'passport', 'photo']]
+        isIn: [['passport', 'diploma', 'transcript', 'cv', 'other']]
       }
     },
     file_path: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    created_at: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW
+    status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'pending',
+      validate: {
+        isIn: [['pending', 'approved', 'rejected', 'deleted']]
+      }
+    },
+    filename: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    originalName: {
+      type: DataTypes.STRING,
+      allowNull: true
     }
   }, {
     tableName: 'documents',
-    timestamps: false,
-    indexes: [
-      {
-        fields: ['user_id', 'document_type']
-      }
-    ]
+    timestamps: true
   });
+
+  Document.associate = (models) => {
+    Document.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
+  };
 
   return Document;
 }; 

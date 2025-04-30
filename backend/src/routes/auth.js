@@ -358,4 +358,21 @@ router.put('/update-profile', authMiddleware, async (req, res) => {
   }
 });
 
+// Endpoint pentru verificarea validității token-ului
+router.get('/verify-token', authMiddleware, (req, res) => {
+  try {
+    // Dacă middleware-ul de autentificare a trecut, token-ul este valid
+    res.json({
+      valid: true,
+      user: req.user
+    });
+  } catch (error) {
+    console.error('Eroare la verificarea token-ului:', error);
+    res.status(401).json({
+      valid: false,
+      message: 'Token invalid'
+    });
+  }
+});
+
 module.exports = router;

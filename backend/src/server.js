@@ -25,13 +25,13 @@ app.use((req, res, next) => {
 });
 
 // Creăm directorul pentru încărcări dacă nu există
-const uploadsDir = path.join(__dirname, '../../backend/uploads');
+const uploadsDir = path.join(__dirname, '../../backend/backend/uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
 // Configurare directorul pentru fișiere statice
-app.use('/uploads', express.static(path.join(__dirname, '../../backend/uploads')));
+app.use('/uploads', express.static(path.join(__dirname, '../../backend/backend/uploads')));
 
 // Rute API
 app.use('/api/programs', programsRouter);

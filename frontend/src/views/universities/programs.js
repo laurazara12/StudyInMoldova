@@ -1,23 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
-import Navbar from '../components/navbar';
-import Footer from '../components/footer';
+import { Link } from 'react-router-dom';
+import Navbar from '../../components/navbar';
+import Footer from '../../components/footer';
+import FilterSection from '../../components/filter-section';
+import UniversityPresentation from '../../components/university-presentation';
 import './programs.css';
 
 const Programs = () => {
-  const [programs, setPrograms] = useState([]);
+  const [universities, setUniversities] = useState([]);
+  const [filteredUniversities, setFilteredUniversities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // State pentru filtre
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState('');
+  const [filterLocation, setFilterLocation] = useState('');
+  const [sortBy, setSortBy] = useState('name');
+  
+  // Opțiuni pentru filtre
+  const typeOptions = ['Public', 'Private'];
+  const locationOptions = ['Chișinău', 'Bălți', 'Comrat', 'Tiraspol'];
 
   useEffect(() => {
-    const fetchPrograms = async () => {
+    const fetchUniversities = async () => {
       try {
-        const response = await fetch('http://localhost:4000/api/programs');
+        const response = await fetch('http://localhost:4000/api/universities');
         if (!response.ok) {
-          throw new Error('Failed to fetch programs');
+          throw new Error('Failed to fetch universities');
         }
         const data = await response.json();
-        setPrograms(data);
+        setUniversities(data);
+        setFilteredUniversities(data);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -25,14 +40,53 @@ const Programs = () => {
       }
     };
 
-    fetchPrograms();
+    fetchUniversities();
   }, []);
+
+  // Filtrare și sortare universiți
+  useEffect(() => {
+    let result = [...universities];
+    
+    // Filtrare după termen de căutare
+    if (searchTerm) {
+      result = result.filter(uni => 
+        uni.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    // Filtrare după tip
+    if (filterType) {
+      result = result.filter(uni => uni.type === filterType);
+    }
+    
+    // Filtrare după locație
+    if (filterLocation) {
+      result = result.filter(uni => uni.location === filterLocation);
+    }
+    
+    // Sortare
+    switch (sortBy) {
+      case 'name':
+        result.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'type':
+        result.sort((a, b) => a.type.localeCompare(b.type));
+        break;
+      case 'location':
+        result.sort((a, b) => a.location.localeCompare(b.location));
+        break;
+      default:
+        break;
+    }
+    
+    setFilteredUniversities(result);
+  }, [universities, searchTerm, filterType, filterLocation, sortBy]);
 
   if (loading) {
     return (
       <div className="programs-container">
         <Navbar />
-        <div className="loading">Loading programs...</div>
+        <div className="programs-loading">Loading programs...</div>
         <Footer />
       </div>
     );
@@ -48,105 +102,43 @@ const Programs = () => {
     );
   }
 
-  // Calculează statistici pentru header
-  const totalPrograms = programs.length;
-  const uniqueUniversities = [...new Set(programs.map(p => p.university?.name).filter(Boolean))].length;
-  const uniqueDegrees = [...new Set(programs.map(p => p.degree).filter(Boolean))].length;
-
   return (
     <div className="programs-container">
       <Helmet>
-        <title>Study Programs - Study In Moldova</title>
-        <meta property="og:title" content="Study Programs - Study In Moldova" />
+        <title>Programs - Study In Moldova</title>
+        <meta property="og:title" content="Programs - Study In Moldova" />
       </Helmet>
       <Navbar />
+      <div className="programs-header">
+        <h1 className="programs-title">Study Programs in Moldova</h1>
+        <p className="programs-description">Discover all the study programs offered by our partner universities in Moldova</p>
+      </div>
       <div className="programs-content">
-        <div className="programs-header">
-          <h1>Available Study Programs</h1>
-          <p>Discover all the study programs offered by our partner universities in Moldova</p>
-          
-          {programs.length > 0 && (
-            <div className="programs-stats">
-              <div className="program-stat">
-                <div className="program-stat-number">{totalPrograms}</div>
-                <div className="program-stat-label">Total Programs</div>
-              </div>
-              <div className="program-stat">
-                <div className="program-stat-number">{uniqueUniversities}</div>
-                <div className="program-stat-label">Universities</div>
-              </div>
-              <div className="program-stat">
-                <div className="program-stat-number">{uniqueDegrees}</div>
-                <div className="program-stat-label">Degree Types</div>
-              </div>
-            </div>
+        <FilterSection 
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          filterType={filterType}
+          setFilterType={setFilterType}
+          filterLocation={filterLocation}
+          setFilterLocation={setFilterLocation}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          typeOptions={typeOptions}
+          locationOptions={locationOptions}
+        />
+        
+        <div className="programs-grid">
+          {filteredUniversities.length > 0 ? (
+            filteredUniversities.map(university => (
+              <UniversityPresentation 
+                key={university.id} 
+                university={university} 
+              />
+            ))
+          ) : (
+            <p>No programs found matching your criteria.</p>
           )}
         </div>
-        
-        {programs.length === 0 ? (
-          <div className="no-programs-message">
-            <h2>No programs available yet</h2>
-            <p>We are currently working on adding study programs to our database. Please check back later.</p>
-          </div>
-        ) : (
-          <div className="programs-list">
-            {programs.map((program) => (
-              <div key={program.id} className="program-card">
-                <div className="program-header">
-                  <h2>{program.name}</h2>
-                  <span className="program-university">{program.university?.name || 'Unknown University'}</span>
-                </div>
-                <div className="program-details">
-                  <div className="program-detail">
-                    <span className="detail-label">Faculty:</span>
-                    <span className="detail-value">{program.faculty}</span>
-                  </div>
-                  <div className="program-detail">
-                    <span className="detail-label">Degree:</span>
-                    <span className="detail-value">{program.degree}</span>
-                  </div>
-                  <div className="program-detail">
-                    <span className="detail-label">Credits:</span>
-                    <span className="detail-value">{program.credits} ECTS</span>
-                  </div>
-                  <div className="program-detail">
-                    <span className="detail-label">Languages:</span>
-                    <span className="detail-value">
-                      {Array.isArray(program.languages) 
-                        ? program.languages.join(', ')
-                        : program.languages}
-                    </span>
-                  </div>
-                  {program.duration && (
-                    <div className="program-detail">
-                      <span className="detail-label">Duration:</span>
-                      <span className="detail-value">{program.duration}</span>
-                    </div>
-                  )}
-                  {program.tuitionFee && (
-                    <div className="program-detail">
-                      <span className="detail-label">Tuition Fee:</span>
-                      <span className="detail-value">{program.tuitionFee}</span>
-                    </div>
-                  )}
-                </div>
-                {program.description && (
-                  <div className="program-description">
-                    <p>{program.description}</p>
-                  </div>
-                )}
-                <div className="program-actions">
-                  <a 
-                    href={`/universities/${program.universityId}`} 
-                    className="view-university-button"
-                  >
-                    View University
-                  </a>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
       <Footer />
     </div>

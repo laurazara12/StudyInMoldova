@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './profile-component.css';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { API_BASE_URL, getAuthHeaders } from '../config/api.config';
 
 const PlanYourStudies = ({ userData, documents, documentTypes, calculateProfileProgress }) => {
@@ -47,75 +47,25 @@ const PlanYourStudies = ({ userData, documents, documentTypes, calculateProfileP
   const getProfileRecommendations = () => {
     const recommendations = [];
     
-    if (!userData.phone) {
+    const fields = [
+      { name: 'phone', text: 'Adăugați numărul de telefon' },
+      { name: 'date_of_birth', text: 'Adăugați data nașterii' },
+      { name: 'country_of_origin', text: 'Adăugați țara de origine' },
+      { name: 'nationality', text: 'Adăugați naționalitatea' },
+      { name: 'desired_study_level', text: 'Selectați nivelul de studii dorit' },
+      { name: 'preferred_study_field', text: 'Adăugați domeniul de studiu preferat' },
+      { name: 'desired_academic_year', text: 'Selectați anul academic dorit' },
+      { name: 'preferred_study_language', text: 'Selectați limba de studiu preferată' },
+      { name: 'estimated_budget', text: 'Adăugați bugetul estimat' },
+      { name: 'accommodation_preferences', text: 'Adăugați preferințele pentru cazare' }
+    ];
+
+    fields.forEach(field => {
       recommendations.push({
-        text: 'Adăugați numărul de telefon',
-        completed: false
+        text: field.text,
+        completed: isFieldComplete(field.name)
       });
-    }
-    
-    if (!userData.date_of_birth) {
-      recommendations.push({
-        text: 'Adăugați data nașterii',
-        completed: false
-      });
-    }
-    
-    if (!userData.country_of_origin) {
-      recommendations.push({
-        text: 'Adăugați țara de origine',
-        completed: false
-      });
-    }
-    
-    if (!userData.nationality) {
-      recommendations.push({
-        text: 'Adăugați naționalitatea',
-        completed: false
-      });
-    }
-    
-    if (!userData.desired_study_level) {
-      recommendations.push({
-        text: 'Selectați nivelul de studii dorit',
-        completed: false
-      });
-    }
-    
-    if (!userData.preferred_study_field) {
-      recommendations.push({
-        text: 'Adăugați domeniul de studiu preferat',
-        completed: false
-      });
-    }
-    
-    if (!userData.desired_academic_year) {
-      recommendations.push({
-        text: 'Selectați anul academic dorit',
-        completed: false
-      });
-    }
-    
-    if (!userData.preferred_study_language) {
-      recommendations.push({
-        text: 'Selectați limba de studiu preferată',
-        completed: false
-      });
-    }
-    
-    if (!userData.estimated_budget) {
-      recommendations.push({
-        text: 'Adăugați bugetul estimat',
-        completed: false
-      });
-    }
-    
-    if (!userData.accommodation_preferences) {
-      recommendations.push({
-        text: 'Adăugați preferințele pentru cazare',
-        completed: false
-      });
-    }
+    });
     
     return recommendations;
   };

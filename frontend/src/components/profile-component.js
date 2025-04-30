@@ -4,6 +4,8 @@ import axios from 'axios';
 import Footer from './footer';
 import './profile-component.css';
 import { API_BASE_URL, getAuthHeaders, handleApiError } from '../config/api.config';
+import PlanYourStudies from './plan-your-studies';
+import DocumentCounter from './document-counter';
 
 const initialDocuments = {
   diploma: { uploading: false, progress: 0, uploaded: false, file: null },
@@ -77,6 +79,7 @@ const ProfileComponent = () => {
   }, [uploadStatus]);
 
   useEffect(() => {
+    let isMounted = true;
     const fetchUserData = async () => {
       try {
         const token = localStorage.getItem('token');
@@ -85,38 +88,55 @@ const ProfileComponent = () => {
           return;
         }
 
-        console.log('Retrieving user data from database...');
-        const response = await axios.get(`${API_BASE_URL}/api/auth/me`, {
-          headers: getAuthHeaders()
-        });
+        if (isMounted) {
+          console.log('Retrieving user data from database...');
+          const response = await axios.get(`${API_BASE_URL}/api/auth/me`, {
+            headers: getAuthHeaders()
+          });
 
-        console.log('Server response:', response.data);
-        console.log('User data:', response.data.user);
-        
-        if (response.data.success) {
-          setUser(response.data.user);
-          setUserData(response.data.user);
-          if (response.data.user.role !== 'admin') {
-            await fetchDocuments(token);
+          console.log('Server response:', response.data);
+          
+          if (response.data && response.data.success) {
+            const userData = response.data.user;
+            console.log('User data:', userData);
+            
+            if (userData) {
+              setUser(userData);
+              setUserData(userData);
+              if (userData.role !== 'admin') {
+                await fetchDocuments(token);
+              }
+            } else {
+              setError('User data is missing from response');
+              navigate('/sign-in');
+            }
+          } else {
+            setError(response.data?.message || 'Could not retrieve user data');
+            navigate('/sign-in');
           }
-        } else {
-          setError(response.data.message || 'Could not retrieve user data');
-          navigate('/sign-in');
         }
       } catch (error) {
-        const apiError = handleApiError(error);
-        console.error('Eroare la preluarea datelor utilizatorului:', apiError);
-        if (apiError.status === 401) {
-          navigate('/sign-in');
-        } else {
-          setError(apiError.message);
+        if (isMounted) {
+          const apiError = handleApiError(error);
+          console.error('Eroare la preluarea datelor utilizatorului:', apiError);
+          if (apiError.status === 401) {
+            navigate('/sign-in');
+          } else {
+            setError(apiError.message);
+          }
         }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchUserData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [navigate]);
 
   useEffect(() => {
@@ -171,6 +191,30 @@ const ProfileComponent = () => {
     }
   };
 
+  const calculateProfileProgress = (userData) => {
+    if (!userData) return 0;
+    
+    const requiredFields = [
+      'phone',
+      'date_of_birth',
+      'country_of_origin',
+      'nationality',
+      'desired_study_level',
+      'preferred_study_field',
+      'desired_academic_year',
+      'preferred_study_language',
+      'estimated_budget',
+      'accommodation_preferences'
+    ];
+    
+    const completedFields = requiredFields.filter(field => 
+      userData[field] && userData[field].toString().trim() !== ''
+    );
+    
+    const progress = Math.round((completedFields.length / requiredFields.length) * 100);
+    return progress;
+  };
+
   if (loading) {
     return (
       <div className="profile-container">
@@ -212,13 +256,17 @@ const ProfileComponent = () => {
       return;
     }
 
+    // Actualizează starea cu fișierul selectat, dar nu începe upload-ul
     setUploadStatus(prev => ({
       ...prev,
-      [type]: { ...prev[type], file }
+      [type]: { 
+        ...prev[type], 
+        file: file,
+        uploading: false,
+        uploaded: false,
+        error: null
+      }
     }));
-
-    // După ce fișierul este validat, începe upload-ul
-    handleUpload(type);
   };
 
   const handleUpload = async (documentType) => {
@@ -396,7 +444,7 @@ const ProfileComponent = () => {
         return;
       }
       
-      const response = await axios.put(`${API_BASE_URL}/auth/update-profile`, updatedFields, {
+      const response = await axios.put(`${API_BASE_URL}/api/auth/update-profile`, updatedFields, {
         headers: getAuthHeaders()
       });
       
@@ -452,12 +500,23 @@ const ProfileComponent = () => {
 
   async function cleanupDocuments() {
     try {
-      await axios.post(`${API_BASE_URL}/documents/cleanup`, {}, {
+      if (!window.confirm('Sunteți sigur că doriți să curățați documentele invalide? Această acțiune nu poate fi anulată.')) {
+        return;
+      }
+      
+      const response = await axios.post(`${API_BASE_URL}/api/documents/cleanup`, {}, {
         headers: getAuthHeaders()
       });
-      await fetchDocuments(localStorage.getItem('token'));
+      
+      if (response.data.success) {
+        alert(response.data.message);
+        await fetchDocuments(localStorage.getItem('token'));
+      } else {
+        alert('A apărut o eroare la curățarea documentelor: ' + (response.data.error || 'Eroare necunoscută'));
+      }
     } catch (error) {
       console.error('Eroare la curățarea documentelor:', error);
+      alert('A apărut o eroare la curățarea documentelor. Vă rugăm să încercați din nou.');
     }
   }
 
@@ -569,41 +628,24 @@ const ProfileComponent = () => {
 
           {/* Secțiunea Plan Your Studies */}
           {activeTab === 'studies' && (
-            <div className="profile-section">
-              <h2>Plan Your Studies</h2>
-              <div className="info-grid">
-                <div className="info-item">
-                  <label>Desired Study Level:</label>
-                  <span>{userData && userData.desired_study_level ? userData.desired_study_level : 'Not specified'}</span>
-                </div>
-                <div className="info-item">
-                  <label>Preferred Field of Study:</label>
-                  <span>{userData && userData.preferred_study_field ? userData.preferred_study_field : 'Not specified'}</span>
-                </div>
-                <div className="info-item">
-                  <label>Desired Academic Year:</label>
-                  <span>{userData && userData.desired_academic_year ? userData.desired_academic_year : 'Not specified'}</span>
-                </div>
-                <div className="info-item">
-                  <label>Preferred Study Language:</label>
-                  <span>{userData && userData.preferred_study_language ? userData.preferred_study_language : 'Not specified'}</span>
-                </div>
-                <div className="info-item">
-                  <label>Estimated Budget (EUR):</label>
-                  <span>{userData && userData.estimated_budget ? `${userData.estimated_budget} EUR` : 'Not specified'}</span>
-                </div>
-                <div className="info-item">
-                  <label>Accommodation Preferences:</label>
-                  <span>{userData && userData.accommodation_preferences ? userData.accommodation_preferences : 'Not specified'}</span>
-                </div>
-              </div>
-            </div>
+            <PlanYourStudies 
+              userData={userData}
+              documents={documents}
+              documentTypes={documentTypes}
+              calculateProfileProgress={() => calculateProfileProgress(userData)}
+            />
           )}
 
           {/* Secțiunea Încarcă documente */}
           {activeTab === 'documents' && (
             <div className="profile-section">
               <h2>Upload Documents</h2>
+              
+              <DocumentCounter 
+                documents={documents}
+                documentTypes={documentTypes}
+              />
+
               <div className="documents-grid">
                 {documentTypes.map((docType) => {
                   const document = documents.find(d => d.document_type === docType.id);

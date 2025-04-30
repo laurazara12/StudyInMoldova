@@ -2,8 +2,8 @@ import React, { Fragment } from 'react'
 
 import { Helmet } from 'react-helmet'
 
-import Navbar from '../components/navbar'
-import SignUp from '../components/sign-up'
+import Navbar from '../../components/navbar'
+import SignUpComponent from '../../components/sign-up'
 import './sign-up.css'
 
 const SignUpPage = (props) => {
@@ -14,7 +14,7 @@ const SignUpPage = (props) => {
         <meta property="og:title" content="Sign Up - Study In Moldova" />
       </Helmet>
       <Navbar rootClassName="navbar-root-class-name"></Navbar>
-      <SignUp
+      <SignUpComponent
         action1={
           <Fragment>
             <span className="sign-up-text25">Submit</span>
@@ -35,7 +35,7 @@ const SignUpPage = (props) => {
             <span className="sign-up-text28">Create an account</span>
           </Fragment>
         }
-      ></SignUp>
+      ></SignUpComponent>
     </div>
   )
 }

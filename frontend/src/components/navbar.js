@@ -2,23 +2,37 @@ import React, { Fragment, useEffect, useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import './navbar.css'
+import axios from 'axios'
+import { API_BASE_URL } from '../config/api.config'
 
 const Navbar = (props) => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      setUser(JSON.parse(userData));
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user'));
+
+    if (token && user) {
+      setIsAuthenticated(true);
+      setUserRole(user.role);
+      setUser(user);
+    } else {
+      setIsAuthenticated(false);
+      setUserRole(null);
+      setUser(null);
     }
-  }, []);
+  }, [location]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    setIsAuthenticated(false);
+    setUserRole(null);
     setUser(null);
     navigate('/sign-in');
   };
@@ -54,17 +68,26 @@ const Navbar = (props) => {
             </span>
           </nav>
           <div className="navbar-buttons1">
-            {user ? (
+            {isAuthenticated && user ? (
               <>
-                <button className="navbar-login1 button">
-                  <Link to="/profile" className={`navbar-navlink1 ${location.pathname === '/profile' ? 'active' : ''}`}>
-                    <span className="navbar-text37">Profile</span>
-                  </Link>
-                </button>
-                {user.role === 'admin' && (
+                {userRole === 'admin' && (
+                  <>
+                    <button className="navbar-login1 button">
+                      <Link to="/dashboard" className={`navbar-navlink1 ${location.pathname === '/dashboard' ? 'active' : ''}`}>
+                        Dashboard
+                      </Link>
+                    </button>
+                    <button className="navbar-login1 button">
+                      <Link to="/admin-profile" className={`navbar-navlink1 ${location.pathname === '/admin-profile' ? 'active' : ''}`}>
+                        Admin Profile
+                      </Link>
+                    </button>
+                  </>
+                )}
+                {userRole !== 'admin' && (
                   <button className="navbar-login1 button">
-                    <Link to="/dashboard" className={`navbar-navlink1 ${location.pathname === '/admin/dashboard' ? 'active' : ''}`}>
-                      <span className="navbar-text37">Dashboard</span>
+                    <Link to="/profile" className={`navbar-navlink1 ${location.pathname === '/profile' ? 'active' : ''}`}>
+                      <span className="navbar-text37">Profile</span>
                     </Link>
                   </button>
                 )}
@@ -89,11 +112,10 @@ const Navbar = (props) => {
           </div>
         </div>
 
-        {/* Meniul mobil trebuie actualizat similar */}
-        <div data-thq="thq-burger-menu" className="navbar-burger-menu">
+        <div data-thq="thq-burger-menu" className="navbar-burger-menu" onClick={toggleMenu}>
           <img alt="menu" src="/playground_assets/menu.svg" className="navbar-icon10" />
         </div>
-        <div data-thq="thq-mobile-menu" className="navbar-mobile-menu">
+        <div data-thq="thq-mobile-menu" className={`navbar-mobile-menu ${isOpen ? 'active' : ''}`}>
           <div className="navbar-nav">
             <div className="navbar-top">
               <Link to="/" className="navbar-text10">
@@ -120,13 +142,29 @@ const Navbar = (props) => {
               </Link>
             </nav>
             <div className="navbar-buttons2">
-              {user ? (
+              {isAuthenticated && user ? (
                 <>
-                  <button className="navbar-login2 button">
-                    <Link to="/profile" className={`navbar-navlink2 ${location.pathname === '/profile' ? 'active' : ''}`}>
-                      <span className="navbar-text34">{user.name}</span>
-                    </Link>
-                  </button>
+                  {userRole === 'admin' && (
+                    <>
+                      <button className="navbar-login2 button">
+                        <Link to="/dashboard" className={`navbar-navlink2 ${location.pathname === '/dashboard' ? 'active' : ''}`}>
+                          Dashboard
+                        </Link>
+                      </button>
+                      <button className="navbar-login2 button">
+                        <Link to="/admin-profile" className={`navbar-navlink2 ${location.pathname === '/admin-profile' ? 'active' : ''}`}>
+                          Admin Profile
+                        </Link>
+                      </button>
+                    </>
+                  )}
+                  {userRole !== 'admin' && (
+                    <button className="navbar-login2 button">
+                      <Link to="/profile" className={`navbar-navlink2 ${location.pathname === '/profile' ? 'active' : ''}`}>
+                        <span className="navbar-text34">Profile</span>
+                      </Link>
+                    </button>
+                  )}
                   <button className="button" onClick={handleLogout}>
                     <span className="navbar-text31">Logout</span>
                   </button>
@@ -153,47 +191,12 @@ const Navbar = (props) => {
   )
 }
 
-
 Navbar.defaultProps = {
-  text6: undefined,
-  text16: undefined,
-  logoSrc: 'https://presentation-website-assets.teleporthq.io/logos/logo.png',
   rootClassName: '',
-  text: undefined,
-  text13: undefined,
-  text15: undefined,
-  text14: undefined,
-  text3: undefined,
-  text4: undefined,
-  register1: undefined,
-  text5: undefined,
-  register: undefined,
-  logoAlt: 'image',
-  login1: undefined,
-  text2: undefined,
-  text12: undefined,
-  login: undefined,
 }
 
 Navbar.propTypes = {
-  text6: PropTypes.element,
-  text16: PropTypes.element,
-  logoSrc: PropTypes.string,
   rootClassName: PropTypes.string,
-  text: PropTypes.element,
-  text13: PropTypes.element,
-  text15: PropTypes.element,
-  text14: PropTypes.element,
-  text3: PropTypes.element,
-  text4: PropTypes.element,
-  register1: PropTypes.element,
-  text5: PropTypes.element,
-  register: PropTypes.element,
-  logoAlt: PropTypes.string,
-  login1: PropTypes.element,
-  text2: PropTypes.element,
-  text12: PropTypes.element,
-  login: PropTypes.element,
 }
 
 export default Navbar

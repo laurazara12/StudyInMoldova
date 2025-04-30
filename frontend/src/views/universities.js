@@ -7,7 +7,7 @@ import UniversityPresentation from '../components/UniversityPresentation'
 import Footer from '../components/footer'
 import universityService from '../services/universityService'
 import './universities.css'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../context/AuthContext'
 
 const Universities = () => {
   const { t } = useTranslation()

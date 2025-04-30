@@ -1,0 +1,92 @@
+.sign-in-container {
+  width: 100%;
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  flex-direction: column;
+}
+ 
+.sign-in-text10 {
+  display: inline-block;
+  font-size: 12px;
+}
+ 
+.sign-in-text11 {
+  display: inline-block;
+  font-family: "Inter";
+  letter-spacing: 0em;
+}
+ 
+.sign-in-text12 {
+  display: inline-block;
+  font-size: 12px;
+}
+ 
+.sign-in-text13 {
+  display: inline-block;
+  font-size: 12px;
+}
+ 
+.sign-in-text14 {
+  display: inline-block;
+  font-size: 12px;
+}
+ 
+.sign-in-text15 {
+  display: inline-block;
+  font-size: 12px;
+}
+ 
+.sign-in-text16 {
+  display: inline-block;
+  font-size: 12px;
+}
+ 
+.sign-in-text17 {
+  display: inline-block;
+}
+ 
+.sign-in-text18 {
+  display: inline-block;
+}
+ 
+.sign-in-text19 {
+  display: inline-block;
+}
+ 
+.sign-in-text20 {
+  display: inline-block;
+}
+ 
+.sign-in-text21 {
+  display: inline-block;
+}
+ 
+.sign-in-text22 {
+  display: inline-block;
+}
+ 
+.sign-in-text23 {
+  display: inline-block;
+}
+ 
+.sign-in-text24 {
+  display: inline-block;
+}
+ 
+.sign-in-text25 {
+  display: inline-block;
+}
+ 
+.sign-in-text26 {
+  display: inline-block;
+}
+ 
+@media(max-width: 1200px) {
+  .sign-in-text25 {
+    font-size: 12px;
+  }
+  .sign-in-text26 {
+    font-size: 24px;
+  }
+}

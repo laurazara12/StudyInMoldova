@@ -76,5 +76,13 @@ module.exports = (sequelize) => {
     timestamps: false
   });
 
+  // Definirea explicită a asociării cu Document
+  User.associate = (models) => {
+    User.hasMany(models.Document, {
+      foreignKey: 'user_id',
+      as: 'documents'
+    });
+  };
+
   return User;
 }; 

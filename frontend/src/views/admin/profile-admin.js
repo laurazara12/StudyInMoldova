@@ -114,9 +114,6 @@ const ProfileAdmin = () => {
         <div className="profile-container">
           <div className="profile-header">
             <div className="profile-tabs">
-              <button className="tab-button active" style={{ backgroundColor: 'rgb(255, 107, 53)', color: 'rgb(255, 255, 255)', border: '1px solid rgb(255, 107, 53)' }}>
-                My Profile
-              </button>
             </div>
             <button 
               className="edit-button" 
@@ -127,35 +124,98 @@ const ProfileAdmin = () => {
             </button>
           </div>
           <div className="profile-content">
-            <div className="profile-section">
-              <h2>My Profile</h2>
-              <div className="info-grid">
-                <div className="info-item">
-                  <span className="info-label">Full Name:</span>
-                  <span className="info-value">{user?.name || 'Not specified'}</span>
+            {isEditing ? (
+              <form onSubmit={handleSubmit} className="edit-form">
+                <div className="form-group">
+                  <label>Full Name:</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={editedUser.name || ''}
+                    onChange={handleInputChange}
+                  />
                 </div>
-                <div className="info-item">
+                <div className="form-group">
                   <label>Email:</label>
-                  <span>{user?.email || 'Not specified'}</span>
+                  <input
+                    type="email"
+                    name="email"
+                    value={editedUser.email || ''}
+                    onChange={handleInputChange}
+                  />
                 </div>
-                <div className="info-item">
+                <div className="form-group">
                   <label>Phone:</label>
-                  <span>{user?.phone || 'Not specified'}</span>
+                  <input
+                    type="text"
+                    name="phone"
+                    value={editedUser.phone || ''}
+                    onChange={handleInputChange}
+                  />
                 </div>
-                <div className="info-item">
+                <div className="form-group">
                   <label>Date of Birth:</label>
-                  <span>{user?.dateOfBirth || 'Not specified'}</span>
+                  <input
+                    type="date"
+                    name="dateOfBirth"
+                    value={editedUser.dateOfBirth || ''}
+                    onChange={handleInputChange}
+                  />
                 </div>
-                <div className="info-item">
+                <div className="form-group">
                   <label>Country of Origin:</label>
-                  <span>{user?.countryOfOrigin || 'Not specified'}</span>
+                  <input
+                    type="text"
+                    name="countryOfOrigin"
+                    value={editedUser.countryOfOrigin || ''}
+                    onChange={handleInputChange}
+                  />
                 </div>
-                <div className="info-item">
+                <div className="form-group">
                   <label>Nationality:</label>
-                  <span>{user?.nationality || 'Not specified'}</span>
+                  <input
+                    type="text"
+                    name="nationality"
+                    value={editedUser.nationality || ''}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="form-actions">
+                  <button type="submit" className="save-button">Save Changes</button>
+                  <button type="button" className="cancel-button" onClick={() => setIsEditing(false)}>Cancel</button>
+                </div>
+              </form>
+            ) : (
+              <div className="profile-section">
+                <h2>My Profile</h2>
+                <div className="info-grid">
+                  <div className="info-item">
+                    <span className="info-label">Full Name:</span>
+                    <span className="info-value">{user?.name || 'Not specified'}</span>
+                  </div>
+                  <div className="info-item">
+                    <label>Email:</label>
+                    <span>{user?.email || 'Not specified'}</span>
+                  </div>
+                  <div className="info-item">
+                    <label>Phone:</label>
+                    <span>{user?.phone || 'Not specified'}</span>
+                  </div>
+                  <div className="info-item">
+                    <label>Date of Birth:</label>
+                    <span>{user?.dateOfBirth || 'Not specified'}</span>
+                  </div>
+                  <div className="info-item">
+                    <label>Country of Origin:</label>
+                    <span>{user?.countryOfOrigin || 'Not specified'}</span>
+                  </div>
+                  <div className="info-item">
+                    <label>Nationality:</label>
+                    <span>{user?.nationality || 'Not specified'}</span>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

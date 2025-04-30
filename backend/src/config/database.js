@@ -3,6 +3,7 @@ const { Sequelize } = require('sequelize');
 require('dotenv').config();
 const path = require('path');
 const fs = require('fs');
+const bcrypt = require('bcrypt');
 
 // Configurare directoare
 const DB_DIR = path.join(__dirname, '../../data');
@@ -87,19 +88,27 @@ const safeSync = async (force = false) => {
     
     if (tablesExist) {
       console.log('Tabelele există în baza de date.');
-    } else {
-      console.log('Tabelele nu există în baza de date.');
-    }
-
-    // Sincronizăm cu opțiunile corespunzătoare
-    if (force || !dbExists || !tablesExist) {
-      console.log('Se creează tabelele în baza de date...');
-      await sequelize.sync({ force: false });
-      console.log('Tabelele au fost create cu succes.');
-    } else {
-      console.log('Se actualizează schema bazei de date...');
+      // Doar actualizăm schema dacă este necesar
       await sequelize.sync({ alter: true });
       console.log('Schema bazei de date a fost actualizată cu succes.');
+    } else {
+      console.log('Se creează tabelele în baza de date...');
+      await sequelize.sync();
+      console.log('Tabelele au fost create cu succes.');
+      
+      // Creăm utilizatorul admin implicit doar dacă tabelele nu există
+      try {
+        const hashedPassword = await bcrypt.hash('123', 10);
+        await User.create({
+          name: 'Admin',
+          email: 'admin@example.com',
+          password: hashedPassword,
+          role: 'admin'
+        });
+        console.log('Utilizator admin creat cu succes');
+      } catch (error) {
+        console.error('Eroare la crearea utilizatorului admin:', error);
+      }
     }
 
     console.log('Baza de date sincronizată cu succes');

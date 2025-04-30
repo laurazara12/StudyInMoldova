@@ -10,7 +10,11 @@ const Dashboard = () => {
   const [users, setUsers] = useState([]);
   const [documents, setDocuments] = useState([]);
   const [universities, setUniversities] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState({
+    users: true,
+    documents: true,
+    universities: true
+  });
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('users');
   const [deleteConfirmation, setDeleteConfirmation] = useState(null);
@@ -72,135 +76,96 @@ const Dashboard = () => {
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user'));
 
-  useEffect(() => {
-    let isMounted = true;
-
-    const checkAdminAccess = () => {
-      if (!user || user.role !== 'admin') {
-        navigate('/sign-in');
-        return false;
-      }
-      return true;
-    };
-
-    const fetchUsers = async () => {
-      try {
-        const response = await axios.get(`${API_BASE_URL}/auth/users`, {
-          headers: getAuthHeaders()
-        });
-        
-        if (!isMounted) return;
-
-        if (response.data && Array.isArray(response.data)) {
-          const sortedUsers = response.data.sort((a, b) => b.id - a.id);
-          setUsers(sortedUsers);
-        } else {
-          setError('Formatul datelor primite este invalid');
-        }
-      } catch (err) {
-        if (!isMounted) return;
-        const error = handleApiError(err);
-        setError(error.message);
-        if (error.status === 401) {
-          navigate('/sign-in');
-        }
-      }
-    };
-
-    const fetchDocuments = async () => {
-      try {
-        const response = await axios.get(`${API_BASE_URL}/documents`, {
-          headers: getAuthHeaders()
-        });
-
-        if (!isMounted) return;
-
-        if (response.data && Array.isArray(response.data)) {
-          setDocuments(response.data);
-        }
-      } catch (err) {
-        if (!isMounted) return;
-        const error = handleApiError(err);
-        console.error('Eroare la încărcarea documentelor:', error);
-      }
-    };
-
-    const fetchUniversities = async () => {
-      try {
-        const response = await axios.get(`${API_BASE_URL}/universities`, {
-          headers: getAuthHeaders()
-        });
-        if (isMounted) {
-          setUniversities(response.data);
-        }
-      } catch (error) {
-        const apiError = handleApiError(error);
-        console.error('Eroare la încărcarea universităților:', apiError);
-      }
-    };
-
-    const fetchPrograms = async () => {
-      try {
-        const response = await axios.get(`${API_BASE_URL}/programs`, {
-          headers: getAuthHeaders()
-        });
-        if (isMounted) {
-          setPrograms(response.data);
-        }
-      } catch (error) {
-        const apiError = handleApiError(error);
-        console.error('Eroare la încărcarea programelor:', apiError);
-      }
-    };
-
-    const handleError = (err) => {
-      if (!isMounted) return;
-
-      if (err.response) {
-        if (err.response.status === 401) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          navigate('/sign-in');
-        } else if (err.response.status === 403) {
-          navigate('/profile');
-        } else if (err.response.status === 500) {
-          const errorMessage = err.response.data.message || 'Vă rugăm să încercați din nou mai târziu.';
-          setError(`Eroare server: ${errorMessage}`);
-        } else {
-          setError(err.response.data.message || 'Eroare la încărcarea datelor');
-        }
-      } else if (err.request) {
-        setError('Nu s-a putut conecta la server. Verificați conexiunea la internet.');
-      } else {
-        setError('A apărut o eroare neașteptată. Vă rugăm să încercați din nou.');
-      }
-    };
-
-    const initializeDashboard = async () => {
-      if (!checkAdminAccess()) return;
-
-      try {
-        await Promise.all([fetchUsers(), fetchDocuments()]);
-      } catch (err) {
-        console.error('Eroare la inițializarea dashboard-ului:', err);
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    if (activeTab === 'universities') {
-      fetchUniversities();
-    } else if (activeTab === 'programs') {
-      fetchPrograms();
+  const checkAdminAccess = () => {
+    if (!user || user.role !== 'admin') {
+      navigate('/sign-in');
+      return false;
     }
+    return true;
+  };
 
+  const fetchUsers = async () => {
+    try {
+      setLoading(prev => ({ ...prev, users: true }));
+      const response = await axios.get(`${API_BASE_URL}/api/users`, {
+        headers: getAuthHeaders()
+      });
+      setUsers(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      const apiError = handleApiError(error);
+      console.error('Eroare la încărcarea utilizatorilor:', apiError);
+      setUsers([]);
+      setError(apiError.message);
+    } finally {
+      setLoading(prev => ({ ...prev, users: false }));
+    }
+  };
+
+  const fetchDocuments = async () => {
+    try {
+      setLoading(prev => ({ ...prev, documents: true }));
+      const response = await axios.get(`${API_BASE_URL}/api/documents`, {
+        headers: getAuthHeaders()
+      });
+      setDocuments(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      const apiError = handleApiError(error);
+      console.error('Eroare la încărcarea documentelor:', apiError);
+      setDocuments([]);
+      setError(apiError.message);
+    } finally {
+      setLoading(prev => ({ ...prev, documents: false }));
+    }
+  };
+
+  const fetchUniversities = async () => {
+    try {
+      setLoading(prev => ({ ...prev, universities: true }));
+      const response = await axios.get(`${API_BASE_URL}/api/universities`, {
+        headers: getAuthHeaders()
+      });
+      setUniversities(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      const apiError = handleApiError(error);
+      console.error('Eroare la încărcarea universităților:', apiError);
+      setError(apiError.message);
+    } finally {
+      setLoading(prev => ({ ...prev, universities: false }));
+    }
+  };
+
+  const fetchPrograms = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/programs`, {
+        headers: getAuthHeaders()
+      });
+      setPrograms(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      const apiError = handleApiError(error);
+      console.error('Eroare la încărcarea programelor:', apiError);
+      setPrograms([]);
+    }
+  };
+
+  const initializeDashboard = async () => {
+    if (!checkAdminAccess()) return;
+
+    try {
+      setError(null);
+      await Promise.all([
+        fetchUsers(),
+        fetchDocuments(),
+        fetchUniversities(),
+        fetchPrograms()
+      ]);
+    } catch (err) {
+      console.error('Eroare la inițializarea dashboard-ului:', err);
+      setError('A apărut o eroare la încărcarea datelor. Vă rugăm să încercați din nou.');
+    }
+  };
+
+  useEffect(() => {
     initializeDashboard();
-
-    return () => {
-      isMounted = false;
-    };
   }, [navigate, token, user?.role, activeTab]);
 
   const getDocumentStatus = (userId) => {
@@ -221,32 +186,18 @@ const Dashboard = () => {
 
   const handleDeleteUser = async (userId) => {
     try {
-      console.log('Attempting to delete user:', userId);
-      const response = await axios.delete(`http://localhost:4000/api/auth/users/${userId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      const response = await axios.delete(`${API_BASE_URL}/api/users/${userId}`, {
+        headers: getAuthHeaders()
       });
-
-      console.log('Server response:', response.data);
 
       if (response.status === 200) {
         setUsers(users.filter(user => user.id !== userId));
         setDeleteConfirmation(null);
       }
     } catch (err) {
-      console.error('Error deleting user:', err);
-      if (err.response) {
-        console.log('Error response:', err.response.data);
-        setError(err.response.data.message || 'Could not delete user');
-      } else if (err.request) {
-        console.log('No response received from server');
-        setError('Could not connect to server. Please check your internet connection.');
-      } else {
-        console.log('Error setting up request:', err.message);
-        setError('Error deleting user. Please try again.');
-      }
+      const error = handleApiError(err);
+      console.error('Eroare la ștergerea utilizatorului:', error);
+      setError(error.message);
     }
   };
 
@@ -261,13 +212,10 @@ const Dashboard = () => {
   const handleDownloadDocument = async (documentType, userId) => {
     try {
       const response = await axios({
-        url: `http://localhost:4000/api/documents/download/${documentType}`,
+        url: `${API_BASE_URL}/api/documents/download/${documentType}`,
         method: 'GET',
         responseType: 'blob',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+        headers: getAuthHeaders()
       });
 
       const contentType = response.headers['content-type'];
@@ -295,33 +243,31 @@ const Dashboard = () => {
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      console.error('Eroare la descărcarea documentului:', err);
-      alert('Eroare la descărcarea documentului');
+      const error = handleApiError(err);
+      console.error('Eroare la descărcarea documentului:', error);
+      setError(error.message);
     }
   };
 
   const handleDeleteDocument = async (documentType, userId) => {
-    if (!window.confirm('Are you sure you want to delete this document?')) {
+    if (!window.confirm('Sunteți sigur că doriți să ștergeți acest document?')) {
       return;
     }
 
     try {
-      const response = await axios.delete(`http://localhost:4000/api/documents/${documentType}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      const response = await axios.delete(`${API_BASE_URL}/api/documents/${documentType}`, {
+        headers: getAuthHeaders()
       });
 
       if (response.data.success) {
         setDocuments(documents.filter(doc => 
           !(doc.document_type === documentType && doc.user_id === userId)
         ));
-        alert('Document deleted successfully!');
       }
     } catch (err) {
-      console.error('Error deleting document:', err);
-      alert('Error deleting document');
+      const error = handleApiError(err);
+      console.error('Eroare la ștergerea documentului:', error);
+      setError(error.message);
     }
   };
 
@@ -406,15 +352,13 @@ const Dashboard = () => {
     return matchesSearch && matchesType && matchesDateRange;
   });
 
-  const filteredUniversities = universities.filter(uni => {
+  const filteredUniversities = Array.isArray(universities) ? universities.filter(uni => {
     const matchesSearch = searchTerm === '' || 
-      uni.name.toLowerCase().includes(searchTerm.toLowerCase());
+      uni.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      uni.location.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesType = filterType === '' || 
-      uni.type.toLowerCase() === filterType.toLowerCase();
-    
-    const matchesLocation = filterLocation === '' || 
-      uni.location.toLowerCase().includes(filterLocation.toLowerCase());
+    const matchesType = filterType === '' || uni.type === filterType;
+    const matchesLocation = filterLocation === '' || uni.location === filterLocation;
     
     const matchesRanking = (!filterRanking.min || uni.ranking >= parseInt(filterRanking.min)) &&
                          (!filterRanking.max || uni.ranking <= parseInt(filterRanking.max));
@@ -425,9 +369,9 @@ const Dashboard = () => {
                              (uni.tuitionFees?.bachelor && parseInt(uni.tuitionFees.bachelor) <= parseInt(filterTuitionFee.max)));
     
     return matchesSearch && matchesType && matchesLocation && matchesRanking && matchesTuitionFee;
-  });
+  }) : [];
 
-  const filteredPrograms = programs.filter(program => {
+  const filteredPrograms = Array.isArray(programs) ? programs.filter(program => {
     const matchesSearch = searchTerm === '' || 
       program.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       program.faculty.toLowerCase().includes(searchTerm.toLowerCase());
@@ -445,7 +389,7 @@ const Dashboard = () => {
     
     return matchesSearch && matchesDegree && matchesFaculty && matchesLanguage && 
            matchesCredits && matchesTuitionFee;
-  });
+  }) : [];
 
   const handleAddUniversity = async (e) => {
     e.preventDefault();
@@ -667,27 +611,25 @@ const Dashboard = () => {
     });
   };
 
-  if (loading) {
-    return (
-      <div className="dashboard-page">
-        <Navbar />
-        <div className="dashboard-container">
-          <div className="dashboard-content">
-            <div className="loading">Loading...</div>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="dashboard-page">
         <Navbar />
         <div className="dashboard-container">
           <div className="dashboard-content">
-            <div className="error">{error}</div>
+            <div className="error-message">
+              <i className="fas fa-exclamation-circle"></i>
+              <p>{error}</p>
+              <button 
+                className="retry-button"
+                onClick={() => {
+                  setError(null);
+                  initializeDashboard();
+                }}
+              >
+                Reîncarcă
+              </button>
+            </div>
           </div>
         </div>
         <Footer />
@@ -968,7 +910,7 @@ const Dashboard = () => {
                     className="filter-select"
                   >
                     <option value="">All Faculties</option>
-                    {[...new Set(programs.map(p => p.faculty))].map(faculty => (
+                    {[...new Set(Array.isArray(programs) ? programs.map(p => p.faculty) : [])].map(faculty => (
                       <option key={faculty} value={faculty}>{faculty}</option>
                     ))}
                   </select>
@@ -981,7 +923,7 @@ const Dashboard = () => {
                     className="filter-select"
                   >
                     <option value="">All Languages</option>
-                    {[...new Set(programs.flatMap(p => Array.isArray(p.languages) ? p.languages : []))].map(lang => (
+                    {[...new Set(Array.isArray(programs) ? programs.flatMap(p => Array.isArray(p.languages) ? p.languages : []) : [])].map(lang => (
                       <option key={lang} value={lang}>{lang}</option>
                     ))}
                   </select>
@@ -1043,1029 +985,1038 @@ const Dashboard = () => {
             ) : null}
           </div>
 
-          {activeTab === 'universities' && (
+          {loading.users || loading.documents || loading.universities ? (
+            <div className="loading-container">
+              <div className="loading-spinner"></div>
+              <p>Se încarcă datele...</p>
+            </div>
+          ) : (
             <>
-              <div className="dashboard-actions">
-                <button 
-                  className="add-button"
-                  onClick={() => setShowAddUniversityForm(true)}
-                >
-                  Add University
-                </button>
-              </div>
-              {successMessage && (
-                <div className="alert-success" style={{marginBottom: '1rem', color: '#388e3c', background: '#e8f5e9', border: '1px solid #388e3c', borderRadius: '6px', padding: '0.7rem', textAlign: 'center', fontWeight: 600}}>
-                  {successMessage}
-                </div>
-              )}
-              <div className="universities-table-container">
-                <table className="dashboard-table">
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Type</th>
-                      <th>Location</th>
-                      <th>Website</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredUniversities.map(university => (
-                      <tr key={university.id}>
-                        <td>{university.name}</td>
-                        <td>{university.type}</td>
-                        <td>{university.location}</td>
-                        <td>
-                          <a href={university.website} target="_blank" rel="noopener noreferrer">
-                            {university.website}
-                          </a>
-                        </td>
-                        <td>
-                          <div className="action-buttons">
-                            <button 
-                              className="edit-button"
-                              onClick={() => handleEditUniversity(university)}
-                            >
-                              Editează
-                            </button>
-                            <button 
-                              className="delete-button"
-                              onClick={() => handleDeleteUniversity(university.id)}
-                            >
-                              Șterge
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {showAddUniversityForm && (
-                <div className="modal-overlay">
-                  <div className="modal-content">
-                    <h2>Add New University</h2>
-                    <form onSubmit={handleAddUniversity}>
-                      <div className="form-group">
-                        <label>Name:</label>
-                        <input
-                          type="text"
-                          name="name"
-                          value={newUniversity.name}
-                          onChange={handleUniversityInputChange}
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>Type:</label>
-                        <select
-                          name="type"
-                          value={newUniversity.type}
-                          onChange={handleUniversityInputChange}
-                          required
-                        >
-                          <option value="Public">Public</option>
-                          <option value="Private">Private</option>
-                        </select>
-                      </div>
-
-                      <div className="form-group">
-                        <label>Description:</label>
-                        <textarea
-                          name="description"
-                          value={newUniversity.description}
-                          onChange={handleUniversityInputChange}
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>Location:</label>
-                        <input
-                          type="text"
-                          name="location"
-                          value={newUniversity.location}
-                          onChange={handleUniversityInputChange}
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>Image URL or relative path:</label>
-                        <input
-                          type="text"
-                          name="imageUrl"
-                          value={newUniversity.imageUrl}
-                          onChange={handleUniversityInputChange}
-                          placeholder="URL or relative path (ex: /images/universities/example.jpg)"
-                          required
-                        />
-                        <small className="form-text text-muted">
-                          You can enter either a complete URL (ex: https://example.com/image.jpg) 
-                          or a relative path in the project (ex: /images/universities/example.jpg)
-                        </small>
-                      </div>
-
-                      <div className="form-group">
-                        <label>Website:</label>
-                        <input
-                          type="url"
-                          name="website"
-                          value={newUniversity.website}
-                          onChange={handleUniversityInputChange}
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>Ranking:</label>
-                        <input
-                          type="text"
-                          name="ranking"
-                          value={newUniversity.ranking}
-                          onChange={handleUniversityInputChange}
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>Tuition Fees:</label>
-                        <div className="nested-form-group">
-                          <input
-                            type="text"
-                            name="tuitionFees.bachelor"
-                            placeholder="Bachelor"
-                            value={newUniversity.tuitionFees.bachelor}
-                            onChange={handleUniversityInputChange}
-                          />
-                          <input
-                            type="text"
-                            name="tuitionFees.master"
-                            placeholder="Master"
-                            value={newUniversity.tuitionFees.master}
-                            onChange={handleUniversityInputChange}
-                          />
-                          <input
-                            type="text"
-                            name="tuitionFees.phd"
-                            placeholder="PhD"
-                            value={newUniversity.tuitionFees.phd}
-                            onChange={handleUniversityInputChange}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="form-group">
-                        <label>Contact Info:</label>
-                        <div className="nested-form-group">
-                          <input
-                            type="email"
-                            name="contactInfo.email"
-                            placeholder="Email"
-                            value={newUniversity.contactInfo.email}
-                            onChange={handleUniversityInputChange}
-                          />
-                          <input
-                            type="tel"
-                            name="contactInfo.phone"
-                            placeholder="Phone"
-                            value={newUniversity.contactInfo.phone}
-                            onChange={handleUniversityInputChange}
-                          />
-                          <input
-                            type="text"
-                            name="contactInfo.address"
-                            placeholder="Address"
-                            value={newUniversity.contactInfo.address}
-                            onChange={handleUniversityInputChange}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="modal-buttons">
-                        <button 
-                          type="button" 
-                          className="cancel-button"
-                          onClick={() => setShowAddUniversityForm(false)}
-                        >
-                          Cancel
-                        </button>
-                        <button type="submit" className="confirm-button">
-                          Add University
-                        </button>
-                      </div>
-                    </form>
+              {activeTab === 'universities' && (
+                <>
+                  <div className="dashboard-actions">
+                    <button 
+                      className="add-button"
+                      onClick={() => setShowAddUniversityForm(true)}
+                    >
+                      Add University
+                    </button>
                   </div>
-                </div>
-              )}
-
-              {showEditUniversityForm && editingUniversity && (
-                <div className="modal-overlay">
-                  <div className="modal-content">
-                    <h2>Editează Universitatea</h2>
-                    <form onSubmit={handleUpdateUniversity}>
-                      <div className="form-group">
-                        <label>Nume:</label>
-                        <input
-                          type="text"
-                          name="name"
-                          value={editingUniversity.name}
-                          onChange={(e) => setEditingUniversity({
-                            ...editingUniversity,
-                            name: e.target.value
-                          })}
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>Tip:</label>
-                        <select
-                          name="type"
-                          value={editingUniversity.type}
-                          onChange={(e) => setEditingUniversity({
-                            ...editingUniversity,
-                            type: e.target.value
-                          })}
-                          required
-                        >
-                          <option value="Public">Public</option>
-                          <option value="Private">Private</option>
-                        </select>
-                      </div>
-
-                      <div className="form-group">
-                        <label>Descriere:</label>
-                        <textarea
-                          name="description"
-                          value={editingUniversity.description}
-                          onChange={(e) => setEditingUniversity({
-                            ...editingUniversity,
-                            description: e.target.value
-                          })}
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>Locație:</label>
-                        <input
-                          type="text"
-                          name="location"
-                          value={editingUniversity.location}
-                          onChange={(e) => setEditingUniversity({
-                            ...editingUniversity,
-                            location: e.target.value
-                          })}
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>URL Imagine:</label>
-                        <input
-                          type="url"
-                          name="imageUrl"
-                          value={editingUniversity.imageUrl}
-                          onChange={(e) => setEditingUniversity({
-                            ...editingUniversity,
-                            imageUrl: e.target.value
-                          })}
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>Website:</label>
-                        <input
-                          type="url"
-                          name="website"
-                          value={editingUniversity.website}
-                          onChange={(e) => setEditingUniversity({
-                            ...editingUniversity,
-                            website: e.target.value
-                          })}
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>Ranking:</label>
-                        <input
-                          type="text"
-                          name="ranking"
-                          value={editingUniversity.ranking}
-                          onChange={(e) => setEditingUniversity({
-                            ...editingUniversity,
-                            ranking: e.target.value
-                          })}
-                        />
-                      </div>
-
-                      <div className="nested-form-group">
-                        <h3>Tuition Fees</h3>
-                        <div className="form-group">
-                          <label>Bachelor:</label>
-                          <input
-                            type="text"
-                            name="tuitionFees.bachelor"
-                            value={editingUniversity.tuitionFees?.bachelor || ''}
-                            onChange={(e) => setEditingUniversity({
-                              ...editingUniversity,
-                              tuitionFees: {
-                                ...editingUniversity.tuitionFees,
-                                bachelor: e.target.value
-                              }
-                            })}
-                          />
-                        </div>
-                        <div className="form-group">
-                          <label>Master:</label>
-                          <input
-                            type="text"
-                            name="tuitionFees.master"
-                            value={editingUniversity.tuitionFees?.master || ''}
-                            onChange={(e) => setEditingUniversity({
-                              ...editingUniversity,
-                              tuitionFees: {
-                                ...editingUniversity.tuitionFees,
-                                master: e.target.value
-                              }
-                            })}
-                          />
-                        </div>
-                        <div className="form-group">
-                          <label>PhD:</label>
-                          <input
-                            type="text"
-                            name="tuitionFees.phd"
-                            value={editingUniversity.tuitionFees?.phd || ''}
-                            onChange={(e) => setEditingUniversity({
-                              ...editingUniversity,
-                              tuitionFees: {
-                                ...editingUniversity.tuitionFees,
-                                phd: e.target.value
-                              }
-                            })}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="nested-form-group">
-                        <h3>Contact Information</h3>
-                        <div className="form-group">
-                          <label>Email:</label>
-                          <input
-                            type="email"
-                            name="contactInfo.email"
-                            value={editingUniversity.contactInfo?.email || ''}
-                            onChange={(e) => setEditingUniversity({
-                              ...editingUniversity,
-                              contactInfo: {
-                                ...editingUniversity.contactInfo,
-                                email: e.target.value
-                              }
-                            })}
-                          />
-                        </div>
-                        <div className="form-group">
-                          <label>Phone:</label>
-                          <input
-                            type="tel"
-                            name="contactInfo.phone"
-                            value={editingUniversity.contactInfo?.phone || ''}
-                            onChange={(e) => setEditingUniversity({
-                              ...editingUniversity,
-                              contactInfo: {
-                                ...editingUniversity.contactInfo,
-                                phone: e.target.value
-                              }
-                            })}
-                          />
-                        </div>
-                        <div className="form-group">
-                          <label>Address:</label>
-                          <input
-                            type="text"
-                            name="contactInfo.address"
-                            value={editingUniversity.contactInfo?.address || ''}
-                            onChange={(e) => setEditingUniversity({
-                              ...editingUniversity,
-                              contactInfo: {
-                                ...editingUniversity.contactInfo,
-                                address: e.target.value
-                              }
-                            })}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="modal-buttons">
-                        <button type="submit" className="confirm-button">
-                          Salvează Modificările
-                        </button>
-                        <button
-                          type="button"
-                          className="cancel-button"
-                          onClick={() => {
-                            setShowEditUniversityForm(false);
-                            setEditingUniversity(null);
-                          }}
-                        >
-                          Anulează
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-
-          {activeTab === 'programs' && (
-            <>
-              <div className="dashboard-actions">
-                <button 
-                  className="add-button"
-                  onClick={handleOpenAddProgramForm}
-                >
-                  Add Program
-                </button>
-              </div>
-              {successMessage && (
-                <div className="alert-success" style={{marginBottom: '1rem', color: '#388e3c', background: '#e8f5e9', border: '1px solid #388e3c', borderRadius: '6px', padding: '0.7rem', textAlign: 'center', fontWeight: 600}}>
-                  {successMessage}
-                </div>
-              )}
-              <div className="programs-table-container">
-                <table className="dashboard-table">
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Faculty</th>
-                      <th>Degree</th>
-                      <th>Credits</th>
-                      <th>Language</th>
-                      <th>Duration</th>
-                      <th>Fee</th>
-                      <th>University</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredPrograms.map(program => (
-                      <tr key={program.id}>
-                        <td>{program.name}</td>
-                        <td>{program.faculty}</td>
-                        <td>{program.degree}</td>
-                        <td>{program.credits}</td>
-                        <td>{Array.isArray(program.languages) ? program.languages.join(', ') : program.languages}</td>
-                        <td>{program.duration}</td>
-                        <td>{program.tuitionFee}</td>
-                        <td>{program.university?.name || 'N/A'}</td>
-                        <td>
-                          <div className="action-buttons">
-                            <button 
-                              className="edit-button"
-                              onClick={() => handleEditProgram(program)}
-                            >
-                              Editează
-                            </button>
-                            <button 
-                              className="delete-button"
-                              onClick={() => handleDeleteProgram(program.id)}
-                            >
-                              Șterge
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {showAddProgramForm && (
-                <div className="modal-overlay">
-                  <div className="modal-content">
-                    <h2>Add New Program</h2>
-                    <form onSubmit={handleAddProgram}>
-                      <div className="form-group">
-                        <label>Name:</label>
-                        <input
-                          type="text"
-                          name="name"
-                          value={newProgram.name}
-                          onChange={handleProgramInputChange}
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>Faculty:</label>
-                        <input
-                          type="text"
-                          name="faculty"
-                          value={newProgram.faculty}
-                          onChange={handleProgramInputChange}
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>Degree:</label>
-                        <select
-                          name="degree"
-                          value={newProgram.degree}
-                          onChange={handleProgramInputChange}
-                          required
-                        >
-                          <option value="Bachelor">Bachelor</option>
-                          <option value="Master">Master</option>
-                          <option value="PhD">PhD</option>
-                        </select>
-                      </div>
-
-                      <div className="form-group">
-                        <label>Credits:</label>
-                        <input
-                          type="number"
-                          name="credits"
-                          value={newProgram.credits}
-                          onChange={handleProgramInputChange}
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>Languages (comma-separated):</label>
-                        <input
-                          type="text"
-                          name="languages"
-                          value={Array.isArray(newProgram.languages) ? newProgram.languages.join(', ') : newProgram.languages}
-                          onChange={handleProgramInputChange}
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>Description:</label>
-                        <textarea
-                          name="description"
-                          value={newProgram.description}
-                          onChange={handleProgramInputChange}
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>Duration:</label>
-                        <input
-                          type="text"
-                          name="duration"
-                          value={newProgram.duration}
-                          onChange={handleProgramInputChange}
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>Tuition Fee:</label>
-                        <input
-                          type="number"
-                          name="tuitionFee"
-                          value={newProgram.tuitionFee}
-                          onChange={handleProgramInputChange}
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>University:</label>
-                        <select
-                          name="universityId"
-                          value={newProgram.universityId}
-                          onChange={handleProgramInputChange}
-                          required
-                        >
-                          <option value="">Select University</option>
-                          {universities.map(university => (
-                            <option key={university.id} value={university.id}>
-                              {university.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="modal-buttons">
-                        <button 
-                          type="button" 
-                          className="cancel-button"
-                          onClick={() => setShowAddProgramForm(false)}
-                        >
-                          Cancel
-                        </button>
-                        <button type="submit" className="confirm-button">
-                          Add Program
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              )}
-
-              {showEditProgramForm && editingProgram && (
-                <div className="modal-overlay">
-                  <div className="modal-content">
-                    <h2>Editează Programul</h2>
-                    <form onSubmit={handleUpdateProgram}>
-                      <div className="form-group">
-                        <label>Nume:</label>
-                        <input
-                          type="text"
-                          name="name"
-                          value={editingProgram.name}
-                          onChange={(e) => setEditingProgram({
-                            ...editingProgram,
-                            name: e.target.value
-                          })}
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>Facultate:</label>
-                        <input
-                          type="text"
-                          name="faculty"
-                          value={editingProgram.faculty}
-                          onChange={(e) => setEditingProgram({
-                            ...editingProgram,
-                            faculty: e.target.value
-                          })}
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>Grad:</label>
-                        <select
-                          name="degree"
-                          value={editingProgram.degree}
-                          onChange={(e) => setEditingProgram({
-                            ...editingProgram,
-                            degree: e.target.value
-                          })}
-                          required
-                        >
-                          <option value="Bachelor">Bachelor</option>
-                          <option value="Master">Master</option>
-                          <option value="PhD">PhD</option>
-                        </select>
-                      </div>
-
-                      <div className="form-group">
-                        <label>Credite:</label>
-                        <input
-                          type="number"
-                          name="credits"
-                          value={editingProgram.credits}
-                          onChange={(e) => setEditingProgram({
-                            ...editingProgram,
-                            credits: e.target.value
-                          })}
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>Limbi (separate prin virgulă):</label>
-                        <input
-                          type="text"
-                          name="languages"
-                          value={Array.isArray(editingProgram.languages) ? editingProgram.languages.join(', ') : editingProgram.languages}
-                          onChange={(e) => setEditingProgram({
-                            ...editingProgram,
-                            languages: e.target.value.split(',').map(lang => lang.trim())
-                          })}
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>Descriere:</label>
-                        <textarea
-                          name="description"
-                          value={editingProgram.description}
-                          onChange={(e) => setEditingProgram({
-                            ...editingProgram,
-                            description: e.target.value
-                          })}
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>Durată:</label>
-                        <input
-                          type="text"
-                          name="duration"
-                          value={editingProgram.duration}
-                          onChange={(e) => setEditingProgram({
-                            ...editingProgram,
-                            duration: e.target.value
-                          })}
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>Taxă de școlarizare:</label>
-                        <input
-                          type="number"
-                          name="tuitionFee"
-                          value={editingProgram.tuitionFee}
-                          onChange={(e) => setEditingProgram({
-                            ...editingProgram,
-                            tuitionFee: e.target.value
-                          })}
-                          required
-                        />
-                      </div>
-
-                      <div className="form-group">
-                        <label>Universitate:</label>
-                        <select
-                          name="universityId"
-                          value={editingProgram.universityId}
-                          onChange={(e) => setEditingProgram({
-                            ...editingProgram,
-                            universityId: e.target.value
-                          })}
-                          required
-                        >
-                          <option value="">Selectează Universitatea</option>
-                          {universities.map(university => (
-                            <option key={university.id} value={university.id}>
-                              {university.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="modal-buttons">
-                        <button type="submit" className="confirm-button">
-                          Salvează Modificările
-                        </button>
-                        <button
-                          type="button"
-                          className="cancel-button"
-                          onClick={() => {
-                            setShowEditProgramForm(false);
-                            setEditingProgram(null);
-                          }}
-                        >
-                          Anulează
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-
-          {activeTab === 'users' ? (
-            <div className="users-table-container">
-              <table className="dashboard-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Diploma</th>
-                    <th>Transcript</th>
-                    <th>Passport</th>
-                    <th>Photo</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredUsers.map(user => {
-                    const docStatus = getDocumentStatus(user.id);
-                    return (
-                      <tr key={user.id}>
-                        <td>{user.id}</td>
-                        <td>{user.name}</td>
-                        <td>{user.email}</td>
-                        <td>{user.role === 'admin' ? 'Administrator' : 'User'}</td>
-                        <td>
-                          <div className="document-cell">
-                            <span className={docStatus.diploma === 'Uploaded' ? 'status-success' : 'status-missing'}>
-                              {docStatus.diploma}
-                            </span>
-                            {docStatus.diploma === 'Uploaded' && (
-                              <div className="document-actions">
+                  {successMessage && (
+                    <div className="alert-success" style={{marginBottom: '1rem', color: '#388e3c', background: '#e8f5e9', border: '1px solid #388e3c', borderRadius: '6px', padding: '0.7rem', textAlign: 'center', fontWeight: 600}}>
+                      {successMessage}
+                    </div>
+                  )}
+                  <div className="universities-table-container">
+                    <table className="dashboard-table">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Type</th>
+                          <th>Location</th>
+                          <th>Website</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredUniversities.map(university => (
+                          <tr key={university.id}>
+                            <td>{university.name}</td>
+                            <td>{university.type}</td>
+                            <td>{university.location}</td>
+                            <td>
+                              <a href={university.website} target="_blank" rel="noopener noreferrer">
+                                {university.website}
+                              </a>
+                            </td>
+                            <td>
+                              <div className="action-buttons">
                                 <button 
-                                  className="download-button"
-                                  onClick={() => handleDownloadDocument('diploma', user.id)}
+                                  className="edit-button"
+                                  onClick={() => handleEditUniversity(university)}
                                 >
-                                  <i className="fas fa-download"></i>
+                                  Editează
                                 </button>
                                 <button 
                                   className="delete-button"
-                                  onClick={() => handleDeleteDocument('diploma', user.id)}
+                                  onClick={() => handleDeleteUniversity(university.id)}
                                 >
-                                  <i className="fas fa-trash"></i>
+                                  Șterge
                                 </button>
                               </div>
-                            )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {showAddUniversityForm && (
+                    <div className="modal-overlay">
+                      <div className="modal-content">
+                        <h2>Add New University</h2>
+                        <form onSubmit={handleAddUniversity}>
+                          <div className="form-group">
+                            <label>Name:</label>
+                            <input
+                              type="text"
+                              name="name"
+                              value={newUniversity.name}
+                              onChange={handleUniversityInputChange}
+                              required
+                            />
                           </div>
-                        </td>
-                        <td>
-                          <div className="document-cell">
-                            <span className={docStatus.transcript === 'Uploaded' ? 'status-success' : 'status-missing'}>
-                              {docStatus.transcript}
-                            </span>
-                            {docStatus.transcript === 'Uploaded' && (
-                              <div className="document-actions">
-                                <button 
-                                  className="download-button"
-                                  onClick={() => handleDownloadDocument('transcript', user.id)}
-                                >
-                                  <i className="fas fa-download"></i>
-                                </button>
-                                <button 
-                                  className="delete-button"
-                                  onClick={() => handleDeleteDocument('transcript', user.id)}
-                                >
-                                  <i className="fas fa-trash"></i>
-                                </button>
-                              </div>
-                            )}
+
+                          <div className="form-group">
+                            <label>Type:</label>
+                            <select
+                              name="type"
+                              value={newUniversity.type}
+                              onChange={handleUniversityInputChange}
+                              required
+                            >
+                              <option value="Public">Public</option>
+                              <option value="Private">Private</option>
+                            </select>
                           </div>
-                        </td>
-                        <td>
-                          <div className="document-cell">
-                            <span className={docStatus.passport === 'Uploaded' ? 'status-success' : 'status-missing'}>
-                              {docStatus.passport}
-                            </span>
-                            {docStatus.passport === 'Uploaded' && (
-                              <div className="document-actions">
-                                <button 
-                                  className="download-button"
-                                  onClick={() => handleDownloadDocument('passport', user.id)}
-                                >
-                                  <i className="fas fa-download"></i>
-                                </button>
-                                <button 
-                                  className="delete-button"
-                                  onClick={() => handleDeleteDocument('passport', user.id)}
-                                >
-                                  <i className="fas fa-trash"></i>
-                                </button>
-                              </div>
-                            )}
+
+                          <div className="form-group">
+                            <label>Description:</label>
+                            <textarea
+                              name="description"
+                              value={newUniversity.description}
+                              onChange={handleUniversityInputChange}
+                              required
+                            />
                           </div>
-                        </td>
-                        <td>
-                          <div className="document-cell">
-                            <span className={docStatus.photo === 'Uploaded' ? 'status-success' : 'status-missing'}>
-                              {docStatus.photo}
-                            </span>
-                            {docStatus.photo === 'Uploaded' && (
-                              <div className="document-actions">
-                                <button 
-                                  className="download-button"
-                                  onClick={() => handleDownloadDocument('photo', user.id)}
-                                >
-                                  <i className="fas fa-download"></i>
-                                </button>
-                                <button 
-                                  className="delete-button"
-                                  onClick={() => handleDeleteDocument('photo', user.id)}
-                                >
-                                  <i className="fas fa-trash"></i>
-                                </button>
-                              </div>
-                            )}
+
+                          <div className="form-group">
+                            <label>Location:</label>
+                            <input
+                              type="text"
+                              name="location"
+                              value={newUniversity.location}
+                              onChange={handleUniversityInputChange}
+                              required
+                            />
                           </div>
-                        </td>
-                        <td>
-                          {user.role !== 'admin' && (
-                            <div className="action-buttons">
-                              <button 
-                                className="view-documents-button"
-                                onClick={() => setSelectedUser(user)}
-                              >
-                                <i className="fas fa-eye"></i> View Docs
-                              </button>
-                              <button 
-                                className="delete-button"
-                                onClick={() => confirmDelete(user.id)}
-                              >
-                                Delete
-                              </button>
+
+                          <div className="form-group">
+                            <label>Image URL or relative path:</label>
+                            <input
+                              type="text"
+                              name="imageUrl"
+                              value={newUniversity.imageUrl}
+                              onChange={handleUniversityInputChange}
+                              placeholder="URL or relative path (ex: /images/universities/example.jpg)"
+                              required
+                            />
+                            <small className="form-text text-muted">
+                              You can enter either a complete URL (ex: https://example.com/image.jpg) 
+                              or a relative path in the project (ex: /images/universities/example.jpg)
+                            </small>
+                          </div>
+
+                          <div className="form-group">
+                            <label>Website:</label>
+                            <input
+                              type="url"
+                              name="website"
+                              value={newUniversity.website}
+                              onChange={handleUniversityInputChange}
+                              required
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label>Ranking:</label>
+                            <input
+                              type="text"
+                              name="ranking"
+                              value={newUniversity.ranking}
+                              onChange={handleUniversityInputChange}
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label>Tuition Fees:</label>
+                            <div className="nested-form-group">
+                              <input
+                                type="text"
+                                name="tuitionFees.bachelor"
+                                placeholder="Bachelor"
+                                value={newUniversity.tuitionFees.bachelor}
+                                onChange={handleUniversityInputChange}
+                              />
+                              <input
+                                type="text"
+                                name="tuitionFees.master"
+                                placeholder="Master"
+                                value={newUniversity.tuitionFees.master}
+                                onChange={handleUniversityInputChange}
+                              />
+                              <input
+                                type="text"
+                                name="tuitionFees.phd"
+                                placeholder="PhD"
+                                value={newUniversity.tuitionFees.phd}
+                                onChange={handleUniversityInputChange}
+                              />
                             </div>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          ) : activeTab === 'documents' ? (
-            <div className="documents-table-container">
-              <table className="dashboard-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>User</th>
-                    <th>Document Type</th>
-                    <th>Upload Date</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredDocuments.map(doc => {
-                    const user = users.find(u => u.id === doc.user_id);
-                    return (
-                      <tr key={`${doc.user_id}_${doc.document_type}`}>
-                        <td>{doc.id}</td>
-                        <td>{user ? user.name : 'Unknown'}</td>
-                        <td>{doc.document_type}</td>
-                        <td>{new Date(doc.created_at).toLocaleDateString('en-US')}</td>
-                        <td>
-                          <div className="action-buttons">
+                          </div>
+
+                          <div className="form-group">
+                            <label>Contact Info:</label>
+                            <div className="nested-form-group">
+                              <input
+                                type="email"
+                                name="contactInfo.email"
+                                placeholder="Email"
+                                value={newUniversity.contactInfo.email}
+                                onChange={handleUniversityInputChange}
+                              />
+                              <input
+                                type="tel"
+                                name="contactInfo.phone"
+                                placeholder="Phone"
+                                value={newUniversity.contactInfo.phone}
+                                onChange={handleUniversityInputChange}
+                              />
+                              <input
+                                type="text"
+                                name="contactInfo.address"
+                                placeholder="Address"
+                                value={newUniversity.contactInfo.address}
+                                onChange={handleUniversityInputChange}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="modal-buttons">
                             <button 
-                              className="download-button"
-                              onClick={() => handleDownloadDocument(doc.document_type, doc.user_id)}
+                              type="button" 
+                              className="cancel-button"
+                              onClick={() => setShowAddUniversityForm(false)}
                             >
-                              Download
+                              Cancel
                             </button>
-                            <button 
-                              className="delete-button"
-                              onClick={() => handleDeleteDocument(doc.document_type, doc.user_id)}
-                            >
-                              Delete
+                            <button type="submit" className="confirm-button">
+                              Add University
                             </button>
                           </div>
-                        </td>
+                        </form>
+                      </div>
+                    </div>
+                  )}
+
+                  {showEditUniversityForm && editingUniversity && (
+                    <div className="modal-overlay">
+                      <div className="modal-content">
+                        <h2>Editează Universitatea</h2>
+                        <form onSubmit={handleUpdateUniversity}>
+                          <div className="form-group">
+                            <label>Nume:</label>
+                            <input
+                              type="text"
+                              name="name"
+                              value={editingUniversity.name}
+                              onChange={(e) => setEditingUniversity({
+                                ...editingUniversity,
+                                name: e.target.value
+                              })}
+                              required
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label>Tip:</label>
+                            <select
+                              name="type"
+                              value={editingUniversity.type}
+                              onChange={(e) => setEditingUniversity({
+                                ...editingUniversity,
+                                type: e.target.value
+                              })}
+                              required
+                            >
+                              <option value="Public">Public</option>
+                              <option value="Private">Private</option>
+                            </select>
+                          </div>
+
+                          <div className="form-group">
+                            <label>Descriere:</label>
+                            <textarea
+                              name="description"
+                              value={editingUniversity.description}
+                              onChange={(e) => setEditingUniversity({
+                                ...editingUniversity,
+                                description: e.target.value
+                              })}
+                              required
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label>Locație:</label>
+                            <input
+                              type="text"
+                              name="location"
+                              value={editingUniversity.location}
+                              onChange={(e) => setEditingUniversity({
+                                ...editingUniversity,
+                                location: e.target.value
+                              })}
+                              required
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label>URL Imagine:</label>
+                            <input
+                              type="url"
+                              name="imageUrl"
+                              value={editingUniversity.imageUrl}
+                              onChange={(e) => setEditingUniversity({
+                                ...editingUniversity,
+                                imageUrl: e.target.value
+                              })}
+                              required
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label>Website:</label>
+                            <input
+                              type="url"
+                              name="website"
+                              value={editingUniversity.website}
+                              onChange={(e) => setEditingUniversity({
+                                ...editingUniversity,
+                                website: e.target.value
+                              })}
+                              required
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label>Ranking:</label>
+                            <input
+                              type="text"
+                              name="ranking"
+                              value={editingUniversity.ranking}
+                              onChange={(e) => setEditingUniversity({
+                                ...editingUniversity,
+                                ranking: e.target.value
+                              })}
+                            />
+                          </div>
+
+                          <div className="nested-form-group">
+                            <h3>Tuition Fees</h3>
+                            <div className="form-group">
+                              <label>Bachelor:</label>
+                              <input
+                                type="text"
+                                name="tuitionFees.bachelor"
+                                value={editingUniversity.tuitionFees?.bachelor || ''}
+                                onChange={(e) => setEditingUniversity({
+                                  ...editingUniversity,
+                                  tuitionFees: {
+                                    ...editingUniversity.tuitionFees,
+                                    bachelor: e.target.value
+                                  }
+                                })}
+                              />
+                            </div>
+                            <div className="form-group">
+                              <label>Master:</label>
+                              <input
+                                type="text"
+                                name="tuitionFees.master"
+                                value={editingUniversity.tuitionFees?.master || ''}
+                                onChange={(e) => setEditingUniversity({
+                                  ...editingUniversity,
+                                  tuitionFees: {
+                                    ...editingUniversity.tuitionFees,
+                                    master: e.target.value
+                                  }
+                                })}
+                              />
+                            </div>
+                            <div className="form-group">
+                              <label>PhD:</label>
+                              <input
+                                type="text"
+                                name="tuitionFees.phd"
+                                value={editingUniversity.tuitionFees?.phd || ''}
+                                onChange={(e) => setEditingUniversity({
+                                  ...editingUniversity,
+                                  tuitionFees: {
+                                    ...editingUniversity.tuitionFees,
+                                    phd: e.target.value
+                                  }
+                                })}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="nested-form-group">
+                            <h3>Contact Information</h3>
+                            <div className="form-group">
+                              <label>Email:</label>
+                              <input
+                                type="email"
+                                name="contactInfo.email"
+                                value={editingUniversity.contactInfo?.email || ''}
+                                onChange={(e) => setEditingUniversity({
+                                  ...editingUniversity,
+                                  contactInfo: {
+                                    ...editingUniversity.contactInfo,
+                                    email: e.target.value
+                                  }
+                                })}
+                              />
+                            </div>
+                            <div className="form-group">
+                              <label>Phone:</label>
+                              <input
+                                type="tel"
+                                name="contactInfo.phone"
+                                value={editingUniversity.contactInfo?.phone || ''}
+                                onChange={(e) => setEditingUniversity({
+                                  ...editingUniversity,
+                                  contactInfo: {
+                                    ...editingUniversity.contactInfo,
+                                    phone: e.target.value
+                                  }
+                                })}
+                              />
+                            </div>
+                            <div className="form-group">
+                              <label>Address:</label>
+                              <input
+                                type="text"
+                                name="contactInfo.address"
+                                value={editingUniversity.contactInfo?.address || ''}
+                                onChange={(e) => setEditingUniversity({
+                                  ...editingUniversity,
+                                  contactInfo: {
+                                    ...editingUniversity.contactInfo,
+                                    address: e.target.value
+                                  }
+                                })}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="modal-buttons">
+                            <button type="submit" className="confirm-button">
+                              Salvează Modificările
+                            </button>
+                            <button
+                              type="button"
+                              className="cancel-button"
+                              onClick={() => {
+                                setShowEditUniversityForm(false);
+                                setEditingUniversity(null);
+                              }}
+                            >
+                              Anulează
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {activeTab === 'programs' && (
+                <>
+                  <div className="dashboard-actions">
+                    <button 
+                      className="add-button"
+                      onClick={handleOpenAddProgramForm}
+                    >
+                      Add Program
+                    </button>
+                  </div>
+                  {successMessage && (
+                    <div className="alert-success" style={{marginBottom: '1rem', color: '#388e3c', background: '#e8f5e9', border: '1px solid #388e3c', borderRadius: '6px', padding: '0.7rem', textAlign: 'center', fontWeight: 600}}>
+                      {successMessage}
+                    </div>
+                  )}
+                  <div className="programs-table-container">
+                    <table className="dashboard-table">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Faculty</th>
+                          <th>Degree</th>
+                          <th>Credits</th>
+                          <th>Language</th>
+                          <th>Duration</th>
+                          <th>Fee</th>
+                          <th>University</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredPrograms.map(program => (
+                          <tr key={program.id}>
+                            <td>{program.name}</td>
+                            <td>{program.faculty}</td>
+                            <td>{program.degree}</td>
+                            <td>{program.credits}</td>
+                            <td>{Array.isArray(program.languages) ? program.languages.join(', ') : program.languages}</td>
+                            <td>{program.duration}</td>
+                            <td>{program.tuitionFee}</td>
+                            <td>{program.university?.name || 'N/A'}</td>
+                            <td>
+                              <div className="action-buttons">
+                                <button 
+                                  className="edit-button"
+                                  onClick={() => handleEditProgram(program)}
+                                >
+                                  Editează
+                                </button>
+                                <button 
+                                  className="delete-button"
+                                  onClick={() => handleDeleteProgram(program.id)}
+                                >
+                                  Șterge
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {showAddProgramForm && (
+                    <div className="modal-overlay">
+                      <div className="modal-content">
+                        <h2>Add New Program</h2>
+                        <form onSubmit={handleAddProgram}>
+                          <div className="form-group">
+                            <label>Name:</label>
+                            <input
+                              type="text"
+                              name="name"
+                              value={newProgram.name}
+                              onChange={handleProgramInputChange}
+                              required
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label>Faculty:</label>
+                            <input
+                              type="text"
+                              name="faculty"
+                              value={newProgram.faculty}
+                              onChange={handleProgramInputChange}
+                              required
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label>Degree:</label>
+                            <select
+                              name="degree"
+                              value={newProgram.degree}
+                              onChange={handleProgramInputChange}
+                              required
+                            >
+                              <option value="Bachelor">Bachelor</option>
+                              <option value="Master">Master</option>
+                              <option value="PhD">PhD</option>
+                            </select>
+                          </div>
+
+                          <div className="form-group">
+                            <label>Credits:</label>
+                            <input
+                              type="number"
+                              name="credits"
+                              value={newProgram.credits}
+                              onChange={handleProgramInputChange}
+                              required
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label>Languages (comma-separated):</label>
+                            <input
+                              type="text"
+                              name="languages"
+                              value={Array.isArray(newProgram.languages) ? newProgram.languages.join(', ') : newProgram.languages}
+                              onChange={handleProgramInputChange}
+                              required
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label>Description:</label>
+                            <textarea
+                              name="description"
+                              value={newProgram.description}
+                              onChange={handleProgramInputChange}
+                              required
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label>Duration:</label>
+                            <input
+                              type="text"
+                              name="duration"
+                              value={newProgram.duration}
+                              onChange={handleProgramInputChange}
+                              required
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label>Tuition Fee:</label>
+                            <input
+                              type="number"
+                              name="tuitionFee"
+                              value={newProgram.tuitionFee}
+                              onChange={handleProgramInputChange}
+                              required
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label>University:</label>
+                            <select
+                              name="universityId"
+                              value={newProgram.universityId}
+                              onChange={handleProgramInputChange}
+                              required
+                            >
+                              <option value="">Select University</option>
+                              {Array.isArray(universities) ? universities.map(university => (
+                                <option key={university.id} value={university.id}>
+                                  {university.name}
+                                </option>
+                              )) : []}
+                            </select>
+                          </div>
+
+                          <div className="modal-buttons">
+                            <button 
+                              type="button" 
+                              className="cancel-button"
+                              onClick={() => setShowAddProgramForm(false)}
+                            >
+                              Cancel
+                            </button>
+                            <button type="submit" className="confirm-button">
+                              Add Program
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  )}
+
+                  {showEditProgramForm && editingProgram && (
+                    <div className="modal-overlay">
+                      <div className="modal-content">
+                        <h2>Editează Programul</h2>
+                        <form onSubmit={handleUpdateProgram}>
+                          <div className="form-group">
+                            <label>Nume:</label>
+                            <input
+                              type="text"
+                              name="name"
+                              value={editingProgram.name}
+                              onChange={(e) => setEditingProgram({
+                                ...editingProgram,
+                                name: e.target.value
+                              })}
+                              required
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label>Facultate:</label>
+                            <input
+                              type="text"
+                              name="faculty"
+                              value={editingProgram.faculty}
+                              onChange={(e) => setEditingProgram({
+                                ...editingProgram,
+                                faculty: e.target.value
+                              })}
+                              required
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label>Grad:</label>
+                            <select
+                              name="degree"
+                              value={editingProgram.degree}
+                              onChange={(e) => setEditingProgram({
+                                ...editingProgram,
+                                degree: e.target.value
+                              })}
+                              required
+                            >
+                              <option value="Bachelor">Bachelor</option>
+                              <option value="Master">Master</option>
+                              <option value="PhD">PhD</option>
+                            </select>
+                          </div>
+
+                          <div className="form-group">
+                            <label>Credite:</label>
+                            <input
+                              type="number"
+                              name="credits"
+                              value={editingProgram.credits}
+                              onChange={(e) => setEditingProgram({
+                                ...editingProgram,
+                                credits: e.target.value
+                              })}
+                              required
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label>Limbi (separate prin virgulă):</label>
+                            <input
+                              type="text"
+                              name="languages"
+                              value={Array.isArray(editingProgram.languages) ? editingProgram.languages.join(', ') : editingProgram.languages}
+                              onChange={(e) => setEditingProgram({
+                                ...editingProgram,
+                                languages: e.target.value.split(',').map(lang => lang.trim())
+                              })}
+                              required
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label>Descriere:</label>
+                            <textarea
+                              name="description"
+                              value={editingProgram.description}
+                              onChange={(e) => setEditingProgram({
+                                ...editingProgram,
+                                description: e.target.value
+                              })}
+                              required
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label>Durată:</label>
+                            <input
+                              type="text"
+                              name="duration"
+                              value={editingProgram.duration}
+                              onChange={(e) => setEditingProgram({
+                                ...editingProgram,
+                                duration: e.target.value
+                              })}
+                              required
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label>Taxă de școlarizare:</label>
+                            <input
+                              type="number"
+                              name="tuitionFee"
+                              value={editingProgram.tuitionFee}
+                              onChange={(e) => setEditingProgram({
+                                ...editingProgram,
+                                tuitionFee: e.target.value
+                              })}
+                              required
+                            />
+                          </div>
+
+                          <div className="form-group">
+                            <label>Universitate:</label>
+                            <select
+                              name="universityId"
+                              value={editingProgram.universityId}
+                              onChange={(e) => setEditingProgram({
+                                ...editingProgram,
+                                universityId: e.target.value
+                              })}
+                              required
+                            >
+                              <option value="">Selectează Universitatea</option>
+                              {Array.isArray(universities) ? universities.map(university => (
+                                <option key={university.id} value={university.id}>
+                                  {university.name}
+                                </option>
+                              )) : []}
+                            </select>
+                          </div>
+
+                          <div className="modal-buttons">
+                            <button type="submit" className="confirm-button">
+                              Salvează Modificările
+                            </button>
+                            <button
+                              type="button"
+                              className="cancel-button"
+                              onClick={() => {
+                                setShowEditProgramForm(false);
+                                setEditingProgram(null);
+                              }}
+                            >
+                              Anulează
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {activeTab === 'users' ? (
+                <div className="users-table-container">
+                  <table className="dashboard-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Diploma</th>
+                        <th>Transcript</th>
+                        <th>Passport</th>
+                        <th>Photo</th>
+                        <th>Actions</th>
                       </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          ) : null}
+                    </thead>
+                    <tbody>
+                      {filteredUsers.map(user => {
+                        const docStatus = getDocumentStatus(user.id);
+                        return (
+                          <tr key={user.id}>
+                            <td>{user.id}</td>
+                            <td>{user.name}</td>
+                            <td>{user.email}</td>
+                            <td>{user.role === 'admin' ? 'Administrator' : 'User'}</td>
+                            <td>
+                              <div className="document-cell">
+                                <span className={docStatus.diploma === 'Uploaded' ? 'status-success' : 'status-missing'}>
+                                  {docStatus.diploma}
+                                </span>
+                                {docStatus.diploma === 'Uploaded' && (
+                                  <div className="document-actions">
+                                    <button 
+                                      className="download-button"
+                                      onClick={() => handleDownloadDocument('diploma', user.id)}
+                                    >
+                                      <i className="fas fa-download"></i>
+                                    </button>
+                                    <button 
+                                      className="delete-button"
+                                      onClick={() => handleDeleteDocument('diploma', user.id)}
+                                    >
+                                      <i className="fas fa-trash"></i>
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                            <td>
+                              <div className="document-cell">
+                                <span className={docStatus.transcript === 'Uploaded' ? 'status-success' : 'status-missing'}>
+                                  {docStatus.transcript}
+                                </span>
+                                {docStatus.transcript === 'Uploaded' && (
+                                  <div className="document-actions">
+                                    <button 
+                                      className="download-button"
+                                      onClick={() => handleDownloadDocument('transcript', user.id)}
+                                    >
+                                      <i className="fas fa-download"></i>
+                                    </button>
+                                    <button 
+                                      className="delete-button"
+                                      onClick={() => handleDeleteDocument('transcript', user.id)}
+                                    >
+                                      <i className="fas fa-trash"></i>
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                            <td>
+                              <div className="document-cell">
+                                <span className={docStatus.passport === 'Uploaded' ? 'status-success' : 'status-missing'}>
+                                  {docStatus.passport}
+                                </span>
+                                {docStatus.passport === 'Uploaded' && (
+                                  <div className="document-actions">
+                                    <button 
+                                      className="download-button"
+                                      onClick={() => handleDownloadDocument('passport', user.id)}
+                                    >
+                                      <i className="fas fa-download"></i>
+                                    </button>
+                                    <button 
+                                      className="delete-button"
+                                      onClick={() => handleDeleteDocument('passport', user.id)}
+                                    >
+                                      <i className="fas fa-trash"></i>
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                            <td>
+                              <div className="document-cell">
+                                <span className={docStatus.photo === 'Uploaded' ? 'status-success' : 'status-missing'}>
+                                  {docStatus.photo}
+                                </span>
+                                {docStatus.photo === 'Uploaded' && (
+                                  <div className="document-actions">
+                                    <button 
+                                      className="download-button"
+                                      onClick={() => handleDownloadDocument('photo', user.id)}
+                                    >
+                                      <i className="fas fa-download"></i>
+                                    </button>
+                                    <button 
+                                      className="delete-button"
+                                      onClick={() => handleDeleteDocument('photo', user.id)}
+                                    >
+                                      <i className="fas fa-trash"></i>
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                            <td>
+                              {user.role !== 'admin' && (
+                                <div className="action-buttons">
+                                  <button 
+                                    className="view-documents-button"
+                                    onClick={() => setSelectedUser(user)}
+                                  >
+                                    <i className="fas fa-eye"></i> View Docs
+                                  </button>
+                                  <button 
+                                    className="delete-button"
+                                    onClick={() => confirmDelete(user.id)}
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              ) : activeTab === 'documents' ? (
+                <div className="documents-table-container">
+                  <table className="dashboard-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Document Type</th>
+                        <th>Upload Date</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredDocuments.map(doc => {
+                        const user = users.find(u => u.id === doc.user_id);
+                        return (
+                          <tr key={`${doc.user_id}_${doc.document_type}`}>
+                            <td>{doc.id}</td>
+                            <td>{user ? user.name : 'Unknown'}</td>
+                            <td>{doc.document_type}</td>
+                            <td>{new Date(doc.created_at).toLocaleDateString('en-US')}</td>
+                            <td>
+                              <div className="action-buttons">
+                                <button 
+                                  className="download-button"
+                                  onClick={() => handleDownloadDocument(doc.document_type, doc.user_id)}
+                                >
+                                  Download
+                                </button>
+                                <button 
+                                  className="delete-button"
+                                  onClick={() => handleDeleteDocument(doc.document_type, doc.user_id)}
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              ) : null}
 
-          {selectedUser && (
-            <div className="modal-overlay">
-              <div className="modal-content documents-modal">
-                <div className="modal-header">
-                  <h3>Documents for {selectedUser.name}</h3>
-                  <button className="close-button" onClick={() => setSelectedUser(null)}>
-                    Close
-                  </button>
+              {selectedUser && (
+                <div className="modal-overlay">
+                  <div className="modal-content documents-modal">
+                    <div className="modal-header">
+                      <h3>Documents for {selectedUser.name}</h3>
+                      <button className="close-button" onClick={() => setSelectedUser(null)}>
+                        Close
+                      </button>
+                    </div>
+                    {renderUserDocuments(selectedUser.id)}
+                  </div>
                 </div>
-                {renderUserDocuments(selectedUser.id)}
-              </div>
-            </div>
-          )}
+              )}
 
-          {deleteConfirmation && (
-            <div className="modal-overlay">
-              <div className="modal-content">
-                <div className="modal-warning">
-                  <span className="warning-icon">⚠️</span>
-                  <h3>WARNING!</h3>
+              {deleteConfirmation && (
+                <div className="modal-overlay">
+                  <div className="modal-content">
+                    <div className="modal-warning">
+                      <span className="warning-icon">⚠️</span>
+                      <h3>WARNING!</h3>
+                    </div>
+                    <p className="modal-message">
+                      You are about to delete this user. 
+                      <strong>This action cannot be undone!</strong>
+                    </p>
+                    <p className="modal-details">
+                      All user data, including uploaded documents, will be permanently deleted.
+                    </p>
+                    <div className="modal-buttons">
+                      <button 
+                        className="cancel-button"
+                        onClick={cancelDelete}
+                      >
+                        Cancel
+                      </button>
+                      <button 
+                        className="confirm-button"
+                        onClick={() => handleDeleteUser(deleteConfirmation)}
+                      >
+                        Yes, delete user
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <p className="modal-message">
-                  You are about to delete this user. 
-                  <strong>This action cannot be undone!</strong>
-                </p>
-                <p className="modal-details">
-                  All user data, including uploaded documents, will be permanently deleted.
-                </p>
-                <div className="modal-buttons">
-                  <button 
-                    className="cancel-button"
-                    onClick={cancelDelete}
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    className="confirm-button"
-                    onClick={() => handleDeleteUser(deleteConfirmation)}
-                  >
-                    Yes, delete user
-                  </button>
-                </div>
-              </div>
-            </div>
+              )}
+            </>
           )}
         </div>
       </div>

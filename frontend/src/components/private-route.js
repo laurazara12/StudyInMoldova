@@ -1,17 +1,16 @@
 import React from 'react'
 import { Navigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 const PrivateRoute = ({ children, requiredRole }) => {
-  const user = JSON.parse(localStorage.getItem('user'))
+  const { isAuthenticated, user } = useAuth()
 
-  if (!user) {
-    console.log('Utilizator neautentificat. Redirecționare la pagina de autentificare.')
+  if (!isAuthenticated) {
     return <Navigate to="/sign-in" />
   }
 
-  if (requiredRole && user.role !== requiredRole) {
-    console.log(`Acces interzis. Rol necesar: ${requiredRole}, rol utilizator: ${user.role}`)
-    return <Navigate to="/not-authorized" />
+  if (requiredRole && user?.role !== requiredRole) {
+    return <Navigate to="/sign-in" />
   }
 
   return children

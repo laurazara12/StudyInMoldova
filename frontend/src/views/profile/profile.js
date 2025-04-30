@@ -6,7 +6,7 @@ import Navbar from '../../components/navbar';
 import ProfileComponent from '../../components/profile-component';
 import Footer from '../../components/footer';
 import Notifications from '../../components/notifications';
-import './styles.css';
+import './profile.css';
 
 const Profile = () => {
   return (

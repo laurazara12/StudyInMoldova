@@ -2,16 +2,15 @@ import React from 'react'
 import { Navigate } from 'react-router-dom'
 
 const PrivateRoute = ({ children, requiredRole }) => {
+  const token = localStorage.getItem('token')
   const user = JSON.parse(localStorage.getItem('user'))
 
-  if (!user) {
-    console.log('Utilizator neautentificat. Redirecționare la pagina de autentificare.')
+  if (!token || !user) {
     return <Navigate to="/sign-in" />
   }
 
   if (requiredRole && user.role !== requiredRole) {
-    console.log(`Acces interzis. Rol necesar: ${requiredRole}, rol utilizator: ${user.role}`)
-    return <Navigate to="/not-authorized" />
+    return <Navigate to="/" />
   }
 
   return children

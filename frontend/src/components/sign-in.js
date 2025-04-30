@@ -4,7 +4,7 @@ import axios from 'axios'
 import PropTypes from 'prop-types'
 import './sign-in.css'
 import { API_BASE_URL, handleApiError } from '../config/api.config'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../context/AuthContext'
 
 const SignIn = (props) => {
   const [email, setEmail] = useState('');
@@ -25,27 +25,35 @@ const SignIn = (props) => {
     setLoading(true);
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/auth/login`, {
+      console.log('Încercare de autentificare pentru:', email);
+      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, {
         email,
         password
       });
 
-      // Verificăm dacă avem un răspuns valid și token
+      console.log('Răspuns de la server:', response.data);
+
       if (response.data && response.data.token) {
         // Salvăm token-ul și datele utilizatorului
         login(response.data.user, response.data.token);
         
-        // Redirecționăm către dashboard în funcție de rol
+        // Redirecționăm în funcție de rol
         if (response.data.user.role === 'admin') {
-          navigate('/dashboard');
+          navigate('/dashboard', { replace: true });
         } else {
-          navigate('/dashboard');
+          navigate('/profile', { replace: true });
         }
       } else {
         setError('Autentificare eșuată. Vă rugăm să verificați credențialele.');
       }
     } catch (error) {
       console.error('Eroare la autentificare:', error);
+      if (error.response) {
+        console.error('Detalii eroare:', {
+          status: error.response.status,
+          data: error.response.data
+        });
+      }
       const errorMessage = error.response?.data?.message || 'A apărut o eroare la autentificare. Vă rugăm să încercați din nou.';
       setError(errorMessage);
     } finally {

@@ -11,7 +11,7 @@ import FeatureLocations from '../../components/feature-locations'
 import FeatureSteps from '../../components/feature-steps'
 import Testimonial from '../../components/testimonial'
 import Footer from '../../components/footer'
-import './styles.css'
+import './landing.css'
 
 const Home = (props) => {
   return (

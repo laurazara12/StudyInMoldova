@@ -3,12 +3,13 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 const { authMiddleware, adminMiddleware } = require('../middleware/auth');
-const { User, Document } = require('../config/database');
+const { User, Document } = require('../models');
+const { Op } = require('sequelize');
 
 const router = express.Router();
 
 // Verificăm și creăm directorul uploads dacă nu există
-const uploadsDir = path.join(__dirname, '../../backend/uploads');
+const uploadsDir = path.join(__dirname, '../../../uploads');
 if (!fs.existsSync(uploadsDir)) {
   try {
     fs.mkdirSync(uploadsDir, { recursive: true });
@@ -27,7 +28,13 @@ const storage = multer.diskStorage({
     // Create user directory using user ID
     const userDir = path.join(uploadsDir, userId.toString());
     if (!fs.existsSync(userDir)) {
-      fs.mkdirSync(userDir, { recursive: true });
+      try {
+        fs.mkdirSync(userDir, { recursive: true });
+        console.log('Created user directory:', userDir);
+      } catch (error) {
+        console.error('Error creating user directory:', error);
+        return cb(error);
+      }
     }
     
     cb(null, userDir);
@@ -88,19 +95,119 @@ const upload = multer({
 // Get all documents (for admin)
 router.get('/', authMiddleware, async (req, res) => {
   try {
-    console.log('Retrieving all documents');
-    console.log('Current user:', req.user);
-
-    if (!req.user || req.user.role !== 'admin') {
-      console.log('Access denied - user is not admin:', req.user);
-      return res.status(403).json({ 
-        message: 'Access denied. Only administrators can access this page.' 
-      });
+    console.log('Începe preluarea documentelor pentru utilizatorul:', req.user.id);
+    console.log('Rol utilizator:', req.user.role);
+    
+    // Dacă utilizatorul este admin, returnează toate documentele
+    if (req.user.role === 'admin') {
+      console.log('Utilizator admin, se preiau toate documentele');
+      try {
+        const documents = await Document.findAll({
+          attributes: ['id', 'user_id', 'document_type', 'file_path', 'createdAt', 'status', 'filename', 'originalName'],
+          order: [['createdAt', 'DESC']],
+          include: [{
+            model: User,
+            attributes: ['name', 'email'],
+            as: 'user'
+          }]
+        });
+        
+        console.log('Documente găsite pentru admin:', documents.length);
+        return res.json(documents.map(doc => ({
+          id: doc.id,
+          user_id: doc.user_id,
+          user_name: doc.user ? doc.user.name : 'Unknown',
+          user_email: doc.user ? doc.user.email : 'Unknown',
+          document_type: doc.document_type,
+          file_path: doc.file_path,
+          createdAt: doc.createdAt,
+          status: doc.status || 'pending',
+          filename: doc.filename,
+          originalName: doc.originalName,
+          uploaded: true,
+          uploadDate: doc.createdAt
+        })));
+      } catch (error) {
+        console.error('Eroare la interogarea documentelor pentru admin:', error);
+        throw error;
+      }
     }
     
+    // Pentru utilizatori normali, returnează doar propriile documente
+    console.log('Utilizator normal, se preiau doar documentele sale');
+    try {
+      const documents = await Document.findAll({
+        where: { user_id: req.user.id },
+        attributes: ['id', 'document_type', 'file_path', 'createdAt', 'status', 'filename', 'originalName'],
+        order: [['createdAt', 'DESC']],
+        include: [{
+          model: User,
+          attributes: ['name', 'email'],
+          as: 'user'
+        }]
+      });
+
+      console.log('Documente găsite pentru utilizator:', documents.length);
+      res.json(documents.map(doc => ({
+        id: doc.id,
+        document_type: doc.document_type,
+        file_path: doc.file_path,
+        createdAt: doc.createdAt,
+        status: doc.status || 'pending',
+        filename: doc.filename,
+        originalName: doc.originalName,
+        uploaded: true,
+        uploadDate: doc.createdAt
+      })));
+    } catch (error) {
+      console.error('Eroare la interogarea documentelor pentru utilizator:', error);
+      throw error;
+    }
+  } catch (error) {
+    console.error('Eroare detaliată la preluarea documentelor:', {
+      message: error.message,
+      stack: error.stack,
+      code: error.code,
+      name: error.name
+    });
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la preluarea documentelor',
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+});
+
+// Get user documents
+router.get('/user-documents', authMiddleware, async (req, res) => {
+  try {
+    console.log('Începe preluarea documentelor pentru utilizatorul:', req.user.id);
+    
+    if (!req.user || !req.user.id) {
+      console.error('User invalid sau lipsă');
+      return res.status(401).json({ 
+        success: false,
+        message: 'Utilizator invalid' 
+      });
+    }
+
+    const userDir = path.join(uploadsDir, req.user.id.toString());
+    if (!fs.existsSync(userDir)) {
+      console.log('Directorul utilizatorului nu există, se creează...');
+      fs.mkdirSync(userDir, { recursive: true });
+    }
+
+    console.log('Se interoghează baza de date pentru documente...');
     const documents = await Document.findAll({
-      attributes: ['id', 'user_id', 'user_uuid', 'document_type', 'file_path', 'created_at'],
-      order: [['created_at', 'DESC']],
+      where: { 
+        user_id: req.user.id,
+        status: {
+          [Op.not]: 'deleted'
+        }
+      },
+      attributes: ['id', 'document_type', 'file_path', 'createdAt', 'status', 'filename', 'originalName'],
+      order: [['createdAt', 'DESC']],
       include: [{
         model: User,
         attributes: ['name', 'email'],
@@ -108,53 +215,96 @@ router.get('/', authMiddleware, async (req, res) => {
       }]
     });
 
-    console.log('Documents found:', documents.length);
-    res.json(documents);
-  } catch (error) {
-    console.error('Error retrieving documents:', error);
-    res.status(500).json({ message: error.message });
-  }
-});
+    console.log('Documente găsite în baza de date:', documents.length);
 
-// Get user documents
-router.get('/user-documents', authMiddleware, async (req, res) => {
-  try {
-    console.log('Retrieving documents for user:', req.user.id);
-    
-    const documents = await Document.findAll({
-      where: { user_id: req.user.id },
-      attributes: ['id', 'type', 'path', 'createdAt', 'status', 'filename', 'originalName'],
-      order: [['createdAt', 'DESC']]
+    const validDocuments = documents.filter(doc => {
+      if (!doc.file_path) {
+        console.log(`Document ${doc.id} nu are cale specificată`);
+        return false;
+      }
+
+      let absolutePath;
+      if (path.isAbsolute(doc.file_path)) {
+        absolutePath = doc.file_path;
+      } else {
+        absolutePath = path.join(uploadsDir, req.user.id.toString(), path.basename(doc.file_path));
+      }
+
+      console.log('Verificare document:', {
+        id: doc.id,
+        document_type: doc.document_type,
+        originalPath: doc.file_path,
+        absolutePath: absolutePath
+      });
+
+      const exists = fs.existsSync(absolutePath);
+      if (!exists) {
+        console.log(`Document ${doc.id} nu există fizic la calea ${absolutePath}`);
+        // Actualizează statusul documentului ca fiind șters
+        Document.update(
+          { status: 'deleted' },
+          { where: { id: doc.id } }
+        ).catch(err => console.error('Eroare la actualizarea statusului documentului:', err));
+        return false;
+      }
+      return true;
     });
 
-    console.log('Documents found:', documents.length);
-    res.json(documents.map(doc => ({
+    console.log('Documente valide găsite:', validDocuments.length);
+    
+    const response = validDocuments.map(doc => ({
       id: doc.id,
-      document_type: doc.type,
-      file_path: doc.path,
-      created_at: doc.createdAt,
+      document_type: doc.document_type,
+      file_path: doc.file_path,
+      createdAt: doc.createdAt,
       status: doc.status || 'pending',
       filename: doc.filename,
       originalName: doc.originalName,
       uploaded: true,
       uploadDate: doc.createdAt
-    })));
+    }));
+
+    console.log('Se trimite răspuns cu documentele valide');
+    res.json(response);
   } catch (error) {
-    console.error('Error retrieving documents:', error);
-    res.status(500).json({ message: 'Error retrieving documents', error: error.message });
+    console.error('Eroare detaliată la preluarea documentelor:', {
+      message: error.message,
+      stack: error.stack,
+      code: error.code
+    });
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la preluarea documentelor',
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 });
 
 // Upload document
 router.post('/upload', authMiddleware, upload.single('file'), async (req, res) => {
   try {
-    console.log('Încărcare document nou...');
-    console.log('Request body:', req.body);
-    console.log('Request file:', req.file);
-    console.log('User:', req.user);
+    console.log('=== Începe încărcarea documentului ===');
+    console.log('Request body complet:', JSON.stringify(req.body, null, 2));
+    console.log('Request file detaliat:', req.file ? {
+      fieldname: req.file.fieldname,
+      originalname: req.file.originalname,
+      encoding: req.file.encoding,
+      mimetype: req.file.mimetype,
+      destination: req.file.destination,
+      filename: req.file.filename,
+      path: req.file.path,
+      size: req.file.size
+    } : 'Nu există fișier');
+    console.log('User detaliat:', req.user ? {
+      id: req.user.id,
+      name: req.user.name,
+      email: req.user.email,
+      role: req.user.role
+    } : 'Nu există utilizator');
 
     if (!req.file) {
-      console.log('Nu s-a încărcat niciun fișier');
+      console.log('EROARE: Nu s-a încărcat niciun fișier');
       return res.status(400).json({ 
         success: false,
         message: 'Nu s-a încărcat niciun fișier',
@@ -162,10 +312,13 @@ router.post('/upload', authMiddleware, upload.single('file'), async (req, res) =
       });
     }
 
-    const { document_type } = req.body;
+    // Verificăm dacă tipul documentului este trimis în FormData
+    const documentType = req.body.document_type;
+    console.log('Tip document primit:', documentType);
+    console.log('Toate cheile din request body:', Object.keys(req.body));
     
-    if (!document_type) {
-      console.log('Tipul documentului lipsește');
+    if (!documentType) {
+      console.log('EROARE: Tipul documentului lipsește');
       // Șterge fișierul temporar
       if (fs.existsSync(req.file.path)) {
         fs.unlinkSync(req.file.path);
@@ -178,9 +331,12 @@ router.post('/upload', authMiddleware, upload.single('file'), async (req, res) =
     }
 
     // Verifică dacă tipul documentului este valid
-    const validTypes = ['passport', 'diploma', 'transcript', 'cv', 'other'];
-    if (!validTypes.includes(document_type)) {
-      console.log('Tip de document invalid:', document_type);
+    const validTypes = ['passport', 'diploma', 'transcript', 'cv', 'other', 'photo', 'medical', 'insurance'];
+    console.log('Tipuri valide:', validTypes);
+    console.log('Tip document verificat:', documentType);
+    
+    if (!validTypes.includes(documentType)) {
+      console.log('EROARE: Tip de document invalid:', documentType);
       // Șterge fișierul temporar
       if (fs.existsSync(req.file.path)) {
         fs.unlinkSync(req.file.path);
@@ -194,11 +350,23 @@ router.post('/upload', authMiddleware, upload.single('file'), async (req, res) =
 
     // Verifică dacă fișierul există
     if (!fs.existsSync(req.file.path)) {
-      console.log('Fișierul nu există la calea:', req.file.path);
+      console.log('EROARE: Fișierul nu există la calea:', req.file.path);
       return res.status(500).json({ 
         success: false,
         message: 'Eroare la încărcarea fișierului',
         details: 'Fișierul nu a fost salvat corect'
+      });
+    }
+
+    // Verifică permisiunile de scriere
+    try {
+      fs.accessSync(req.file.path, fs.constants.W_OK);
+    } catch (error) {
+      console.log('EROARE: Permisiuni fișier:', error);
+      return res.status(500).json({ 
+        success: false,
+        message: 'Eroare permisiuni fișier',
+        details: 'Nu există permisiuni de scriere pentru fișier'
       });
     }
 
@@ -219,21 +387,21 @@ router.post('/upload', authMiddleware, upload.single('file'), async (req, res) =
     const existingDocument = await Document.findOne({
       where: { 
         user_id: req.user.id,
-        type: document_type 
+        document_type: documentType 
       }
     });
 
     if (existingDocument) {
       console.log('Document existent găsit, se actualizează...');
       // Șterge fișierul vechi
-      if (fs.existsSync(existingDocument.path)) {
-        fs.unlinkSync(existingDocument.path);
-        console.log('Fișier vechi șters:', existingDocument.path);
+      if (fs.existsSync(existingDocument.file_path)) {
+        fs.unlinkSync(existingDocument.file_path);
+        console.log('Fișier vechi șters:', existingDocument.file_path);
       }
       
       // Actualizează documentul existent
       await existingDocument.update({
-        path: req.file.path,
+        file_path: req.file.path,
         status: 'pending',
         filename: req.file.filename,
         originalName: req.file.originalname
@@ -251,10 +419,10 @@ router.post('/upload', authMiddleware, upload.single('file'), async (req, res) =
     console.log('Se creează document nou...');
     const document = await Document.create({
       user_id: req.user.id,
-      type: document_type,
+      document_type: documentType,
       filename: req.file.filename,
       originalName: req.file.originalname,
-      path: req.file.path,
+      file_path: req.file.path,
       status: 'pending'
     });
 
@@ -265,12 +433,17 @@ router.post('/upload', authMiddleware, upload.single('file'), async (req, res) =
       document: document
     });
   } catch (error) {
-    console.error('Eroare la încărcarea documentului:', error);
+    console.error('EROARE DETALIATĂ:', {
+      message: error.message,
+      stack: error.stack,
+      code: error.code,
+      name: error.name
+    });
     // Șterge fișierul temporar în caz de eroare
     if (req.file && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
     }
-    return res.status(500).json({ 
+    res.status(500).json({ 
       success: false,
       message: 'Eroare la încărcarea documentului',
       error: error.message,
@@ -284,8 +457,13 @@ router.get('/my-documents', authMiddleware, async (req, res) => {
   try {
     const documents = await Document.findAll({
       where: { user_id: req.user.id },
-      attributes: ['id', 'user_id', 'document_type', 'file_path', 'created_at'],
-      order: [['created_at', 'DESC']]
+      attributes: ['id', 'user_id', 'document_type', 'file_path', 'createdAt'],
+      order: [['createdAt', 'DESC']],
+      include: [{
+        model: User,
+        attributes: ['name', 'email'],
+        as: 'user'
+      }]
     });
 
     res.json(documents);
@@ -299,8 +477,13 @@ router.get('/my-documents', authMiddleware, async (req, res) => {
 router.get('/all-documents', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const documents = await Document.findAll({
-      attributes: ['id', 'user_id', 'document_type', 'file_path', 'created_at'],
-      order: [['created_at', 'DESC']]
+      attributes: ['id', 'user_id', 'document_type', 'file_path', 'createdAt'],
+      order: [['createdAt', 'DESC']],
+      include: [{
+        model: User,
+        attributes: ['name', 'email'],
+        as: 'user'
+      }]
     });
 
     res.json(documents);
@@ -316,7 +499,12 @@ router.delete('/:id', authMiddleware, async (req, res) => {
     console.log('Încercare ștergere document:', req.params.id);
     
     const document = await Document.findOne({
-      where: { id: req.params.id, user_id: req.user.id }
+      where: { id: req.params.id, user_id: req.user.id },
+      include: [{
+        model: User,
+        attributes: ['name', 'email'],
+        as: 'user'
+      }]
     });
 
     if (!document) {
@@ -330,12 +518,12 @@ router.delete('/:id', authMiddleware, async (req, res) => {
 
     console.log('Document găsit:', {
       id: document.id,
-      path: document.path,
-      exists: fs.existsSync(document.path)
+      file_path: document.file_path,
+      exists: fs.existsSync(document.file_path)
     });
 
     // Verifică dacă calea există și este validă
-    const absolutePath = path.resolve(document.path);
+    const absolutePath = path.resolve(document.file_path);
     const uploadsDirAbsolute = path.resolve(uploadsDir);
     
     console.log('Căi:', {
@@ -387,7 +575,12 @@ router.delete('/admin/:id', authMiddleware, adminMiddleware, async (req, res) =>
     console.log('Încercare ștergere document (admin):', req.params.id);
     
     const document = await Document.findOne({
-      where: { id: req.params.id }
+      where: { id: req.params.id },
+      include: [{
+        model: User,
+        attributes: ['name', 'email'],
+        as: 'user'
+      }]
     });
 
     if (!document) {
@@ -397,12 +590,12 @@ router.delete('/admin/:id', authMiddleware, adminMiddleware, async (req, res) =>
 
     console.log('Document găsit:', {
       id: document.id,
-      path: document.path,
-      exists: fs.existsSync(document.path)
+      file_path: document.file_path,
+      exists: fs.existsSync(document.file_path)
     });
 
     // Verifică dacă calea există și este validă
-    const absolutePath = path.resolve(document.path);
+    const absolutePath = path.resolve(document.file_path);
     const uploadsDirAbsolute = path.resolve(uploadsDir);
     
     console.log('Căi:', {
@@ -443,12 +636,12 @@ async function cleanupOrphanedDocuments() {
     console.log('Documente găsite:', documents.length);
     
     for (const doc of documents) {
-      const absolutePath = path.resolve(doc.path);
+      const absolutePath = path.resolve(doc.file_path);
       const uploadsDirAbsolute = path.resolve(uploadsDir);
       
       console.log('Verificare document:', {
         id: doc.id,
-        path: absolutePath,
+        file_path: absolutePath,
         exists: fs.existsSync(absolutePath),
         isInUploadsDir: absolutePath.startsWith(uploadsDirAbsolute)
       });
@@ -456,7 +649,7 @@ async function cleanupOrphanedDocuments() {
       if (!fs.existsSync(absolutePath) || !absolutePath.startsWith(uploadsDirAbsolute)) {
         console.log('Document orfan găsit:', {
           id: doc.id,
-          path: absolutePath
+          file_path: absolutePath
         });
         await doc.destroy();
         console.log('Document orfan șters:', doc.id);
@@ -468,13 +661,44 @@ async function cleanupOrphanedDocuments() {
   }
 }
 
+// Endpoint pentru curățarea documentelor
+router.post('/cleanup', authMiddleware, async (req, res) => {
+  try {
+    const success = await cleanupOrphanedDocuments();
+    
+    if (success) {
+      res.json({
+        success: true,
+        message: 'Documentele orfane au fost curățate cu succes'
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: 'A apărut o eroare la curățarea documentelor'
+      });
+    }
+  } catch (error) {
+    console.error('Eroare la curățarea documentelor:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Eroare la curățarea documentelor',
+      error: error.message
+    });
+  }
+});
+
 // Download document
 router.get('/download/:id', authMiddleware, async (req, res) => {
   try {
     console.log('Încercare descărcare document:', req.params.id);
     
     const document = await Document.findOne({
-      where: { id: req.params.id, user_id: req.user.id }
+      where: { id: req.params.id, user_id: req.user.id },
+      include: [{
+        model: User,
+        attributes: ['name', 'email'],
+        as: 'user'
+      }]
     });
 
     if (!document) {
@@ -488,12 +712,12 @@ router.get('/download/:id', authMiddleware, async (req, res) => {
 
     console.log('Document găsit:', {
       id: document.id,
-      path: document.path,
-      exists: fs.existsSync(document.path)
+      file_path: document.file_path,
+      exists: fs.existsSync(document.file_path)
     });
 
     // Verifică dacă calea există și este validă
-    const absolutePath = path.resolve(document.path);
+    const absolutePath = path.resolve(document.file_path);
     const uploadsDirAbsolute = path.resolve(uploadsDir);
     
     console.log('Căi:', {
@@ -559,7 +783,12 @@ router.get('/admin/download/:id', authMiddleware, adminMiddleware, async (req, r
     console.log('Încercare descărcare document (admin):', req.params.id);
     
     const document = await Document.findOne({
-      where: { id: req.params.id }
+      where: { id: req.params.id },
+      include: [{
+        model: User,
+        attributes: ['name', 'email'],
+        as: 'user'
+      }]
     });
 
     if (!document) {
@@ -569,12 +798,12 @@ router.get('/admin/download/:id', authMiddleware, adminMiddleware, async (req, r
 
     console.log('Document găsit:', {
       id: document.id,
-      path: document.path,
-      exists: fs.existsSync(document.path)
+      file_path: document.file_path,
+      exists: fs.existsSync(document.file_path)
     });
 
     // Verifică dacă calea există și este validă
-    const absolutePath = path.resolve(document.path);
+    const absolutePath = path.resolve(document.file_path);
     const uploadsDirAbsolute = path.resolve(uploadsDir);
     
     console.log('Căi:', {
@@ -612,6 +841,139 @@ router.get('/admin/download/:id', authMiddleware, adminMiddleware, async (req, r
     if (!res.headersSent) {
       res.status(500).json({ message: 'Eroare la descărcarea documentului' });
     }
+  }
+});
+
+// Verifică statusul documentelor
+router.get('/document-status', authMiddleware, async (req, res) => {
+  try {
+    console.log('Verificare status documente pentru utilizatorul:', req.user.id);
+    
+    const documents = await Document.findAll({
+      where: { user_id: req.user.id },
+      attributes: ['id', 'document_type', 'file_path', 'status'],
+      include: [{
+        model: User,
+        attributes: ['name', 'email'],
+        as: 'user'
+      }]
+    });
+
+    const documentStatus = {};
+    for (const doc of documents) {
+      const absolutePath = path.resolve(doc.file_path);
+      const exists = fs.existsSync(absolutePath);
+      
+      documentStatus[doc.document_type] = {
+        exists: exists,
+        status: doc.status,
+        id: doc.id
+      };
+
+      if (!exists && doc.status !== 'deleted') {
+        // Actualizăm statusul în baza de date
+        await Document.update(
+          { status: 'deleted' },
+          { where: { id: doc.id } }
+        );
+      }
+    }
+
+    res.json({
+      success: true,
+      documentStatus
+    });
+  } catch (error) {
+    console.error('Eroare la verificarea statusului documentelor:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la verificarea statusului documentelor',
+      error: error.message
+    });
+  }
+});
+
+// Curăță documentele invalide pentru un utilizator
+async function cleanupInvalidDocuments(userId) {
+  try {
+    console.log('Începe curățarea documentelor invalide pentru utilizatorul:', userId);
+    
+    const documents = await Document.findAll({
+      where: { user_id: userId },
+      include: [{
+        model: User,
+        attributes: ['name', 'email'],
+        as: 'user'
+      }]
+    });
+    
+    let deletedCount = 0;
+    for (const doc of documents) {
+      const absolutePath = path.resolve(doc.file_path);
+      const exists = fs.existsSync(absolutePath);
+      
+      if (!exists || doc.status === 'deleted') {
+        console.log('Ștergere document invalid:', {
+          id: doc.id,
+          document_type: doc.document_type,
+          file_path: doc.file_path,
+          exists: exists,
+          status: doc.status
+        });
+        
+        // Șterge fișierul fizic dacă există
+        if (exists) {
+          try {
+            fs.unlinkSync(absolutePath);
+            console.log('Fișier șters:', absolutePath);
+          } catch (error) {
+            console.error('Eroare la ștergerea fișierului:', error);
+          }
+        }
+        
+        await doc.destroy();
+        deletedCount++;
+      }
+    }
+    
+    console.log(`Curățare documente finalizată pentru utilizatorul ${userId}. Șterse: ${deletedCount}`);
+    return {
+      success: true,
+      deletedCount: deletedCount
+    };
+  } catch (error) {
+    console.error('Eroare la curățarea documentelor:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
+
+// Endpoint pentru curățarea documentelor
+router.post('/cleanup', authMiddleware, async (req, res) => {
+  try {
+    const result = await cleanupInvalidDocuments(req.user.id);
+    
+    if (result.success) {
+      res.json({
+        success: true,
+        message: `Documentele invalide au fost curățate cu succes. Au fost șterse ${result.deletedCount} documente.`
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: 'A apărut o eroare la curățarea documentelor',
+        error: result.error
+      });
+    }
+  } catch (error) {
+    console.error('Eroare la curățarea documentelor:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Eroare la curățarea documentelor',
+      error: error.message
+    });
   }
 });
 
