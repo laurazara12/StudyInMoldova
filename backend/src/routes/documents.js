@@ -495,6 +495,8 @@ router.get('/all-documents', authMiddleware, adminMiddleware, async (req, res) =
 
 // Funcție helper pentru verificarea permisiunilor
 const checkDocumentAccess = async (req, documentId) => {
+  console.log('Verificare acces pentru document:', documentId);
+  
   const document = await Document.findOne({
     where: { id: documentId },
     include: [{
@@ -503,6 +505,13 @@ const checkDocumentAccess = async (req, documentId) => {
       as: 'user'
     }]
   });
+
+  console.log('Document găsit:', document ? {
+    id: document.id,
+    user_id: document.user_id,
+    document_type: document.document_type,
+    file_path: document.file_path
+  } : 'Documentul nu a fost găsit');
 
   if (!document) {
     return { 
@@ -544,26 +553,47 @@ router.get('/download/:id', authMiddleware, async (req, res) => {
     });
 
     // Verifică dacă calea există și este validă
-    const absolutePath = path.resolve(document.file_path);
+    console.log('Detalii document:', {
+      id: document.id,
+      user_id: document.user_id,
+      file_path: document.file_path,
+      originalName: document.originalName,
+      filename: document.filename
+    });
+
+    const absolutePath = path.join(uploadsDir, document.user_id.toString(), path.basename(document.file_path));
     const uploadsDirAbsolute = path.resolve(uploadsDir);
     
-    if (!fs.existsSync(absolutePath)) {
-      console.log('Fișierul nu există la calea:', absolutePath);
-      // Șterge înregistrarea din baza de date dacă fișierul nu există
-      await document.destroy();
+    console.log('Căi:', {
+      documentPath: absolutePath,
+      uploadsDir: uploadsDirAbsolute,
+      isInUploadsDir: absolutePath.startsWith(uploadsDirAbsolute),
+      fileExists: fs.existsSync(absolutePath)
+    });
+
+    // Verifică dacă directorul utilizatorului există
+    const userDir = path.join(uploadsDir, document.user_id.toString());
+    console.log('Director utilizator:', {
+      path: userDir,
+      exists: fs.existsSync(userDir)
+    });
+
+    if (!fs.existsSync(userDir)) {
+      console.log('Directorul utilizatorului nu există:', userDir);
       return res.status(404).json({ 
         success: false,
-        message: 'Fișierul nu a fost găsit',
-        details: 'Fișierul fizic nu există pe server'
+        message: 'Directorul utilizatorului nu există' 
       });
     }
 
-    if (!absolutePath.startsWith(uploadsDirAbsolute)) {
-      console.log('Cale invalidă:', absolutePath);
-      return res.status(400).json({ 
+    if (!fs.existsSync(absolutePath)) {
+      console.log('Fișierul nu există la calea:', absolutePath);
+      // Listăm toate fișierele din directorul utilizatorului pentru debugging
+      const files = fs.readdirSync(userDir);
+      console.log('Fișiere disponibile în directorul utilizatorului:', files);
+      return res.status(404).json({ 
         success: false,
-        message: 'Cale invalidă',
-        details: 'Calea fișierului nu este în directorul uploads'
+        message: 'Fișierul nu a fost găsit' 
       });
     }
 
@@ -603,37 +633,75 @@ router.delete('/:id', authMiddleware, async (req, res) => {
   try {
     console.log('Încercare ștergere document:', req.params.id);
     
-    const accessCheck = await checkDocumentAccess(req, req.params.id);
-    if (!accessCheck.success) {
-      return res.status(accessCheck.status).json(accessCheck);
-    }
-
-    const document = accessCheck.document;
-    console.log('Acces permis pentru ștergere:', {
-      userId: req.user.id,
-      documentUserId: document.user_id,
-      userRole: req.user.role
+    // Verifică mai întâi dacă documentul există în baza de date
+    const document = await Document.findOne({
+      where: { id: req.params.id },
+      include: [{
+        model: User,
+        attributes: ['name', 'email'],
+        as: 'user'
+      }]
     });
 
-    // Verifică dacă calea există și este validă
-    const absolutePath = path.resolve(document.file_path);
-    const uploadsDirAbsolute = path.resolve(uploadsDir);
+    if (!document) {
+      console.log('Documentul nu a fost găsit în baza de date:', req.params.id);
+      return res.status(404).json({ 
+        success: false,
+        message: 'Documentul nu a fost găsit în baza de date'
+      });
+    }
+
+    // Verifică permisiunile
+    if (req.user.role !== 'admin' && document.user_id !== req.user.id) {
+      console.log('Acces neautorizat pentru document:', {
+        userId: req.user.id,
+        documentUserId: document.user_id
+      });
+      return res.status(403).json({ 
+        success: false,
+        message: 'Nu aveți permisiunea să ștergeți acest document'
+      });
+    }
+
+    // Construiește calea către fișier
+    const userDir = path.join(uploadsDir, document.user_id.toString());
+    const absolutePath = path.join(userDir, path.basename(document.file_path));
     
-    // Șterge fișierul
-    if (fs.existsSync(absolutePath)) {
-      try {
-        fs.unlinkSync(absolutePath);
-        console.log('Fișier șters cu succes:', absolutePath);
-      } catch (error) {
-        console.error('Eroare la ștergerea fișierului:', error);
-        return res.status(500).json({ 
-          success: false,
-          message: 'Eroare la ștergerea fișierului',
-          error: error.message
-        });
-      }
-    } else {
+    console.log('Căi pentru ștergere:', {
+      userDir,
+      absolutePath,
+      fileExists: fs.existsSync(absolutePath)
+    });
+
+    // Verifică dacă directorul utilizatorului există
+    if (!fs.existsSync(userDir)) {
+      console.log('Directorul utilizatorului nu există:', userDir);
+      // Șterge documentul din baza de date chiar dacă directorul nu există
+      await document.destroy();
+      return res.json({ 
+        success: true,
+        message: 'Document șters din baza de date (directorul nu exista)' 
+      });
+    }
+
+    // Verifică dacă fișierul există
+    if (!fs.existsSync(absolutePath)) {
       console.log('Fișierul nu există la calea:', absolutePath);
+      // Șterge documentul din baza de date chiar dacă fișierul nu există
+      await document.destroy();
+      return res.json({ 
+        success: true,
+        message: 'Document șters din baza de date (fișierul nu exista)' 
+      });
+    }
+
+    // Încearcă să șteargă fișierul
+    try {
+      fs.unlinkSync(absolutePath);
+      console.log('Fișier șters cu succes:', absolutePath);
+    } catch (error) {
+      console.error('Eroare la ștergerea fișierului:', error);
+      // Continuă cu ștergerea din baza de date chiar dacă ștergerea fișierului a eșuat
     }
 
     // Șterge documentul din baza de date
@@ -655,16 +723,14 @@ router.delete('/:id', authMiddleware, async (req, res) => {
 
     res.json({ 
       success: true,
-      message: 'Document șters cu succes',
-      details: 'Documentul și fișierul asociat au fost șterse cu succes'
+      message: 'Document șters cu succes' 
     });
   } catch (error) {
     console.error('Eroare la ștergerea documentului:', error);
     res.status(500).json({ 
       success: false,
       message: 'Eroare la ștergerea documentului',
-      error: error.message,
-      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      error: error.message
     });
   }
 });
@@ -685,23 +751,50 @@ router.delete('/admin/:id', authMiddleware, adminMiddleware, async (req, res) =>
 
     if (!document) {
       console.log('Document negăsit pentru ID:', req.params.id);
-      return res.status(404).json({ message: 'Documentul nu a fost găsit' });
+      return res.status(404).json({ 
+        success: false,
+        message: 'Documentul nu a fost găsit în baza de date' 
+      });
     }
 
     console.log('Document găsit:', {
       id: document.id,
+      user_id: document.user_id,
       file_path: document.file_path,
-      exists: fs.existsSync(document.file_path)
+      originalName: document.originalName,
+      filename: document.filename
     });
 
-    // Verifică dacă calea există și este validă
-    const absolutePath = path.resolve(document.file_path);
-    const uploadsDirAbsolute = path.resolve(uploadsDir);
+    // Verificăm dacă directorul utilizatorului există
+    const userDir = path.join(uploadsDir, document.user_id.toString());
+    console.log('Director utilizator:', {
+      path: userDir,
+      exists: fs.existsSync(userDir)
+    });
+
+    if (!fs.existsSync(userDir)) {
+      console.log('Directorul utilizatorului nu există:', userDir);
+      // Ștergem documentul din baza de date chiar dacă directorul nu există
+      await document.destroy();
+      return res.json({ 
+        success: true,
+        message: 'Document șters din baza de date (directorul nu exista)' 
+      });
+    }
+
+    // Listăm toate fișierele din directorul utilizatorului pentru debugging
+    const files = fs.readdirSync(userDir);
+    console.log('Fișiere disponibile în directorul utilizatorului:', files);
+
+    // Construiește calea corectă pentru fișier
+    const absolutePath = path.join(userDir, path.basename(document.file_path));
     
     console.log('Căi:', {
       documentPath: absolutePath,
-      uploadsDir: uploadsDirAbsolute,
-      isInUploadsDir: absolutePath.startsWith(uploadsDirAbsolute)
+      uploadsDir: uploadsDir,
+      fileExists: fs.existsSync(absolutePath),
+      originalPath: document.file_path,
+      basename: path.basename(document.file_path)
     });
 
     // Șterge fișierul
@@ -711,20 +804,39 @@ router.delete('/admin/:id', authMiddleware, adminMiddleware, async (req, res) =>
         console.log('Fișier șters cu succes:', absolutePath);
       } catch (error) {
         console.error('Eroare la ștergerea fișierului:', error);
-        return res.status(500).json({ message: 'Eroare la ștergerea fișierului' });
+        // Continuăm cu ștergerea din baza de date chiar dacă ștergerea fișierului a eșuat
       }
     } else {
       console.log('Fișierul nu există la calea:', absolutePath);
+      // Continuăm cu ștergerea din baza de date chiar dacă fișierul nu există
     }
 
     // Șterge documentul din baza de date
     await document.destroy();
     console.log('Document șters din baza de date');
 
-    res.json({ message: 'Document șters cu succes' });
+    // Creează notificare pentru utilizator
+    const adminMessage = req.body.admin_message || 'Documentul a fost șters de către administrator';
+    await createNotification(
+      document.user_id,
+      'document_deleted',
+      `Documentul tău de tip ${document.document_type} a fost șters de către administrator`,
+      document.id,
+      adminMessage
+    );
+    console.log('Notificare creată pentru utilizator:', document.user_id);
+
+    res.json({ 
+      success: true,
+      message: 'Document șters cu succes' 
+    });
   } catch (error) {
     console.error('Eroare la ștergerea documentului:', error);
-    res.status(500).json({ message: 'Eroare la ștergerea documentului' });
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la ștergerea documentului',
+      error: error.message
+    });
   }
 });
 
@@ -813,7 +925,7 @@ router.get('/admin/download/:id', authMiddleware, adminMiddleware, async (req, r
     });
 
     // Verifică dacă calea există și este validă
-    const absolutePath = path.resolve(document.file_path);
+    const absolutePath = path.join(uploadsDir, document.user_id.toString(), path.basename(document.file_path));
     const uploadsDirAbsolute = path.resolve(uploadsDir);
     
     console.log('Căi:', {

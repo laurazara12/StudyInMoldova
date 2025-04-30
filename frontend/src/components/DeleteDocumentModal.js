@@ -13,7 +13,7 @@ const DeleteDocumentModal = ({ isOpen, onClose, document, onDelete }) => {
   const handleDelete = async () => {
     try {
       setIsDeleting(true);
-      const response = await axios.delete(`${API_BASE_URL}/api/documents/${document.id}`, {
+      const response = await axios.delete(`${API_BASE_URL}/api/documents/admin/${document.id}`, {
         headers: getAuthHeaders(),
         data: { admin_message: adminMessage }
       });
@@ -21,6 +21,8 @@ const DeleteDocumentModal = ({ isOpen, onClose, document, onDelete }) => {
       if (response.data.success) {
         onDelete();
         onClose();
+        setShowConfirmation(false);
+        setAdminMessage('');
       } else {
         alert(response.data.message || 'Eroare la ștergerea documentului');
       }
