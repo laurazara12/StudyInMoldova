@@ -780,6 +780,12 @@ const Dashboard = () => {
                 Documents
               </button>
               <button 
+                className={`tab-button ${activeTab === 'users' ? 'active' : ''}`}
+                onClick={() => setActiveTab('users')}
+              >
+                Users
+              </button>
+              <button 
                 className={`tab-button ${activeTab === 'universities' ? 'active' : ''}`}
                 onClick={() => setActiveTab('universities')}
               >
