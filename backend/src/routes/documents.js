@@ -493,45 +493,132 @@ router.get('/all-documents', authMiddleware, adminMiddleware, async (req, res) =
   }
 });
 
-// Șterge un document
-router.delete('/:id', authMiddleware, async (req, res) => {
-  try {
-    console.log('Încercare ștergere document:', req.params.id);
-    
-    const document = await Document.findOne({
-      where: { id: req.params.id, user_id: req.user.id },
-      include: [{
-        model: User,
-        attributes: ['name', 'email'],
-        as: 'user'
-      }]
-    });
+// Funcție helper pentru verificarea permisiunilor
+const checkDocumentAccess = async (req, documentId) => {
+  const document = await Document.findOne({
+    where: { id: documentId },
+    include: [{
+      model: User,
+      attributes: ['name', 'email'],
+      as: 'user'
+    }]
+  });
 
-    if (!document) {
-      console.log('Document negăsit pentru ID:', req.params.id);
-      return res.status(404).json({ 
-        success: false,
-        message: 'Documentul nu a fost găsit',
-        details: 'Documentul cu ID-ul specificat nu există în baza de date'
-      });
+  if (!document) {
+    return { 
+      success: false, 
+      status: 404,
+      message: 'Documentul nu a fost găsit',
+      details: 'Documentul cu ID-ul specificat nu există în baza de date'
+    };
+  }
+
+  // Verifică dacă utilizatorul are acces la document
+  if (req.user.role !== 'admin' && document.user_id !== req.user.id) {
+    return { 
+      success: false, 
+      status: 403,
+      message: 'Acces neautorizat',
+      details: 'Nu aveți permisiunea să accesați acest document'
+    };
+  }
+
+  return { success: true, document };
+};
+
+// Download document
+router.get('/download/:id', authMiddleware, async (req, res) => {
+  try {
+    console.log('Încercare descărcare document:', req.params.id);
+    
+    const accessCheck = await checkDocumentAccess(req, req.params.id);
+    if (!accessCheck.success) {
+      return res.status(accessCheck.status).json(accessCheck);
     }
 
-    console.log('Document găsit:', {
-      id: document.id,
-      file_path: document.file_path,
-      exists: fs.existsSync(document.file_path)
+    const document = accessCheck.document;
+    console.log('Acces permis pentru document:', {
+      userId: req.user.id,
+      documentUserId: document.user_id,
+      userRole: req.user.role
     });
 
     // Verifică dacă calea există și este validă
     const absolutePath = path.resolve(document.file_path);
     const uploadsDirAbsolute = path.resolve(uploadsDir);
     
-    console.log('Căi:', {
-      documentPath: absolutePath,
-      uploadsDir: uploadsDirAbsolute,
-      isInUploadsDir: absolutePath.startsWith(uploadsDirAbsolute)
+    if (!fs.existsSync(absolutePath)) {
+      console.log('Fișierul nu există la calea:', absolutePath);
+      // Șterge înregistrarea din baza de date dacă fișierul nu există
+      await document.destroy();
+      return res.status(404).json({ 
+        success: false,
+        message: 'Fișierul nu a fost găsit',
+        details: 'Fișierul fizic nu există pe server'
+      });
+    }
+
+    if (!absolutePath.startsWith(uploadsDirAbsolute)) {
+      console.log('Cale invalidă:', absolutePath);
+      return res.status(400).json({ 
+        success: false,
+        message: 'Cale invalidă',
+        details: 'Calea fișierului nu este în directorul uploads'
+      });
+    }
+
+    // Setează header-urile pentru descărcare
+    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(document.originalName)}"`);
+    res.setHeader('Content-Type', 'application/octet-stream');
+
+    // Trimite fișierul
+    const fileStream = fs.createReadStream(absolutePath);
+    fileStream.on('error', (error) => {
+      console.error('Eroare la citirea fișierului:', error);
+      if (!res.headersSent) {
+        res.status(500).json({ 
+          success: false,
+          message: 'Eroare la citirea fișierului',
+          error: error.message
+        });
+      }
     });
 
+    fileStream.pipe(res);
+  } catch (error) {
+    console.error('Eroare la descărcarea documentului:', error);
+    if (!res.headersSent) {
+      res.status(500).json({ 
+        success: false,
+        message: 'Eroare la descărcarea documentului',
+        error: error.message,
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
+    }
+  }
+});
+
+// Șterge un document
+router.delete('/:id', authMiddleware, async (req, res) => {
+  try {
+    console.log('Încercare ștergere document:', req.params.id);
+    
+    const accessCheck = await checkDocumentAccess(req, req.params.id);
+    if (!accessCheck.success) {
+      return res.status(accessCheck.status).json(accessCheck);
+    }
+
+    const document = accessCheck.document;
+    console.log('Acces permis pentru ștergere:', {
+      userId: req.user.id,
+      documentUserId: document.user_id,
+      userRole: req.user.role
+    });
+
+    // Verifică dacă calea există și este validă
+    const absolutePath = path.resolve(document.file_path);
+    const uploadsDirAbsolute = path.resolve(uploadsDir);
+    
     // Șterge fișierul
     if (fs.existsSync(absolutePath)) {
       try {
@@ -552,6 +639,19 @@ router.delete('/:id', authMiddleware, async (req, res) => {
     // Șterge documentul din baza de date
     await document.destroy();
     console.log('Document șters din baza de date');
+
+    // Creează notificare pentru utilizator dacă documentul a fost șters de administrator
+    if (req.user.role === 'admin' && document.user_id !== req.user.id) {
+      const adminMessage = req.body.admin_message || 'Documentul a fost șters de către administrator';
+      await createNotification(
+        document.user_id,
+        'document_deleted',
+        `Documentul tău de tip ${document.document_type} a fost șters de către administrator`,
+        document.id,
+        adminMessage
+      );
+      console.log('Notificare creată pentru utilizator:', document.user_id);
+    }
 
     res.json({ 
       success: true,
@@ -684,96 +784,6 @@ router.post('/cleanup', authMiddleware, async (req, res) => {
       message: 'Eroare la curățarea documentelor',
       error: error.message
     });
-  }
-});
-
-// Download document
-router.get('/download/:id', authMiddleware, async (req, res) => {
-  try {
-    console.log('Încercare descărcare document:', req.params.id);
-    
-    const document = await Document.findOne({
-      where: { id: req.params.id, user_id: req.user.id },
-      include: [{
-        model: User,
-        attributes: ['name', 'email'],
-        as: 'user'
-      }]
-    });
-
-    if (!document) {
-      console.log('Document negăsit pentru ID:', req.params.id);
-      return res.status(404).json({ 
-        success: false,
-        message: 'Documentul nu a fost găsit',
-        details: 'Documentul cu ID-ul specificat nu există în baza de date'
-      });
-    }
-
-    console.log('Document găsit:', {
-      id: document.id,
-      file_path: document.file_path,
-      exists: fs.existsSync(document.file_path)
-    });
-
-    // Verifică dacă calea există și este validă
-    const absolutePath = path.resolve(document.file_path);
-    const uploadsDirAbsolute = path.resolve(uploadsDir);
-    
-    console.log('Căi:', {
-      documentPath: absolutePath,
-      uploadsDir: uploadsDirAbsolute,
-      isInUploadsDir: absolutePath.startsWith(uploadsDirAbsolute)
-    });
-
-    if (!fs.existsSync(absolutePath)) {
-      console.log('Fișierul nu există la calea:', absolutePath);
-      // Șterge înregistrarea din baza de date dacă fișierul nu există
-      await document.destroy();
-      return res.status(404).json({ 
-        success: false,
-        message: 'Fișierul nu a fost găsit',
-        details: 'Fișierul fizic nu există pe server'
-      });
-    }
-
-    if (!absolutePath.startsWith(uploadsDirAbsolute)) {
-      console.log('Cale invalidă:', absolutePath);
-      return res.status(400).json({ 
-        success: false,
-        message: 'Cale invalidă',
-        details: 'Calea fișierului nu este în directorul uploads'
-      });
-    }
-
-    // Setează header-urile pentru descărcare
-    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(document.originalName)}"`);
-    res.setHeader('Content-Type', 'application/octet-stream');
-
-    // Trimite fișierul
-    const fileStream = fs.createReadStream(absolutePath);
-    fileStream.on('error', (error) => {
-      console.error('Eroare la citirea fișierului:', error);
-      if (!res.headersSent) {
-        res.status(500).json({ 
-          success: false,
-          message: 'Eroare la citirea fișierului',
-          error: error.message
-        });
-      }
-    });
-
-    fileStream.pipe(res);
-  } catch (error) {
-    console.error('Eroare la descărcarea documentului:', error);
-    if (!res.headersSent) {
-      res.status(500).json({ 
-        success: false,
-        message: 'Eroare la descărcarea documentului',
-        error: error.message,
-        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
-      });
-    }
   }
 });
 

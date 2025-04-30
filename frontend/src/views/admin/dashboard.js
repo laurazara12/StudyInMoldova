@@ -5,6 +5,7 @@ import Navbar from '../../components/navbar';
 import Footer from '../../components/footer';
 import './styles.css';
 import { API_BASE_URL, getAuthHeaders, handleApiError } from '../../config/api.config';
+import DeleteDocumentModal from '../../components/DeleteDocumentModal';
 
 const Dashboard = () => {
   const [users, setUsers] = useState([]);
@@ -74,6 +75,7 @@ const Dashboard = () => {
   });
   const [sortBy, setSortBy] = useState('name');
   const [successMessage, setSuccessMessage] = useState("");
+  const [documentToDelete, setDocumentToDelete] = useState(null);
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user'));
@@ -258,25 +260,15 @@ const Dashboard = () => {
   };
 
   const handleDeleteDocument = async (documentType, userId) => {
-    if (!window.confirm('Sunteți sigur că doriți să ștergeți acest document?')) {
-      return;
+    const doc = documents.find(doc => doc.document_type === documentType && doc.user_id === userId);
+    if (doc) {
+      setDocumentToDelete(doc);
     }
+  };
 
-    try {
-      const response = await axios.delete(`${API_BASE_URL}/api/documents/${documentType}`, {
-        headers: getAuthHeaders()
-      });
-
-      if (response.data.success) {
-        setDocuments(documents.filter(doc => 
-          !(doc.document_type === documentType && doc.user_id === userId)
-        ));
-      }
-    } catch (err) {
-      const error = handleApiError(err);
-      console.error('Eroare la ștergerea documentului:', error);
-      setError(error.message);
-    }
+  const handleDocumentDeleteSuccess = () => {
+    setDocuments(documents.filter(doc => doc.id !== documentToDelete.id));
+    setDocumentToDelete(null);
   };
 
   const renderUserDocuments = (userId) => {
@@ -2183,6 +2175,15 @@ const Dashboard = () => {
                     </div>
                   </div>
                 </div>
+              )}
+
+              {documentToDelete && (
+                <DeleteDocumentModal
+                  isOpen={!!documentToDelete}
+                  onClose={() => setDocumentToDelete(null)}
+                  document={documentToDelete}
+                  onDelete={handleDocumentDeleteSuccess}
+                />
               )}
             </>
           )}

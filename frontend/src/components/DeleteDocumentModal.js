@@ -6,57 +6,111 @@ import './DeleteDocumentModal.css';
 const DeleteDocumentModal = ({ isOpen, onClose, document, onDelete }) => {
   const [adminMessage, setAdminMessage] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   if (!isOpen) return null;
 
   const handleDelete = async () => {
     try {
       setIsDeleting(true);
-      await axios.delete(`${API_BASE_URL}/api/documents/${document.id}`, {
+      const response = await axios.delete(`${API_BASE_URL}/api/documents/${document.id}`, {
         headers: getAuthHeaders(),
         data: { admin_message: adminMessage }
       });
-      onDelete();
-      onClose();
+
+      if (response.data.success) {
+        onDelete();
+        onClose();
+      } else {
+        alert(response.data.message || 'Eroare la ștergerea documentului');
+      }
     } catch (error) {
       console.error('Error deleting document:', error);
-      alert('Eroare la ștergerea documentului');
+      const errorMessage = error.response?.data?.message || 'Eroare la ștergerea documentului';
+      alert(errorMessage);
     } finally {
       setIsDeleting(false);
     }
   };
 
+  const handleNext = () => {
+    setShowConfirmation(true);
+  };
+
+  const handleBack = () => {
+    setShowConfirmation(false);
+  };
+
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h2>Ștergere Document</h2>
-        <p>Ești sigur că dorești să ștergi acest document?</p>
-        <div className="form-group">
-          <label htmlFor="adminMessage">Mesaj pentru utilizator (opțional):</label>
-          <textarea
-            id="adminMessage"
-            value={adminMessage}
-            onChange={(e) => setAdminMessage(e.target.value)}
-            placeholder="Introduceți un mesaj pentru utilizator..."
-            rows="4"
-          />
-        </div>
-        <div className="modal-actions">
-          <button 
-            className="cancel-button"
-            onClick={onClose}
-            disabled={isDeleting}
-          >
-            Anulează
-          </button>
-          <button 
-            className="delete-button"
-            onClick={handleDelete}
-            disabled={isDeleting}
-          >
-            {isDeleting ? 'Se șterge...' : 'Șterge'}
-          </button>
-        </div>
+        {!showConfirmation ? (
+          <>
+            <div className="modal-warning">
+              <span className="warning-icon">⚠️</span>
+              <h3>Delete Document</h3>
+            </div>
+            <p className="modal-message">
+              You are about to delete this user's document. Would you like to add a notification message? (optional)
+            </p>
+            <div className="form-group">
+              <textarea
+                value={adminMessage}
+                onChange={(e) => setAdminMessage(e.target.value)}
+                placeholder="Example: This document was deleted because it violated policy X."
+                rows="4"
+              />
+            </div>
+            <div className="modal-actions">
+              <button 
+                className="cancel-button"
+                onClick={onClose}
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button 
+                className="next-button"
+                onClick={handleNext}
+                disabled={isDeleting}
+              >
+                Next
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="modal-warning">
+              <span className="warning-icon">❓</span>
+              <h3>Confirm Deletion</h3>
+            </div>
+            <p className="modal-message">
+              Are you sure you want to delete this document?
+            </p>
+            {adminMessage && (
+              <div className="admin-message-preview">
+                <p>Notification message that will be sent to the user:</p>
+                <p className="message-content">{adminMessage}</p>
+              </div>
+            )}
+            <div className="modal-actions">
+              <button 
+                className="back-button"
+                onClick={handleBack}
+                disabled={isDeleting}
+              >
+                Back
+              </button>
+              <button 
+                className="delete-button"
+                onClick={handleDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
