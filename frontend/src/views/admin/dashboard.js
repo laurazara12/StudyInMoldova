@@ -19,6 +19,8 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('users');
   const [deleteConfirmation, setDeleteConfirmation] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [showUserDetails, setShowUserDetails] = useState(false);
+  const [showUserDocuments, setShowUserDocuments] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all');
   const [filterDocumentType, setFilterDocumentType] = useState('all');
@@ -617,6 +619,22 @@ const Dashboard = () => {
     });
   };
 
+  const handleViewUser = (user) => {
+    setSelectedUser(user);
+    setShowUserDetails(true);
+  };
+
+  const handleViewDocuments = (user) => {
+    setSelectedUser(user);
+    setShowUserDocuments(true);
+  };
+
+  const closeModals = () => {
+    setShowUserDetails(false);
+    setShowUserDocuments(false);
+    setSelectedUser(null);
+  };
+
   if (error) {
     return (
       <div className="dashboard-page">
@@ -755,12 +773,6 @@ const Dashboard = () => {
           <div className="dashboard-header">
             <h1>Admin Dashboard</h1>
             <div className="tab-buttons">
-              <button 
-                className={`tab-button ${activeTab === 'users' ? 'active' : ''}`}
-                onClick={() => setActiveTab('users')}
-              >
-                Users
-              </button>
               <button 
                 className={`tab-button ${activeTab === 'documents' ? 'active' : ''}`}
                 onClick={() => setActiveTab('documents')}
@@ -1919,7 +1931,7 @@ const Dashboard = () => {
                             <td>{user.id}</td>
                             <td>{user.name}</td>
                             <td>{user.email}</td>
-                            <td>{user.role === 'admin' ? 'Administrator' : 'User'}</td>
+                            <td>{user.role === 'admin' ? 'Administrator' : 'Utilizator'}</td>
                             <td>
                               <span className={docStatus.diploma === 'Uploaded' ? 'status-success' : 'status-missing'}>
                                 {docStatus.diploma}
@@ -1944,19 +1956,19 @@ const Dashboard = () => {
                               {user.role !== 'admin' && (
                                 <div className="action-buttons">
                                   <button 
-                                    className="view-button"
-                                    onClick={() => setSelectedUser(user)}
+                                    className="action-button view-button"
+                                    onClick={() => handleViewUser(user)}
                                   >
                                     <i className="fas fa-eye"></i> View User
                                   </button>
                                   <button 
-                                    className="view-docs-button"
-                                    onClick={() => setSelectedUser(user)}
+                                    className="action-button view-docs-button"
+                                    onClick={() => handleViewDocuments(user)}
                                   >
                                     <i className="fas fa-file"></i> View Docs
                                   </button>
                                   <button 
-                                    className="delete-button"
+                                    className="action-button delete-button"
                                     onClick={() => confirmDelete(user.id)}
                                   >
                                     <i className="fas fa-trash"></i> Delete
@@ -2015,16 +2027,122 @@ const Dashboard = () => {
                 </div>
               ) : null}
 
-              {selectedUser && (
+              {showUserDetails && selectedUser && (
+                <div className="modal-overlay">
+                  <div className="modal-content user-details-modal">
+                    <div className="modal-header">
+                      <h2>Detalii Utilizator</h2>
+                      <button className="close-button" onClick={closeModals}>
+                        <span className="close-x">×</span>
+                      </button>
+                    </div>
+                    <div className="user-details-content">
+                      <div className="user-details-section">
+                        <h3>Informații de Bază</h3>
+                        <div className="detail-row">
+                          <span className="detail-label">ID:</span>
+                          <span className="detail-value">{selectedUser.id}</span>
+                        </div>
+                        <div className="detail-row">
+                          <span className="detail-label">Nume:</span>
+                          <span className="detail-value">{selectedUser.name}</span>
+                        </div>
+                        <div className="detail-row">
+                          <span className="detail-label">Email:</span>
+                          <span className="detail-value">{selectedUser.email}</span>
+                        </div>
+                        <div className="detail-row">
+                          <span className="detail-label">Rol:</span>
+                          <span className="detail-value">{selectedUser.role === 'admin' ? 'Administrator' : 'Utilizator'}</span>
+                        </div>
+                        <div className="detail-row">
+                          <span className="detail-label">Data Înregistrării:</span>
+                          <span className="detail-value">{new Date(selectedUser.created_at).toLocaleDateString('ro-RO')}</span>
+                        </div>
+                        <div className="detail-row">
+                          <span className="detail-label">Ultima Actualizare:</span>
+                          <span className="detail-value">{new Date(selectedUser.updated_at).toLocaleDateString('ro-RO')}</span>
+                        </div>
+                      </div>
+
+                      <div className="user-details-section">
+                        <h3>Informații Personale</h3>
+                        <div className="detail-row">
+                          <span className="detail-label">Data Nașterii:</span>
+                          <span className="detail-value">{selectedUser.date_of_birth ? new Date(selectedUser.date_of_birth).toLocaleDateString('ro-RO') : 'Nespecificată'}</span>
+                        </div>
+                        <div className="detail-row">
+                          <span className="detail-label">Țara de Origine:</span>
+                          <span className="detail-value">{selectedUser.country_of_origin || 'Nespecificată'}</span>
+                        </div>
+                        <div className="detail-row">
+                          <span className="detail-label">Naționalitate:</span>
+                          <span className="detail-value">{selectedUser.nationality || 'Nespecificată'}</span>
+                        </div>
+                        <div className="detail-row">
+                          <span className="detail-label">Număr de Telefon:</span>
+                          <span className="detail-value">{selectedUser.phone || 'Nespecificat'}</span>
+                        </div>
+                      </div>
+
+                      <div className="user-details-section">
+                        <h3>Statut Documente</h3>
+                        <div className="document-status-grid">
+                          <div className="document-status-item">
+                            <span className="status-label">Diplomă:</span>
+                            <span className={`status-value ${getDocumentStatus(selectedUser.id).diploma === 'Uploaded' ? 'status-success' : 'status-missing'}`}>
+                              {getDocumentStatus(selectedUser.id).diploma}
+                            </span>
+                          </div>
+                          <div className="document-status-item">
+                            <span className="status-label">Transcript:</span>
+                            <span className={`status-value ${getDocumentStatus(selectedUser.id).transcript === 'Uploaded' ? 'status-success' : 'status-missing'}`}>
+                              {getDocumentStatus(selectedUser.id).transcript}
+                            </span>
+                          </div>
+                          <div className="document-status-item">
+                            <span className="status-label">Pașaport:</span>
+                            <span className={`status-value ${getDocumentStatus(selectedUser.id).passport === 'Uploaded' ? 'status-success' : 'status-missing'}`}>
+                              {getDocumentStatus(selectedUser.id).passport}
+                            </span>
+                          </div>
+                          <div className="document-status-item">
+                            <span className="status-label">Fotografie:</span>
+                            <span className={`status-value ${getDocumentStatus(selectedUser.id).photo === 'Uploaded' ? 'status-success' : 'status-missing'}`}>
+                              {getDocumentStatus(selectedUser.id).photo}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="user-details-section">
+                        <h3>Activități Recente</h3>
+                        <div className="detail-row">
+                          <span className="detail-label">Ultima Autentificare:</span>
+                          <span className="detail-value">{selectedUser.last_login ? new Date(selectedUser.last_login).toLocaleString('ro-RO') : 'Nespecificată'}</span>
+                        </div>
+                        <div className="detail-row">
+                          <span className="detail-label">Status Cont:</span>
+                          <span className="detail-value">{selectedUser.is_active ? 'Activ' : 'Inactiv'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {showUserDocuments && selectedUser && (
                 <div className="modal-overlay">
                   <div className="modal-content documents-modal">
                     <div className="modal-header">
-                      <h3>Documents for {selectedUser.name}</h3>
-                      <button className="close-button" onClick={() => setSelectedUser(null)}>
-                        Close
+                      <h2>Documente Utilizator</h2>
+                      <button className="close-button" onClick={closeModals}>
+                        <span className="close-x">×</span>
                       </button>
                     </div>
-                    {renderUserDocuments(selectedUser.id)}
+                    <div className="user-documents">
+                      {renderUserDocuments(selectedUser.id)}
+                    </div>
                   </div>
                 </div>
               )}

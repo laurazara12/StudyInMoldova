@@ -102,43 +102,8 @@ router.get('/', authMiddleware, async (req, res) => {
     if (req.user.role === 'admin') {
       console.log('Utilizator admin, se preiau toate documentele');
       try {
-        const documents = await Document.findAll({
-          attributes: ['id', 'user_id', 'document_type', 'file_path', 'createdAt', 'status', 'filename', 'originalName'],
-          order: [['createdAt', 'DESC']],
-          include: [{
-            model: User,
-            attributes: ['name', 'email'],
-            as: 'user'
-          }]
-        });
-        
-        console.log('Documente găsite pentru admin:', documents.length);
-        return res.json(documents.map(doc => ({
-          id: doc.id,
-          user_id: doc.user_id,
-          user_name: doc.user ? doc.user.name : 'Unknown',
-          user_email: doc.user ? doc.user.email : 'Unknown',
-          document_type: doc.document_type,
-          file_path: doc.file_path,
-          createdAt: doc.createdAt,
-          status: doc.status || 'pending',
-          filename: doc.filename,
-          originalName: doc.originalName,
-          uploaded: true,
-          uploadDate: doc.createdAt
-        })));
-      } catch (error) {
-        console.error('Eroare la interogarea documentelor pentru admin:', error);
-        throw error;
-      }
-    }
-    
-    // Pentru utilizatori normali, returnează doar propriile documente
-    console.log('Utilizator normal, se preiau doar documentele sale');
-    try {
       const documents = await Document.findAll({
-        where: { user_id: req.user.id },
-        attributes: ['id', 'document_type', 'file_path', 'createdAt', 'status', 'filename', 'originalName'],
+        attributes: ['id', 'user_id', 'document_type', 'file_path', 'createdAt', 'status', 'filename', 'originalName'],
         order: [['createdAt', 'DESC']],
         include: [{
           model: User,
@@ -146,10 +111,13 @@ router.get('/', authMiddleware, async (req, res) => {
           as: 'user'
         }]
       });
-
-      console.log('Documente găsite pentru utilizator:', documents.length);
-      res.json(documents.map(doc => ({
+      
+        console.log('Documente găsite pentru admin:', documents.length);
+      return res.json(documents.map(doc => ({
         id: doc.id,
+        user_id: doc.user_id,
+        user_name: doc.user ? doc.user.name : 'Unknown',
+        user_email: doc.user ? doc.user.email : 'Unknown',
         document_type: doc.document_type,
         file_path: doc.file_path,
         createdAt: doc.createdAt,
@@ -159,7 +127,39 @@ router.get('/', authMiddleware, async (req, res) => {
         uploaded: true,
         uploadDate: doc.createdAt
       })));
-    } catch (error) {
+      } catch (error) {
+        console.error('Eroare la interogarea documentelor pentru admin:', error);
+        throw error;
+      }
+    }
+    
+    // Pentru utilizatori normali, returnează doar propriile documente
+    console.log('Utilizator normal, se preiau doar documentele sale');
+    try {
+    const documents = await Document.findAll({
+      where: { user_id: req.user.id },
+      attributes: ['id', 'document_type', 'file_path', 'createdAt', 'status', 'filename', 'originalName'],
+        order: [['createdAt', 'DESC']],
+        include: [{
+          model: User,
+          attributes: ['name', 'email'],
+          as: 'user'
+        }]
+    });
+
+      console.log('Documente găsite pentru utilizator:', documents.length);
+    res.json(documents.map(doc => ({
+      id: doc.id,
+      document_type: doc.document_type,
+      file_path: doc.file_path,
+      createdAt: doc.createdAt,
+      status: doc.status || 'pending',
+      filename: doc.filename,
+      originalName: doc.originalName,
+      uploaded: true,
+      uploadDate: doc.createdAt
+    })));
+  } catch (error) {
       console.error('Eroare la interogarea documentelor pentru utilizator:', error);
       throw error;
     }
