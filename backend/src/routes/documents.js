@@ -5,6 +5,7 @@ const path = require('path');
 const { authMiddleware, adminMiddleware } = require('../middleware/auth');
 const { User, Document } = require('../models');
 const { Op } = require('sequelize');
+const { createNotification } = require('../controllers/notificationController');
 
 const router = express.Router();
 
@@ -765,6 +766,17 @@ router.delete('/admin/:id', authMiddleware, adminMiddleware, async (req, res) =>
       filename: document.filename
     });
 
+    // Creează notificare pentru utilizator înainte de ștergere
+    const adminMessage = req.body.admin_message || 'Documentul a fost șters de către administrator';
+    await createNotification(
+      document.user_id,
+      'document_deleted',
+      `Documentul tău de tip ${document.document_type} a fost șters de către administrator`,
+      document.id,
+      adminMessage
+    );
+    console.log('Notificare creată pentru utilizator:', document.user_id);
+
     // Verificăm dacă directorul utilizatorului există
     const userDir = path.join(uploadsDir, document.user_id.toString());
     console.log('Director utilizator:', {
@@ -816,7 +828,6 @@ router.delete('/admin/:id', authMiddleware, adminMiddleware, async (req, res) =>
     console.log('Document șters din baza de date');
 
     // Creează notificare pentru utilizator
-    const adminMessage = req.body.admin_message || 'Documentul a fost șters de către administrator';
     await createNotification(
       document.user_id,
       'document_deleted',

@@ -76,6 +76,7 @@ const Dashboard = () => {
   const [sortBy, setSortBy] = useState('name');
   const [successMessage, setSuccessMessage] = useState("");
   const [documentToDelete, setDocumentToDelete] = useState(null);
+  const [filterUserDateRange, setFilterUserDateRange] = useState({ start: '', end: '' });
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user'));
@@ -332,8 +333,8 @@ const Dashboard = () => {
       (filterStatus === 'active' && user.status === 'active') ||
       (filterStatus === 'inactive' && user.status === 'inactive');
     
-    const matchesDateRange = (!filterDateRange.start || new Date(user.created_at) >= new Date(filterDateRange.start)) &&
-                           (!filterDateRange.end || new Date(user.created_at) <= new Date(filterDateRange.end));
+    const matchesDateRange = (!filterUserDateRange.start || new Date(user.created_at) >= new Date(filterUserDateRange.start)) &&
+                           (!filterUserDateRange.end || new Date(user.created_at) <= new Date(filterUserDateRange.end));
     
     return matchesSearch && matchesRole && matchesStatus && matchesDateRange;
   });
@@ -811,7 +812,11 @@ const Dashboard = () => {
               <div className="filter-section users-filter">
                 <div className="filter-group">
                   <label>Role:</label>
-                  <select className="filter-select">
+                  <select 
+                    className="filter-select"
+                    value={filterRole}
+                    onChange={(e) => setFilterRole(e.target.value)}
+                  >
                     <option value="all">All</option>
                     <option value="admin">Admin</option>
                     <option value="user">User</option>
@@ -819,7 +824,11 @@ const Dashboard = () => {
                 </div>
                 <div className="filter-group">
                   <label>Status:</label>
-                  <select className="filter-select">
+                  <select 
+                    className="filter-select"
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                  >
                     <option value="all">All</option>
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
@@ -828,12 +837,31 @@ const Dashboard = () => {
                 <div className="filter-group">
                   <label>Date:</label>
                   <div className="date-range-inputs">
-                    <input type="date" className="date-input" value="" />
+                    <input 
+                      type="date" 
+                      className="date-input" 
+                      value={filterUserDateRange.start}
+                      onChange={(e) => setFilterUserDateRange({...filterUserDateRange, start: e.target.value})}
+                    />
                     <span>to</span>
-                    <input type="date" className="date-input" value="" />
+                    <input 
+                      type="date" 
+                      className="date-input" 
+                      value={filterUserDateRange.end}
+                      onChange={(e) => setFilterUserDateRange({...filterUserDateRange, end: e.target.value})}
+                    />
                   </div>
                 </div>
-                <button className="clear-filters-button">Clear</button>
+                <button 
+                  className="clear-filters-button"
+                  onClick={() => {
+                    setFilterRole('all');
+                    setFilterStatus('all');
+                    setFilterUserDateRange({ start: '', end: '' });
+                  }}
+                >
+                  Clear
+                </button>
               </div>
             ) : activeTab === 'documents' ? (
               <div className="filter-section documents-filter">
