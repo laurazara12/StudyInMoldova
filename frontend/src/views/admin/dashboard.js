@@ -87,7 +87,7 @@ const Dashboard = () => {
   const fetchUsers = async () => {
     try {
       setLoading(prev => ({ ...prev, users: true }));
-      const response = await axios.get(`${API_BASE_URL}/api/users`, {
+      const response = await axios.get(`${API_BASE_URL}/api/auth/users`, {
         headers: getAuthHeaders()
       });
       setUsers(Array.isArray(response.data) ? response.data : []);
@@ -211,26 +211,28 @@ const Dashboard = () => {
 
   const handleDownloadDocument = async (documentType, userId) => {
     try {
+      // Găsim documentul specific pentru acest utilizator și tip
+      const doc = documents.find(doc => doc.document_type === documentType && doc.user_id === userId);
+      if (!doc) {
+        console.error('Document not found for type:', documentType, 'and user:', userId);
+        return;
+      }
+
+      console.log('Attempting to download document:', {
+        documentId: doc.id,
+        documentType: documentType,
+        userId: userId
+      });
+
       const response = await axios({
-        url: `${API_BASE_URL}/api/documents/download/${documentType}`,
+        url: `${API_BASE_URL}/documents/download/${doc.id}`,
         method: 'GET',
         responseType: 'blob',
         headers: getAuthHeaders()
       });
 
       const contentType = response.headers['content-type'];
-      
-      const doc = documents.find(doc => doc.document_type === documentType && doc.user_id === userId);
-      let fileName;
-
-      if (doc && doc.file_path) {
-        fileName = doc.file_path.split('/').pop();
-      } else {
-        const fileExtension = contentType === 'image/png' ? '.png' : 
-                            contentType === 'image/jpeg' || contentType === 'image/jpg' ? '.jpg' : 
-                            contentType === 'application/pdf' ? '.pdf' : '.pdf';
-        fileName = `${documentType}${fileExtension}`;
-      }
+      const fileName = doc.originalName || doc.filename || `${documentType}.pdf`;
 
       const blob = new Blob([response.data], { type: contentType });
       const url = window.URL.createObjectURL(blob);
@@ -244,7 +246,11 @@ const Dashboard = () => {
       window.URL.revokeObjectURL(url);
     } catch (err) {
       const error = handleApiError(err);
-      console.error('Eroare la descărcarea documentului:', error);
+      console.error('Error downloading document:', {
+        error: error,
+        documentType: documentType,
+        userId: userId
+      });
       setError(error.message);
     }
   };
@@ -614,6 +620,58 @@ const Dashboard = () => {
   if (error) {
     return (
       <div className="dashboard-page">
+        <style>
+          {`
+            .action-buttons {
+              display: flex;
+              gap: 8px;
+              justify-content: center;
+            }
+            
+            .action-button {
+              padding: 6px 12px;
+              border: none;
+              border-radius: 4px;
+              cursor: pointer;
+              font-size: 14px;
+              display: flex;
+              align-items: center;
+              gap: 5px;
+              transition: all 0.3s ease;
+            }
+            
+            .action-button i {
+              font-size: 14px;
+            }
+            
+            .view-button {
+              background-color: #4CAF50;
+              color: white;
+            }
+            
+            .view-button:hover {
+              background-color: #45a049;
+            }
+            
+            .view-docs-button {
+              background-color: #2196F3;
+              color: white;
+            }
+            
+            .view-docs-button:hover {
+              background-color: #0b7dda;
+            }
+            
+            .delete-button {
+              background-color: #f44336;
+              color: white;
+            }
+            
+            .delete-button:hover {
+              background-color: #da190b;
+            }
+          `}
+        </style>
         <Navbar />
         <div className="dashboard-container">
           <div className="dashboard-content">
@@ -639,6 +697,58 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-page">
+      <style>
+        {`
+          .action-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+          }
+          
+          .action-button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+          }
+          
+          .action-button i {
+            font-size: 14px;
+          }
+          
+          .view-button {
+            background-color: #4CAF50;
+            color: white;
+          }
+          
+          .view-button:hover {
+            background-color: #45a049;
+          }
+          
+          .view-docs-button {
+            background-color: #2196F3;
+            color: white;
+          }
+          
+          .view-docs-button:hover {
+            background-color: #0b7dda;
+          }
+          
+          .delete-button {
+            background-color: #f44336;
+            color: white;
+          }
+          
+          .delete-button:hover {
+            background-color: #da190b;
+          }
+        `}
+      </style>
       <Navbar />
       <div className="dashboard-container">
         <div className="dashboard-content">
@@ -1811,111 +1921,45 @@ const Dashboard = () => {
                             <td>{user.email}</td>
                             <td>{user.role === 'admin' ? 'Administrator' : 'User'}</td>
                             <td>
-                              <div className="document-cell">
-                                <span className={docStatus.diploma === 'Uploaded' ? 'status-success' : 'status-missing'}>
-                                  {docStatus.diploma}
-                                </span>
-                                {docStatus.diploma === 'Uploaded' && (
-                                  <div className="document-actions">
-                                    <button 
-                                      className="download-button"
-                                      onClick={() => handleDownloadDocument('diploma', user.id)}
-                                    >
-                                      <i className="fas fa-download"></i>
-                                    </button>
-                                    <button 
-                                      className="delete-button"
-                                      onClick={() => handleDeleteDocument('diploma', user.id)}
-                                    >
-                                      <i className="fas fa-trash"></i>
-                                    </button>
-                                  </div>
-                                )}
-                              </div>
+                              <span className={docStatus.diploma === 'Uploaded' ? 'status-success' : 'status-missing'}>
+                                {docStatus.diploma}
+                              </span>
                             </td>
                             <td>
-                              <div className="document-cell">
-                                <span className={docStatus.transcript === 'Uploaded' ? 'status-success' : 'status-missing'}>
-                                  {docStatus.transcript}
-                                </span>
-                                {docStatus.transcript === 'Uploaded' && (
-                                  <div className="document-actions">
-                                    <button 
-                                      className="download-button"
-                                      onClick={() => handleDownloadDocument('transcript', user.id)}
-                                    >
-                                      <i className="fas fa-download"></i>
-                                    </button>
-                                    <button 
-                                      className="delete-button"
-                                      onClick={() => handleDeleteDocument('transcript', user.id)}
-                                    >
-                                      <i className="fas fa-trash"></i>
-                                    </button>
-                                  </div>
-                                )}
-                              </div>
+                              <span className={docStatus.transcript === 'Uploaded' ? 'status-success' : 'status-missing'}>
+                                {docStatus.transcript}
+                              </span>
                             </td>
                             <td>
-                              <div className="document-cell">
-                                <span className={docStatus.passport === 'Uploaded' ? 'status-success' : 'status-missing'}>
-                                  {docStatus.passport}
-                                </span>
-                                {docStatus.passport === 'Uploaded' && (
-                                  <div className="document-actions">
-                                    <button 
-                                      className="download-button"
-                                      onClick={() => handleDownloadDocument('passport', user.id)}
-                                    >
-                                      <i className="fas fa-download"></i>
-                                    </button>
-                                    <button 
-                                      className="delete-button"
-                                      onClick={() => handleDeleteDocument('passport', user.id)}
-                                    >
-                                      <i className="fas fa-trash"></i>
-                                    </button>
-                                  </div>
-                                )}
-                              </div>
+                              <span className={docStatus.passport === 'Uploaded' ? 'status-success' : 'status-missing'}>
+                                {docStatus.passport}
+                              </span>
                             </td>
                             <td>
-                              <div className="document-cell">
-                                <span className={docStatus.photo === 'Uploaded' ? 'status-success' : 'status-missing'}>
-                                  {docStatus.photo}
-                                </span>
-                                {docStatus.photo === 'Uploaded' && (
-                                  <div className="document-actions">
-                                    <button 
-                                      className="download-button"
-                                      onClick={() => handleDownloadDocument('photo', user.id)}
-                                    >
-                                      <i className="fas fa-download"></i>
-                                    </button>
-                                    <button 
-                                      className="delete-button"
-                                      onClick={() => handleDeleteDocument('photo', user.id)}
-                                    >
-                                      <i className="fas fa-trash"></i>
-                                    </button>
-                                  </div>
-                                )}
-                              </div>
+                              <span className={docStatus.photo === 'Uploaded' ? 'status-success' : 'status-missing'}>
+                                {docStatus.photo}
+                              </span>
                             </td>
                             <td>
                               {user.role !== 'admin' && (
                                 <div className="action-buttons">
                                   <button 
-                                    className="view-documents-button"
+                                    className="view-button"
                                     onClick={() => setSelectedUser(user)}
                                   >
-                                    <i className="fas fa-eye"></i> View Docs
+                                    <i className="fas fa-eye"></i> View User
+                                  </button>
+                                  <button 
+                                    className="view-docs-button"
+                                    onClick={() => setSelectedUser(user)}
+                                  >
+                                    <i className="fas fa-file"></i> View Docs
                                   </button>
                                   <button 
                                     className="delete-button"
                                     onClick={() => confirmDelete(user.id)}
                                   >
-                                    Delete
+                                    <i className="fas fa-trash"></i> Delete
                                   </button>
                                 </div>
                               )}
@@ -1953,13 +1997,13 @@ const Dashboard = () => {
                                   className="download-button"
                                   onClick={() => handleDownloadDocument(doc.document_type, doc.user_id)}
                                 >
-                                  Download
+                                  <i className="fas fa-download"></i> Download
                                 </button>
                                 <button 
                                   className="delete-button"
                                   onClick={() => handleDeleteDocument(doc.document_type, doc.user_id)}
                                 >
-                                  Delete
+                                  <i className="fas fa-trash"></i> Delete
                                 </button>
                               </div>
                             </td>
