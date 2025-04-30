@@ -24,20 +24,36 @@
   display: flex;
 }
  
-.navbar-text10 {
-  color: rgba(0, 0, 0, 1);
-  width: auto;
-  height: auto;
-  display: block;
+.navbar-text10,
+.navbar-text11,
+.navbar-text12,
+.navbar-text13,
+.navbar-text14,
+.navbar-text15,
+.navbar-text16,
+.navbar-text17,
+.navbar-text18,
+.navbar-text19,
+.navbar-text20,
+.navbar-text23,
+.navbar-text24,
+.navbar-text25,
+.navbar-text26,
+.navbar-text27,
+.navbar-text28,
+.navbar-text29,
+.navbar-text30,
+.navbar-text31,
+.navbar-text32,
+.navbar-text33,
+.navbar-text34,
+.navbar-text35,
+.navbar-text36,
+.navbar-text37 {
   font-size: 16px;
-  align-self: center;
-  font-style: Bold;
-  text-align: left;
-  font-family: Roboto;
-  font-weight: 700;
-  line-height: normal;
-  font-stretch: normal;
-  text-decoration: none;
+  font-weight: 500;
+  color: #333;
+  white-space: nowrap;
 }
  
 .navbar-desktop-menu {
@@ -341,7 +357,7 @@
 }
 
 .navbar-brand {
-  font-size: 1.2rem;
+  font-size: 16px;
   font-weight: 600;
   color: #333;
   text-decoration: none;
@@ -356,16 +372,16 @@
 .navbar-link {
   color: #666;
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 16px;
   transition: color 0.3s ease;
 }
 
 .navbar-link:hover {
-  color: #007bff;
+  color: #FF6B00;
 }
 
 .navbar-link.active {
-  color: #007bff;
+  color: #FF6B00;
   font-weight: 500;
 }
 
@@ -425,5 +441,71 @@
   }
   .navbar-mobile-menu {
     padding: 16px;
+  }
+}
+
+.navbar-login1,
+.navbar-login2 {
+  padding: 0.5rem 1rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.navbar-login1:hover,
+.navbar-login2:hover {
+  opacity: 0.8;
+}
+
+.navbar-navlink1,
+.navbar-navlink2 {
+  text-decoration: none;
+  color: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.navbar-navlink1.active,
+.navbar-navlink2.active {
+  color: #FF6B00;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .navbar-text10,
+  .navbar-text11,
+  .navbar-text12,
+  .navbar-text13,
+  .navbar-text14,
+  .navbar-text15,
+  .navbar-text16,
+  .navbar-text17,
+  .navbar-text18,
+  .navbar-text19,
+  .navbar-text20,
+  .navbar-text23,
+  .navbar-text24,
+  .navbar-text25,
+  .navbar-text26,
+  .navbar-text27,
+  .navbar-text28,
+  .navbar-text29,
+  .navbar-text30,
+  .navbar-text31,
+  .navbar-text32,
+  .navbar-text33,
+  .navbar-text34,
+  .navbar-text35,
+  .navbar-text36,
+  .navbar-text37,
+  .navbar-brand,
+  .navbar-link {
+    font-size: 14px;
+  }
+  
+  .navbar-login1,
+  .navbar-login2 {
+    padding: 0.4rem 0.8rem;
   }
 }

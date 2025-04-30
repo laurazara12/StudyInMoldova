@@ -811,57 +811,29 @@ const Dashboard = () => {
               <div className="filter-section users-filter">
                 <div className="filter-group">
                   <label>Role:</label>
-                  <select
-                    value={filterRole}
-                    onChange={(e) => setFilterRole(e.target.value)}
-                    className="filter-select"
-                  >
-                    <option value="all">All Roles</option>
-                    <option value="admin">Administrators</option>
-                    <option value="user">Users</option>
+                  <select className="filter-select">
+                    <option value="all">All</option>
+                    <option value="admin">Admin</option>
+                    <option value="user">User</option>
                   </select>
                 </div>
                 <div className="filter-group">
                   <label>Status:</label>
-                  <select
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value)}
-                    className="filter-select"
-                  >
-                    <option value="all">All Status</option>
+                  <select className="filter-select">
+                    <option value="all">All</option>
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                   </select>
                 </div>
                 <div className="filter-group">
-                  <label>Date Range:</label>
+                  <label>Date:</label>
                   <div className="date-range-inputs">
-                    <input
-                      type="date"
-                      value={filterDateRange.start}
-                      onChange={(e) => setFilterDateRange({...filterDateRange, start: e.target.value})}
-                      className="date-input"
-                    />
+                    <input type="date" className="date-input" value="" />
                     <span>to</span>
-                    <input
-                      type="date"
-                      value={filterDateRange.end}
-                      onChange={(e) => setFilterDateRange({...filterDateRange, end: e.target.value})}
-                      className="date-input"
-                    />
+                    <input type="date" className="date-input" value="" />
                   </div>
                 </div>
-                <button 
-                  className="clear-filters-button"
-                  onClick={() => {
-                    setSearchTerm('');
-                    setFilterRole('all');
-                    setFilterStatus('all');
-                    setFilterDateRange({ start: '', end: '' });
-                  }}
-                >
-                  Clear Filters
-                </button>
+                <button className="clear-filters-button">Clear</button>
               </div>
             ) : activeTab === 'documents' ? (
               <div className="filter-section documents-filter">
