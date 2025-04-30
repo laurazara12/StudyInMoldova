@@ -20,7 +20,6 @@ const Profile = () => {
         <div className="profile-content">
           <div className="profile-header">
             <h1 className="profile-heading">User Profile</h1>
-            <Notifications />
           </div>
           <div className="profile-main">
             <ProfileComponent />

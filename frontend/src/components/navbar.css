@@ -50,9 +50,9 @@
 .navbar-text35,
 .navbar-text36,
 .navbar-text37 {
-  font-size: 16px;
+  font-size: var(--dl-font-size-small);
   font-weight: 500;
-  color: #333;
+  color: var(--dl-color-theme-neutral-dark);
   white-space: nowrap;
 }
  
@@ -357,9 +357,9 @@
 }
 
 .navbar-brand {
-  font-size: 16px;
+  font-size: var(--dl-font-size-small);
   font-weight: 600;
-  color: #333;
+  color: var(--dl-color-theme-neutral-dark);
   text-decoration: none;
 }
 
@@ -370,9 +370,9 @@
 }
 
 .navbar-link {
-  color: #666;
+  color: var(--dl-color-theme-neutral-dark);
   text-decoration: none;
-  font-size: 16px;
+  font-size: var(--dl-font-size-small);
   transition: color 0.3s ease;
 }
 
@@ -462,7 +462,7 @@
 .navbar-navlink2 {
   text-decoration: none;
   color: inherit;
-  font-size: 0.9rem;
+  font-size: var(--dl-font-size-small);
   font-weight: 500;
 }
 
@@ -501,7 +501,7 @@
   .navbar-text37,
   .navbar-brand,
   .navbar-link {
-    font-size: 14px;
+    font-size: var(--dl-font-size-small);
   }
   
   .navbar-login1,

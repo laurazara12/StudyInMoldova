@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect, useRef } from 'react';
+import { FaBell, FaChevronDown, FaCheck } from 'react-icons/fa';
 import './notifications.css';
 
 const Notifications = () => {
@@ -7,124 +7,141 @@ const Notifications = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
-  const token = localStorage.getItem('token');
+  const containerRef = useRef(null);
 
   useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await fetch('/api/notifications');
+        if (!response.ok) {
+          throw new Error('Nu s-au putut încărca notificările');
+        }
+        const data = await response.json();
+        setNotifications(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchNotifications();
   }, []);
 
-  const fetchNotifications = async () => {
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setIsExpanded(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleNotificationClick = async (notificationId) => {
     try {
-      setLoading(true);
-      setError(null);
-      const response = await axios.get('http://localhost:4000/api/notifications', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await fetch(`/api/notifications/${notificationId}/mark-read`, {
+        method: 'POST',
       });
       
-      // Asigurăm-ne că avem un array
-      const notificationsData = Array.isArray(response.data) ? response.data : [];
-      setNotifications(notificationsData);
-    } catch (error) {
-      console.error('Eroare la obținerea notificărilor:', error);
-      setError('Nu s-au putut încărca notificările');
-      setNotifications([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+      if (!response.ok) {
+        throw new Error('Nu s-a putut marca notificarea ca citită');
+      }
 
-  const markAsRead = async (id) => {
-    try {
-      await axios.put(`http://localhost:4000/api/notifications/${id}/read`, {}, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      setNotifications(prevNotifications => 
-        prevNotifications.map(notification => 
-          notification.id === id ? { ...notification, read: true } : notification
+      setNotifications(prevNotifications =>
+        prevNotifications.map(notification =>
+          notification.id === notificationId
+            ? { ...notification, read: true }
+            : notification
         )
       );
-    } catch (error) {
-      console.error('Eroare la marcarea notificării ca citită:', error);
+    } catch (err) {
+      console.error('Eroare la marcarea notificării:', err);
     }
   };
 
-  const markAllAsRead = async () => {
+  const handleMarkAllRead = async () => {
     try {
-      await axios.put('http://localhost:4000/api/notifications/read-all', {}, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await fetch('/api/notifications/mark-all-read', {
+        method: 'POST',
       });
-      setNotifications(prevNotifications => 
+      
+      if (!response.ok) {
+        throw new Error('Nu s-au putut marca toate notificările ca citite');
+      }
+
+      setNotifications(prevNotifications =>
         prevNotifications.map(notification => ({ ...notification, read: true }))
       );
-    } catch (error) {
-      console.error('Eroare la marcarea notificărilor ca citite:', error);
+    } catch (err) {
+      console.error('Eroare la marcarea tuturor notificărilor:', err);
     }
   };
 
-  const toggleExpand = () => {
-    setIsExpanded(!isExpanded);
-  };
-
-  if (loading) {
-    return <div className="notifications-loading">Se încarcă notificările...</div>;
-  }
-
-  if (error) {
-    return <div className="notifications-error">{error}</div>;
-  }
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
-    <div className={`notifications-container ${isExpanded ? 'expanded' : ''}`}>
-      <div className="notifications-header" onClick={toggleExpand}>
+    <div 
+      ref={containerRef}
+      className={`notifications-container ${isExpanded ? 'expanded' : ''}`}
+    >
+      <div 
+        className="notifications-header"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
         <div className="notifications-title">
-          <h3>Notificări</h3>
-          {notifications.length > 0 && (
-            <span className="notification-count">{notifications.length}</span>
-          )}
+          <FaBell />
+          <h3>Notificări {unreadCount > 0 ? `(${unreadCount})` : ''}</h3>
         </div>
         <div className="notifications-actions">
-          <i className={`fas fa-chevron-${isExpanded ? 'up' : 'down'} expand-icon`}></i>
+          <FaChevronDown className="expand-icon" />
         </div>
       </div>
-      
+
       {isExpanded && (
-        <>
-          {notifications.length > 0 && (
-            <button className="mark-all-read" onClick={markAllAsRead}>
-              Marchează toate ca citite
-            </button>
-          )}
-          
-          {notifications.length === 0 ? (
-            <div className="no-notifications">
-              There are no notifications so far
-            </div>
-          ) : (
-            <div className="notifications-list">
+        <div className="notifications-list">
+          {loading ? (
+            <div className="notifications-loading">Se încarcă...</div>
+          ) : error ? (
+            <div className="notifications-error">{error}</div>
+          ) : notifications.length > 0 ? (
+            <>
+              {unreadCount > 0 && (
+                <button 
+                  className="mark-all-read"
+                  onClick={handleMarkAllRead}
+                >
+                  <FaCheck /> Marchează toate ca citite
+                </button>
+              )}
               {notifications.map(notification => (
-                <div 
-                  key={notification.id} 
-                  className={`notification-item ${notification.read ? 'read' : 'unread'}`}
-                  onClick={() => !notification.read && markAsRead(notification.id)}
+                <div
+                  key={notification.id}
+                  className={`notification-item ${!notification.read ? 'unread' : ''}`}
+                  onClick={() => handleNotificationClick(notification.id)}
                 >
                   <div className="notification-content">
                     <p>{notification.message}</p>
                     <span className="notification-date">
-                      {new Date(notification.created_at).toLocaleDateString('ro-RO')}
+                      {new Date(notification.createdAt).toLocaleDateString('ro-RO', {
+                        day: 'numeric',
+                        month: 'long',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
                     </span>
                   </div>
-                  {!notification.read && <div className="unread-indicator"></div>}
+                  {!notification.read && <div className="unread-indicator" />}
                 </div>
               ))}
-            </div>
+            </>
+          ) : (
+            <div className="no-notifications">Nu există notificări</div>
           )}
-        </>
+        </div>
       )}
     </div>
   );

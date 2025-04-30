@@ -5,7 +5,6 @@ import { Helmet } from 'react-helmet';
 import Navbar from '../../components/navbar';
 import ProfileComponent from '../../components/profile-component';
 import Footer from '../../components/footer';
-import Notifications from '../../components/notifications';
 import './profile.css';
 
 const Profile = () => {
@@ -19,7 +18,6 @@ const Profile = () => {
       <div className="profile-container">
         <div className="profile-header">
           <h1 className="profile-heading">User Profile</h1>
-          <Notifications />
         </div>
         <div className="profile-main">
           <ProfileComponent />

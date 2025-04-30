@@ -6,6 +6,7 @@ import './profile-component.css';
 import { API_BASE_URL, getAuthHeaders, handleApiError } from '../config/api.config';
 import PlanYourStudies from './plan-your-studies';
 import DocumentCounter from './document-counter';
+import Notifications from './notifications';
 
 const initialDocuments = {
   diploma: { uploading: false, progress: 0, uploaded: false, file: null },
@@ -523,68 +524,53 @@ const ProfileComponent = () => {
   return (
     <div className="profile-container">
       <div className="profile-header">
-        <div className="profile-tabs">
-          <button 
-            className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`}
-            onClick={() => setActiveTab('profile')}
-            style={{
-              backgroundColor: activeTab === 'profile' ? '#ff6b35' : 'transparent',
-              color: activeTab === 'profile' ? '#fff' : '#ff6b35',
-              border: '1px solid #ff6b35'
-            }}
-          >
-            My Profile
-          </button>
-          <button 
-            className={`tab-button ${activeTab === 'studies' ? 'active' : ''}`}
-            onClick={() => setActiveTab('studies')}
-            style={{
-              backgroundColor: activeTab === 'studies' ? '#ff6b35' : 'transparent',
-              color: activeTab === 'studies' ? '#fff' : '#ff6b35',
-              border: '1px solid #ff6b35'
-            }}
-          >
-            Plan Your Studies
-          </button>
-          <button 
-            className={`tab-button ${activeTab === 'documents' ? 'active' : ''}`}
-            onClick={() => setActiveTab('documents')}
-            style={{
-              backgroundColor: activeTab === 'documents' ? '#ff6b35' : 'transparent',
-              color: activeTab === 'documents' ? '#fff' : '#ff6b35',
-              border: '1px solid #ff6b35'
-            }}
-          >
-            Upload Documents
-          </button>
+        <div className="profile-tabs-container">
+          <div className="profile-tabs">
+            <button 
+              className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`}
+              onClick={() => setActiveTab('profile')}
+            >
+              My Profile
+            </button>
+            <button 
+              className={`tab-button ${activeTab === 'studies' ? 'active' : ''}`}
+              onClick={() => setActiveTab('studies')}
+            >
+              Plan Your Studies
+            </button>
+            <button 
+              className={`tab-button ${activeTab === 'documents' ? 'active' : ''}`}
+              onClick={() => setActiveTab('documents')}
+            >
+              Upload Documents
+            </button>
+          </div>
         </div>
-        <button 
-          className="edit-button" 
-          onClick={() => {
-            setFormData({
-              full_name: userData?.name || '',
-              email: userData?.email || '',
-              phone: userData?.phone || '',
-              date_of_birth: userData?.date_of_birth || '',
-              country_of_origin: userData?.country_of_origin || '',
-              nationality: userData?.nationality || '',
-              desired_study_level: userData?.desired_study_level || '',
-              preferred_study_field: userData?.preferred_study_field || '',
-              desired_academic_year: userData?.desired_academic_year || '',
-              preferred_study_language: userData?.preferred_study_language || '',
-              estimated_budget: userData?.estimated_budget || '',
-              accommodation_preferences: userData?.accommodation_preferences || ''
-            });
-            setIsEditing(true);
-          }}
-          style={{
-            backgroundColor: '#e0e0e0',
-            color: '#555',
-            border: '1px solid #ccc'
-          }}
-        >
-          Edit Profile
-        </button>
+        <div className="edit-button-container">
+          <button 
+            className="edit-button" 
+            onClick={() => {
+              setFormData({
+                full_name: userData?.name || '',
+                email: userData?.email || '',
+                phone: userData?.phone || '',
+                date_of_birth: userData?.date_of_birth || '',
+                country_of_origin: userData?.country_of_origin || '',
+                nationality: userData?.nationality || '',
+                desired_study_level: userData?.desired_study_level || '',
+                preferred_study_field: userData?.preferred_study_field || '',
+                desired_academic_year: userData?.desired_academic_year || '',
+                preferred_study_language: userData?.preferred_study_language || '',
+                estimated_budget: userData?.estimated_budget || '',
+                accommodation_preferences: userData?.accommodation_preferences || ''
+              });
+              setIsEditing(true);
+            }}
+          >
+            Edit Profile
+          </button>
+          <Notifications />
+        </div>
       </div>
 
       {loading ? (
@@ -735,6 +721,12 @@ const ProfileComponent = () => {
       {isEditing && (
         <div className="edit-modal">
           <div className="edit-modal-content">
+            <button 
+              className="close-modal-button"
+              onClick={() => setIsEditing(false)}
+            >
+              ×
+            </button>
             <h2>Edit Profile</h2>
             <form onSubmit={handleSubmit}>
               <div className="form-group">

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../../components/navbar';
 import Footer from '../../components/footer';
-import './styles.css';
+import './dashboard.css';
 import { API_BASE_URL, getAuthHeaders, handleApiError } from '../../config/api.config';
 import DeleteDocumentModal from '../../components/DeleteDocumentModal';
 

@@ -30,6 +30,9 @@
   --dl-radius-radius-inputradius: 24px;
   --dl-radius-radius-buttonradius: 24px;
   --dl-space-space-oneandhalfunits: 24px;
+  --dl-font-size-small: 0.875rem; 
+  --dl-font-size-medium: 0.9rem; 
+  --dl-font-size-large: 1rem;       
 }
  
 .button {

@@ -62,9 +62,10 @@
 }
 
 .edit-button-container {
-    position: absolute;
-    right: 0;
-    top: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
 }
 
 .edit-button {
@@ -78,7 +79,8 @@
     transition: all 0.3s ease;
     width: fit-content;
     white-space: nowrap;
-    height: auto;
+    height: 24px;
+    line-height: 1;
     display: flex;
     align-items: center;
     justify-content: center;

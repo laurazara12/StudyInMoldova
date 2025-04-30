@@ -4,7 +4,7 @@ import axios from 'axios';
 import Navbar from '../../components/navbar';
 import Footer from '../../components/footer';
 import { API_BASE_URL, getAuthHeaders, handleApiError } from '../../config/api.config';
-import './styles.css';
+import './profile-admin.css';
 
 const ProfileAdmin = () => {
   const [user, setUser] = useState(null);
