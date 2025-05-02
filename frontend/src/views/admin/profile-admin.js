@@ -75,7 +75,7 @@ const ProfileAdmin = () => {
       if (response.data && response.data.success) {
         setUser(editedUser);
         setIsEditing(false);
-        alert('Profilul a fost actualizat cu succes!');
+        alert('Profile updated successfully!');
       }
     } catch (error) {
       const apiError = handleApiError(error);

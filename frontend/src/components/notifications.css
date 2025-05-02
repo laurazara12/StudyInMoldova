@@ -22,6 +22,7 @@
   min-width: 250px;
   animation: slideDown 0.3s ease-out;
   overflow: hidden;
+  padding: 1rem;
 }
 
 @keyframes slideDown {
@@ -40,7 +41,7 @@
   justify-content: space-between;
   align-items: center;
   padding: var(--dl-space-space-halfunit) var(--dl-space-space-oneandhalfunits);
-  border: 1px solid var(--dl-color-theme-neutral-dark);
+  border: 1px solid #e0e0e0;
   cursor: pointer;
   transition: all 0.3s ease;
   background-color: var(--dl-color-theme-neutral-light);
@@ -127,11 +128,10 @@
   overflow-y: auto;
   overflow-x: hidden;
   background: var(--dl-color-theme-neutral-light);
-  border: 1px solid var(--dl-color-theme-neutral-dark);
   border-radius: var(--dl-radius-radius-buttonradius);
   margin-top: var(--dl-space-space-halfunit);
   animation: fadeIn 0.3s ease-out;
-  padding: var(--dl-space-space-halfunit);
+  padding: 1rem;
   box-sizing: border-box;
 }
 
@@ -217,7 +217,6 @@
   color: var(--dl-color-theme-neutral-dark);
   font-size: var(--dl-font-size-small);
   background: var(--dl-color-theme-neutral-light);
-  border: 1px solid var(--dl-color-theme-neutral-dark);
   border-radius: var(--dl-radius-radius-buttonradius);
   margin-top: var(--dl-space-space-halfunit);
 }

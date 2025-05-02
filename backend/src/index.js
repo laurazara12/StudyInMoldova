@@ -17,17 +17,17 @@ app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentsRoutes);
 app.use('/api/universities', universitiesRoutes);
 
-// Inițializăm baza de date și pornim serverul
+// Initialize database and start server
 async function startServer() {
   try {
-    // Inițializăm baza de date doar dacă nu există
+    // Initialize database only if it doesn't exist
     await safeSync();
     
     app.listen(port, () => {
-      console.log(`Serverul rulează pe portul ${port}`);
+      console.log(`Server is running on port ${port}`);
     });
   } catch (error) {
-    console.error('Eroare la pornirea serverului:', error);
+    console.error('Error starting server:', error);
     process.exit(1);
   }
 }

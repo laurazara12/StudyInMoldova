@@ -19,7 +19,7 @@ const Universities = () => {
   const [filterLocation, setFilterLocation] = useState('');
   const [sortBy, setSortBy] = useState('name');
   
-  // Opțiuni pentru filtre
+  // Opțiuni pen tru filtre
   const typeOptions = ['Public', 'Private'];
   const locationOptions = ['Chișinău', 'Bălți', 'Comrat', 'Tiraspol'];
 

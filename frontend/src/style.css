@@ -547,47 +547,47 @@
   transform: scaleX(1);
 }
  
-.36px {
+.font-size-36 {
   font-size: 36px;
   font-style: normal;
   font-family: Roboto;
-  font-weight: 200px;
+  font-weight: 200;
   font-stretch: normal;
   letter-spacing: 0em;
 }
  
-.54px {
+.font-size-54 {
   font-size: 54px;
   font-style: normal;
   font-family: Roboto;
-  font-weight: 500px;
+  font-weight: 500;
   font-stretch: normal;
   letter-spacing: 0em;
 }
  
-.81px {
+.font-size-81 {
   font-size: 81px;
   font-style: normal;
   font-family: Roboto;
-  font-weight: 700px;
+  font-weight: 700;
   font-stretch: normal;
   letter-spacing: 0em;
 }
  
-.121px {
+.font-size-121 {
   font-size: 121px;
   font-style: normal;
   font-family: Libre Bodoni;
-  font-weight: 700px;
+  font-weight: 700;
   font-stretch: normal;
   letter-spacing: 0em;
 }
  
-.16px {
+.font-size-16 {
   font-size: 16px;
   font-style: normal;
   font-family: Roboto;
-  font-weight: 500px;
+  font-weight: 500;
   font-stretch: normal;
   letter-spacing: 0em;
 }

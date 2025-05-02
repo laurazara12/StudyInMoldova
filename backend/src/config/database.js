@@ -42,12 +42,14 @@ const UserModel = require('../models/user');
 const UniversityModel = require('../models/university');
 const DocumentModel = require('../models/document');
 const ProgramModel = require('../models/program');
+const NotificationModel = require('../models/notification');
 
 // Initialize models
 const User = UserModel(sequelize);
 const University = UniversityModel(sequelize);
 const Document = DocumentModel(sequelize);
 const Program = ProgramModel(sequelize);
+const Notification = NotificationModel(sequelize);
 
 // Define relationships
 Program.belongsTo(University, { foreignKey: 'universityId' });
@@ -124,6 +126,7 @@ module.exports = {
   University,
   Document,
   Program,
+  Notification,
   createBackup,
   safeSync
 };

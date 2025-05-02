@@ -8,6 +8,7 @@ const universitiesRouter = require('./routes/universities');
 const programsRouter = require('./routes/programs');
 const authRouter = require('./routes/auth');
 const documentsRouter = require('./routes/documents');
+const notificationRoutes = require('./routes/notificationRoutes');
 require('dotenv').config();
 
 const app = express();
@@ -38,6 +39,7 @@ app.use('/api/programs', programsRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/documents', documentsRouter);
 app.use('/api/universities', universitiesRouter);
+app.use('/api/notifications', notificationRoutes);
 
 // Ruta pentru verificarea stării serverului
 app.get('/api/health', (req, res) => {
@@ -57,19 +59,19 @@ const forceSync = process.argv.includes('--force-sync');
 
 // Sincronizăm baza de date
 if (forceSync) {
-  console.log('Se forțează recrearea tabelelor...');
+  console.log('Forcing table recreation...');
   safeSync(true).then(() => {
-    console.log('Sincronizarea forțată a fost finalizată.');
+    console.log('Forced synchronization completed.');
     createAdminUser();
   }).catch(err => {
-    console.error('Eroare la sincronizarea forțată:', err);
+    console.error('Error during forced synchronization:', err);
   });
 } else {
   safeSync().then(() => {
-    console.log('Sincronizarea normală a fost finalizată.');
+    console.log('Normal synchronization completed.');
     createAdminUser();
   }).catch(err => {
-    console.error('Eroare la sincronizarea normală:', err);
+    console.error('Error during normal synchronization:', err);
   });
 }
 
@@ -83,7 +85,7 @@ async function createAdminUser() {
     const adminExists = await User.findOne({ where: { email: 'admin@example.com' } });
     
     if (!adminExists) {
-      console.log('Se creează utilizatorul admin...');
+      console.log('Creating admin user...');
       const hashedPassword = await bcrypt.hash('123', 10);
       
       await User.create({
@@ -93,12 +95,12 @@ async function createAdminUser() {
         role: 'admin'
       });
       
-      console.log('Utilizatorul admin a fost creat cu succes.');
+      console.log('Admin user created successfully.');
     } else {
-      console.log('Utilizatorul admin există deja.');
+      console.log('Admin user already exists.');
     }
   } catch (error) {
-    console.error('Eroare la crearea utilizatorului admin:', error);
+    console.error('Error during admin user creation:', error);
   }
 }
 
@@ -106,37 +108,37 @@ async function createAdminUser() {
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ 
-    message: 'A apărut o eroare pe server', 
+    message: 'An error occurred on the server', 
     error: process.env.NODE_ENV === 'development' ? err.message : undefined 
   });
 });
 
 // Pornim serverul
 const server = app.listen(PORT, () => {
-  console.log(`Serverul rulează pe portul ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
 
 // Gestionare închidere sigură
 const gracefulShutdown = async (signal) => {
-  console.log(`Semnal primit: ${signal}. Se închide serverul...`);
+  console.log(`Received signal: ${signal}. Shutting down server...`);
   
   // Închidem serverul HTTP
   server.close(() => {
-    console.log('Serverul HTTP a fost închis.');
+    console.log('HTTP server closed.');
     
     // Închidem conexiunea la baza de date
     sequelize.close().then(() => {
-      console.log('Conexiunea la baza de date a fost închisă.');
+      console.log('Database connection closed.');
       process.exit(0);
     }).catch(err => {
-      console.error('Eroare la închiderea conexiunii la baza de date:', err);
+      console.error('Error closing database connection:', err);
       process.exit(1);
     });
   });
   
   // Setăm un timeout pentru a forța închiderea dacă durează prea mult
   setTimeout(() => {
-    console.error('Serverul nu s-a închis în timp util. Se forțează închiderea.');
+    console.error('Server did not close in time. Forcing shutdown.');
     process.exit(1);
   }, 10000);
 };
@@ -147,23 +149,23 @@ process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 // Gestionare erori neașteptate
 process.on('uncaughtException', (err) => {
-  console.error('Eroare neașteptată:', err);
+  console.error('Unexpected error:', err);
   gracefulShutdown('uncaughtException');
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('Promisiune nerezolvată:', reason);
+  console.error('Unhandled promise rejection:', reason);
   // Nu închidem serverul aici, doar logăm eroarea
 });
 
 // Gestionare erori de memorie
 process.on('exit', (code) => {
-  console.log(`Procesul se închide cu codul: ${code}`);
+  console.log(`Process is exiting with code: ${code}`);
 });
 
 // Gestionare erori de memorie
 if (process.memoryUsage().heapUsed > 1024 * 1024 * 1024) { // 1GB
-  console.warn('Utilizare mare de memorie detectată. Se recomandă restartul serverului.');
+  console.warn('High memory usage detected. It is recommended to restart the server.');
 }
 
 module.exports = app; 

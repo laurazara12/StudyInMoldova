@@ -1,4 +1,4 @@
-.universities-page {
+/* .universities-page {
   width: 100%;
   min-height: 100vh;
   display: flex;
@@ -38,7 +38,7 @@
   color: #dc3545;
 }
 
-/* Responsive adjustments */
+/* Responsive adjustments 
 @media (max-width: 768px) {
   .universities-content {
     padding: 1rem;
@@ -215,4 +215,4 @@
  
 .universities-text47 {
   display: inline-block;
-}
+} */

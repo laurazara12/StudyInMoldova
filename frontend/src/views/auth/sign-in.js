@@ -8,16 +8,16 @@ const SignInPage = () => {
   return (
     <div className="sign-in-container">
       <Helmet>
-        <title>Autentificare - Study In Moldova</title>
-        <meta property="og:title" content="Autentificare - Study In Moldova" />
+        <title>Login - Study In Moldova</title>
+        <meta property="og:title" content="Login - Study In Moldova" />
       </Helmet>
       <Navbar rootClassName="navbar-root-class-name" />
       <SignIn
         action1={
-          <span className="sign-in-text25">Autentificare</span>
+          <span className="sign-in-text25">Login</span>
         }
         heading11={
-          <span className="sign-in-text26">Autentificare în Study in Moldova</span>
+          <span className="sign-in-text26">Login in Study in Moldova</span>
         }
         rootClassName="sign-inroot-class-name"
       />

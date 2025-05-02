@@ -9,17 +9,31 @@ const Notifications = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const containerRef = useRef(null);
 
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('token');
+    return {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
+  };
+
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await fetch('/api/notifications');
+        const response = await fetch('/api/notifications', {
+          headers: getAuthHeaders()
+        });
+        
         if (!response.ok) {
           throw new Error('Nu s-au putut încărca notificările');
         }
+        
         const data = await response.json();
         setNotifications(data);
       } catch (err) {
-        setError(err.message);
+        console.error('Eroare la încărcarea notificărilor:', err);
+        setError('Nu s-au putut încărca notificările. Vă rugăm să încercați din nou mai târziu.');
       } finally {
         setLoading(false);
       }
@@ -45,6 +59,7 @@ const Notifications = () => {
     try {
       const response = await fetch(`/api/notifications/${notificationId}/mark-read`, {
         method: 'POST',
+        headers: getAuthHeaders()
       });
       
       if (!response.ok) {
@@ -54,7 +69,7 @@ const Notifications = () => {
       setNotifications(prevNotifications =>
         prevNotifications.map(notification =>
           notification.id === notificationId
-            ? { ...notification, read: true }
+            ? { ...notification, is_read: true }
             : notification
         )
       );
@@ -67,6 +82,7 @@ const Notifications = () => {
     try {
       const response = await fetch('/api/notifications/mark-all-read', {
         method: 'POST',
+        headers: getAuthHeaders()
       });
       
       if (!response.ok) {
@@ -74,14 +90,14 @@ const Notifications = () => {
       }
 
       setNotifications(prevNotifications =>
-        prevNotifications.map(notification => ({ ...notification, read: true }))
+        prevNotifications.map(notification => ({ ...notification, is_read: true }))
       );
     } catch (err) {
       console.error('Eroare la marcarea tuturor notificărilor:', err);
     }
   };
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter(n => !n.is_read).length;
 
   return (
     <div 
@@ -120,7 +136,7 @@ const Notifications = () => {
               {notifications.map(notification => (
                 <div
                   key={notification.id}
-                  className={`notification-item ${!notification.read ? 'unread' : ''}`}
+                  className={`notification-item ${!notification.is_read ? 'unread' : ''}`}
                   onClick={() => handleNotificationClick(notification.id)}
                 >
                   <div className="notification-content">
@@ -134,7 +150,7 @@ const Notifications = () => {
                       })}
                     </span>
                   </div>
-                  {!notification.read && <div className="unread-indicator" />}
+                  {!notification.is_read && <div className="unread-indicator" />}
                 </div>
               ))}
             </>

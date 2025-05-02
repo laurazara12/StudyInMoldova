@@ -98,7 +98,7 @@ const Dashboard = () => {
       setUsers(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       const apiError = handleApiError(error);
-      console.error('Eroare la încărcarea utilizatorilor:', apiError);
+      console.error('Error loading users:', apiError);
       setUsers([]);
       setError(apiError.message);
     } finally {
@@ -115,7 +115,7 @@ const Dashboard = () => {
       setDocuments(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       const apiError = handleApiError(error);
-      console.error('Eroare la încărcarea documentelor:', apiError);
+      console.error('Error loading documents:', apiError);
       setDocuments([]);
       setError(apiError.message);
     } finally {
@@ -132,7 +132,7 @@ const Dashboard = () => {
       setUniversities(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       const apiError = handleApiError(error);
-      console.error('Eroare la încărcarea universităților:', apiError);
+      console.error('Error loading universities:', apiError);
       setError(apiError.message);
     } finally {
       setLoading(prev => ({ ...prev, universities: false }));
@@ -147,7 +147,7 @@ const Dashboard = () => {
       setPrograms(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       const apiError = handleApiError(error);
-      console.error('Eroare la încărcarea programelor:', apiError);
+      console.error('Error loading programs:', apiError);
       setPrograms([]);
     }
   };
@@ -164,8 +164,8 @@ const Dashboard = () => {
         fetchPrograms()
       ]);
     } catch (err) {
-      console.error('Eroare la inițializarea dashboard-ului:', err);
-      setError('A apărut o eroare la încărcarea datelor. Vă rugăm să încercați din nou.');
+      console.error('Error initializing dashboard:', err);
+      setError('An error occurred while loading data. Please try again.');
     }
   };
 
@@ -201,7 +201,7 @@ const Dashboard = () => {
       }
     } catch (err) {
       const error = handleApiError(err);
-      console.error('Eroare la ștergerea utilizatorului:', error);
+      console.error('Error deleting user:', error);
       setError(error.message);
     }
   };
@@ -216,7 +216,7 @@ const Dashboard = () => {
 
   const handleDownloadDocument = async (documentType, userId) => {
     try {
-      // Găsim documentul specific pentru acest utilizator și tip
+      // Find the specific document for this user and type
       const doc = documents.find(doc => doc.document_type === documentType && doc.user_id === userId);
       if (!doc) {
         console.error('Document not found for type:', documentType, 'and user:', userId);
@@ -417,14 +417,14 @@ const Dashboard = () => {
           address: ''
         }
       });
-      // Reîncărcăm lista de universități
+      // Reload the list of universities
       const response = await axios.get('http://localhost:4000/api/universities');
       setUniversities(response.data);
       setSuccessMessage('Universitatea a fost adăugată cu succes!');
       setTimeout(() => setSuccessMessage(''), 2000);
     } catch (error) {
-      console.error('Eroare la adăugarea universității:', error);
-      setError('Eroare la adăugarea universității');
+      console.error('Error adding university:', error);
+      setError('Error adding university');
     }
   };
 
@@ -458,14 +458,14 @@ const Dashboard = () => {
       await axios.put(`http://localhost:4000/api/universities/${editingUniversity.id}`, editingUniversity);
       setShowEditUniversityForm(false);
       setEditingUniversity(null);
-      // Reîncărcăm lista de universități
+      // Reload the list of universities
       const response = await axios.get('http://localhost:4000/api/universities');
       setUniversities(response.data);
       setSuccessMessage('Universitatea a fost modificată cu succes!');
       setTimeout(() => setSuccessMessage(''), 2000);
     } catch (error) {
-      console.error('Eroare la actualizarea universității:', error);
-      setError('Eroare la actualizarea universității');
+      console.error('Error updating university:', error);
+      setError('Error updating university');
     }
   };
 
@@ -473,19 +473,19 @@ const Dashboard = () => {
     if (window.confirm('Sigur doriți să ștergeți această universitate?')) {
       try {
         await axios.delete(`http://localhost:4000/api/universities/${universityId}`);
-        // Reîncărcăm lista de universități
+        // Reload the list of universities
         const response = await axios.get('http://localhost:4000/api/universities');
         setUniversities(response.data);
       } catch (error) {
-        console.error('Eroare la ștergerea universității:', error);
-        setError('Eroare la ștergerea universității');
+        console.error('Error deleting university:', error);
+        setError('Error deleting university');
       }
     }
   };
 
   const handleOpenAddProgramForm = async () => {
     try {
-      // Încărcăm lista de universități dacă nu suntem în tab-ul universities
+      // Load the list of universities if we're not in the universities tab
       if (activeTab !== 'universities') {
         const response = await axios.get(`${API_BASE_URL}/universities`, {
           headers: getAuthHeaders()
@@ -494,14 +494,14 @@ const Dashboard = () => {
       }
       setShowAddProgramForm(true);
     } catch (error) {
-      console.error('Eroare la încărcarea universităților:', error);
-      setError('Eroare la încărcarea listei de universități');
+      console.error('Error loading universities:', error);
+      setError('Error loading university list');
     }
   };
 
   const handleEditProgram = async (program) => {
     try {
-      // Încărcăm lista de universități dacă nu suntem în tab-ul universities
+      // Load the list of universities if we're not in the universities tab
       if (activeTab !== 'universities') {
         const response = await axios.get(`${API_BASE_URL}/universities`, {
           headers: getAuthHeaders()
@@ -511,8 +511,8 @@ const Dashboard = () => {
       setEditingProgram(program);
       setShowEditProgramForm(true);
     } catch (error) {
-      console.error('Eroare la încărcarea universităților:', error);
-      setError('Eroare la încărcarea listei de universități');
+      console.error('Error loading universities:', error);
+      setError('Error loading university list');
     }
   };
 
@@ -534,7 +534,7 @@ const Dashboard = () => {
         tuitionFee: '',
         universityId: ''
       });
-      // Reîncărcăm lista de programe
+      // Reload the list of programs
       const response = await axios.get(`${API_BASE_URL}/programs`, {
         headers: getAuthHeaders()
       });
@@ -542,8 +542,8 @@ const Dashboard = () => {
       setSuccessMessage('Programul a fost adăugat cu succes!');
       setTimeout(() => setSuccessMessage(''), 2000);
     } catch (error) {
-      console.error('Eroare la adăugarea programului:', error);
-      setError('Eroare la adăugarea programului');
+      console.error('Error adding program:', error);
+      setError('Error adding program');
     }
   };
 
@@ -578,13 +578,13 @@ const Dashboard = () => {
       setSuccessMessage('Programul a fost modificat cu succes!');
       setTimeout(() => setSuccessMessage(''), 2000);
     } catch (error) {
-      console.error('Eroare la actualizarea programului:', error);
-      setError('Eroare la actualizarea programului');
+      console.error('Error updating program:', error);
+      setError('Error updating program');
     }
   };
 
   const handleDeleteProgram = async (programId) => {
-    if (window.confirm('Sigur doriți să ștergeți acest program?')) {
+    if (window.confirm('Are you sure you want to delete this program?')) {
       try {
         await axios.delete(`${API_BASE_URL}/programs/${programId}`, {
           headers: getAuthHeaders()
@@ -597,8 +597,8 @@ const Dashboard = () => {
         setSuccessMessage('Programul a fost șters cu succes!');
         setTimeout(() => setSuccessMessage(''), 2000);
       } catch (error) {
-        console.error('Eroare la ștergerea programului:', error);
-        setError('Eroare la ștergerea programului');
+        console.error('Error deleting program:', error);
+        setError('Error deleting program');
       }
     }
   };
@@ -801,8 +801,8 @@ const Dashboard = () => {
                   type="text"
                   className="search-input"
                   placeholder={activeTab === 'users' 
-                    ? "Caută după nume, email sau ID..." 
-                    : activeTab === 'documents' ? "Caută după nume utilizator sau tip document..." : "Caută după nume universități..."}
+                    ? "Search by name, email or ID..." 
+                    : activeTab === 'documents' ? "Search by user name or document type..." : "Search by university name..."}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -1108,7 +1108,7 @@ const Dashboard = () => {
           {loading.users || loading.documents || loading.universities ? (
             <div className="loading-container">
               <div className="loading-spinner"></div>
-              <p>Se încarcă datele...</p>
+              <p>Loading data...</p>
             </div>
           ) : (
             <>
@@ -1155,13 +1155,13 @@ const Dashboard = () => {
                                   className="edit-button"
                                   onClick={() => handleEditUniversity(university)}
                                 >
-                                  Editează
+                                  Edit
                                 </button>
                                 <button 
                                   className="delete-button"
                                   onClick={() => handleDeleteUniversity(university.id)}
                                 >
-                                  Șterge
+                                  Delete
                                 </button>
                               </div>
                             </td>
@@ -1599,13 +1599,13 @@ const Dashboard = () => {
                                   className="edit-button"
                                   onClick={() => handleEditProgram(program)}
                                 >
-                                  Editează
+                                  Edit
                                 </button>
                                 <button 
                                   className="delete-button"
                                   onClick={() => handleDeleteProgram(program.id)}
                                 >
-                                  Șterge
+                                  Delete
                                 </button>
                               </div>
                             </td>
