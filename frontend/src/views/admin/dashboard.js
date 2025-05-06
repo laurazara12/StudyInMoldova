@@ -175,15 +175,25 @@ const Dashboard = () => {
 
   const getDocumentStatus = (userId) => {
     const userDocuments = documents.filter(doc => doc.user_id === userId);
-    console.log('Documents for user', userId, ':', userDocuments);
     
     const requiredDocuments = ['diploma', 'transcript', 'passport', 'photo'];
     const status = {};
 
     requiredDocuments.forEach(docType => {
-      const hasDocument = userDocuments.some(doc => doc.document_type === docType);
-      console.log('Checking document', docType, ':', hasDocument);
-      status[docType] = hasDocument ? 'Uploaded' : 'Missing';
+      const document = userDocuments.find(doc => doc.document_type === docType);
+      if (document) {
+        status[docType] = {
+          status: document.status,
+          uploaded: document.uploaded,
+          uploadDate: document.uploadDate
+        };
+      } else {
+        status[docType] = {
+          status: 'missing',
+          uploaded: false,
+          uploadDate: null
+        };
+      }
     });
 
     return status;
@@ -487,7 +497,7 @@ const Dashboard = () => {
     try {
       // Load the list of universities if we're not in the universities tab
       if (activeTab !== 'universities') {
-        const response = await axios.get(`${API_BASE_URL}/universities`, {
+        const response = await axios.get(`${API_BASE_URL}/api/universities`, {
           headers: getAuthHeaders()
         });
         setUniversities(response.data);
@@ -519,7 +529,7 @@ const Dashboard = () => {
   const handleAddProgram = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${API_BASE_URL}/programs`, newProgram, {
+      await axios.post(`${API_BASE_URL}/api/programs`, newProgram, {
         headers: getAuthHeaders()
       });
       setShowAddProgramForm(false);
@@ -535,7 +545,7 @@ const Dashboard = () => {
         universityId: ''
       });
       // Reload the list of programs
-      const response = await axios.get(`${API_BASE_URL}/programs`, {
+      const response = await axios.get(`${API_BASE_URL}/api/programs`, {
         headers: getAuthHeaders()
       });
       setPrograms(response.data);
@@ -758,38 +768,156 @@ const Dashboard = () => {
           .delete-button:hover {
             background-color: #da190b;
           }
+
+          .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+          }
+
+          .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            padding: 2rem;
+          }
+
+          .program-modal {
+            max-height: 80vh;
+            overflow-y: auto;
+          }
+
+          .program-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+          }
+
+          .form-row {
+            display: flex;
+            gap: 1rem;
+            width: 100%;
+          }
+
+          .form-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+          }
+
+          .form-group label {
+            font-weight: 500;
+            color: #333;
+          }
+
+          .form-input, .form-select {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            width: 100%;
+          }
+
+          .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+          }
+
+          .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+          }
+
+          .cancel-button, .confirm-button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+          }
+
+          .cancel-button {
+            background-color: #f0f0f0;
+            color: #555;
+          }
+
+          .cancel-button:hover {
+            background-color: #e0e0e0;
+          }
+
+          .confirm-button {
+            background-color: #4a90e2;
+            color: white;
+          }
+
+          .confirm-button:hover {
+            background-color: #357abd;
+          }
+
+          @media (max-width: 768px) {
+            .form-row {
+              flex-direction: column;
+              gap: 1rem;
+            }
+
+            .modal-content {
+              width: 95%;
+              padding: 1.5rem;
+            }
+          }
         `}
       </style>
       <Navbar />
       <div className="dashboard-container">
         <div className="dashboard-content">
           <div className="dashboard-header">
-            <h1>Admin Dashboard</h1>
-            <div className="tab-buttons">
-              <button 
-                className={`tab-button ${activeTab === 'documents' ? 'active' : ''}`}
-                onClick={() => setActiveTab('documents')}
-              >
-                Documents
-              </button>
-              <button 
-                className={`tab-button ${activeTab === 'users' ? 'active' : ''}`}
-                onClick={() => setActiveTab('users')}
-              >
-                Users
-              </button>
-              <button 
-                className={`tab-button ${activeTab === 'universities' ? 'active' : ''}`}
-                onClick={() => setActiveTab('universities')}
-              >
-                Universities
-              </button>
-              <button 
-                className={`tab-button ${activeTab === 'programs' ? 'active' : ''}`}
-                onClick={() => setActiveTab('programs')}
-              >
-                Programs
-              </button>
+            <div className="header-content">
+              <h1>Admin Dashboard</h1>
+              <nav className="dashboard-nav">
+                <button 
+                  className={`tab-button ${activeTab === 'documents' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('documents')}
+                >
+                  Documents
+                </button>
+                <button 
+                  className={`tab-button ${activeTab === 'users' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('users')}
+                >
+                  Users
+                </button>
+                <button 
+                  className={`tab-button ${activeTab === 'universities' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('universities')}
+                >
+                  Universities
+                </button>
+                <button 
+                  className={`tab-button ${activeTab === 'programs' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('programs')}
+                >
+                  Programs
+                </button>
+              </nav>
             </div>
           </div>
 
@@ -1617,108 +1745,146 @@ const Dashboard = () => {
 
                   {showAddProgramForm && (
                     <div className="modal-overlay">
-                      <div className="modal-content">
-                        <h2>Add New Program</h2>
-                        <form onSubmit={handleAddProgram}>
-                          <div className="form-group">
-                            <label>Name:</label>
-                            <input
-                              type="text"
-                              name="name"
-                              value={newProgram.name}
-                              onChange={handleProgramInputChange}
-                              required
-                            />
+                      <div className="modal-content program-modal">
+                        <h2>Adaugă Program Nou</h2>
+                        <form onSubmit={handleAddProgram} className="program-form">
+                          <div className="form-row">
+                            <div className="form-group">
+                              <label>Nume Program:</label>
+                              <input
+                                type="text"
+                                name="name"
+                                value={newProgram.name}
+                                onChange={handleProgramInputChange}
+                                placeholder="Introduceți numele programului"
+                                required
+                                className="form-input"
+                              />
+                            </div>
+
+                            <div className="form-group">
+                              <label>Facultate:</label>
+                              <input
+                                type="text"
+                                name="faculty"
+                                value={newProgram.faculty}
+                                onChange={handleProgramInputChange}
+                                placeholder="Introduceți numele facultății"
+                                required
+                                className="form-input"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="form-row">
+                            <div className="form-group">
+                              <label>Grad:</label>
+                              <select
+                                name="degree"
+                                value={newProgram.degree}
+                                onChange={handleProgramInputChange}
+                                required
+                                className="form-select"
+                              >
+                                <option value="">Selectează gradul</option>
+                                <option value="Bachelor">Licență</option>
+                                <option value="Master">Master</option>
+                                <option value="PhD">Doctorat</option>
+                              </select>
+                            </div>
+
+                            <div className="form-group">
+                              <label>Credite:</label>
+                              <input
+                                type="number"
+                                name="credits"
+                                min="0"
+                                max="300"
+                                value={newProgram.credits}
+                                onChange={handleProgramInputChange}
+                                placeholder="Număr de credite"
+                                required
+                                className="form-input"
+                              />
+                            </div>
                           </div>
 
                           <div className="form-group">
-                            <label>Faculty:</label>
-                            <input
-                              type="text"
-                              name="faculty"
-                              value={newProgram.faculty}
-                              onChange={handleProgramInputChange}
-                              required
-                            />
+                            <label>Limbi de Predare:</label>
+                            <div className="language-checkboxes">
+                              {['Romanian', 'English', 'Russian'].map(lang => (
+                                <label key={lang} className="checkbox-label">
+                                  <input
+                                    type="checkbox"
+                                    checked={newProgram.languages.includes(lang)}
+                                    onChange={(e) => {
+                                      const updatedLanguages = e.target.checked
+                                        ? [...newProgram.languages, lang]
+                                        : newProgram.languages.filter(l => l !== lang);
+                                      setNewProgram(prev => ({
+                                        ...prev,
+                                        languages: updatedLanguages
+                                      }));
+                                    }}
+                                  />
+                                  {lang}
+                                </label>
+                              ))}
+                            </div>
                           </div>
 
                           <div className="form-group">
-                            <label>Degree:</label>
-                            <select
-                              name="degree"
-                              value={newProgram.degree}
-                              onChange={handleProgramInputChange}
-                              required
-                            >
-                              <option value="Bachelor">Bachelor</option>
-                              <option value="Master">Master</option>
-                              <option value="PhD">PhD</option>
-                            </select>
-                          </div>
-
-                          <div className="form-group">
-                            <label>Credits:</label>
-                            <input
-                              type="number"
-                              name="credits"
-                              value={newProgram.credits}
-                              onChange={handleProgramInputChange}
-                              required
-                            />
-                          </div>
-
-                          <div className="form-group">
-                            <label>Languages (comma-separated):</label>
-                            <input
-                              type="text"
-                              name="languages"
-                              value={Array.isArray(newProgram.languages) ? newProgram.languages.join(', ') : newProgram.languages}
-                              onChange={handleProgramInputChange}
-                              required
-                            />
-                          </div>
-
-                          <div className="form-group">
-                            <label>Description:</label>
+                            <label>Descriere:</label>
                             <textarea
                               name="description"
                               value={newProgram.description}
                               onChange={handleProgramInputChange}
+                              placeholder="Descrieți programul de studiu"
                               required
+                              className="form-textarea"
+                              rows="4"
                             />
                           </div>
 
-                          <div className="form-group">
-                            <label>Duration:</label>
-                            <input
-                              type="text"
-                              name="duration"
-                              value={newProgram.duration}
-                              onChange={handleProgramInputChange}
-                              required
-                            />
+                          <div className="form-row">
+                            <div className="form-group">
+                              <label>Durată:</label>
+                              <input
+                                type="text"
+                                name="duration"
+                                value={newProgram.duration}
+                                onChange={handleProgramInputChange}
+                                placeholder="Ex: 3 ani / 6 semestre"
+                                required
+                                className="form-input"
+                              />
+                            </div>
+
+                            <div className="form-group">
+                              <label>Taxă de Școlarizare (EUR):</label>
+                              <input
+                                type="number"
+                                name="tuitionFee"
+                                min="0"
+                                value={newProgram.tuitionFee}
+                                onChange={handleProgramInputChange}
+                                placeholder="Introduceți taxa"
+                                required
+                                className="form-input"
+                              />
+                            </div>
                           </div>
 
                           <div className="form-group">
-                            <label>Tuition Fee:</label>
-                            <input
-                              type="number"
-                              name="tuitionFee"
-                              value={newProgram.tuitionFee}
-                              onChange={handleProgramInputChange}
-                              required
-                            />
-                          </div>
-
-                          <div className="form-group">
-                            <label>University:</label>
+                            <label>Universitate:</label>
                             <select
                               name="universityId"
                               value={newProgram.universityId}
                               onChange={handleProgramInputChange}
                               required
+                              className="form-select"
                             >
-                              <option value="">Select University</option>
+                              <option value="">Selectează universitatea</option>
                               {Array.isArray(universities) ? universities.map(university => (
                                 <option key={university.id} value={university.id}>
                                   {university.name}
@@ -1731,12 +1897,25 @@ const Dashboard = () => {
                             <button 
                               type="button" 
                               className="cancel-button"
-                              onClick={() => setShowAddProgramForm(false)}
+                              onClick={() => {
+                                setShowAddProgramForm(false);
+                                setNewProgram({
+                                  name: '',
+                                  faculty: '',
+                                  degree: 'Bachelor',
+                                  credits: '',
+                                  languages: [],
+                                  description: '',
+                                  duration: '',
+                                  tuitionFee: '',
+                                  universityId: ''
+                                });
+                              }}
                             >
-                              Cancel
+                              Anulează
                             </button>
                             <button type="submit" className="confirm-button">
-                              Add Program
+                              Adaugă Program
                             </button>
                           </div>
                         </form>
@@ -1931,48 +2110,66 @@ const Dashboard = () => {
                             <td>{user.email}</td>
                             <td>{user.role === 'admin' ? 'Administrator' : 'Utilizator'}</td>
                             <td>
-                              <span className={docStatus.diploma === 'Uploaded' ? 'status-success' : 'status-missing'}>
-                                {docStatus.diploma}
+                              <span className={`status-${docStatus.diploma.status}`}>
+                                {docStatus.diploma.uploaded ? 'Încărcat' : 'Lipsește'}
+                                {docStatus.diploma.uploadDate && (
+                                  <span className="upload-date">
+                                    ({new Date(docStatus.diploma.uploadDate).toLocaleDateString()})
+                                  </span>
+                                )}
                               </span>
                             </td>
                             <td>
-                              <span className={docStatus.transcript === 'Uploaded' ? 'status-success' : 'status-missing'}>
-                                {docStatus.transcript}
+                              <span className={`status-${docStatus.transcript.status}`}>
+                                {docStatus.transcript.uploaded ? 'Încărcat' : 'Lipsește'}
+                                {docStatus.transcript.uploadDate && (
+                                  <span className="upload-date">
+                                    ({new Date(docStatus.transcript.uploadDate).toLocaleDateString()})
+                                  </span>
+                                )}
                               </span>
                             </td>
                             <td>
-                              <span className={docStatus.passport === 'Uploaded' ? 'status-success' : 'status-missing'}>
-                                {docStatus.passport}
+                              <span className={`status-${docStatus.passport.status}`}>
+                                {docStatus.passport.uploaded ? 'Încărcat' : 'Lipsește'}
+                                {docStatus.passport.uploadDate && (
+                                  <span className="upload-date">
+                                    ({new Date(docStatus.passport.uploadDate).toLocaleDateString()})
+                                  </span>
+                                )}
                               </span>
                             </td>
                             <td>
-                              <span className={docStatus.photo === 'Uploaded' ? 'status-success' : 'status-missing'}>
-                                {docStatus.photo}
+                              <span className={`status-${docStatus.photo.status}`}>
+                                {docStatus.photo.uploaded ? 'Încărcat' : 'Lipsește'}
+                                {docStatus.photo.uploadDate && (
+                                  <span className="upload-date">
+                                    ({new Date(docStatus.photo.uploadDate).toLocaleDateString()})
+                                  </span>
+                                )}
                               </span>
                             </td>
                             <td>
-                              {user.role !== 'admin' && (
-                                <div className="action-buttons">
-                                  <button 
-                                    className="action-button view-button"
-                                    onClick={() => handleViewUser(user)}
-                                  >
-                                    <i className="fas fa-eye"></i> View User
-                                  </button>
-                                  <button 
-                                    className="action-button view-docs-button"
-                                    onClick={() => handleViewDocuments(user)}
-                                  >
-                                    <i className="fas fa-file"></i> View Docs
-                                  </button>
-                                  <button 
-                                    className="action-button delete-button"
-                                    onClick={() => confirmDelete(user.id)}
-                                  >
-                                    <i className="fas fa-trash"></i> Delete
-                                  </button>
-                                </div>
-                              )}
+                              <div className="action-buttons">
+                                <button 
+                                  className="action-button view-button"
+                                  onClick={() => handleViewUser(user)}
+                                >
+                                  <i className="fas fa-eye"></i> View User
+                                </button>
+                                <button 
+                                  className="action-button view-docs-button"
+                                  onClick={() => handleViewDocuments(user)}
+                                >
+                                  <i className="fas fa-file"></i> View Docs
+                                </button>
+                                <button 
+                                  className="action-button delete-button"
+                                  onClick={() => confirmDelete(user.id)}
+                                >
+                                  <i className="fas fa-trash"></i> Delete
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         );
@@ -2088,26 +2285,46 @@ const Dashboard = () => {
                         <div className="document-status-grid">
                           <div className="document-status-item">
                             <span className="status-label">Diplomă:</span>
-                            <span className={`status-value ${getDocumentStatus(selectedUser.id).diploma === 'Uploaded' ? 'status-success' : 'status-missing'}`}>
-                              {getDocumentStatus(selectedUser.id).diploma}
+                            <span className={`status-value ${docStatus.diploma.status}`}>
+                              {docStatus.diploma.uploaded ? 'Încărcat' : 'Lipsește'}
+                              {docStatus.diploma.uploadDate && (
+                                <span className="upload-date">
+                                  ({new Date(docStatus.diploma.uploadDate).toLocaleDateString()})
+                                </span>
+                              )}
                             </span>
                           </div>
                           <div className="document-status-item">
                             <span className="status-label">Transcript:</span>
-                            <span className={`status-value ${getDocumentStatus(selectedUser.id).transcript === 'Uploaded' ? 'status-success' : 'status-missing'}`}>
-                              {getDocumentStatus(selectedUser.id).transcript}
+                            <span className={`status-value ${docStatus.transcript.status}`}>
+                              {docStatus.transcript.uploaded ? 'Încărcat' : 'Lipsește'}
+                              {docStatus.transcript.uploadDate && (
+                                <span className="upload-date">
+                                  ({new Date(docStatus.transcript.uploadDate).toLocaleDateString()})
+                                </span>
+                              )}
                             </span>
                           </div>
                           <div className="document-status-item">
                             <span className="status-label">Pașaport:</span>
-                            <span className={`status-value ${getDocumentStatus(selectedUser.id).passport === 'Uploaded' ? 'status-success' : 'status-missing'}`}>
-                              {getDocumentStatus(selectedUser.id).passport}
+                            <span className={`status-value ${docStatus.passport.status}`}>
+                              {docStatus.passport.uploaded ? 'Încărcat' : 'Lipsește'}
+                              {docStatus.passport.uploadDate && (
+                                <span className="upload-date">
+                                  ({new Date(docStatus.passport.uploadDate).toLocaleDateString()})
+                                </span>
+                              )}
                             </span>
                           </div>
                           <div className="document-status-item">
                             <span className="status-label">Fotografie:</span>
-                            <span className={`status-value ${getDocumentStatus(selectedUser.id).photo === 'Uploaded' ? 'status-success' : 'status-missing'}`}>
-                              {getDocumentStatus(selectedUser.id).photo}
+                            <span className={`status-value ${docStatus.photo.status}`}>
+                              {docStatus.photo.uploaded ? 'Încărcat' : 'Lipsește'}
+                              {docStatus.photo.uploadDate && (
+                                <span className="upload-date">
+                                  ({new Date(docStatus.photo.uploadDate).toLocaleDateString()})
+                                </span>
+                              )}
                             </span>
                           </div>
                         </div>
