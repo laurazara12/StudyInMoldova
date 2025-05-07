@@ -11,12 +11,14 @@ const Dashboard = () => {
   const [users, setUsers] = useState([]);
   const [documents, setDocuments] = useState([]);
   const [universities, setUniversities] = useState([]);
+  const [programs, setPrograms] = useState([]);
   const [loading, setLoading] = useState({
     users: true,
     documents: true,
     universities: true
   });
   const [error, setError] = useState(null);
+  const [docStatus, setDocStatus] = useState({});
   const [activeTab, setActiveTab] = useState('users');
   const [deleteConfirmation, setDeleteConfirmation] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -41,7 +43,6 @@ const Dashboard = () => {
   const [showAddProgramForm, setShowAddProgramForm] = useState(false);
   const [showEditProgramForm, setShowEditProgramForm] = useState(false);
   const [editingProgram, setEditingProgram] = useState(null);
-  const [programs, setPrograms] = useState([]);
   const [newUniversity, setNewUniversity] = useState({
     name: '',
     type: 'Public',
@@ -89,114 +90,185 @@ const Dashboard = () => {
     return true;
   };
 
-  const fetchUsers = async () => {
-    try {
-      setLoading(prev => ({ ...prev, users: true }));
-      const response = await axios.get(`${API_BASE_URL}/api/auth/users`, {
-        headers: getAuthHeaders()
-      });
-      setUsers(Array.isArray(response.data) ? response.data : []);
-    } catch (error) {
-      const apiError = handleApiError(error);
-      console.error('Error loading users:', apiError);
-      setUsers([]);
-      setError(apiError.message);
-    } finally {
-      setLoading(prev => ({ ...prev, users: false }));
-    }
-  };
-
-  const fetchDocuments = async () => {
-    try {
-      setLoading(prev => ({ ...prev, documents: true }));
-      const response = await axios.get(`${API_BASE_URL}/api/documents`, {
-        headers: getAuthHeaders()
-      });
-      setDocuments(Array.isArray(response.data) ? response.data : []);
-    } catch (error) {
-      const apiError = handleApiError(error);
-      console.error('Error loading documents:', apiError);
-      setDocuments([]);
-      setError(apiError.message);
-    } finally {
-      setLoading(prev => ({ ...prev, documents: false }));
-    }
-  };
-
-  const fetchUniversities = async () => {
-    try {
-      setLoading(prev => ({ ...prev, universities: true }));
-      const response = await axios.get(`${API_BASE_URL}/api/universities`, {
-        headers: getAuthHeaders()
-      });
-      setUniversities(Array.isArray(response.data) ? response.data : []);
-    } catch (error) {
-      const apiError = handleApiError(error);
-      console.error('Error loading universities:', apiError);
-      setError(apiError.message);
-    } finally {
-      setLoading(prev => ({ ...prev, universities: false }));
-    }
-  };
-
-  const fetchPrograms = async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/api/programs`, {
-        headers: getAuthHeaders()
-      });
-      setPrograms(Array.isArray(response.data) ? response.data : []);
-    } catch (error) {
-      const apiError = handleApiError(error);
-      console.error('Error loading programs:', apiError);
-      setPrograms([]);
-    }
-  };
-
   const initializeDashboard = async () => {
     if (!checkAdminAccess()) return;
 
     try {
       setError(null);
-      await Promise.all([
-        fetchUsers(),
-        fetchDocuments(),
-        fetchUniversities(),
-        fetchPrograms()
+      setLoading(prev => ({ ...prev, users: true, documents: true, universities: true }));
+
+      // Încărcăm toate datele în paralel
+      const [usersResponse, documentsResponse, universitiesResponse, programsResponse] = await Promise.all([
+        axios.get(`${API_BASE_URL}/api/auth/users`, { headers: getAuthHeaders() }),
+        axios.get(`${API_BASE_URL}/api/documents`, { headers: getAuthHeaders() }),
+        axios.get(`${API_BASE_URL}/api/universities`, { headers: getAuthHeaders() }),
+        axios.get(`${API_BASE_URL}/api/programs`, { headers: getAuthHeaders() })
       ]);
+
+      console.log('Răspuns API documente:', documentsResponse.data);
+      console.log('Răspuns API utilizatori:', usersResponse.data);
+
+      // Procesăm utilizatorii
+      if (Array.isArray(usersResponse.data)) {
+        setUsers(usersResponse.data);
+      }
+
+      // Procesăm documentele
+      if (documentsResponse.data) {
+        // Inițializăm statusul pentru toți utilizatorii
+        const statusByUser = {};
+        usersResponse.data.forEach(user => {
+          if (user && user.id) {
+            statusByUser[user.id] = {
+              passport: { exists: false, status: 'missing', uploadDate: null },
+              diploma: { exists: false, status: 'missing', uploadDate: null },
+              transcript: { exists: false, status: 'missing', uploadDate: null },
+              cv: { exists: false, status: 'missing', uploadDate: null },
+              other: { exists: false, status: 'missing', uploadDate: null },
+              photo: { exists: false, status: 'missing', uploadDate: null },
+              medical: { exists: false, status: 'missing', uploadDate: null },
+              insurance: { exists: false, status: 'missing', uploadDate: null }
+            };
+          }
+        });
+
+        console.log('Status inițial pentru utilizatori:', statusByUser);
+
+        // Procesăm documentele pentru a evita duplicarea
+        const processedDocuments = documentsResponse.data.reduce((acc, doc) => {
+          // Verificăm structura documentului
+          console.log('Document primit:', doc);
+          
+          // Extragem userId și documentType din document
+          const userId = doc.user_id || doc.userId || doc.user?.id;
+          const documentType = (doc.document_type || doc.type || doc.documentType)?.toLowerCase();
+          
+          console.log('Procesare document:', {
+            userId,
+            documentType,
+            originalDoc: doc
+          });
+
+          if (!userId || !documentType) {
+            console.warn('Document invalid:', {
+              document: doc,
+              userId,
+              documentType,
+              reason: !userId ? 'userId lipsă' : 'documentType lipsă'
+            });
+            return acc;
+          }
+
+          // Verificăm dacă documentul există deja
+          const existingDocIndex = acc.findIndex(d => 
+            d.user_id === userId && d.document_type === documentType
+          );
+
+          if (existingDocIndex === -1) {
+            const processedDoc = {
+              ...doc,
+              user_id: userId,
+              document_type: documentType,
+              status: (doc.status || 'pending').toLowerCase(),
+              created_at: doc.created_at || doc.uploadDate || doc.createdAt || new Date().toISOString(),
+              uploadDate: doc.uploadDate || doc.created_at || doc.createdAt || new Date().toISOString()
+            };
+            acc.push(processedDoc);
+
+            // Actualizăm statusul pentru acest document
+            if (statusByUser[userId]) {
+              if (!statusByUser[userId][documentType]) {
+                console.warn(`Tip de document necunoscut pentru utilizatorul ${userId}: ${documentType}`);
+                statusByUser[userId][documentType] = {
+                  exists: true,
+                  status: processedDoc.status,
+                  id: processedDoc.id,
+                  uploadDate: processedDoc.uploadDate
+                };
+              } else {
+                statusByUser[userId][documentType] = {
+                  exists: true,
+                  status: processedDoc.status,
+                  id: processedDoc.id,
+                  uploadDate: processedDoc.uploadDate
+                };
+              }
+              console.log(`Status actualizat pentru utilizatorul ${userId}, documentul ${documentType}:`, statusByUser[userId][documentType]);
+            } else {
+              console.warn(`Nu s-a putut actualiza statusul pentru utilizatorul ${userId}, documentul ${documentType} - utilizatorul nu există`);
+            }
+          }
+          return acc;
+        }, []);
+
+        console.log('Documente procesate:', processedDocuments);
+        console.log('Status final pentru utilizatori:', statusByUser);
+
+        // Verificăm dacă toți utilizatorii au statusul corect
+        Object.entries(statusByUser).forEach(([userId, status]) => {
+          console.log(`Verificare finală pentru utilizatorul ${userId}:`, status);
+        });
+
+        // Actualizăm state-ul
+        setDocuments(processedDocuments);
+        setDocStatus(statusByUser);
+
+        // Verificăm dacă state-ul a fost actualizat
+        setTimeout(() => {
+          console.log('Verificare state după actualizare:', {
+            documents: processedDocuments,
+            docStatus: statusByUser
+          });
+        }, 0);
+      }
+
+      // Procesăm universitățile și programele
+      if (Array.isArray(universitiesResponse.data)) {
+        setUniversities(universitiesResponse.data);
+      }
+      if (Array.isArray(programsResponse.data)) {
+        setPrograms(programsResponse.data);
+      }
+
     } catch (err) {
       console.error('Error initializing dashboard:', err);
-      setError('An error occurred while loading data. Please try again.');
+      setError('A apărut o eroare la încărcarea datelor. Vă rugăm să încercați din nou.');
+    } finally {
+      setLoading(prev => ({ ...prev, users: false, documents: false, universities: false }));
     }
   };
 
   useEffect(() => {
     initializeDashboard();
-  }, [navigate, token, user?.role, activeTab]);
+  }, [navigate, token, user?.role]);
 
   const getDocumentStatus = (userId) => {
-    const userDocuments = documents.filter(doc => doc.user_id === userId);
-    
-    const requiredDocuments = ['diploma', 'transcript', 'passport', 'photo'];
-    const status = {};
+    if (!userId) {
+      console.warn('getDocumentStatus: userId este undefined sau null');
+      return getDefaultDocumentStatus();
+    }
 
-    requiredDocuments.forEach(docType => {
-      const document = userDocuments.find(doc => doc.document_type === docType);
-      if (document) {
-        status[docType] = {
-          status: document.status,
-          uploaded: document.uploaded,
-          uploadDate: document.uploadDate
-        };
-      } else {
-        status[docType] = {
-          status: 'missing',
-          uploaded: false,
-          uploadDate: null
-        };
-      }
-    });
+    const status = docStatus[userId];
+    if (!status) {
+      console.warn(`getDocumentStatus: Nu există status pentru utilizatorul ${userId}`);
+      return getDefaultDocumentStatus();
+    }
 
+    console.log(`Status documente pentru utilizatorul ${userId}:`, JSON.stringify(status, null, 2));
     return status;
+  };
+
+  const getDefaultDocumentStatus = () => {
+    return {
+      passport: { exists: false, status: 'missing', uploadDate: null },
+      diploma: { exists: false, status: 'missing', uploadDate: null },
+      transcript: { exists: false, status: 'missing', uploadDate: null },
+      cv: { exists: false, status: 'missing', uploadDate: null },
+      other: { exists: false, status: 'missing', uploadDate: null },
+      photo: { exists: false, status: 'missing', uploadDate: null },
+      medical: { exists: false, status: 'missing', uploadDate: null },
+      insurance: { exists: false, status: 'missing', uploadDate: null }
+    };
   };
 
   const handleDeleteUser = async (userId) => {
@@ -282,52 +354,87 @@ const Dashboard = () => {
     setDocumentToDelete(null);
   };
 
-  const renderUserDocuments = (userId) => {
-    const userDocuments = documents.filter(doc => doc.user_id === userId);
-    
-    if (userDocuments.length === 0) {
-      return <p>No documents uploaded</p>;
+  const renderUserDocuments = () => {
+    if (!documents || documents.length === 0) {
+      return <p>Nu există documente încărcate.</p>;
+    }
+
+    const filteredDocs = documents.filter(doc => 
+      doc && 
+      doc.user_id && 
+      doc.document_type && 
+      doc.status
+    );
+
+    if (filteredDocs.length === 0) {
+      return <p>Nu există documente valide pentru afișare.</p>;
     }
 
     return (
-      <div className="user-documents">
-        <div className="user-documents-table-container">
-          <table className="dashboard-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Document Type</th>
-                <th>Upload Date</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {userDocuments.map((doc) => (
-                <tr key={doc.id}>
-                  <td>{doc.id}</td>
-                  <td>{doc.document_type}</td>
-                  <td>{new Date(doc.created_at).toLocaleDateString('en-US')}</td>
-                  <td>
-                    <div className="action-buttons">
-                      <button 
-                        onClick={() => handleDownloadDocument(doc.document_type, userId)}
-                        className="download-button"
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white border border-gray-200">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="px-4 py-2 border">Utilizator</th>
+              <th className="px-4 py-2 border">Tip Document</th>
+              <th className="px-4 py-2 border">Data Încărcării</th>
+              <th className="px-4 py-2 border">Status</th>
+              <th className="px-4 py-2 border">Acțiuni</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredDocs.map(doc => {
+              const user = users.find(u => u && u.id === doc.user_id);
+              const userName = user ? `${user.firstName} ${user.lastName}` : `Utilizator ID: ${doc.user_id}`;
+              const docType = doc.document_type?.toLowerCase();
+              const docStatus = doc.status?.toLowerCase();
+              const uploadDate = doc.uploadDate || doc.created_at || 'Necunoscută';
+
+              return (
+                <tr key={`${doc.id}-${docType}`} className="hover:bg-gray-50">
+                  <td className="px-4 py-2 border">{userName}</td>
+                  <td className="px-4 py-2 border">
+                    {docType === 'passport' ? 'Pașaport' :
+                     docType === 'diploma' ? 'Diplomă' :
+                     docType === 'transcript' ? 'Adeverință' :
+                     docType === 'cv' ? 'CV' :
+                     docType === 'photo' ? 'Fotografie' :
+                     docType === 'medical' ? 'Certificat Medical' :
+                     docType === 'insurance' ? 'Asigurare' :
+                     'Altele'}
+                  </td>
+                  <td className="px-4 py-2 border">
+                    {new Date(uploadDate).toLocaleDateString('ro-RO')}
+                  </td>
+                  <td className="px-4 py-2 border">
+                    {docStatus === 'pending' ? 'În așteptare' :
+                     docStatus === 'approved' ? 'Aprobat' :
+                     docStatus === 'rejected' ? 'Respins' :
+                     'Lipsește'}
+                  </td>
+                  <td className="px-4 py-2 border">
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleDownloadDocument(doc.document_type, doc.user_id)}
+                        disabled={!doc.id}
+                        className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
                       >
-                        Download
+                        Descarcă
                       </button>
-                      <button 
-                        onClick={() => handleDeleteDocument(doc.document_type, userId)}
-                        className="delete-button"
+                      <button
+                        onClick={() => handleDeleteDocument(doc.document_type, doc.user_id)}
+                        disabled={!doc.id}
+                        className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50"
                       >
-                        Delete
+                        Șterge
                       </button>
                     </div>
                   </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     );
   };
@@ -352,7 +459,7 @@ const Dashboard = () => {
   const filteredDocuments = documents.filter(doc => {
     const user = users.find(u => u.id === doc.user_id);
     const matchesSearch = 
-      (user?.name.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
+      (user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
       doc.document_type.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesType = filterDocumentType === 'all' || doc.document_type === filterDocumentType;
@@ -614,12 +721,21 @@ const Dashboard = () => {
   };
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ro-RO', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'N/A';
+      return date.toLocaleDateString('ro-RO', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      console.error('Eroare la formatarea datei:', error);
+      return 'N/A';
+    }
   };
 
   const handleViewUser = (user) => {
@@ -883,6 +999,48 @@ const Dashboard = () => {
               width: 95%;
               padding: 1.5rem;
             }
+          }
+
+          .user-name {
+            font-weight: 500;
+            color: #333;
+          }
+
+          .unknown-user {
+            color: #666;
+            font-style: italic;
+          }
+
+          .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+          }
+
+          .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+          }
+
+          .status-approved {
+            background-color: #d4edda;
+            color: #155724;
+          }
+
+          .status-rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+          }
+
+          .status-missing {
+            background-color: #e2e3e5;
+            color: #383d41;
+          }
+
+          .document-type {
+            font-weight: 500;
+            color: #2196F3;
           }
         `}
       </style>
@@ -2111,7 +2269,7 @@ const Dashboard = () => {
                             <td>{user.role === 'admin' ? 'Administrator' : 'Utilizator'}</td>
                             <td>
                               <span className={`status-${docStatus.diploma.status}`}>
-                                {docStatus.diploma.uploaded ? 'Încărcat' : 'Lipsește'}
+                                {docStatus.diploma.exists ? 'Încărcat' : 'Lipsește'}
                                 {docStatus.diploma.uploadDate && (
                                   <span className="upload-date">
                                     ({new Date(docStatus.diploma.uploadDate).toLocaleDateString()})
@@ -2121,7 +2279,7 @@ const Dashboard = () => {
                             </td>
                             <td>
                               <span className={`status-${docStatus.transcript.status}`}>
-                                {docStatus.transcript.uploaded ? 'Încărcat' : 'Lipsește'}
+                                {docStatus.transcript.exists ? 'Încărcat' : 'Lipsește'}
                                 {docStatus.transcript.uploadDate && (
                                   <span className="upload-date">
                                     ({new Date(docStatus.transcript.uploadDate).toLocaleDateString()})
@@ -2131,7 +2289,7 @@ const Dashboard = () => {
                             </td>
                             <td>
                               <span className={`status-${docStatus.passport.status}`}>
-                                {docStatus.passport.uploaded ? 'Încărcat' : 'Lipsește'}
+                                {docStatus.passport.exists ? 'Încărcat' : 'Lipsește'}
                                 {docStatus.passport.uploadDate && (
                                   <span className="upload-date">
                                     ({new Date(docStatus.passport.uploadDate).toLocaleDateString()})
@@ -2141,7 +2299,7 @@ const Dashboard = () => {
                             </td>
                             <td>
                               <span className={`status-${docStatus.photo.status}`}>
-                                {docStatus.photo.uploaded ? 'Încărcat' : 'Lipsește'}
+                                {docStatus.photo.exists ? 'Încărcat' : 'Lipsește'}
                                 {docStatus.photo.uploadDate && (
                                   <span className="upload-date">
                                     ({new Date(docStatus.photo.uploadDate).toLocaleDateString()})
@@ -2183,34 +2341,63 @@ const Dashboard = () => {
                     <thead>
                       <tr>
                         <th>ID</th>
-                        <th>User</th>
-                        <th>Document Type</th>
-                        <th>Upload Date</th>
-                        <th>Actions</th>
+                        <th>Utilizator</th>
+                        <th>Tip Document</th>
+                        <th>Data Încărcare</th>
+                        <th>Status</th>
+                        <th>Acțiuni</th>
                       </tr>
                     </thead>
                     <tbody>
                       {filteredDocuments.map(doc => {
                         const user = users.find(u => u.id === doc.user_id);
+                        const uploadDate = doc.created_at || doc.uploadDate;
+                        const documentStatus = doc.status || 'pending';
+                        
                         return (
-                          <tr key={`${doc.user_id}_${doc.document_type}`}>
+                          <tr key={`${doc.id}_${doc.document_type}`}>
                             <td>{doc.id}</td>
-                            <td>{user ? user.name : 'Unknown'}</td>
-                            <td>{doc.document_type}</td>
-                            <td>{new Date(doc.created_at).toLocaleDateString('en-US')}</td>
+                            <td>
+                              {user ? (
+                                <span className="user-name">{user.name}</span>
+                              ) : (
+                                <span className="unknown-user">
+                                  Utilizator ID: {doc.user_id}
+                                </span>
+                              )}
+                            </td>
+                            <td>
+                              <span className="document-type">
+                                {doc.document_type.charAt(0).toUpperCase() + doc.document_type.slice(1)}
+                              </span>
+                            </td>
+                            <td>{formatDate(uploadDate)}</td>
+                            <td>
+                              <span className={`status-badge status-${documentStatus}`}>
+                                {documentStatus === 'pending' ? 'În așteptare' :
+                                 documentStatus === 'approved' ? 'Aprobat' :
+                                 documentStatus === 'rejected' ? 'Respins' :
+                                 documentStatus === 'missing' ? 'Lipsește' :
+                                 documentStatus.charAt(0).toUpperCase() + documentStatus.slice(1)}
+                              </span>
+                            </td>
                             <td>
                               <div className="action-buttons">
                                 <button 
-                                  className="download-button"
+                                  className="action-button download-button"
                                   onClick={() => handleDownloadDocument(doc.document_type, doc.user_id)}
+                                  title="Descarcă documentul"
                                 >
-                                  <i className="fas fa-download"></i> Download
+                                  <i className="fas fa-download"></i>
+                                  <span>Descarcă</span>
                                 </button>
                                 <button 
-                                  className="delete-button"
+                                  className="action-button delete-button"
                                   onClick={() => handleDeleteDocument(doc.document_type, doc.user_id)}
+                                  title="Șterge documentul"
                                 >
-                                  <i className="fas fa-trash"></i> Delete
+                                  <i className="fas fa-trash"></i>
+                                  <span>Șterge</span>
                                 </button>
                               </div>
                             </td>
@@ -2286,7 +2473,7 @@ const Dashboard = () => {
                           <div className="document-status-item">
                             <span className="status-label">Diplomă:</span>
                             <span className={`status-value ${docStatus.diploma.status}`}>
-                              {docStatus.diploma.uploaded ? 'Încărcat' : 'Lipsește'}
+                              {docStatus.diploma.exists ? 'Încărcat' : 'Lipsește'}
                               {docStatus.diploma.uploadDate && (
                                 <span className="upload-date">
                                   ({new Date(docStatus.diploma.uploadDate).toLocaleDateString()})
@@ -2297,7 +2484,7 @@ const Dashboard = () => {
                           <div className="document-status-item">
                             <span className="status-label">Transcript:</span>
                             <span className={`status-value ${docStatus.transcript.status}`}>
-                              {docStatus.transcript.uploaded ? 'Încărcat' : 'Lipsește'}
+                              {docStatus.transcript.exists ? 'Încărcat' : 'Lipsește'}
                               {docStatus.transcript.uploadDate && (
                                 <span className="upload-date">
                                   ({new Date(docStatus.transcript.uploadDate).toLocaleDateString()})
@@ -2308,7 +2495,7 @@ const Dashboard = () => {
                           <div className="document-status-item">
                             <span className="status-label">Pașaport:</span>
                             <span className={`status-value ${docStatus.passport.status}`}>
-                              {docStatus.passport.uploaded ? 'Încărcat' : 'Lipsește'}
+                              {docStatus.passport.exists ? 'Încărcat' : 'Lipsește'}
                               {docStatus.passport.uploadDate && (
                                 <span className="upload-date">
                                   ({new Date(docStatus.passport.uploadDate).toLocaleDateString()})
@@ -2319,7 +2506,7 @@ const Dashboard = () => {
                           <div className="document-status-item">
                             <span className="status-label">Fotografie:</span>
                             <span className={`status-value ${docStatus.photo.status}`}>
-                              {docStatus.photo.uploaded ? 'Încărcat' : 'Lipsește'}
+                              {docStatus.photo.exists ? 'Încărcat' : 'Lipsește'}
                               {docStatus.photo.uploadDate && (
                                 <span className="upload-date">
                                   ({new Date(docStatus.photo.uploadDate).toLocaleDateString()})
@@ -2356,7 +2543,7 @@ const Dashboard = () => {
                       </button>
                     </div>
                     <div className="user-documents">
-                      {renderUserDocuments(selectedUser.id)}
+                      {renderUserDocuments()}
                     </div>
                   </div>
                 </div>
