@@ -1,47 +1,69 @@
 const express = require('express');
 const router = express.Router();
-const { getNotifications, markAsRead } = require('../controllers/notificationController');
+const { 
+  getUserNotifications, 
+  markAsRead, 
+  markAllAsRead, 
+  deleteNotification 
+} = require('../controllers/notificationController');
 const { authMiddleware } = require('../middleware/auth');
 
-// Get all notifications for the current user
-router.get('/', authMiddleware, async (req, res) => {
+// Toate rutele necesită autentificare
+router.use(authMiddleware);
+
+// Obține toate notificările utilizatorului
+router.get('/', async (req, res) => {
   try {
-    const notifications = await getNotifications(req.user.id);
-    res.setHeader('Content-Type', 'application/json');
+    const notifications = await getUserNotifications(req.user.id);
     res.json(notifications);
   } catch (error) {
-    console.error('Error getting notifications:', error);
-    res.status(500).json({ message: 'Error getting notifications' });
+    console.error('Eroare la obținerea notificărilor:', error);
+    res.status(500).json({ 
+      message: 'Eroare la obținerea notificărilor',
+      error: error.message 
+    });
   }
 });
 
-// Mark notification as read
-router.post('/:id/mark-read', authMiddleware, async (req, res) => {
+// Marchează o notificare ca citită
+router.post('/:id/mark-read', async (req, res) => {
   try {
-    const notification = await markAsRead(req.params.id);
-    if (!notification) {
-      return res.status(404).json({ message: 'Notification not found' });
-    }
-    res.setHeader('Content-Type', 'application/json');
+    const notification = await markAsRead(req.params.id, req.user.id);
     res.json(notification);
   } catch (error) {
-    console.error('Error marking notification as read:', error);
-    res.status(500).json({ message: 'Error marking notification as read' });
+    console.error('Eroare la marcarea notificării ca citită:', error);
+    res.status(500).json({ 
+      message: 'Eroare la marcarea notificării ca citită',
+      error: error.message 
+    });
   }
 });
 
-// Mark all notifications as read
-router.post('/mark-all-read', authMiddleware, async (req, res) => {
+// Marchează toate notificările ca citite
+router.post('/mark-all-read', async (req, res) => {
   try {
-    const notifications = await getNotifications(req.user.id);
-    for (const notification of notifications) {
-      await markAsRead(notification.id);
-    }
-    res.setHeader('Content-Type', 'application/json');
-    res.json({ message: 'All notifications marked as read' });
+    await markAllAsRead(req.user.id);
+    res.json({ message: 'Toate notificările au fost marcate ca citite' });
   } catch (error) {
-    console.error('Error marking all notifications as read:', error);
-    res.status(500).json({ message: 'Error marking all notifications as read' });
+    console.error('Eroare la marcarea tuturor notificărilor ca citite:', error);
+    res.status(500).json({ 
+      message: 'Eroare la marcarea tuturor notificărilor ca citite',
+      error: error.message 
+    });
+  }
+});
+
+// Șterge o notificare
+router.delete('/:id', async (req, res) => {
+  try {
+    await deleteNotification(req.params.id, req.user.id);
+    res.json({ message: 'Notificarea a fost ștearsă cu succes' });
+  } catch (error) {
+    console.error('Eroare la ștergerea notificării:', error);
+    res.status(500).json({ 
+      message: 'Eroare la ștergerea notificării',
+      error: error.message 
+    });
   }
 });
 

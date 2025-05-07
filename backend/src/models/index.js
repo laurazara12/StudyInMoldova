@@ -1,32 +1,45 @@
-const { sequelize } = require('../config/database');
-const UserModel = require('./user');
-const UniversityModel = require('./university');
-const DocumentModel = require('./document');
-const ProgramModel = require('./program');
-const NotificationModel = require('./notification');
+const fs = require('fs');
+const path = require('path');
+const Sequelize = require('sequelize');
+const basename = path.basename(__filename);
+const env = process.env.NODE_ENV || 'development';
+const config = require(__dirname + '/../config/config.json')[env];
+const db = {};
 
-const User = UserModel(sequelize);
-const University = UniversityModel(sequelize);
-const Document = DocumentModel(sequelize);
-const Program = ProgramModel(sequelize);
-const Notification = NotificationModel(sequelize);
+let sequelize;
+if (config.use_env_variable) {
+  sequelize = new Sequelize(process.env[config.use_env_variable], config);
+} else {
+  sequelize = new Sequelize({
+    ...config,
+    dialect: 'sqlite',
+    storage: config.storage
+  });
+}
 
-// Define relationships
-Program.belongsTo(University, { foreignKey: 'universityId' });
-University.hasMany(Program, { foreignKey: 'universityId' });
+// Încărcăm modelele în ordinea corectă
+const modelFiles = [
+  'user.js',
+  'university.js',
+  'program.js',
+  'savedProgram.js',
+  'document.js',
+  'notification.js'
+];
 
-Document.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
-User.hasMany(Document, { foreignKey: 'user_id', as: 'documents' });
+modelFiles.forEach(file => {
+  const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
+  db[model.name] = model;
+});
 
-Notification.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
-Notification.belongsTo(Document, { foreignKey: 'document_id', as: 'document' });
+// Definim asocierile
+Object.keys(db).forEach(modelName => {
+  if (db[modelName].associate) {
+    db[modelName].associate(db);
+  }
+});
 
-// Export models
-module.exports = {
-  User,
-  University,
-  Document,
-  Program,
-  Notification,
-  sequelize
-}; 
+db.sequelize = sequelize;
+db.Sequelize = Sequelize;
+
+module.exports = db; 

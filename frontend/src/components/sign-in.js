@@ -25,43 +25,65 @@ const SignIn = (props) => {
     setLoading(true);
 
     try {
-      console.log('Încercare de autentificare pentru:', email);
+      console.log('Attempting authentication for:', email);
       const response = await axios.post(`${API_BASE_URL}/api/auth/login`, {
         email,
         password
       });
 
-      console.log('Răspuns de la server:', response.data);
+      console.log('Răspuns de la server:', {
+        status: response.status,
+        data: response.data,
+        headers: response.headers
+      });
 
-      if (response.data && response.data.token) {
-        // Salvăm token-ul și datele utilizatorului
-        login(response.data.user, response.data.token);
-        
-        // Redirecționăm în funcție de rol
-        if (response.data.user.role === 'admin') {
+      if (!response.data || !response.data.user) {
+        console.error('Answer invalid from server:', response.data);
+        setError('Authentication failed. Please try again.');
+        return;
+      }
+
+      const { token, user: userData } = response.data;
+      console.log('User data received:', userData);
+
+      if (!userData || !userData.id || !userData.email || !userData.role) {
+        console.error('User data incomplete:', userData);
+        setError('Authentication failed. Please try again.');
+        return;
+      }
+
+      const loginSuccess = await login(userData, token);
+      
+      if (loginSuccess) {
+        // Redirect based on role
+        if (userData.role === 'admin') {
           navigate('/dashboard', { replace: true });
         } else {
           navigate('/profile', { replace: true });
         }
       } else {
-        setError('Autentificare eșuată. Vă rugăm să verificați credențialele.');
+        setError('Authentication failed. Please try again.');
       }
     } catch (error) {
-      console.error('Eroare la autentificare:', error);
+      console.error('Authentication error:', error);
       if (error.response) {
-        console.error('Detalii eroare:', {
+        console.error('Error details:', {
           status: error.response.status,
           data: error.response.data
         });
+        if (error.response.status === 401) {
+          setError('Incorrect email or password.');
+        } else {
+          setError(error.response.data?.message || 'An error occurred during authentication.');
+        }
+      } else {
+        setError('An error occurred during communication with the server.');
       }
-      const errorMessage = error.response?.data?.message || 'A apărut o eroare la autentificare. Vă rugăm să încercați din nou.';
-      setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  // Adăugăm useEffect pentru cleanup
   useEffect(() => {
     return () => {
       setError('');

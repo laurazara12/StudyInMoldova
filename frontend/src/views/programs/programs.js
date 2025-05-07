@@ -1,207 +1,232 @@
 import React, { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import Navbar from '../../components/navbar';
 import Footer from '../../components/footer';
-import AvailableProgramesTable from '../../components/available-programes-table';
-import FilterSection from '../../components/filter-section';
+import axios from 'axios';
+import { API_BASE_URL } from '../../config/api.config';
 import './styles.css';
 
 const Programs = () => {
   const [programs, setPrograms] = useState([]);
-  const [filteredPrograms, setFilteredPrograms] = useState([]);
+  const [savedPrograms, setSavedPrograms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
-  // State pentru filtre
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterUniversity, setFilterUniversity] = useState('');
-  const [filterDegree, setFilterDegree] = useState('');
-  const [filterLanguage, setFilterLanguage] = useState('');
-  const [sortBy, setSortBy] = useState('name');
-  
-  // Opțiuni pentru filtre
-  const universityOptions = ['USM', 'UTM', 'ASEM', 'ULIM', 'USARB'];
-  const degreeOptions = ['Bachelor', 'Master', 'PhD'];
-  const languageOptions = ['English', 'Romanian', 'Russian', 'French'];
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [degreeFilter, setDegreeFilter] = useState('');
+  const [languageFilter, setLanguageFilter] = useState('');
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      await fetchPrograms();
+      if (isAuthenticated) {
+        await fetchSavedPrograms();
+      }
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchPrograms = async () => {
-      try {
-        const response = await fetch('http://localhost:4000/api/programs');
-        if (!response.ok) {
-          throw new Error('Failed to fetch programs');
-        }
-        const data = await response.json();
-        setPrograms(data);
-        setFilteredPrograms(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
+    const checkAuth = () => {
+      const token = localStorage.getItem('token');
+      setIsAuthenticated(!!token);
     };
 
-    fetchPrograms();
+    // Verificăm autentificarea la fiecare schimbare a token-ului
+    window.addEventListener('storage', checkAuth);
+    checkAuth();
+
+    return () => {
+      window.removeEventListener('storage', checkAuth);
+    };
   }, []);
 
-  // Filtrare și sortare programe
   useEffect(() => {
-    let result = [...programs];
-    
-    // Filtrare după termen de căutare
-    if (searchTerm) {
-      result = result.filter(program => 
-        program.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+    fetchData();
+  }, [isAuthenticated]);
+
+  const fetchPrograms = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/programs`);
+      setPrograms(response.data);
+    } catch (error) {
+      console.error('Eroare la obținerea programelor:', error);
+      throw new Error('Eroare la obținerea programelor');
     }
-    
-    // Filtrare după universitate
-    if (filterUniversity) {
-      result = result.filter(program => program.university === filterUniversity);
+  };
+
+  const fetchSavedPrograms = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Nu sunteți autentificat');
+      }
+
+      const response = await axios.get(`${API_BASE_URL}/api/saved-programs`, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.data) {
+        throw new Error('Nu s-au primit date de la server');
+      }
+
+      setSavedPrograms(response.data);
+    } catch (error) {
+      console.error('Eroare detaliată la obținerea programelor salvate:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      
+      if (error.response?.status === 401) {
+        localStorage.removeItem('token');
+        setIsAuthenticated(false);
+        throw new Error('Sesiunea a expirat. Vă rugăm să vă autentificați din nou.');
+      }
+      
+      throw new Error(error.response?.data?.message || 'Eroare la obținerea programelor salvate');
     }
-    
-    // Filtrare după grad
-    if (filterDegree) {
-      result = result.filter(program => program.degree === filterDegree);
+  };
+
+  const handleSaveProgram = async (programId) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(`${API_BASE_URL}/api/saved-programs`, { programId }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      await fetchSavedPrograms();
+    } catch (error) {
+      console.error('Eroare la salvarea programului:', error);
     }
-    
-    // Filtrare după limbă
-    if (filterLanguage) {
-      result = result.filter(program => program.language === filterLanguage);
+  };
+
+  const handleRemoveSavedProgram = async (programId) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${API_BASE_URL}/api/saved-programs/${programId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      await fetchSavedPrograms();
+    } catch (error) {
+      console.error('Eroare la eliminarea programului salvat:', error);
     }
-    
-    // Sortare
-    switch (sortBy) {
-      case 'name':
-        result.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case 'university':
-        result.sort((a, b) => a.university.localeCompare(b.university));
-        break;
-      case 'degree':
-        result.sort((a, b) => a.degree.localeCompare(b.degree));
-        break;
-      case 'credits':
-        result.sort((a, b) => a.credits - b.credits);
-        break;
-      default:
-        break;
-    }
-    
-    setFilteredPrograms(result);
-  }, [programs, searchTerm, filterUniversity, filterDegree, filterLanguage, sortBy]);
+  };
+
+  const isProgramSaved = (programId) => {
+    return savedPrograms.some(sp => sp.id === programId);
+  };
+
+  const filteredPrograms = programs.filter(program => {
+    const matchesDegree = !degreeFilter || program.degree === degreeFilter;
+    const matchesLanguage = !languageFilter || program.languages.includes(languageFilter);
+    return matchesDegree && matchesLanguage;
+  });
 
   if (loading) {
     return (
-      <div className="programs-container">
-        <Navbar />
-        <div className="loading">Loading programs...</div>
-        <Footer />
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Se încarcă...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="programs-container">
-        <Navbar />
-        <div className="error">Error: {error}</div>
-        <Footer />
+      <div className="error-container">
+        <p>{error}</p>
+        <button onClick={() => window.location.reload()}>Reîncarcă pagina</button>
       </div>
     );
   }
 
   return (
-    <div className="programs-container">
+    <div className="programs-page">
       <Helmet>
-        <title>Study Programs - Study In Moldova</title>
-        <meta property="og:title" content="Study Programs - Study In Moldova" />
+        <title>Programe de studiu - Study in Moldova</title>
       </Helmet>
       <Navbar />
-      <div className="programs-content">
-        <h1>Study Programs in Moldova</h1>
-        <p>Explore the various study programs offered by Moldovan universities.</p>
+      
+      <main className="programs-content">
+        <h1>Programe de studiu disponibile</h1>
         
-        <div className="filter-section">
-          <div className="filter-group">
-            <input
-              type="text"
-              placeholder="Search by program name..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
-          </div>
-
-          <div className="filter-group">
-            <select
-              value={filterUniversity}
-              onChange={(e) => setFilterUniversity(e.target.value)}
-              className="filter-select"
-            >
-              <option value="">All Universities</option>
-              {universityOptions.map((university) => (
-                <option key={university} value={university}>
-                  {university}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="filter-group">
-            <select
-              value={filterDegree}
-              onChange={(e) => setFilterDegree(e.target.value)}
-              className="filter-select"
-            >
-              <option value="">All Degrees</option>
-              {degreeOptions.map((degree) => (
-                <option key={degree} value={degree}>
-                  {degree}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="filter-group">
-            <select
-              value={filterLanguage}
-              onChange={(e) => setFilterLanguage(e.target.value)}
-              className="filter-select"
-            >
-              <option value="">All Languages</option>
-              {languageOptions.map((language) => (
-                <option key={language} value={language}>
-                  {language}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="filter-group">
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="filter-select"
-            >
-              <option value="name">Sort by Name</option>
-              <option value="university">Sort by University</option>
-              <option value="degree">Sort by Degree</option>
-              <option value="credits">Sort by Credits</option>
-            </select>
-          </div>
+        <div className="filters">
+          <select 
+            value={degreeFilter} 
+            onChange={(e) => setDegreeFilter(e.target.value)}
+            className="filter-select"
+          >
+            <option value="">Toate gradele</option>
+            <option value="Bachelor">Licență</option>
+            <option value="Master">Master</option>
+            <option value="PhD">Doctorat</option>
+          </select>
+          
+          <select 
+            value={languageFilter} 
+            onChange={(e) => setLanguageFilter(e.target.value)}
+            className="filter-select"
+          >
+            <option value="">Toate limbile</option>
+            <option value="Romanian">Română</option>
+            <option value="Russian">Rusă</option>
+            <option value="English">Engleză</option>
+          </select>
         </div>
-        
-        <AvailableProgramesTable
-          programs={filteredPrograms}
-          feature1Title="Discover the available programs"
-          feature5Title411="Credits"
-          feature5Title412="Degree"
-          feature5Title413="Name"
-          feature5Title4111="Languages"
-          feature5Title4131="Faculty"
-        />
-      </div>
+
+        <div className="programs-table-container">
+          <table className="programs-table">
+            <thead>
+              <tr>
+                <th>Nume program</th>
+                <th>Facultate</th>
+                <th>Grad</th>
+                <th>Credite</th>
+                <th>Limbi</th>
+                <th>Acțiuni</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredPrograms.map(program => (
+                <tr key={program.id}>
+                  <td>{program.name}</td>
+                  <td>{program.faculty}</td>
+                  <td>{program.degree}</td>
+                  <td>{program.credits}</td>
+                  <td>{program.languages.join(', ')}</td>
+                  <td>
+                    {isAuthenticated && (
+                      isProgramSaved(program.id) ? (
+                        <button 
+                          className="remove-save-button"
+                          onClick={() => handleRemoveSavedProgram(program.id)}
+                        >
+                          Elimină
+                        </button>
+                      ) : (
+                        <button 
+                          className="save-button"
+                          onClick={() => handleSaveProgram(program.id)}
+                        >
+                          Salvează
+                        </button>
+                      )
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </main>
+      
       <Footer />
     </div>
   );

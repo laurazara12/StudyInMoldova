@@ -25,7 +25,31 @@ const authMiddleware = async (req, res, next) => {
       return res.status(500).json({ message: 'Server configuration error' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (error) {
+      if (error.name === 'TokenExpiredError') {
+        console.log('Token expired, attempting to refresh');
+        // Încercăm să reînnoim token-ul
+        const oldDecoded = jwt.decode(token);
+        if (oldDecoded && oldDecoded.id) {
+          const user = await User.findByPk(oldDecoded.id);
+          if (user) {
+            const newToken = jwt.sign(
+              { id: user.id, role: user.role, email: user.email },
+              process.env.JWT_SECRET,
+              { expiresIn: '1h' }
+            );
+            req.user = user;
+            res.setHeader('X-New-Token', newToken);
+            return next();
+          }
+        }
+      }
+      throw error;
+    }
+
     console.log('Decoded token:', { id: decoded.id, role: decoded.role });
 
     const user = await User.findByPk(decoded.id, {

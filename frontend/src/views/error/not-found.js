@@ -1,5 +1,5 @@
 import React from 'react'
-import { Helmet } from 'react-helmet'
+import { Helmet } from 'react-helmet-async'
 import Navbar from '../../components/navbar'
 import Error404Component from '../../components/error404'
 import Footer from '../../components/footer'

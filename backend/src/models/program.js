@@ -16,22 +16,26 @@ module.exports = (sequelize) => {
       allowNull: false
     },
     degree: {
-      type: DataTypes.ENUM('Bachelor', 'Master', 'PhD'),
-      allowNull: false
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        isIn: [['Bachelor', 'Master', 'PhD']]
+      }
     },
     credits: {
       type: DataTypes.INTEGER,
       allowNull: false
     },
     languages: {
-      type: DataTypes.TEXT,
+      type: DataTypes.JSON,
       allowNull: false,
+      defaultValue: [],
       get() {
         const rawValue = this.getDataValue('languages');
-        return rawValue ? JSON.parse(rawValue) : [];
+        return Array.isArray(rawValue) ? rawValue : [];
       },
-      set(val) {
-        this.setDataValue('languages', JSON.stringify(Array.isArray(val) ? val : [val]));
+      set(value) {
+        this.setDataValue('languages', Array.isArray(value) ? value : [value]);
       }
     },
     description: {
@@ -43,21 +47,32 @@ module.exports = (sequelize) => {
       allowNull: false
     },
     tuitionFee: {
-      type: DataTypes.DECIMAL(10, 2),
-      allowNull: true
+      type: DataTypes.STRING,
+      allowNull: false
     },
     universityId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'Universities',
+        model: 'universities',
         key: 'id'
       }
     }
   }, {
     tableName: 'programs',
-    timestamps: true
+    timestamps: false
   });
+
+  Program.associate = (models) => {
+    Program.belongsTo(models.University, {
+      foreignKey: 'universityId',
+      as: 'University'
+    });
+    Program.hasMany(models.SavedProgram, {
+      foreignKey: 'programId',
+      as: 'SavedPrograms'
+    });
+  };
 
   return Program;
 }; 

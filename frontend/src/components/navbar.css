@@ -144,17 +144,26 @@
   display: flex;
   align-items: center;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: flex-end;
+  gap: 1rem;
 }
  
 .navbar-login1 {
   border-width: 0px;
   margin-right: var(--dl-space-space-twounits);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
  
 .navbar-navlink1 {
   font-family: "Roboto";
   text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 }
  
 .navbar-navlink2 {
@@ -402,6 +411,9 @@
   }
   .navbar-burger-menu {
     display: flex;
+  }
+  .navbar-buttons1 {
+    display: none;
   }
 }
  

@@ -1,15 +1,45 @@
-import React, { Fragment } from 'react'
-
-import { Helmet } from 'react-helmet'
-
+import React, { Fragment, useState, useEffect } from 'react'
+import { Helmet } from 'react-helmet-async'
 import Navbar from '../../components/navbar'
 import USMHeroUniversityIndividualPage1 from '../../components/usm-hero-university-individual-page1'
 import FeatureStudyCycles from '../../components/feature-study-cycles'
-import AvailableProgramesTable from '../../components/available-programes-table'
 import UniHeroVideo from '../../components/uni-hero-video'
+import { API_BASE_URL, getAuthHeaders } from '../../config/api.config'
 import './utm-university-individual-page.css'
 
 const UTMUniversityIndividualPage = (props) => {
+  const [programs, setPrograms] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchPrograms = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/programs?universityId=2`, {
+          headers: getAuthHeaders()
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Eroare HTTP: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        if (!data || !Array.isArray(data)) {
+          throw new Error('Format invalid al datelor primite');
+        }
+        
+        setPrograms(data);
+      } catch (err) {
+        console.error('Eroare la încărcarea programelor:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPrograms();
+  }, []);
+
   return (
     <div className="utm-university-individual-page-container">
       <Helmet>
@@ -137,7 +167,7 @@ const UTMUniversityIndividualPage = (props) => {
               international collaborations, and a strong focus on practical
               skills, UTM prepares students to become industry-ready
               professionals. Its commitment to research and development makes it
-              a key player in Moldova’s technological advancement, fostering a
+              a key player in Moldova's technological advancement, fostering a
               new generation of engineers and innovators.
             </span>
           </Fragment>
@@ -282,48 +312,47 @@ const UTMUniversityIndividualPage = (props) => {
           </Fragment>
         }
       ></FeatureStudyCycles>
-      <AvailableProgramesTable
-        feature1Title={
-          <Fragment>
-            <span className="utm-university-individual-page-text45">
-              Discover the available programs
-            </span>
-          </Fragment>
-        }
-        feature5Title411={
-          <Fragment>
-            <span className="utm-university-individual-page-text46">
-              Credits
-            </span>
-          </Fragment>
-        }
-        feature5Title412={
-          <Fragment>
-            <span className="utm-university-individual-page-text47">
-              Degree
-            </span>
-          </Fragment>
-        }
-        feature5Title413={
-          <Fragment>
-            <span className="utm-university-individual-page-text48">Name</span>
-          </Fragment>
-        }
-        feature5Title4111={
-          <Fragment>
-            <span className="utm-university-individual-page-text49">
-              Languages
-            </span>
-          </Fragment>
-        }
-        feature5Title4131={
-          <Fragment>
-            <span className="utm-university-individual-page-text50">
-              Faculty
-            </span>
-          </Fragment>
-        }
-      ></AvailableProgramesTable>
+
+      <div className="programs-table-container">
+        <h2 className="programs-title">Discover the available programs</h2>
+        {loading ? (
+          <div className="loading">Se încarcă...</div>
+        ) : error ? (
+          <div className="error">{error}</div>
+        ) : (
+          <table className="programs-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Faculty</th>
+                <th>Degree</th>
+                <th>Credits</th>
+                <th>Languages</th>
+              </tr>
+            </thead>
+            <tbody>
+              {programs.length > 0 ? (
+                programs.map((program) => (
+                  <tr key={program.id} className="program-row">
+                    <td>{program.name}</td>
+                    <td>{program.faculty}</td>
+                    <td>{program.degree}</td>
+                    <td>{program.credits}</td>
+                    <td>{Array.isArray(program.languages) ? program.languages.join(', ') : program.languages}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="no-results">
+                    Nu s-au găsit programe disponibile.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        )}
+      </div>
+
       <UniHeroVideo
         content1={
           <Fragment>

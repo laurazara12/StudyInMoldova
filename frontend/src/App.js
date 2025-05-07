@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Route, Routes, Navigate, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/navbar';
 
@@ -10,17 +11,17 @@ import SignIn from './views/auth/sign-in';
 import SignUp from './views/auth/sign-up';
 import Profile from './views/profile/profile';
 import Universities from './views/universities/universities';
-import Programms from './views/programms';
-import LivingInMoldova from './views/living-in-moldova';
+import Programs from './views/programs/programs';
+import LivingInMoldova from './views/living/overview';
 import PlanYourStudies from './views/planning/plan';
-import NotFound from './views/not-found';
+import NotFound from './views/error/not-found';
 import USMUniversityIndividualPage from './views/universities/usm-university-individual-page';
 import UTMUniversityIndividualPage from './views/universities/utm-university-individual-page';
 import PrivateRoute from './components/PrivateRoute';
 import Dashboard from './views/admin/dashboard';
-import TransportationGuide from './views/living-in-moldova/transportation-guide';
+import TransportationGuide from './views/living/transportation-guide';
 import ProfileAdmin from './views/admin/profile-admin';
-import Error404Page from './views/error404-page';
+import Error404Page from './views/error/error404-page';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
 
@@ -69,39 +70,41 @@ const App = () => {
   }
 
   return (
-    <AuthProvider>
-      <div className="App">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<SignIn />} />
-          <Route path="/register" element={<SignUp />} />
-          <Route path="/universities" element={<Universities />} />
-          <Route path="/programms" element={<Programms />} />
-          <Route path="/living-in-moldova" element={<LivingInMoldova />} />
-          <Route path="/plan-your-studies" element={<PlanYourStudies />} />
-          <Route path="/universities/usm-university-individual-page" element={<USMUniversityIndividualPage />} />
-          <Route path="/universities/utm-university-individual-page" element={<UTMUniversityIndividualPage />} />
-          <Route path="/profile" element={
-            <PrivateRoute>
-              <Profile />
-            </PrivateRoute>
-          } />
-          <Route path="/admin-profile" element={
-            <PrivateRoute requiredRole="admin">
-              <ProfileAdmin />
-            </PrivateRoute>
-          } />
-          <Route path="/dashboard" element={
-            <PrivateRoute requiredRole="admin">
-              <Dashboard />
-            </PrivateRoute>
-          } />
-          <Route path="/living-in-moldova/transportation-guide" element={<TransportationGuide />} />
-          <Route path="/error404-page" element={<Error404Page />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </div>
-    </AuthProvider>
+    <HelmetProvider>
+      <AuthProvider>
+        <div className="App">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/sign-in" element={<SignIn />} />
+            <Route path="/sign-up" element={<SignUp />} />
+            <Route path="/universities" element={<Universities />} />
+            <Route path="/programs" element={<Programs />} />
+            <Route path="/living-in-moldova" element={<LivingInMoldova />} />
+            <Route path="/plan-your-studies" element={<PlanYourStudies />} />
+            <Route path="/universities/usm-university-individual-page" element={<USMUniversityIndividualPage />} />
+            <Route path="/universities/utm-university-individual-page" element={<UTMUniversityIndividualPage />} />
+            <Route path="/profile" element={
+              <PrivateRoute>
+                <Profile />
+              </PrivateRoute>
+            } />
+            <Route path="/admin-profile" element={
+              <PrivateRoute requiredRole="admin">
+                <ProfileAdmin />
+              </PrivateRoute>
+            } />
+            <Route path="/dashboard" element={
+              <PrivateRoute requiredRole="admin">
+                <Dashboard />
+              </PrivateRoute>
+            } />
+            <Route path="/living-in-moldova/transportation-guide" element={<TransportationGuide />} />
+            <Route path="/error404-page" element={<Error404Page />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </div>
+      </AuthProvider>
+    </HelmetProvider>
   );
 };
 

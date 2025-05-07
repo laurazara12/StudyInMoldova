@@ -38,14 +38,7 @@ const ProfileComponent = () => {
   const [documents, setDocuments] = useState([]);
   const [uploadStatus, setUploadStatus] = useState(() => {
     const savedDocuments = localStorage.getItem('uploadedDocuments');
-    if (savedDocuments) {
-      const parsedDocuments = JSON.parse(savedDocuments);
-      return {
-        ...initialDocuments,
-        ...parsedDocuments
-      };
-    }
-    return initialDocuments;
+    return savedDocuments ? { ...initialDocuments, ...JSON.parse(savedDocuments) } : initialDocuments;
   });
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -64,66 +57,76 @@ const ProfileComponent = () => {
   });
   const [userData, setUserData] = useState(null);
   const fileInputRef = useRef(null);
-  const [activeTab, setActiveTab] = useState(() => {
-    // Încărcăm tab-ul activ din localStorage sau folosim 'profile' ca default
-    return localStorage.getItem('activeProfileTab') || 'profile';
-  });
+  const [activeTab, setActiveTab] = useState(() => localStorage.getItem('activeProfileTab') || 'profile');
 
-  // Salvăm tab-ul activ în localStorage când se schimbă
+  // Salvăm tab-ul activ în localStorage
   useEffect(() => {
     localStorage.setItem('activeProfileTab', activeTab);
   }, [activeTab]);
 
-  // Salvăm documentele în localStorage când se schimbă
+  // Salvăm documentele în localStorage
   useEffect(() => {
     localStorage.setItem('uploadedDocuments', JSON.stringify(uploadStatus));
   }, [uploadStatus]);
 
+  // Verificăm autentificarea și încărcăm datele utilizatorului
   useEffect(() => {
     let isMounted = true;
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      navigate('/sign-in');
+      return;
+    }
+
     const fetchUserData = async () => {
       try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          navigate('/sign-in');
-          return;
+        setLoading(true);
+        setError(null);
+
+        const response = await axios.get(`${API_BASE_URL}/api/auth/me`, {
+          headers: getAuthHeaders()
+        });
+
+        if (!response.data?.success || !response.data?.user) {
+          throw new Error('Datele utilizatorului lipsesc sau sunt invalide');
         }
 
+        const userData = response.data.user;
+        
         if (isMounted) {
-          console.log('Retrieving user data from database...');
-          const response = await axios.get(`${API_BASE_URL}/api/auth/me`, {
-            headers: getAuthHeaders()
+          setUser(userData);
+          setUserData(userData);
+          setFormData({
+            full_name: userData.full_name || '',
+            email: userData.email || '',
+            phone: userData.phone || '',
+            date_of_birth: userData.date_of_birth || '',
+            country_of_origin: userData.country_of_origin || '',
+            nationality: userData.nationality || '',
+            desired_study_level: userData.desired_study_level || '',
+            preferred_study_field: userData.preferred_study_field || '',
+            desired_academic_year: userData.desired_academic_year || '',
+            preferred_study_language: userData.preferred_study_language || '',
+            estimated_budget: userData.estimated_budget || '',
+            accommodation_preferences: userData.accommodation_preferences || ''
           });
 
-          console.log('Server response:', response.data);
-          
-          if (response.data && response.data.success) {
-            const userData = response.data.user;
-            console.log('User data:', userData);
-            
-            if (userData) {
-              setUser(userData);
-              setUserData(userData);
-              if (userData.role !== 'admin') {
-                await fetchDocuments(token);
-              }
-            } else {
-              setError('User data is missing from response');
-              navigate('/sign-in');
-            }
-          } else {
-            setError(response.data?.message || 'Could not retrieve user data');
-            navigate('/sign-in');
+          if (userData.role !== 'admin') {
+            await fetchDocuments();
           }
         }
       } catch (error) {
         if (isMounted) {
           const apiError = handleApiError(error);
           console.error('Eroare la preluarea datelor utilizatorului:', apiError);
+          
           if (apiError.status === 401) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
             navigate('/sign-in');
           } else {
-            setError(apiError.message);
+            setError(apiError.message || 'A apărut o eroare la încărcarea datelor');
           }
         }
       } finally {
@@ -140,54 +143,53 @@ const ProfileComponent = () => {
     };
   }, [navigate]);
 
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate('/sign-in');
-    }
-  }, [user, loading, navigate]);
-
-  const fetchDocuments = async (token) => {
+  const fetchDocuments = async () => {
     try {
-      console.log('Preluare documente...');
+      setError(null);
       const response = await axios.get(`${API_BASE_URL}/api/documents/user-documents`, {
         headers: getAuthHeaders()
       });
 
-      console.log('Răspuns documente:', response.data);
-      
-      if (response.data && Array.isArray(response.data)) {
-        // Verificăm dacă documentul există fizic și are status valid
-        const validDocuments = response.data.filter(doc => {
-          // Verificăm dacă documentul are toate câmpurile necesare
-          if (!doc.id || !doc.document_type || !doc.file_path) {
-            console.log('Document invalid - lipsesc câmpuri necesare:', doc);
-            return false;
-          }
-
-          // Verificăm statusul documentului
-          if (doc.status === 'deleted') {
-            console.log('Document șters:', doc);
-            return false;
-          }
-
-          // Verificăm dacă documentul este marcat ca încărcat
-          if (!doc.uploaded) {
-            console.log('Document neîncărcat:', doc);
-            return false;
-          }
-
-          return true;
-        });
-        
-        setDocuments(validDocuments);
-        console.log('Documente valide setate:', validDocuments);
-      } else {
-        console.error('Format invalid pentru documente:', response.data);
-        setDocuments([]);
+      if (!response.data || !Array.isArray(response.data)) {
+        throw new Error('Format invalid pentru documente');
       }
+
+      const validDocuments = response.data.filter(doc => {
+        if (!doc.id || !doc.document_type || !doc.file_path) {
+          console.warn('Document invalid - lipsesc câmpuri necesare:', doc);
+          return false;
+        }
+
+        if (doc.status === 'deleted') {
+          console.warn('Document șters:', doc);
+          return false;
+        }
+
+        if (!doc.uploaded) {
+          console.warn('Document neîncărcat:', doc);
+          return false;
+        }
+
+        return true;
+      });
+
+      setDocuments(validDocuments);
+      
+      // Actualizăm statusul documentelor încărcate
+      const newUploadStatus = { ...uploadStatus };
+      validDocuments.forEach(doc => {
+        if (newUploadStatus[doc.document_type]) {
+          newUploadStatus[doc.document_type] = {
+            ...newUploadStatus[doc.document_type],
+            uploaded: true
+          };
+        }
+      });
+      setUploadStatus(newUploadStatus);
     } catch (error) {
       const apiError = handleApiError(error);
       console.error('Eroare la preluarea documentelor:', apiError);
+      setError(apiError.message || 'A apărut o eroare la încărcarea documentelor');
       setDocuments([]);
     }
   };
@@ -278,9 +280,31 @@ const ProfileComponent = () => {
         return;
       }
 
+      // Verifică dimensiunea fișierului
+      if (uploadStatusForType.file.size > 10 * 1024 * 1024) {
+        setError('Fișierul este prea mare. Dimensiunea maximă permisă este de 10MB.');
+        return;
+      }
+
+      // Verifică tipul fișierului
+      const allowedTypes = [
+        'application/pdf',
+        'image/jpeg',
+        'image/png',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      ];
+
+      if (!allowedTypes.includes(uploadStatusForType.file.type)) {
+        setError('Tip de fișier neacceptat. Folosiți doar PDF, JPG, PNG, DOC, DOCX, XLS sau XLSX.');
+        return;
+      }
+
       setUploadStatus(prev => ({
         ...prev,
-        [documentType]: { ...prev[documentType], uploading: true }
+        [documentType]: { ...prev[documentType], uploading: true, error: null }
       }));
 
       const formData = new FormData();
@@ -290,7 +314,8 @@ const ProfileComponent = () => {
       console.log('Încărcare document:', {
         documentType,
         fileName: uploadStatusForType.file.name,
-        fileSize: uploadStatusForType.file.size
+        fileSize: uploadStatusForType.file.size,
+        fileType: uploadStatusForType.file.type
       });
 
       const response = await axios.post(
@@ -300,6 +325,13 @@ const ProfileComponent = () => {
           headers: {
             ...getAuthHeaders(),
             'Content-Type': 'multipart/form-data'
+          },
+          onUploadProgress: (progressEvent) => {
+            const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadStatus(prev => ({
+              ...prev,
+              [documentType]: { ...prev[documentType], progress }
+            }));
           }
         }
       );
@@ -309,9 +341,16 @@ const ProfileComponent = () => {
       if (response.data.success) {
         setUploadStatus(prev => ({
           ...prev,
-          [documentType]: { ...prev[documentType], uploading: false, uploaded: true }
+          [documentType]: { 
+            ...prev[documentType], 
+            uploading: false, 
+            uploaded: true,
+            error: null,
+            progress: 100
+          }
         }));
-        await fetchDocuments(localStorage.getItem('token'));
+        await fetchDocuments();
+        setError(null);
       } else {
         throw new Error(response.data.message || 'Eroare la încărcarea documentului');
       }
@@ -319,9 +358,13 @@ const ProfileComponent = () => {
       console.error('Upload error:', error);
       setUploadStatus(prev => ({
         ...prev,
-        [documentType]: { ...prev[documentType], uploading: false, error: error.message }
+        [documentType]: { 
+          ...prev[documentType], 
+          uploading: false, 
+          error: error.message || 'Eroare la încărcarea documentului'
+        }
       }));
-      setError('Eroare la încărcarea documentului. Vă rugăm să încercați din nou.');
+      setError(error.response?.data?.message || error.message || 'Eroare la încărcarea documentului. Vă rugăm să încercați din nou.');
     }
   };
 
@@ -511,7 +554,7 @@ const ProfileComponent = () => {
       
       if (response.data.success) {
         alert(response.data.message);
-        await fetchDocuments(localStorage.getItem('token'));
+        await fetchDocuments();
       } else {
         alert('A apărut o eroare la curățarea documentelor: ' + (response.data.error || 'Eroare necunoscută'));
       }

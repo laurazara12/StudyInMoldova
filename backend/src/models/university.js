@@ -52,5 +52,12 @@ module.exports = (sequelize) => {
     timestamps: false
   });
 
+  University.associate = (models) => {
+    University.hasMany(models.Program, {
+      foreignKey: 'universityId',
+      as: 'Programs'
+    });
+  };
+
   return University;
 }; 

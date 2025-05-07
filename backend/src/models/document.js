@@ -19,7 +19,7 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        isIn: [['passport', 'diploma', 'transcript', 'cv', 'other']]
+        isIn: [['passport', 'diploma', 'transcript', 'cv', 'other', 'photo', 'medical', 'insurance']]
       }
     },
     file_path: {
@@ -40,6 +40,15 @@ module.exports = (sequelize) => {
     },
     originalName: {
       type: DataTypes.STRING,
+      allowNull: true
+    },
+    uploaded: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
+    },
+    uploadDate: {
+      type: DataTypes.DATE,
       allowNull: true
     }
   }, {

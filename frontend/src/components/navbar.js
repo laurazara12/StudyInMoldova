@@ -2,38 +2,16 @@ import React, { Fragment, useEffect, useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import './navbar.css'
-import axios from 'axios'
-import { API_BASE_URL } from '../config/api.config'
+import { useAuth } from '../context/AuthContext'
 
 const Navbar = (props) => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userRole, setUserRole] = useState(null);
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const user = JSON.parse(localStorage.getItem('user'));
-
-    if (token && user) {
-      setIsAuthenticated(true);
-      setUserRole(user.role);
-      setUser(user);
-    } else {
-      setIsAuthenticated(false);
-      setUserRole(null);
-      setUser(null);
-    }
-  }, [location]);
+  const { isAuthenticated, user, logout } = useAuth();
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setIsAuthenticated(false);
-    setUserRole(null);
-    setUser(null);
+    logout();
     navigate('/sign-in');
   };
 
@@ -60,7 +38,7 @@ const Navbar = (props) => {
             <Link to="/universities" className={`navbar-text13 ${location.pathname === '/universities' ? 'active' : ''}`}>
               <span className="navbar-text32">Universities</span>
             </Link>
-            <Link to="/programms" className={`navbar-text14 ${location.pathname === '/programms' ? 'active' : ''}`}>
+            <Link to="/programs" className={`navbar-text14 ${location.pathname === '/programs' ? 'active' : ''}`}>
               <span className="navbar-text29">Programmes</span>
             </Link>
             <span className="navbar-text15">
@@ -70,7 +48,7 @@ const Navbar = (props) => {
           <div className="navbar-buttons1">
             {isAuthenticated && user ? (
               <>
-                {userRole === 'admin' && (
+                {user.role === 'admin' && (
                   <>
                     <button className="navbar-login1 button">
                       <Link to="/dashboard" className={`navbar-navlink1 ${location.pathname === '/dashboard' ? 'active' : ''}`}>
@@ -84,12 +62,12 @@ const Navbar = (props) => {
                     </button>
                   </>
                 )}
-                {userRole !== 'admin' && (
-                  <button className="navbar-login1 button">
-                    <Link to="/profile" className={`navbar-navlink1 ${location.pathname === '/profile' ? 'active' : ''}`}>
+                {user.role !== 'admin' && (
+                  <Link to="/profile" className={`navbar-navlink1 ${location.pathname === '/profile' ? 'active' : ''}`}>
+                    <button className="navbar-login1 button">
                       <span className="navbar-text37">Profile</span>
-                    </Link>
-                  </button>
+                    </button>
+                  </Link>
                 )}
                 <button className="button" onClick={handleLogout}>
                   <span className="navbar-text33">Logout</span>
@@ -99,97 +77,96 @@ const Navbar = (props) => {
               <>
                 <button className="navbar-login1 button">
                   <Link to="/sign-in" className={`navbar-navlink1 ${location.pathname === '/sign-in' ? 'active' : ''}`}>
-                    <span className="navbar-text37">Login</span>
+                    <span className="navbar-text33">Login</span>
                   </Link>
                 </button>
-                <button className="button">
-                  <Link to="/sign-up" className="navbar-navlink2">
-                    <span className="navbar-text33">Register</span>
+                <button className="navbar-register1 button">
+                  <Link to="/sign-up" className={`navbar-navlink2 ${location.pathname === '/sign-up' ? 'active' : ''}`}>
+                    <span className="navbar-text34">Register</span>
                   </Link>
                 </button>
               </>
             )}
           </div>
         </div>
-
-        <div data-thq="thq-burger-menu" className="navbar-burger-menu" onClick={toggleMenu}>
-          <img alt="menu" src="/playground_assets/menu.svg" className="navbar-icon10" />
-        </div>
-        <div data-thq="thq-mobile-menu" className={`navbar-mobile-menu ${isOpen ? 'active' : ''}`}>
-          <div className="navbar-nav">
-            <div className="navbar-top">
-              <Link to="/" className="navbar-text10">
-                <span className="navbar-text25">Study In Moldova</span>
-              </Link>
-              <div data-thq="thq-close-menu" className="navbar-close-menu" onClick={toggleMenu}>
-                <svg viewBox="0 0 1024 1024" className="navbar-icon12">
-                  <path d="M810 274l-238 238 238 238-60 60-238-238-238 238-60-60 238-238-238-238 60-60 238 238 238-238z"></path>
-                </svg>
-              </div>
-            </div>
-            <nav className="navbar-links2">
-              <Link to="/living-in-moldova" className={`navbar-text16 ${location.pathname === '/living-in-moldova' ? 'active' : ''}`}>
-                <span className="navbar-text35">Living In Moldova</span>
-              </Link>
-              <Link to="/plan-your-studies" className={`navbar-text17 ${location.pathname === '/plan-your-studies' ? 'active' : ''}`}>
-                <span className="navbar-text23">Plan Your Studies</span>
-              </Link>
-              <Link to="/universities" className={`navbar-text18 ${location.pathname === '/universities' ? 'active' : ''}`}>
-                <span className="navbar-text32">Universities</span>
-              </Link>
-              <Link to="/programms" className={`navbar-text19 ${location.pathname === '/programms' ? 'active' : ''}`}>
-                <span className="navbar-text29">Programmes</span>
-              </Link>
-            </nav>
-            <div className="navbar-buttons2">
-              {isAuthenticated && user ? (
-                <>
-                  {userRole === 'admin' && (
-                    <>
-                      <button className="navbar-login2 button">
-                        <Link to="/dashboard" className={`navbar-navlink2 ${location.pathname === '/dashboard' ? 'active' : ''}`}>
-                          Dashboard
-                        </Link>
-                      </button>
-                      <button className="navbar-login2 button">
-                        <Link to="/admin-profile" className={`navbar-navlink2 ${location.pathname === '/admin-profile' ? 'active' : ''}`}>
-                          Admin Profile
-                        </Link>
-                      </button>
-                    </>
-                  )}
-                  {userRole !== 'admin' && (
-                    <button className="navbar-login2 button">
-                      <Link to="/profile" className={`navbar-navlink2 ${location.pathname === '/profile' ? 'active' : ''}`}>
-                        <span className="navbar-text34">Profile</span>
-                      </Link>
-                    </button>
-                  )}
-                  <button className="button" onClick={handleLogout}>
-                    <span className="navbar-text31">Logout</span>
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button className="navbar-login2 button">
-                    <Link to="/sign-in" className={`navbar-navlink2 ${location.pathname === '/sign-in' ? 'active' : ''}`}>
-                      <span className="navbar-text34">Login</span>
-                    </Link>
-                  </button>
-                  <button className="button">
-                    <Link to="/sign-up" className="navbar-navlink2">
-                      <span className="navbar-text31">Register</span>
-                    </Link>
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
+        <div className="navbar-burger-menu">
+          <button className="navbar-button button" onClick={toggleMenu}>
+            <svg viewBox="0 0 1024 1024" className="navbar-icon">
+              <path d="M128 256h768v86h-768v-86zM128 554v-84h768v84h-768zM128 768v-86h768v86h-768z"></path>
+            </svg>
+          </button>
         </div>
       </header>
+      {isOpen && (
+        <div className="navbar-mobile-menu">
+          <nav className="navbar-links2">
+            <Link to="/living-in-moldova" className="navbar-text16" onClick={toggleMenu}>
+              <span className="navbar-text36">Living In Moldova</span>
+            </Link>
+            <Link to="/plan-your-studies" className="navbar-text17" onClick={toggleMenu}>
+              <span className="navbar-text24">Plan Your Studies</span>
+            </Link>
+            <Link to="/universities" className="navbar-text18" onClick={toggleMenu}>
+              <span className="navbar-text31">Universities</span>
+            </Link>
+            <Link to="/programs" className="navbar-text19" onClick={toggleMenu}>
+              <span className="navbar-text28">Programmes</span>
+            </Link>
+            <span className="navbar-text20">
+              <span className="navbar-text27">Help You Choose</span>
+            </span>
+          </nav>
+          <div className="navbar-buttons2">
+            {isAuthenticated && user ? (
+              <>
+                {user.role === 'admin' && (
+                  <>
+                    <button className="navbar-login2 button">
+                      <Link to="/dashboard" className="navbar-navlink3" onClick={toggleMenu}>
+                        Dashboard
+                      </Link>
+                    </button>
+                    <button className="navbar-login2 button">
+                      <Link to="/admin-profile" className="navbar-navlink3" onClick={toggleMenu}>
+                        Admin Profile
+                      </Link>
+                    </button>
+                  </>
+                )}
+                {user.role !== 'admin' && (
+                  <Link to="/profile" className={`navbar-navlink3 ${location.pathname === '/profile' ? 'active' : ''}`}>
+                    <button className="navbar-login2 button">
+                      <span className="navbar-text38">Profile</span>
+                    </button>
+                  </Link>
+                )}
+                <button className="button" onClick={() => {
+                  handleLogout();
+                  toggleMenu();
+                }}>
+                  <span className="navbar-text33">Logout</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <button className="navbar-login2 button">
+                  <Link to="/sign-in" className="navbar-navlink3" onClick={toggleMenu}>
+                    <span className="navbar-text33">Login</span>
+                  </Link>
+                </button>
+                <button className="navbar-register2 button">
+                  <Link to="/sign-up" className="navbar-navlink4" onClick={toggleMenu}>
+                    <span className="navbar-text34">Register</span>
+                  </Link>
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
-  )
-}
+  );
+};
 
 Navbar.defaultProps = {
   rootClassName: '',

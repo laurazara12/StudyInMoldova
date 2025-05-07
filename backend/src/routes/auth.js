@@ -102,7 +102,7 @@ router.post('/login', async (req, res) => {
     console.log('Login successful for:', email);
 
     const token = jwt.sign(
-      { id: user.id, role: user.role },
+      { id: user.id, role: user.role, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
@@ -111,6 +111,7 @@ router.post('/login', async (req, res) => {
       message: 'Login successful',
       token,
       user: {
+        id: user.id,
         email: user.email,
         name: user.name,
         role: user.role
@@ -361,15 +362,22 @@ router.put('/update-profile', authMiddleware, async (req, res) => {
 // Endpoint pentru verificarea validității token-ului
 router.get('/verify-token', authMiddleware, (req, res) => {
   try {
-    // Dacă middleware-ul de autentificare a trecut, token-ul este valid
-    res.json({
-      valid: true,
+    const response = {
+      success: true,
       user: req.user
-    });
+    };
+
+    // Verificăm dacă există un token nou în header
+    const newToken = res.getHeader('X-New-Token');
+    if (newToken) {
+      response.token = newToken;
+    }
+
+    res.json(response);
   } catch (error) {
     console.error('Eroare la verificarea token-ului:', error);
     res.status(401).json({
-      valid: false,
+      success: false,
       message: 'Token invalid'
     });
   }

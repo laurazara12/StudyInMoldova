@@ -1,15 +1,46 @@
-import React, { Fragment } from 'react'
-
-import { Helmet } from 'react-helmet'
+import React, { Fragment, useState, useEffect } from 'react'
+import { Helmet } from 'react-helmet-async'
 
 import Navbar from '../../components/navbar'
 import USMHeroUniversityIndividualPage from '../../components/usm-hero-university-individual-page'
-import AvailableProgramesTable from '../../components/available-programes-table'
 import FeatureStudyCycles from '../../components/feature-study-cycles'
 import UniHeroVideo from '../../components/uni-hero-video'
+import { API_BASE_URL, getAuthHeaders } from '../../config/api.config'
 import './usm-university-individual-page.css'
 
 const USMUniversityIndividualPage = (props) => {
+  const [programs, setPrograms] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchPrograms = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/programs?universityId=1`, {
+          headers: getAuthHeaders()
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Eroare HTTP: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        if (!data || !Array.isArray(data)) {
+          throw new Error('Format invalid al datelor primite');
+        }
+        
+        setPrograms(data);
+      } catch (err) {
+        console.error('Eroare la încărcarea programelor:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPrograms();
+  }, []);
+
   return (
     <div className="usm-university-individual-page-container">
       <Helmet>
@@ -143,48 +174,47 @@ const USMUniversityIndividualPage = (props) => {
           </Fragment>
         }
       ></USMHeroUniversityIndividualPage>
-      <AvailableProgramesTable
-        feature1Title={
-          <Fragment>
-            <span className="usm-university-individual-page-text27">
-              Discover the available programs
-            </span>
-          </Fragment>
-        }
-        feature5Title411={
-          <Fragment>
-            <span className="usm-university-individual-page-text28">
-              Credits
-            </span>
-          </Fragment>
-        }
-        feature5Title412={
-          <Fragment>
-            <span className="usm-university-individual-page-text29">
-              Degree
-            </span>
-          </Fragment>
-        }
-        feature5Title413={
-          <Fragment>
-            <span className="usm-university-individual-page-text30">Name</span>
-          </Fragment>
-        }
-        feature5Title4111={
-          <Fragment>
-            <span className="usm-university-individual-page-text31">
-              Languages
-            </span>
-          </Fragment>
-        }
-        feature5Title4131={
-          <Fragment>
-            <span className="usm-university-individual-page-text32">
-              Faculty
-            </span>
-          </Fragment>
-        }
-      ></AvailableProgramesTable>
+      
+      <div className="programs-table-container">
+        <h2 className="programs-title">Discover the available programs</h2>
+        {loading ? (
+          <div className="loading">Se încarcă...</div>
+        ) : error ? (
+          <div className="error">{error}</div>
+        ) : (
+          <table className="programs-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Faculty</th>
+                <th>Degree</th>
+                <th>Credits</th>
+                <th>Languages</th>
+              </tr>
+            </thead>
+            <tbody>
+              {programs.length > 0 ? (
+                programs.map((program) => (
+                  <tr key={program.id} className="program-row">
+                    <td>{program.name}</td>
+                    <td>{program.faculty}</td>
+                    <td>{program.degree}</td>
+                    <td>{program.credits}</td>
+                    <td>{Array.isArray(program.languages) ? program.languages.join(', ') : program.languages}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="no-results">
+                    Nu s-au găsit programe disponibile.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        )}
+      </div>
+
       <FeatureStudyCycles
         sectionTitle={
           <Fragment>
@@ -337,7 +367,7 @@ const USMUniversityIndividualPage = (props) => {
         heading1={
           <Fragment>
             <span className="usm-university-individual-page-text53">
-              A Hub of Excellence and Innovation 
+              A Hub of Excellence and Innovation 
             </span>
           </Fragment>
         }

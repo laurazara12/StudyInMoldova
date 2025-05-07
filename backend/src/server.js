@@ -9,6 +9,7 @@ const programsRouter = require('./routes/programs');
 const authRouter = require('./routes/auth');
 const documentsRouter = require('./routes/documents');
 const notificationRoutes = require('./routes/notificationRoutes');
+const savedProgramRoutes = require('./routes/savedProgramRoutes');
 require('dotenv').config();
 
 const app = express();
@@ -36,6 +37,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../../backend/backend/u
 
 // Rute API
 app.use('/api/programs', programsRouter);
+app.use('/api/saved-programs', savedProgramRoutes);
 app.use('/api/auth', authRouter);
 app.use('/api/documents', documentsRouter);
 app.use('/api/universities', universitiesRouter);
@@ -53,27 +55,6 @@ app.use(express.static(path.join(__dirname, '../../frontend/build')));
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../../frontend/build', 'index.html'));
 });
-
-// Verificăm dacă există un argument pentru forțarea recreării tabelelor
-const forceSync = process.argv.includes('--force-sync');
-
-// Sincronizăm baza de date
-if (forceSync) {
-  console.log('Forcing table recreation...');
-  safeSync(true).then(() => {
-    console.log('Forced synchronization completed.');
-    createAdminUser();
-  }).catch(err => {
-    console.error('Error during forced synchronization:', err);
-  });
-} else {
-  safeSync().then(() => {
-    console.log('Normal synchronization completed.');
-    createAdminUser();
-  }).catch(err => {
-    console.error('Error during normal synchronization:', err);
-  });
-}
 
 // Funcție pentru crearea unui utilizator admin
 async function createAdminUser() {
@@ -103,6 +84,32 @@ async function createAdminUser() {
     console.error('Error during admin user creation:', error);
   }
 }
+
+// Verificăm dacă există un argument pentru forțarea recreării tabelelor
+const forceSync = process.argv.includes('--force-sync');
+
+// Funcție pentru inițializarea bazei de date și crearea utilizatorului admin
+async function initializeDatabase() {
+  try {
+    // Sincronizăm modelele
+    if (forceSync) {
+      console.log('Forcing table recreation...');
+      await safeSync(true);
+      console.log('Forced synchronization completed.');
+    } else {
+      await safeSync();
+      console.log('Normal synchronization completed.');
+    }
+
+    // Creăm utilizatorul admin după ce tabelele sunt create
+    await createAdminUser();
+  } catch (error) {
+    console.error('Error during database initialization:', error);
+  }
+}
+
+// Inițializăm baza de date
+initializeDatabase();
 
 // Middleware pentru gestionarea erorilor
 app.use((err, req, res, next) => {
