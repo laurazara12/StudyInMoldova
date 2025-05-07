@@ -57,7 +57,10 @@ module.exports = (sequelize) => {
   });
 
   Document.associate = (models) => {
-    Document.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
+    Document.belongsTo(models.User, {
+      foreignKey: 'user_id',
+      as: 'user'
+    });
   };
 
   return Document;

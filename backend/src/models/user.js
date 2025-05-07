@@ -32,6 +32,14 @@ module.exports = (sequelize) => {
         isIn: [['user', 'admin']]
       }
     },
+    status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'active',
+      validate: {
+        isIn: [['active', 'inactive', 'pending']]
+      }
+    },
     phone: {
       type: DataTypes.STRING,
       allowNull: true
@@ -81,7 +89,8 @@ module.exports = (sequelize) => {
   User.associate = (models) => {
     User.hasMany(models.Document, {
       foreignKey: 'user_id',
-      as: 'documents'
+      as: 'documents',
+      onDelete: 'CASCADE'
     });
   };
 

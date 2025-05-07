@@ -240,51 +240,33 @@ const cacheMiddleware = (duration) => {
   };
 };
 
-// Optimizare pentru preluarea documentelor
-router.get('/', authMiddleware, cacheMiddleware(300), async (req, res, next) => {
+// Get all documents (admin only)
+router.get('/', authMiddleware, async (req, res) => {
   try {
-    const cacheKey = `documents_${req.user.id}_${req.user.role}`;
-    const cachedDocuments = cache.get(cacheKey);
+    logger.info('Încărcare documente pentru admin', {
+      role: req.user.role,
+      timestamp: new Date().toISOString(),
+      userId: req.user.id
+    });
 
-    if (cachedDocuments) {
-      return res.json(cachedDocuments);
-    }
-
-    const queryOptions = {
-      attributes: ['id', 'user_id', 'document_type', 'file_path', 'createdAt', 'status', 'filename', 'originalName'],
-      order: [['createdAt', 'DESC']],
+    const documents = await Document.findAll({
       include: [{
         model: User,
-        attributes: ['name', 'email'],
-        as: 'user'
-      }]
-    };
+        as: 'user',
+        attributes: ['id', 'name', 'email']
+      }],
+      order: [['createdAt', 'DESC']]
+    });
 
-    if (req.user.role !== 'admin') {
-      queryOptions.where = { user_id: req.user.id };
-    }
-
-    const documents = await Document.findAll(queryOptions);
-    
-    const response = documents.map(doc => ({
-      id: doc.id,
-      user_id: doc.user_id,
-      user_name: doc.user ? doc.user.name : 'Unknown',
-      user_email: doc.user ? doc.user.email : 'Unknown',
-      document_type: doc.document_type,
-      file_path: doc.file_path,
-      createdAt: doc.createdAt,
-      status: doc.status || 'pending',
-      filename: doc.filename,
-      originalName: doc.originalName,
-      uploaded: true,
-      uploadDate: doc.createdAt
-    }));
-
-    cache.set(cacheKey, response, 300); // Cache pentru 5 minute
-    res.json(response);
+    res.json(documents);
   } catch (error) {
-    next(error);
+    logger.error('Eroare la încărcarea documentelor', {
+      error: error.message,
+      stack: error.stack,
+      timestamp: new Date().toISOString(),
+      userId: req.user.id
+    });
+    res.status(500).json({ message: error.message });
   }
 });
 
@@ -485,7 +467,7 @@ router.post('/upload', authMiddleware, uploadLimiter, upload.single('file'), val
     logger.info('Document încărcat cu succes', {
       userId: req.user.id,
       documentId: document.id,
-      documentType: documentType,
+      documentType: document.document_type,
       filePath: filePath
     });
 
