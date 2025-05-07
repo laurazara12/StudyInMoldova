@@ -174,7 +174,7 @@ const Dashboard = () => {
               uploadDate: doc.uploadDate || doc.created_at || doc.createdAt || new Date().toISOString()
             };
             acc.push(processedDoc);
-
+        
             // Actualizăm statusul pentru acest document
             if (statusByUser[userId]) {
               if (!statusByUser[userId][documentType]) {
@@ -191,8 +191,8 @@ const Dashboard = () => {
                   status: processedDoc.status,
                   id: processedDoc.id,
                   uploadDate: processedDoc.uploadDate
-                };
-              }
+            };
+          }
               console.log(`Status actualizat pentru utilizatorul ${userId}, documentul ${documentType}:`, statusByUser[userId][documentType]);
             } else {
               console.warn(`Nu s-a putut actualiza statusul pentru utilizatorul ${userId}, documentul ${documentType} - utilizatorul nu există`);
@@ -210,7 +210,7 @@ const Dashboard = () => {
         });
 
         // Actualizăm state-ul
-        setDocuments(processedDocuments);
+          setDocuments(processedDocuments);
         setDocStatus(statusByUser);
 
         // Verificăm dacă state-ul a fost actualizat
@@ -259,16 +259,16 @@ const Dashboard = () => {
   };
 
   const getDefaultDocumentStatus = () => {
-    return {
-      passport: { exists: false, status: 'missing', uploadDate: null },
-      diploma: { exists: false, status: 'missing', uploadDate: null },
-      transcript: { exists: false, status: 'missing', uploadDate: null },
-      cv: { exists: false, status: 'missing', uploadDate: null },
-      other: { exists: false, status: 'missing', uploadDate: null },
-      photo: { exists: false, status: 'missing', uploadDate: null },
-      medical: { exists: false, status: 'missing', uploadDate: null },
-      insurance: { exists: false, status: 'missing', uploadDate: null }
-    };
+      return {
+        passport: { exists: false, status: 'missing', uploadDate: null },
+        diploma: { exists: false, status: 'missing', uploadDate: null },
+        transcript: { exists: false, status: 'missing', uploadDate: null },
+        cv: { exists: false, status: 'missing', uploadDate: null },
+        other: { exists: false, status: 'missing', uploadDate: null },
+        photo: { exists: false, status: 'missing', uploadDate: null },
+        medical: { exists: false, status: 'missing', uploadDate: null },
+        insurance: { exists: false, status: 'missing', uploadDate: null }
+      };
   };
 
   const handleDeleteUser = async (userId) => {
@@ -636,7 +636,13 @@ const Dashboard = () => {
   const handleAddProgram = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${API_BASE_URL}/api/programs`, newProgram, {
+      const programData = {
+        ...newProgram,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      await axios.post(`${API_BASE_URL}/api/programs`, programData, {
         headers: getAuthHeaders()
       });
       setShowAddProgramForm(false);
