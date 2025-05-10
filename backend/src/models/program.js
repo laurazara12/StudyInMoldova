@@ -57,10 +57,20 @@ module.exports = (sequelize) => {
         model: 'universities',
         key: 'id'
       }
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
     }
   }, {
     tableName: 'programs',
-    timestamps: false
+    timestamps: true
   });
 
   Program.associate = (models) => {

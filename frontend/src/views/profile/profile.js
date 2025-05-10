@@ -10,6 +10,7 @@ import './styles.css';
 import PlanYourStudies from '../../components/plan-your-studies';
 import DocumentCounter from '../../components/document-counter';
 import Notifications from '../../components/notifications';
+import ApplicationsSection from './applications-section';
 
 const initialDocuments = {
   diploma: { uploading: false, progress: 0, uploaded: false, file: null },
@@ -542,6 +543,24 @@ const Profile = () => {
     }
   };
 
+  const handleRemoveSavedProgram = async (programId) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${API_BASE_URL}/api/saved-programs/${programId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      // Actualizează lista de programe salvate după ștergere
+      setSavedPrograms(prevPrograms => 
+        prevPrograms.filter(program => program.id !== programId)
+      );
+    } catch (error) {
+      console.error('Eroare la eliminarea programului:', error);
+    }
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     
@@ -671,6 +690,12 @@ const Profile = () => {
             Documente
           </button>
           <button 
+            className={`tab-button ${activeTab === 'applications' ? 'active' : ''}`}
+            onClick={() => setActiveTab('applications')}
+          >
+            Aplicații
+          </button>
+          <button 
             className={`tab-button ${activeTab === 'study-plan' ? 'active' : ''}`}
             onClick={() => setActiveTab('study-plan')}
           >
@@ -795,6 +820,12 @@ const Profile = () => {
                   handleFileChange(documentType, event);
                 }}
               />
+            </div>
+          )}
+
+          {activeTab === 'applications' && (
+            <div className="applications-section">
+              <ApplicationsSection />
             </div>
           )}
 

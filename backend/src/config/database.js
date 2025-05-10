@@ -43,6 +43,8 @@ const UniversityModel = require('../models/university');
 const DocumentModel = require('../models/document');
 const ProgramModel = require('../models/program');
 const NotificationModel = require('../models/notification');
+const ApplicationModel = require('../models/application');
+const SavedProgramModel = require('../models/savedProgram');
 
 // Initialize models
 const User = UserModel(sequelize);
@@ -50,10 +52,20 @@ const University = UniversityModel(sequelize);
 const Document = DocumentModel(sequelize);
 const Program = ProgramModel(sequelize);
 const Notification = NotificationModel(sequelize);
+const Application = ApplicationModel(sequelize);
+const SavedProgram = SavedProgramModel(sequelize);
 
 // Define relationships
-Program.belongsTo(University, { foreignKey: 'universityId' });
+Program.belongsTo(University, { foreignKey: 'universityId', as: 'University' });
 University.hasMany(Program, { foreignKey: 'universityId' });
+Application.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+Application.belongsTo(Program, { foreignKey: 'program_id', as: 'program' });
+User.hasMany(Application, { foreignKey: 'user_id' });
+Program.hasMany(Application, { foreignKey: 'program_id' });
+SavedProgram.belongsTo(User, { foreignKey: 'userId', as: 'User' });
+SavedProgram.belongsTo(Program, { foreignKey: 'programId', as: 'Program' });
+User.hasMany(SavedProgram, { foreignKey: 'userId' });
+Program.hasMany(SavedProgram, { foreignKey: 'programId' });
 
 // Funcție pentru verificarea existenței tabelelor
 const checkTablesExist = async () => {
@@ -90,11 +102,12 @@ const safeSync = async (force = false) => {
     
     if (tablesExist) {
       console.log('Tabelele există în baza de date.');
-      // Doar actualizăm schema dacă este necesar
+      // Doar actualizăm schema dacă este necesar, fără a șterge datele
       await sequelize.sync({ alter: true });
       console.log('Schema bazei de date a fost actualizată cu succes.');
     } else {
       console.log('Se creează tabelele în baza de date...');
+      // Creăm tabelele fără a șterge datele existente
       await sequelize.sync();
       console.log('Tabelele au fost create cu succes.');
       
@@ -127,6 +140,8 @@ module.exports = {
   Document,
   Program,
   Notification,
+  Application,
+  SavedProgram,
   createBackup,
   safeSync
 };

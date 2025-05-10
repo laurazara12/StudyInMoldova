@@ -78,6 +78,12 @@ const Dashboard = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [documentToDelete, setDocumentToDelete] = useState(null);
   const [filterUserDateRange, setFilterUserDateRange] = useState({ start: '', end: '' });
+  const [applications, setApplications] = useState([]);
+  const [filterApplicationStatus, setFilterApplicationStatus] = useState('all');
+  const [filterApplicationDateRange, setFilterApplicationDateRange] = useState({ start: '', end: '' });
+  const [selectedApplication, setSelectedApplication] = useState(null);
+  const [showApplicationDetails, setShowApplicationDetails] = useState(false);
+  const [showApplicationEdit, setShowApplicationEdit] = useState(false);
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user'));
@@ -95,14 +101,15 @@ const Dashboard = () => {
 
     try {
       setError(null);
-      setLoading(prev => ({ ...prev, users: true, documents: true, universities: true }));
+      setLoading(prev => ({ ...prev, users: true, documents: true, universities: true, applications: true }));
 
       // Încărcăm toate datele în paralel
-      const [usersResponse, documentsResponse, universitiesResponse, programsResponse] = await Promise.all([
+      const [usersResponse, documentsResponse, universitiesResponse, programsResponse, applicationsResponse] = await Promise.all([
         axios.get(`${API_BASE_URL}/api/auth/users`, { headers: getAuthHeaders() }),
         axios.get(`${API_BASE_URL}/api/documents`, { headers: getAuthHeaders() }),
         axios.get(`${API_BASE_URL}/api/universities`, { headers: getAuthHeaders() }),
-        axios.get(`${API_BASE_URL}/api/programs`, { headers: getAuthHeaders() })
+        axios.get(`${API_BASE_URL}/api/programs`, { headers: getAuthHeaders() }),
+        axios.get(`${API_BASE_URL}/api/applications`, { headers: getAuthHeaders() })
       ]);
 
       console.log('Răspuns API documente:', documentsResponse.data);
@@ -230,11 +237,16 @@ const Dashboard = () => {
         setPrograms(programsResponse.data);
       }
 
+      // Procesăm aplicațiile
+      if (Array.isArray(applicationsResponse.data)) {
+        setApplications(applicationsResponse.data);
+      }
+
     } catch (err) {
       console.error('Error initializing dashboard:', err);
       setError('A apărut o eroare la încărcarea datelor. Vă rugăm să încercați din nou.');
     } finally {
-      setLoading(prev => ({ ...prev, users: false, documents: false, universities: false }));
+      setLoading(prev => ({ ...prev, users: false, documents: false, universities: false, applications: false }));
     }
   };
 
@@ -509,6 +521,21 @@ const Dashboard = () => {
            matchesCredits && matchesTuitionFee;
   }) : [];
 
+  const filteredApplications = applications.filter(app => {
+    const user = users.find(u => u.id === app.user_id);
+    const matchesSearch = 
+      (user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
+      app.program?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      app.university?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = filterApplicationStatus === 'all' || app.status === filterApplicationStatus;
+    
+    const matchesDateRange = (!filterApplicationDateRange.start || new Date(app.created_at) >= new Date(filterApplicationDateRange.start)) &&
+                           (!filterApplicationDateRange.end || new Date(app.created_at) <= new Date(filterApplicationDateRange.end));
+    
+    return matchesSearch && matchesStatus && matchesDateRange;
+  });
+
   const handleAddUniversity = async (e) => {
     e.preventDefault();
     try {
@@ -636,37 +663,42 @@ const Dashboard = () => {
   const handleAddProgram = async (e) => {
     e.preventDefault();
     try {
+      const now = new Date().toISOString();
       const programData = {
         ...newProgram,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        createdAt: now,
+        updatedAt: now
       };
-      
-      await axios.post(`${API_BASE_URL}/api/programs`, programData, {
-        headers: getAuthHeaders()
-      });
-      setShowAddProgramForm(false);
-      setNewProgram({
-        name: '',
-        faculty: '',
-        degree: 'Bachelor',
-        credits: '',
-        languages: [],
-        description: '',
-        duration: '',
-        tuitionFee: '',
-        universityId: ''
-      });
-      // Reload the list of programs
-      const response = await axios.get(`${API_BASE_URL}/api/programs`, {
-        headers: getAuthHeaders()
-      });
-      setPrograms(response.data);
-      setSuccessMessage('Programul a fost adăugat cu succes!');
-      setTimeout(() => setSuccessMessage(''), 2000);
+
+      console.log('Trimit datele programului:', programData);
+
+      const response = await axios.post(
+        `${API_BASE_URL}/api/programs`,
+        programData,
+        { headers: getAuthHeaders() }
+      );
+
+      console.log('Răspuns de la server:', response.data);
+
+      if (response.data) {
+        setPrograms(prevPrograms => [...prevPrograms, response.data]);
+        setShowAddProgramForm(false);
+        setNewProgram({
+          name: '',
+          faculty: '',
+          degree: 'Bachelor',
+          credits: '',
+          languages: [],
+          description: '',
+          duration: '',
+          tuitionFee: '',
+          universityId: ''
+        });
+        setSuccessMessage('Program adăugat cu succes!');
+      }
     } catch (error) {
-      console.error('Error adding program:', error);
-      setError('Error adding program');
+      console.error('Eroare la adăugarea programului:', error);
+      setError('Eroare la adăugarea programului: ' + (error.response?.data?.message || error.message));
     }
   };
 
@@ -758,6 +790,37 @@ const Dashboard = () => {
     setShowUserDetails(false);
     setShowUserDocuments(false);
     setSelectedUser(null);
+  };
+
+  const handleViewApplication = (application) => {
+    setSelectedApplication(application);
+    setShowApplicationDetails(true);
+  };
+
+  const handleEditApplication = (application) => {
+    setSelectedApplication(application);
+    setShowApplicationEdit(true);
+  };
+
+  const handleUpdateApplicationStatus = async (applicationId, newStatus) => {
+    try {
+      const response = await axios.patch(
+        `${API_BASE_URL}/api/applications/${applicationId}`,
+        { status: newStatus },
+        { headers: getAuthHeaders() }
+      );
+
+      if (response.status === 200) {
+        setApplications(applications.map(app => 
+          app.id === applicationId ? { ...app, status: newStatus } : app
+        ));
+        setShowApplicationEdit(false);
+        setSelectedApplication(null);
+      }
+    } catch (err) {
+      console.error('Error updating application status:', err);
+      setError('A apărut o eroare la actualizarea statusului aplicației.');
+    }
   };
 
   if (error) {
@@ -1081,6 +1144,12 @@ const Dashboard = () => {
                 >
                   Programs
                 </button>
+                <button 
+                  className={`tab-button ${activeTab === 'applications' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('applications')}
+                >
+                  Aplicații
+                </button>
               </nav>
             </div>
           </div>
@@ -1392,6 +1461,51 @@ const Dashboard = () => {
                   }}
                 >
                   Clear Filters
+                </button>
+              </div>
+            ) : activeTab === 'applications' ? (
+              <div className="filter-section applications-filter">
+                <div className="filter-group">
+                  <label>Status:</label>
+                  <select
+                    value={filterApplicationStatus}
+                    onChange={(e) => setFilterApplicationStatus(e.target.value)}
+                    className="filter-select"
+                  >
+                    <option value="all">Toate Statusurile</option>
+                    <option value="pending">În Așteptare</option>
+                    <option value="approved">Aprobate</option>
+                    <option value="rejected">Respinse</option>
+                    <option value="under_review">În Revizuire</option>
+                  </select>
+                </div>
+                <div className="filter-group">
+                  <label>Interval Dată:</label>
+                  <div className="date-range-inputs">
+                    <input
+                      type="date"
+                      value={filterApplicationDateRange.start}
+                      onChange={(e) => setFilterApplicationDateRange({...filterApplicationDateRange, start: e.target.value})}
+                      className="date-input"
+                    />
+                    <span>până la</span>
+                    <input
+                      type="date"
+                      value={filterApplicationDateRange.end}
+                      onChange={(e) => setFilterApplicationDateRange({...filterApplicationDateRange, end: e.target.value})}
+                      className="date-input"
+                    />
+                  </div>
+                </div>
+                <button 
+                  className="clear-filters-button"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setFilterApplicationStatus('all');
+                    setFilterApplicationDateRange({ start: '', end: '' });
+                  }}
+                >
+                  Resetează Filtrele
                 </button>
               </div>
             ) : null}
@@ -2413,6 +2527,69 @@ const Dashboard = () => {
                     </tbody>
                   </table>
                 </div>
+              ) : activeTab === 'applications' ? (
+                <div className="applications-table-container">
+                  <table className="dashboard-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Utilizator</th>
+                        <th>Program</th>
+                        <th>Universitate</th>
+                        <th>Data Aplicației</th>
+                        <th>Status</th>
+                        <th>Acțiuni</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredApplications.map(app => {
+                        const user = users.find(u => u.id === app.user_id);
+                        return (
+                          <tr key={app.id}>
+                            <td>{app.id}</td>
+                            <td>
+                              {user ? (
+                                <span className="user-name">{user.name}</span>
+                              ) : (
+                                <span className="unknown-user">
+                                  Utilizator ID: {app.user_id}
+                                </span>
+                              )}
+                            </td>
+                            <td>{app.program?.name || 'N/A'}</td>
+                            <td>{app.university?.name || 'N/A'}</td>
+                            <td>{formatDate(app.created_at)}</td>
+                            <td>
+                              <span className={`status-badge status-${app.status}`}>
+                                {app.status === 'pending' ? 'În Așteptare' :
+                                 app.status === 'approved' ? 'Aprobată' :
+                                 app.status === 'rejected' ? 'Respinsă' :
+                                 app.status === 'under_review' ? 'În Revizuire' :
+                                 app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                              </span>
+                            </td>
+                            <td>
+                              <div className="action-buttons">
+                                <button 
+                                  className="action-button view-button"
+                                  onClick={() => handleViewApplication(app)}
+                                >
+                                  <i className="fas fa-eye"></i> Vezi
+                                </button>
+                                <button 
+                                  className="action-button edit-button"
+                                  onClick={() => handleEditApplication(app)}
+                                >
+                                  <i className="fas fa-edit"></i> Editează
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               ) : null}
 
               {showUserDetails && selectedUser && (
@@ -2594,6 +2771,119 @@ const Dashboard = () => {
                   document={documentToDelete}
                   onDelete={handleDocumentDeleteSuccess}
                 />
+              )}
+
+              {showApplicationDetails && selectedApplication && (
+                <div className="modal-overlay">
+                  <div className="modal-content">
+                    <div className="modal-header">
+                      <h2>Detalii Aplicație</h2>
+                      <button className="close-button" onClick={() => {
+                        setShowApplicationDetails(false);
+                        setSelectedApplication(null);
+                      }}>
+                        <span className="close-x">×</span>
+                      </button>
+                    </div>
+                    <div className="application-details">
+                      <div className="detail-row">
+                        <span className="detail-label">ID Aplicație:</span>
+                        <span className="detail-value">{selectedApplication.id}</span>
+                      </div>
+                      <div className="detail-row">
+                        <span className="detail-label">Utilizator:</span>
+                        <span className="detail-value">
+                          {users.find(u => u.id === selectedApplication.user_id)?.name || 'N/A'}
+                        </span>
+                      </div>
+                      <div className="detail-row">
+                        <span className="detail-label">Program:</span>
+                        <span className="detail-value">{selectedApplication.program?.name || 'N/A'}</span>
+                      </div>
+                      <div className="detail-row">
+                        <span className="detail-label">Universitate:</span>
+                        <span className="detail-value">{selectedApplication.university?.name || 'N/A'}</span>
+                      </div>
+                      <div className="detail-row">
+                        <span className="detail-label">Data Aplicației:</span>
+                        <span className="detail-value">{formatDate(selectedApplication.created_at)}</span>
+                      </div>
+                      <div className="detail-row">
+                        <span className="detail-label">Status:</span>
+                        <span className={`status-badge status-${selectedApplication.status}`}>
+                          {selectedApplication.status === 'pending' ? 'În Așteptare' :
+                           selectedApplication.status === 'approved' ? 'Aprobată' :
+                           selectedApplication.status === 'rejected' ? 'Respinsă' :
+                           selectedApplication.status === 'under_review' ? 'În Revizuire' :
+                           selectedApplication.status.charAt(0).toUpperCase() + selectedApplication.status.slice(1)}
+                        </span>
+                      </div>
+                      {selectedApplication.notes && (
+                        <div className="detail-row">
+                          <span className="detail-label">Note:</span>
+                          <span className="detail-value">{selectedApplication.notes}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {showApplicationEdit && selectedApplication && (
+                <div className="modal-overlay">
+                  <div className="modal-content">
+                    <div className="modal-header">
+                      <h2>Editare Aplicație</h2>
+                      <button className="close-button" onClick={() => {
+                        setShowApplicationEdit(false);
+                        setSelectedApplication(null);
+                      }}>
+                        <span className="close-x">×</span>
+                      </button>
+                    </div>
+                    <div className="application-edit">
+                      <div className="form-group">
+                        <label>Status:</label>
+                        <select
+                          value={selectedApplication.status}
+                          onChange={(e) => handleUpdateApplicationStatus(selectedApplication.id, e.target.value)}
+                          className="form-select"
+                        >
+                          <option value="pending">În Așteptare</option>
+                          <option value="approved">Aprobată</option>
+                          <option value="rejected">Respinsă</option>
+                          <option value="under_review">În Revizuire</option>
+                        </select>
+                      </div>
+                      <div className="form-group">
+                        <label>Note:</label>
+                        <textarea
+                          value={selectedApplication.notes || ''}
+                          onChange={(e) => setSelectedApplication({...selectedApplication, notes: e.target.value})}
+                          className="form-textarea"
+                          rows="4"
+                        />
+                      </div>
+                      <div className="modal-buttons">
+                        <button
+                          className="cancel-button"
+                          onClick={() => {
+                            setShowApplicationEdit(false);
+                            setSelectedApplication(null);
+                          }}
+                        >
+                          Anulează
+                        </button>
+                        <button
+                          className="confirm-button"
+                          onClick={() => handleUpdateApplicationStatus(selectedApplication.id, selectedApplication.status)}
+                        >
+                          Salvează
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               )}
             </>
           )}

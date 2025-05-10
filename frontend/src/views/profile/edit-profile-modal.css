@@ -1,0 +1,147 @@
+.edit-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.edit-modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.edit-modal-content h2 {
+  color: #333;
+  margin-bottom: 1.5rem;
+  font-size: var(--dl-font-size-medium);
+}
+
+.close-modal-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+  padding: 0.5rem;
+  line-height: 1;
+}
+
+.close-modal-button:hover {
+  color: #333;
+}
+
+.form-section {
+  margin-bottom: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--dl-color-theme-neutral-dark);
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--dl-color-theme-neutral-dark);
+  border-radius: var(--dl-radius-radius-buttonradius);
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--dl-color-theme-primary1);
+}
+
+.form-group input.error {
+  border-color: #dc3545;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.required {
+  color: #dc3545;
+  margin-left: 0.25rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.cancel-button,
+.save-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--dl-radius-radius-buttonradius);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-button {
+  background: none;
+  border: 1px solid var(--dl-color-theme-neutral-dark);
+  color: var(--dl-color-theme-neutral-dark);
+}
+
+.cancel-button:hover {
+  background: var(--dl-color-theme-neutral-light);
+}
+
+.save-button {
+  background: var(--dl-color-theme-primary1);
+  border: none;
+  color: white;
+}
+
+.save-button:hover {
+  background: var(--dl-color-theme-primary2);
+}
+
+.save-button:disabled {
+  background: var(--dl-color-theme-neutral-dark);
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .edit-modal-content {
+    width: 95%;
+    padding: 1rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .cancel-button,
+  .save-button {
+    width: 100%;
+  }
+} 

@@ -50,3 +50,58 @@
 {"level":"error","message":"Eroare: Tipul documentului este obligatoriu","method":"POST","path":"/upload","stack":"Error: Tipul documentului este obligatoriu\n    at validateDocument (/Users/Laura/Desktop/StudyInMoldova/backend/src/routes/documents.js:57:13)\n    at Layer.handle [as handle_request] (/Users/Laura/Desktop/StudyInMoldova/backend/node_modules/express/lib/router/layer.js:95:5)\n    at next (/Users/Laura/Desktop/StudyInMoldova/backend/node_modules/express/lib/router/route.js:149:13)\n    at /Users/Laura/Desktop/StudyInMoldova/backend/node_modules/express-rate-limit/dist/index.cjs:822:7\n    at async /Users/Laura/Desktop/StudyInMoldova/backend/node_modules/express-rate-limit/dist/index.cjs:704:5","timestamp":"2025-05-07T10:40:39.675Z","user":2}
 {"documentType":"transcript","file":{"mimetype":"image/png","originalname":"Captura___de_ecran_din_2025-04-30_la_12.40.57.png","size":363567},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-07T10:41:13.457Z","userId":2}
 {"documentId":1,"documentType":"transcript","filePath":"/Users/Laura/Desktop/StudyInMoldova/uploads/2/transcript_1746614473468.png","level":"info","message":"Document încărcat cu succes","timestamp":"2025-05-07T10:41:13.479Z","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:07:53.348Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:07:53.362Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:11:52.757Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:11:52.762Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:15:32.659Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:15:32.669Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:16:11.603Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:16:11.610Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: expires_at","level":"error","message":"Error getting notifications","timestamp":"2025-05-09T19:17:43.493Z","userId":2}
+{"error":"SQLITE_ERROR: no such column: expires_at","level":"error","message":"Error getting notifications","timestamp":"2025-05-09T19:17:43.499Z","userId":2}
+{"error":"SQLITE_ERROR: no such column: expires_at","level":"error","message":"Error getting notifications","timestamp":"2025-05-09T19:18:02.723Z","userId":2}
+{"error":"SQLITE_ERROR: no such column: expires_at","level":"error","message":"Error getting notifications","timestamp":"2025-05-09T19:18:02.728Z","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:18:07.743Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:18:07.752Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:18:10.439Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:18:10.458Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:19:45.724Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:20:20.766Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:20:20.770Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:20:25.508Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:21:10.587Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:21:19.622Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:21:56.591Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:22:10.508Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:22:10.509Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:23:22.576Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:24:10.586Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:25:10.578Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:25:45.562Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:25:58.180Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:25:58.187Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:26:54.330Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:27:01.636Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:27:38.652Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:29:47.557Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:30:08.832Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:30:08.837Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:30:31.581Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:31:38.572Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:32:08.556Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:32:26.212Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:33:12.664Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:33:24.268Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:33:50.378Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-09T19:34:09.465Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: expires_at","level":"error","message":"Error getting notifications","timestamp":"2025-05-09T19:34:41.316Z","userId":2}
+{"error":"SQLITE_ERROR: no such column: expires_at","level":"error","message":"Error getting notifications","timestamp":"2025-05-09T19:34:41.321Z","userId":2}
+{"error":"SQLITE_ERROR: no such column: expires_at","level":"error","message":"Error getting notifications","timestamp":"2025-05-09T23:05:38.805Z","userId":2}
+{"error":"SQLITE_ERROR: no such column: expires_at","level":"error","message":"Error getting notifications","timestamp":"2025-05-09T23:05:38.811Z","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-10T10:31:38.830Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-10T10:31:38.858Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-10T10:56:44.208Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-10T10:56:44.225Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: expires_at","level":"error","message":"Error getting notifications","timestamp":"2025-05-10T14:00:41.368Z","userId":2}
+{"error":"SQLITE_ERROR: no such column: expires_at","level":"error","message":"Error getting notifications","timestamp":"2025-05-10T14:00:41.381Z","userId":2}

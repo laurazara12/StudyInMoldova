@@ -1,0 +1,247 @@
+.applications-section {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.applications-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.applications-header h2 {
+  margin: 0;
+  color: #333;
+}
+
+.create-application-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.create-application-button:hover {
+  background-color: #45a049;
+}
+
+.applications-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+.applications-in-progress,
+.applications-submitted {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.applications-in-progress h3,
+.applications-submitted h3 {
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #eee;
+}
+
+.applications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.application-card {
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 15px;
+  border: 1px solid #eee;
+}
+
+.application-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.application-header h4 {
+  margin: 0;
+  color: #333;
+}
+
+.status-badge {
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.status-pending {
+  background-color: #ffd700;
+  color: #000;
+}
+
+.status-approved {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.status-rejected {
+  background-color: #f44336;
+  color: white;
+}
+
+.application-details {
+  color: #666;
+}
+
+.application-details p {
+  margin: 5px 0;
+}
+
+.create-application-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #666;
+}
+
+.form-group select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.cancel-button {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.submit-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.submit-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: #f44336;
+  margin-bottom: 15px;
+  padding: 10px;
+  background-color: #ffebee;
+  border-radius: 4px;
+}
+
+.loading {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.no-applications {
+  text-align: center;
+  padding: 3rem;
+  background: var(--dl-color-theme-neutral-light);
+  border-radius: var(--dl-radius-radius-buttonradius);
+}
+
+.no-applications h2 {
+  margin-bottom: 1rem;
+}
+
+.no-applications p {
+  color: var(--dl-color-theme-neutral-dark);
+  opacity: 0.8;
+}
+
+.create-first-application {
+  background-color: #2563eb;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.create-first-application:hover {
+  background-color: #1d4ed8;
+}
+
+@media (max-width: 768px) {
+  .applications-section {
+    padding: 1rem;
+  }
+
+  .application-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .status-badge {
+    align-self: flex-start;
+  }
+} 

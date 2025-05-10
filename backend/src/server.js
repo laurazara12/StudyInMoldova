@@ -10,6 +10,7 @@ const authRouter = require('./routes/auth');
 const documentsRouter = require('./routes/documents');
 const notificationRoutes = require('./routes/notificationRoutes');
 const savedProgramRoutes = require('./routes/savedProgramRoutes');
+const applicationsRouter = require('./routes/applications');
 require('dotenv').config();
 
 const app = express();
@@ -42,10 +43,21 @@ app.use('/api/auth', authRouter);
 app.use('/api/documents', documentsRouter);
 app.use('/api/universities', universitiesRouter);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/applications', applicationsRouter);
 
 // Ruta pentru verificarea stării serverului
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+// Middleware pentru gestionarea erorilor API
+app.use('/api', (err, req, res, next) => {
+  console.error('API Error:', err);
+  res.status(500).json({ 
+    success: false,
+    message: 'An error occurred on the server', 
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined 
+  });
 });
 
 // Servim fișierele statice din frontend/build

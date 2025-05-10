@@ -75,6 +75,7 @@ exports.createProgram = async (req, res) => {
       return res.status(400).json({ message: 'Toate câmpurile sunt obligatorii' });
     }
 
+    const now = new Date();
     const program = await Program.create({
       name,
       faculty,
@@ -84,7 +85,11 @@ exports.createProgram = async (req, res) => {
       description,
       duration,
       tuitionFee,
-      universityId
+      universityId,
+      createdAt: now,
+      updatedAt: now
+    }, {
+      fields: ['name', 'faculty', 'degree', 'credits', 'languages', 'description', 'duration', 'tuitionFee', 'universityId', 'createdAt', 'updatedAt']
     });
 
     res.status(201).json(program);
