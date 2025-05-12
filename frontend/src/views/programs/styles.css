@@ -269,4 +269,19 @@
 
 .remove-save-button:hover {
   background-color: #da190b;
+}
+
+.no-programs-message {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.no-programs-message p {
+  color: #6c757d;
+  font-size: 1.1rem;
+  margin: 0;
 } 

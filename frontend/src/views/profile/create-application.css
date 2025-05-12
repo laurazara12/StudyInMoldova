@@ -1,0 +1,337 @@
+.create-application-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.create-application-container h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 2rem;
+}
+
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.success-message {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.status-badges {
+  margin-bottom: 1.5rem;
+}
+
+.status-badge {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.status-draft {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+.status-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-confirmed {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-rejected {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.status-withdrawn {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.program-selection,
+.document-selection {
+  margin-bottom: 2rem;
+}
+
+.program-selection h3,
+.document-selection h3 {
+  color: #444;
+  margin-bottom: 1rem;
+}
+
+.programs-grid,
+.documents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.program-card,
+.document-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.program-card:hover,
+.document-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.program-card.selected,
+.document-card.selected {
+  border-color: #2196f3;
+  background-color: #e3f2fd;
+}
+
+.program-card:not(.editable),
+.document-card:not(.editable) {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.program-card h4,
+.document-card h4 {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+}
+
+.program-card p,
+.document-card p {
+  margin: 0.25rem 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+  position: relative;
+}
+
+.submit-button,
+.save-draft-button,
+.withdraw-button {
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 200px;
+}
+
+.submit-button {
+  background-color: #2196f3;
+  color: white;
+}
+
+.save-draft-button {
+  background-color: #757575;
+  color: white;
+}
+
+.withdraw-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.submit-button:hover:not(:disabled),
+.save-draft-button:hover:not(:disabled),
+.withdraw-button:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.submit-button:disabled,
+.save-draft-button:disabled,
+.withdraw-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.confirmation-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.confirmation-content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+
+.confirmation-content h3 {
+  margin: 0 0 1rem 0;
+  color: #333;
+}
+
+.confirmation-content p {
+  margin-bottom: 1.5rem;
+  color: #666;
+}
+
+.confirmation-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.cancel-button,
+.confirm-withdraw-button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.cancel-button {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.confirm-withdraw-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.cancel-button:hover {
+  background-color: #d5d5d5;
+}
+
+.confirm-withdraw-button:hover {
+  background-color: #d32f2f;
+}
+
+@media (max-width: 768px) {
+  .create-application-container {
+    padding: 1rem;
+  }
+
+  .programs-grid,
+  .documents-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .button-group {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .submit-button,
+  .save-draft-button,
+  .withdraw-button {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .confirmation-buttons {
+    flex-direction: column;
+  }
+
+  .cancel-button,
+  .confirm-withdraw-button {
+    width: 100%;
+  }
+}
+
+.no-programs-message {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  margin: 1rem 0;
+}
+
+.no-programs-message p {
+  color: #6c757d;
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.browse-programs-button {
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.browse-programs-button:hover {
+  background-color: #1976d2;
+  transform: translateY(-1px);
+}
+
+.no-documents-message {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  margin: 1rem 0;
+}
+
+.no-documents-message p {
+  color: #6c757d;
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.upload-documents-button {
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.upload-documents-button:hover {
+  background-color: #1976d2;
+  transform: translateY(-1px);
+} 

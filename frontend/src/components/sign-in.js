@@ -25,59 +25,70 @@ const SignIn = (props) => {
     setLoading(true);
 
     try {
-      console.log('Attempting authentication for:', email);
-      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, {
-        email,
-        password
+      console.log('=== Frontend Login Details ===');
+      console.log('Email:', email);
+      console.log('Password:', password);
+      console.log('Password type:', typeof password);
+      console.log('Password length:', password.length);
+      
+      // Asigurăm-ne că parola este un string
+      const cleanPassword = String(password).trim();
+      console.log('Cleaned password:', cleanPassword);
+      
+      const requestData = {
+        email: email.trim(),
+        password: cleanPassword
+      };
+      console.log('Request data being sent:', requestData);
+      
+      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, requestData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
 
-      console.log('Răspuns de la server:', {
-        status: response.status,
-        data: response.data,
-        headers: response.headers
-      });
+      console.log('Răspuns de la server:', response.data);
 
-      if (!response.data || !response.data.user) {
-        console.error('Answer invalid from server:', response.data);
-        setError('Authentication failed. Please try again.');
+      if (!response.data || !response.data.success || !response.data.data) {
+        console.error('Răspuns invalid de la server:', response.data);
+        setError('Autentificare eșuată. Vă rugăm să încercați din nou.');
         return;
       }
 
-      const { token, user: userData } = response.data;
-      console.log('User data received:', userData);
+      const { user: userData, token } = response.data.data;
+      console.log('Date utilizator primite:', userData);
 
       if (!userData || !userData.id || !userData.email || !userData.role) {
-        console.error('User data incomplete:', userData);
-        setError('Authentication failed. Please try again.');
+        console.error('Date utilizator incomplete:', userData);
+        setError('Autentificare eșuată. Vă rugăm să încercați din nou.');
         return;
       }
 
       const loginSuccess = await login(userData, token);
       
       if (loginSuccess) {
-        // Redirect based on role
         if (userData.role === 'admin') {
           navigate('/dashboard', { replace: true });
         } else {
           navigate('/profile', { replace: true });
         }
       } else {
-        setError('Authentication failed. Please try again.');
+        setError('Autentificare eșuată. Vă rugăm să încercați din nou.');
       }
     } catch (error) {
-      console.error('Authentication error:', error);
+      console.error('Eroare la autentificare:', error);
       if (error.response) {
-        console.error('Error details:', {
+        console.error('Detalii eroare:', {
           status: error.response.status,
           data: error.response.data
         });
         if (error.response.status === 401) {
-          setError('Incorrect email or password.');
+          setError('Email sau parolă incorectă.');
         } else {
-          setError(error.response.data?.message || 'An error occurred during authentication.');
+          setError(error.response.data?.message || 'A apărut o eroare în timpul autentificării.');
         }
       } else {
-        setError('An error occurred during communication with the server.');
+        setError('A apărut o eroare în timpul comunicării cu serverul.');
       }
     } finally {
       setLoading(false);

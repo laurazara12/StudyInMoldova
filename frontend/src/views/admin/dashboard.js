@@ -70,9 +70,9 @@ const Dashboard = () => {
     degree_type: '',
     language: '',
     tuition_fees: '',
-    start_date: '',
-    application_deadline: '',
-    university_id: ''
+    university_id: '',
+    faculty: '',
+    credits: ''
   });
   const [sortBy, setSortBy] = useState('name');
   const [successMessage, setSuccessMessage] = useState("");
@@ -114,10 +114,14 @@ const Dashboard = () => {
 
       // Procesăm utilizatorii
       if (Array.isArray(usersResponse.data)) {
-        const processedUsers = usersResponse.data.map(user => ({
-          ...user,
-          name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'N/A'
-        }));
+        console.log('Date utilizatori primite:', usersResponse.data);
+        const processedUsers = usersResponse.data.map(user => {
+          console.log('Procesare utilizator:', user);
+          return {
+            ...user,
+            displayName: user.name || user.email
+          };
+        });
         setUsers(processedUsers);
       }
 
@@ -190,8 +194,17 @@ const Dashboard = () => {
       if (Array.isArray(universitiesResponse.data)) {
         setUniversities(universitiesResponse.data);
       }
-      if (Array.isArray(programsResponse.data)) {
+
+      // Procesăm programele
+      if (programsResponse.data && programsResponse.data.data) {
+        console.log('Programe primite:', programsResponse.data.data);
+        setPrograms(programsResponse.data.data);
+      } else if (Array.isArray(programsResponse.data)) {
+        console.log('Programe primite (array):', programsResponse.data);
         setPrograms(programsResponse.data);
+      } else {
+        console.error('Format invalid pentru programe:', programsResponse.data);
+        setPrograms([]);
       }
 
       // Procesăm aplicațiile
@@ -701,8 +714,6 @@ const Dashboard = () => {
         degree_type: program.degree_type || '',
         language: program.language || '',
         tuition_fees: program.tuition_fees || '',
-        start_date: program.start_date || '',
-        application_deadline: program.application_deadline || '',
         university_id: program.university_id || program.university?.id || ''
       };
 
@@ -783,7 +794,6 @@ const Dashboard = () => {
   const handleAddProgram = async (e) => {
     e.preventDefault();
     try {
-      // Verificăm dacă utilizatorul este autentificat și are rolul de admin
       if (!token || !user || user.role !== 'admin') {
         setError('Nu aveți permisiunea de a adăuga programe. Vă rugăm să vă autentificați ca administrator.');
         return;
@@ -791,15 +801,12 @@ const Dashboard = () => {
 
       console.log('Datele programului înainte de validare:', newProgram);
 
-      // Verificăm câmpurile obligatorii
       const requiredFields = {
         name: 'Numele programului',
         duration: 'Durata',
         degree_type: 'Tipul de diplomă',
         language: 'Limba de predare',
         tuition_fees: 'Taxa de școlarizare',
-        start_date: 'Data de început',
-        application_deadline: 'Termenul limită de aplicare',
         university_id: 'Universitatea'
       };
 
@@ -811,25 +818,19 @@ const Dashboard = () => {
         throw new Error(`Câmpurile obligatorii lipsesc: ${missingFields.join(', ')}`);
       }
 
-      // Pregătim datele pentru trimitere
       const programData = {
         name: String(newProgram.name).trim(),
         description: newProgram.description ? String(newProgram.description).trim() : '',
         duration: parseInt(newProgram.duration),
         degree_type: newProgram.degree_type,
         language: newProgram.language,
-        tuition_fees: parseFloat(newProgram.tuition_fees),
-        start_date: newProgram.start_date,
-        application_deadline: newProgram.application_deadline,
-        university_id: parseInt(newProgram.university_id)
+        tuition_fees: newProgram.tuition_fees,
+        university_id: parseInt(newProgram.university_id),
+        faculty: newProgram.faculty ? String(newProgram.faculty).trim() : null,
+        credits: newProgram.credits ? parseInt(newProgram.credits) : null
       };
 
       console.log('Datele pregătite pentru trimitere:', JSON.stringify(programData, null, 2));
-      console.log('URL-ul API-ului:', `${API_BASE_URL}/api/programs`);
-      console.log('Headers:', {
-        ...getAuthHeaders(),
-        'Content-Type': 'application/json'
-      });
 
       const response = await axios.post(
         `${API_BASE_URL}/api/programs`,
@@ -844,22 +845,16 @@ const Dashboard = () => {
 
       console.log('Răspuns de la server:', JSON.stringify(response.data, null, 2));
 
-      if (response.data && response.data.success) {
-        setPrograms(prevPrograms => [...prevPrograms, response.data.data]);
-        setShowAddProgramForm(false);
-        setNewProgram({
-          name: '',
-          description: '',
-          duration: '',
-          degree_type: '',
-          language: '',
-          tuition_fees: '',
-          start_date: '',
-          application_deadline: '',
-          university_id: ''
+      if (response.data && response.data.id) {
+        // Programul a fost adăugat cu succes, reîncărcăm lista de programe
+        const programsResponse = await axios.get(`${API_BASE_URL}/api/programs`, {
+          headers: getAuthHeaders()
         });
-        setSuccessMessage('Program adăugat cu succes!');
-        setTimeout(() => setSuccessMessage(''), 2000);
+        if (Array.isArray(programsResponse.data)) {
+          setPrograms(programsResponse.data);
+        } else if (programsResponse.data && programsResponse.data.data) {
+          setPrograms(programsResponse.data.data);
+        }
       } else {
         throw new Error(response.data?.message || 'Eroare la adăugarea programului');
       }
@@ -898,21 +893,23 @@ const Dashboard = () => {
   };
 
   const handleDeleteProgram = async (programId) => {
-    if (window.confirm('Are you sure you want to delete this program?')) {
+    if (window.confirm('Sigur doriți să ștergeți acest program?')) {
       try {
-        await axios.delete(`${API_BASE_URL}/programs/${programId}`, {
+        await axios.delete(`${API_BASE_URL}/api/programs/${programId}`, {
           headers: getAuthHeaders()
         });
         // Reîncărcăm lista de programe
-        const response = await axios.get(`${API_BASE_URL}/programs`, {
+        const response = await axios.get(`${API_BASE_URL}/api/programs`, {
           headers: getAuthHeaders()
         });
-        setPrograms(response.data);
+        if (response.data && response.data.data) {
+          setPrograms(response.data.data);
+        }
         setSuccessMessage('Programul a fost șters cu succes!');
         setTimeout(() => setSuccessMessage(''), 2000);
       } catch (error) {
         console.error('Error deleting program:', error);
-        setError('Error deleting program');
+        setError('Eroare la ștergerea programului: ' + (error.response?.data?.message || error.message));
       }
     }
   };
@@ -961,6 +958,82 @@ const Dashboard = () => {
     } catch (err) {
       console.error('Error updating application status:', err);
       setError('A apărut o eroare la actualizarea statusului aplicației.');
+    }
+  };
+
+  const handleUpdateProgram = async (e) => {
+    e.preventDefault();
+    try {
+      if (!token || !user || user.role !== 'admin') {
+        setError('Nu aveți permisiunea de a actualiza programe. Vă rugăm să vă autentificați ca administrator.');
+        return;
+      }
+
+      if (!editingProgram) {
+        throw new Error('Nu există program selectat pentru editare');
+      }
+
+      const programData = {
+        name: String(editingProgram.name).trim(),
+        description: editingProgram.description ? String(editingProgram.description).trim() : '',
+        duration: parseInt(editingProgram.duration),
+        degree_type: editingProgram.degree_type,
+        language: editingProgram.language,
+        tuition_fees: editingProgram.tuition_fees,
+        university_id: parseInt(editingProgram.university_id),
+        faculty: editingProgram.faculty ? String(editingProgram.faculty).trim() : null,
+        credits: editingProgram.credits ? parseInt(editingProgram.credits) : null
+      };
+
+      console.log('Datele pregătite pentru actualizare:', JSON.stringify(programData, null, 2));
+
+      const response = await axios.put(
+        `${API_BASE_URL}/api/programs/${editingProgram.id}`,
+        programData,
+        { 
+          headers: {
+            ...getAuthHeaders(),
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      console.log('Răspuns de la server:', JSON.stringify(response.data, null, 2));
+
+      if (response.data && response.data.success) {
+        // Reîncărcăm lista completă de programe
+        const programsResponse = await axios.get(`${API_BASE_URL}/api/programs`, {
+          headers: getAuthHeaders()
+        });
+        
+        if (programsResponse.data && programsResponse.data.data) {
+          setPrograms(programsResponse.data.data);
+        }
+
+        setShowEditProgramForm(false);
+        setEditingProgram(null);
+        setSuccessMessage('Program actualizat cu succes!');
+        setTimeout(() => setSuccessMessage(''), 2000);
+      } else {
+        throw new Error(response.data?.message || 'Eroare la actualizarea programului');
+      }
+    } catch (error) {
+      console.error('Eroare detaliată la actualizarea programului:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        headers: error.response?.headers,
+        config: {
+          url: error.config?.url,
+          method: error.config?.method,
+          headers: error.config?.headers,
+          data: error.config?.data
+        }
+      });
+      
+      const errorMessage = error.response?.data?.message || error.message;
+      console.error('Eroare la actualizarea programului:', error);
+      setError(`Eroare la actualizarea programului: ${errorMessage}`);
     }
   };
 
@@ -2046,35 +2119,25 @@ const Dashboard = () => {
                           <th>Durată</th>
                           <th>Limbă</th>
                           <th>Taxă</th>
-                          <th>Data început</th>
-                          <th>Termen limită</th>
                           <th>Universitate</th>
                           <th>Acțiuni</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {filteredPrograms.map(program => (
+                        {programs.map(program => (
                           <tr key={program.id}>
                             <td>{program.name}</td>
                             <td>{program.degree_type}</td>
-                            <td>{program.duration} ani</td>
+                            <td>{program.duration}</td>
                             <td>{program.language}</td>
-                            <td>{formatCurrency(program.tuition_fees)}</td>
-                            <td>{formatDate(program.start_date)}</td>
-                            <td>{formatDate(program.application_deadline)}</td>
-                            <td>{program.university?.name || 'N/A'}</td>
+                            <td>{program.tuition_fees}</td>
+                            <td>{program.university?.name || program.University?.name || 'N/A'}</td>
                             <td>
                               <div className="action-buttons">
-                                <button 
-                                  className="edit-button"
-                                  onClick={() => handleEditProgram(program)}
-                                >
+                                <button onClick={() => handleEditProgram(program)} className="edit-button">
                                   Editează
                                 </button>
-                                <button 
-                                  className="delete-button"
-                                  onClick={() => handleDeleteProgram(program.id)}
-                                >
+                                <button onClick={() => handleDeleteProgram(program.id)} className="delete-button">
                                   Șterge
                                 </button>
                               </div>
@@ -2123,6 +2186,32 @@ const Dashboard = () => {
 
                           <div className="form-row">
                             <div className="form-group">
+                              <label>Facultate:</label>
+                              <input
+                                type="text"
+                                name="faculty"
+                                value={newProgram.faculty}
+                                onChange={handleProgramInputChange}
+                                placeholder="Introduceți numele facultății"
+                                className="form-input"
+                              />
+                            </div>
+
+                            <div className="form-group">
+                              <label>Credite:</label>
+                              <input
+                                type="number"
+                                name="credits"
+                                value={newProgram.credits}
+                                onChange={handleProgramInputChange}
+                                placeholder="Introduceți numărul de credite"
+                                className="form-input"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="form-row">
+                            <div className="form-group">
                               <label>Durată (ani):</label>
                               <input
                                 type="number"
@@ -2154,32 +2243,6 @@ const Dashboard = () => {
                             </div>
                           </div>
 
-                          <div className="form-row">
-                            <div className="form-group">
-                              <label>Data de început:</label>
-                              <input
-                                type="date"
-                                name="start_date"
-                                value={newProgram.start_date}
-                                onChange={handleProgramInputChange}
-                                required
-                                className="form-input"
-                              />
-                            </div>
-
-                            <div className="form-group">
-                              <label>Termen limită aplicare:</label>
-                              <input
-                                type="date"
-                                name="application_deadline"
-                                value={newProgram.application_deadline}
-                                onChange={handleProgramInputChange}
-                                required
-                                className="form-input"
-                              />
-                            </div>
-                          </div>
-
                           <div className="form-group">
                             <label>Descriere:</label>
                             <textarea
@@ -2194,15 +2257,14 @@ const Dashboard = () => {
 
                           <div className="form-row">
                             <div className="form-group">
-                              <label>Taxă de Școlarizare (EUR):</label>
+                              <label>Taxă de Școlarizare:</label>
                               <input
-                                type="number"
+                                type="text"
                                 name="tuition_fees"
-                                min="0"
-                                step="0.01"
+                                maxLength="50"
                                 value={newProgram.tuition_fees}
                                 onChange={handleProgramInputChange}
-                                placeholder="Introduceți taxa"
+                                placeholder="ex: 3000-4000 EUR/an"
                                 required
                                 className="form-input"
                               />
@@ -2240,9 +2302,9 @@ const Dashboard = () => {
                                   degree_type: '',
                                   language: '',
                                   tuition_fees: '',
-                                  start_date: '',
-                                  application_deadline: '',
-                                  university_id: ''
+                                  university_id: '',
+                                  faculty: '',
+                                  credits: ''
                                 });
                               }}
                             >
@@ -2301,6 +2363,38 @@ const Dashboard = () => {
 
                           <div className="form-row">
                             <div className="form-group">
+                              <label>Facultate:</label>
+                              <input
+                                type="text"
+                                name="faculty"
+                                value={editingProgram.faculty || ''}
+                                onChange={(e) => setEditingProgram({
+                                  ...editingProgram,
+                                  faculty: e.target.value
+                                })}
+                                placeholder="Introduceți numele facultății"
+                                className="form-input"
+                              />
+                            </div>
+
+                            <div className="form-group">
+                              <label>Credite:</label>
+                              <input
+                                type="number"
+                                name="credits"
+                                value={editingProgram.credits || ''}
+                                onChange={(e) => setEditingProgram({
+                                  ...editingProgram,
+                                  credits: e.target.value
+                                })}
+                                placeholder="Introduceți numărul de credite"
+                                className="form-input"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="form-row">
+                            <div className="form-group">
                               <label>Durată (ani):</label>
                               <input
                                 type="number"
@@ -2338,38 +2432,6 @@ const Dashboard = () => {
                             </div>
                           </div>
 
-                          <div className="form-row">
-                            <div className="form-group">
-                              <label>Data de început:</label>
-                              <input
-                                type="date"
-                                name="start_date"
-                                value={editingProgram.start_date}
-                                onChange={(e) => setEditingProgram({
-                                  ...editingProgram,
-                                  start_date: e.target.value
-                                })}
-                                required
-                                className="form-input"
-                              />
-                            </div>
-
-                            <div className="form-group">
-                              <label>Termen limită aplicare:</label>
-                              <input
-                                type="date"
-                                name="application_deadline"
-                                value={editingProgram.application_deadline}
-                                onChange={(e) => setEditingProgram({
-                                  ...editingProgram,
-                                  application_deadline: e.target.value
-                                })}
-                                required
-                                className="form-input"
-                              />
-                            </div>
-                          </div>
-
                           <div className="form-group">
                             <label>Descriere:</label>
                             <textarea
@@ -2387,18 +2449,17 @@ const Dashboard = () => {
 
                           <div className="form-row">
                             <div className="form-group">
-                              <label>Taxă de Școlarizare (EUR):</label>
+                              <label>Taxă de Școlarizare:</label>
                               <input
-                                type="number"
+                                type="text"
                                 name="tuition_fees"
-                                min="0"
-                                step="0.01"
+                                maxLength="50"
                                 value={editingProgram.tuition_fees}
                                 onChange={(e) => setEditingProgram({
                                   ...editingProgram,
                                   tuition_fees: e.target.value
                                 })}
-                                placeholder="Introduceți taxa"
+                                placeholder="ex: 3000-4000 EUR/an"
                                 required
                                 className="form-input"
                               />
@@ -2470,7 +2531,7 @@ const Dashboard = () => {
                         return (
                           <tr key={user.id}>
                             <td>{user.id}</td>
-                            <td>{user.name}</td>
+                            <td>{user.displayName}</td>
                             <td>{user.email}</td>
                             <td>{user.role === 'admin' ? 'Administrator' : 'Utilizator'}</td>
                             <td>

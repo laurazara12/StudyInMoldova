@@ -8,8 +8,8 @@ module.exports = (sequelize) => {
         as: 'University'
       });
       Program.hasMany(models.SavedProgram, {
-        foreignKey: 'programId',
-        as: 'SavedPrograms'
+        foreignKey: 'program_id',
+        as: 'savedPrograms'
       });
     }
   }
@@ -20,7 +20,8 @@ module.exports = (sequelize) => {
       allowNull: false
     },
     description: {
-      type: DataTypes.TEXT
+      type: DataTypes.TEXT,
+      allowNull: false
     },
     duration: {
       type: DataTypes.INTEGER,
@@ -35,19 +36,8 @@ module.exports = (sequelize) => {
       allowNull: false
     },
     tuition_fees: {
-      type: DataTypes.DECIMAL(10, 2),
+      type: DataTypes.STRING,
       allowNull: false
-    },
-    start_date: {
-      type: DataTypes.DATE,
-      allowNull: false
-    },
-    application_deadline: {
-      type: DataTypes.DATE,
-      allowNull: false
-    },
-    requirements: {
-      type: DataTypes.TEXT
     },
     university_id: {
       type: DataTypes.INTEGER,
@@ -56,6 +46,14 @@ module.exports = (sequelize) => {
         model: 'universities',
         key: 'id'
       }
+    },
+    faculty: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    credits: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     }
   }, {
     sequelize,

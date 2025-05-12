@@ -1,0 +1,171 @@
+.create-application-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.create-application-container h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 2rem;
+}
+
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.success-message {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.status-badge {
+  background-color: #e3f2fd;
+  color: #1565c0;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.program-selection,
+.document-selection {
+  margin-bottom: 2rem;
+}
+
+.program-selection h3,
+.document-selection h3 {
+  color: #444;
+  margin-bottom: 1rem;
+}
+
+.programs-grid,
+.documents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.program-card,
+.document-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.program-card:hover,
+.document-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.program-card.selected,
+.document-card.selected {
+  border-color: #2196f3;
+  background-color: #e3f2fd;
+}
+
+.program-card:not(.editable),
+.document-card:not(.editable) {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.program-card h4,
+.document-card h4 {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+}
+
+.program-card p,
+.document-card p {
+  margin: 0.25rem 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.submit-button,
+.save-draft-button,
+.withdraw-button {
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 200px;
+}
+
+.submit-button {
+  background-color: #2196f3;
+  color: white;
+}
+
+.save-draft-button {
+  background-color: #757575;
+  color: white;
+}
+
+.withdraw-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.submit-button:hover:not(:disabled),
+.save-draft-button:hover:not(:disabled),
+.withdraw-button:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.submit-button:disabled,
+.save-draft-button:disabled,
+.withdraw-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 768px) {
+  .create-application-container {
+    padding: 1rem;
+  }
+
+  .programs-grid,
+  .documents-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .button-group {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .submit-button,
+  .save-draft-button,
+  .withdraw-button {
+    width: 100%;
+    max-width: 300px;
+  }
+} 

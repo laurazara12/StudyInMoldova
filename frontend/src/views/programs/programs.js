@@ -17,6 +17,7 @@ const Programs = () => {
 
   const fetchData = async () => {
     try {
+      console.log('Începe fetchData...');
       setLoading(true);
       setError(null);
       await fetchPrograms();
@@ -24,6 +25,7 @@ const Programs = () => {
         await fetchSavedPrograms();
       }
     } catch (error) {
+      console.error('Eroare în fetchData:', error);
       setError(error.message);
     } finally {
       setLoading(false);
@@ -46,16 +48,35 @@ const Programs = () => {
   }, []);
 
   useEffect(() => {
+    console.log('Componenta Programs montată');
     fetchData();
   }, [isAuthenticated]);
 
   const fetchPrograms = async () => {
     try {
+      console.log('Începe încărcarea programelor...');
       const response = await axios.get(`${API_BASE_URL}/api/programs`);
-      setPrograms(response.data);
+      console.log('Răspuns de la server:', response.data);
+      
+      if (Array.isArray(response.data)) {
+        console.log('Programe găsite (array direct):', response.data);
+        setPrograms(response.data);
+      } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
+        console.log('Programe găsite (în data.data):', response.data.data);
+        setPrograms(response.data.data);
+      } else {
+        console.error('Format invalid al răspunsului:', response.data);
+        setError('Eroare la încărcarea programelor: Format invalid al datelor');
+        setPrograms([]);
+      }
     } catch (error) {
-      console.error('Eroare la obținerea programelor:', error);
-      throw new Error('Eroare la obținerea programelor');
+      console.error('Eroare detaliată la obținerea programelor:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      setPrograms([]);
+      setError('Eroare la încărcarea programelor: ' + (error.response?.data?.message || error.message));
     }
   };
 
@@ -77,7 +98,8 @@ const Programs = () => {
         throw new Error('Nu s-au primit date de la server');
       }
 
-      setSavedPrograms(response.data);
+      // Setăm programele salvate din response.data.data
+      setSavedPrograms(response.data.data || []);
     } catch (error) {
       console.error('Eroare detaliată la obținerea programelor salvate:', {
         message: error.message,
@@ -120,12 +142,12 @@ const Programs = () => {
   };
 
   const isProgramSaved = (programId) => {
-    return savedPrograms.some(sp => sp.id === programId);
+    return savedPrograms.some(sp => sp.program?.id === programId);
   };
 
   const filteredPrograms = programs.filter(program => {
-    const matchesDegree = !degreeFilter || program.degree === degreeFilter;
-    const matchesLanguage = !languageFilter || program.languages.includes(languageFilter);
+    const matchesDegree = !degreeFilter || program.degree_type === degreeFilter;
+    const matchesLanguage = !languageFilter || program.language === languageFilter;
     return matchesDegree && matchesLanguage;
   });
 
@@ -182,48 +204,60 @@ const Programs = () => {
         </div>
 
         <div className="programs-table-container">
-          <table className="programs-table">
-            <thead>
-              <tr>
-                <th>Nume program</th>
-                <th>Facultate</th>
-                <th>Grad</th>
-                <th>Credite</th>
-                <th>Limbi</th>
-                <th>Acțiuni</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredPrograms.map(program => (
-                <tr key={program.id}>
-                  <td>{program.name}</td>
-                  <td>{program.faculty}</td>
-                  <td>{program.degree}</td>
-                  <td>{program.credits}</td>
-                  <td>{program.languages.join(', ')}</td>
-                  <td>
-                    {isAuthenticated && (
-                      isProgramSaved(program.id) ? (
-                        <button 
-                          className="remove-save-button"
-                          onClick={() => handleRemoveSavedProgram(program.id)}
-                        >
-                          Elimină
-                        </button>
-                      ) : (
-                        <button 
-                          className="save-button"
-                          onClick={() => handleSaveProgram(program.id)}
-                        >
-                          Salvează
-                        </button>
-                      )
-                    )}
-                  </td>
+          {filteredPrograms.length === 0 ? (
+            <div className="no-programs-message">
+              <p>Nu există programe de studiu disponibile în acest moment.</p>
+            </div>
+          ) : (
+            <table className="programs-table">
+              <thead>
+                <tr>
+                  <th>Nume program</th>
+                  <th>Universitate</th>
+                  <th>Facultate</th>
+                  <th>Grad</th>
+                  <th>Credite</th>
+                  <th>Limbi</th>
+                  <th>Durată</th>
+                  <th>Taxă de școlarizare</th>
+                  <th>Acțiuni</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredPrograms.map(program => (
+                  <tr key={program.id}>
+                    <td>{program.name}</td>
+                    <td>{program.University?.name || 'N/A'}</td>
+                    <td>{program.faculty || 'N/A'}</td>
+                    <td>{program.degree_type}</td>
+                    <td>{program.credits || 'N/A'}</td>
+                    <td>{program.language}</td>
+                    <td>{program.duration} ani</td>
+                    <td>{program.tuition_fees ? `${program.tuition_fees} EUR` : 'N/A'}</td>
+                    <td>
+                      {isAuthenticated && (
+                        isProgramSaved(program.id) ? (
+                          <button 
+                            className="remove-save-button"
+                            onClick={() => handleRemoveSavedProgram(program.id)}
+                          >
+                            Elimină
+                          </button>
+                        ) : (
+                          <button 
+                            className="save-button"
+                            onClick={() => handleSaveProgram(program.id)}
+                          >
+                            Salvează
+                          </button>
+                        )
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </main>
       

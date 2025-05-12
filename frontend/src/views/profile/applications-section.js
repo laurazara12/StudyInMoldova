@@ -1,89 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
 import { API_BASE_URL, getAuthHeaders } from '../../config/api.config';
 import './applications-section.css';
-
-const CreateApplicationForm = ({ onClose, onSuccess }) => {
-  const [programs, setPrograms] = useState([]);
-  const [selectedProgram, setSelectedProgram] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    fetchPrograms();
-  }, []);
-
-  const fetchPrograms = async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/api/programs`);
-      setPrograms(response.data);
-    } catch (err) {
-      setError('Eroare la încărcarea programelor');
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    try {
-      await axios.post(`${API_BASE_URL}/api/applications`, {
-        program_id: selectedProgram
-      }, {
-        headers: getAuthHeaders()
-      });
-      onSuccess();
-      onClose();
-    } catch (err) {
-      setError('Eroare la crearea aplicației');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="create-application-modal">
-      <div className="modal-content">
-        <h3>Crează Aplicație Nouă</h3>
-        {error && <div className="error-message">{error}</div>}
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="program">Selectează Program:</label>
-            <select
-              id="program"
-              value={selectedProgram}
-              onChange={(e) => setSelectedProgram(e.target.value)}
-              required
-            >
-              <option value="">Selectează un program</option>
-              {programs.map(program => (
-                <option key={program.id} value={program.id}>
-                  {program.name} - {program.university?.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="form-actions">
-            <button type="button" onClick={onClose} className="cancel-button">
-              Anulează
-            </button>
-            <button type="submit" className="submit-button" disabled={loading}>
-              {loading ? 'Se procesează...' : 'Creează Aplicație'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
+import CreateApplication from './create-application';
+import ApplicationDetailsModal from './application-details-modal';
 
 const ApplicationsSection = () => {
-  const [applications, setApplications] = useState([]);
+  const [applications, setApplications] = useState({
+    drafts: [],
+    pending: [],
+    sent: [],
+    rejected: [],
+    withdrawn: []
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [total, setTotal] = useState(0);
+  const [status, setStatus] = useState({
+    drafts: 0,
+    pending: 0,
+    sent: 0,
+    rejected: 0,
+    withdrawn: 0
+  });
+  const [activeTab, setActiveTab] = useState('drafts');
 
   useEffect(() => {
     fetchApplications();
@@ -98,12 +42,29 @@ const ApplicationsSection = () => {
         headers: getAuthHeaders()
       });
 
-      if (response.data && response.data.success && Array.isArray(response.data.data)) {
-        setApplications(response.data.data);
+      if (response.data && response.data.success && response.data.data) {
+        const { applications, total, status } = response.data.data;
+        setApplications(applications);
+        setTotal(total);
+        setStatus(status);
       } else {
         console.error('Format răspuns neașteptat:', response.data);
         setError('Format răspuns neașteptat de la server');
-        setApplications([]);
+        setApplications({
+          drafts: [],
+          pending: [],
+          sent: [],
+          rejected: [],
+          withdrawn: []
+        });
+        setTotal(0);
+        setStatus({
+          drafts: 0,
+          pending: 0,
+          sent: 0,
+          rejected: 0,
+          withdrawn: 0
+        });
       }
     } catch (err) {
       console.error('Eroare la preluarea aplicațiilor:', err);
@@ -116,25 +77,121 @@ const ApplicationsSection = () => {
       } else {
         setError('Eroare la comunicarea cu serverul');
       }
-      setApplications([]);
+      setApplications({
+        drafts: [],
+        pending: [],
+        sent: [],
+        rejected: [],
+        withdrawn: []
+      });
+      setTotal(0);
+      setStatus({
+        drafts: 0,
+        pending: 0,
+        sent: 0,
+        rejected: 0,
+        withdrawn: 0
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCreateSuccess = () => {
-    fetchApplications();
+  const handleCreateApplication = () => {
+    setSelectedApplication(null);
+    setShowCreateForm(true);
+  };
+
+  const handleEditApplication = (application) => {
+    setSelectedApplication(application);
+    setShowCreateForm(true);
+  };
+
+  const handleWithdrawApplication = async (applicationId) => {
+    try {
+      console.log('Încercare retragere aplicație:', {
+        applicationId,
+        url: `${API_BASE_URL}/api/applications/${applicationId}/withdraw`
+      });
+
+      const response = await axios.put(
+        `${API_BASE_URL}/api/applications/${applicationId}/withdraw`,
+        {},
+        {
+          headers: getAuthHeaders()
+        }
+      );
+
+      console.log('Răspuns retragere aplicație:', response.data);
+
+      if (response.data.success) {
+        setSuccessMessage('Aplicația a fost retrasă cu succes');
+        setError(null);
+        // Reîmprospătează lista de aplicații
+        fetchApplications();
+      } else {
+        setError(response.data.message || 'Eroare la retragerea aplicației');
+        setSuccessMessage(null);
+      }
+    } catch (err) {
+      console.error('Eroare la retragerea aplicației:', err);
+      
+      if (err.response) {
+        console.error('Detalii eroare:', {
+          status: err.response.status,
+          data: err.response.data,
+          headers: err.response.headers
+        });
+
+        switch (err.response.status) {
+          case 404:
+            setError('Aplicația nu a fost găsită. Vă rugăm să reîncărcați pagina.');
+            break;
+          case 400:
+            setError(err.response.data.message || 'Aplicația nu poate fi retrasă în starea actuală.');
+            break;
+          case 401:
+            setError('Sesiunea a expirat. Vă rugăm să vă autentificați din nou.');
+            break;
+          default:
+            setError(err.response.data.message || 'Eroare la retragerea aplicației. Vă rugăm să încercați din nou.');
+        }
+      } else if (err.request) {
+        console.error('Nu s-a primit răspuns de la server:', err.request);
+        setError('Nu s-a putut comunica cu serverul. Vă rugăm să verificați conexiunea la internet.');
+      } else {
+        console.error('Eroare la configurarea cererii:', err.message);
+        setError('Eroare la procesarea cererii. Vă rugăm să încercați din nou.');
+      }
+      
+      setSuccessMessage(null);
+    }
+  };
+
+  const handleViewDetails = (application) => {
+    setSelectedApplication(application);
+    setShowDetailsModal(true);
+  };
+
+  const handleCloseModal = () => {
     setShowCreateForm(false);
+    setShowDetailsModal(false);
+    setSelectedApplication(null);
+    fetchApplications();
   };
 
   const getStatusLabel = (status) => {
     switch (status) {
+      case 'draft':
+        return 'Draft';
       case 'pending':
-        return 'În proces';
+        return 'În procesare';
       case 'approved':
         return 'Aprobată';
       case 'rejected':
         return 'Respinsă';
+      case 'withdrawn':
+        return 'Retrasă';
       default:
         return status;
     }
@@ -142,19 +199,45 @@ const ApplicationsSection = () => {
 
   const getStatusClass = (status) => {
     switch (status) {
+      case 'draft':
+        return 'status-draft';
       case 'pending':
         return 'status-pending';
       case 'approved':
         return 'status-approved';
       case 'rejected':
         return 'status-rejected';
+      case 'withdrawn':
+        return 'status-withdrawn';
       default:
         return '';
     }
   };
 
-  const filterApplications = (status) => {
-    return applications.filter(app => app.status === status);
+  const getFilteredApplications = (section) => {
+    switch (section) {
+      case 'drafts':
+        return applications.drafts;
+      case 'processing':
+        return applications.pending;
+      case 'sent':
+        return applications.sent;
+      default:
+        return [];
+    }
+  };
+
+  const getApplicationsForSection = (section) => {
+    switch (section) {
+      case 'drafts':
+        return applications.drafts;
+      case 'processing':
+        return applications.pending;
+      case 'sent':
+        return applications.sent;
+      default:
+        return [];
+    }
   };
 
   if (loading) {
@@ -169,70 +252,107 @@ const ApplicationsSection = () => {
     <div className="applications-section">
       <div className="applications-header">
         <h2>Aplicațiile mele</h2>
-        <button onClick={() => setShowCreateForm(true)} className="create-application-button">
-          Creează o aplicație nouă
+        <button className="create-application-button" onClick={handleCreateApplication}>
+          Creare Aplicație Nouă
+        </button>
+      </div>
+      {error && <div className="error-message">{error}</div>}
+      {successMessage && <div className="success-message">{successMessage}</div>}
+      
+      <div className="applications-stats">
+        <div className="stat-item">
+          <span className="stat-label">Total aplicații:</span>
+          <span className="stat-value">{total}</span>
+        </div>
+        <div className="stat-item">
+          <span className="stat-label">În procesare:</span>
+          <span className="stat-value">{status.pending}</span>
+        </div>
+        <div className="stat-item">
+          <span className="stat-label">Trimise:</span>
+          <span className="stat-value">{status.sent}</span>
+        </div>
+        <div className="stat-item">
+          <span className="stat-label">Draft-uri:</span>
+          <span className="stat-value">{status.drafts}</span>
+        </div>
+      </div>
+
+      <div className="applications-tabs">
+        <button 
+          className={`tab-button ${activeTab === 'drafts' ? 'active' : ''}`}
+          onClick={() => setActiveTab('drafts')}
+        >
+          Draft-uri ({status.drafts})
+        </button>
+        <button 
+          className={`tab-button ${activeTab === 'processing' ? 'active' : ''}`}
+          onClick={() => setActiveTab('processing')}
+        >
+          În procesare ({status.pending})
+        </button>
+        <button 
+          className={`tab-button ${activeTab === 'sent' ? 'active' : ''}`}
+          onClick={() => setActiveTab('sent')}
+        >
+          Trimise ({status.sent})
         </button>
       </div>
 
-      <div className="applications-container">
-        <div className="applications-in-progress">
-          <h3>Aplicații în proces</h3>
-          {filterApplications('pending').length === 0 ? (
-            <p>Nu aveți aplicații în proces.</p>
-          ) : (
-            <div className="applications-list">
-              {filterApplications('pending').map((application) => (
-                <div key={application.id} className="application-card">
+      <div className="applications-list">
+        {loading ? (
+          <div className="loading">Se încarcă...</div>
+        ) : (
+          <>
+            {getApplicationsForSection(activeTab).length === 0 ? (
+              <div className="no-applications">
+                Nu există aplicații în această secțiune
+              </div>
+            ) : (
+              getApplicationsForSection(activeTab).map(app => (
+                <div key={app.id} className="application-card">
                   <div className="application-header">
-                    <h4>{application.program.name}</h4>
-                    <span className={`status-badge ${getStatusClass(application.status)}`}>
-                      {getStatusLabel(application.status)}
+                    <h3>{app.program?.name || 'Program necunoscut'}</h3>
+                    <span className={`status-badge ${app.status}`}>
+                      {getStatusLabel(app.status)}
                     </span>
                   </div>
                   <div className="application-details">
-                    <p><strong>Universitate:</strong> {application.program.university.name}</p>
-                    <p><strong>Locație:</strong> {application.program.university.location}</p>
-                    <p><strong>Data aplicării:</strong> {new Date(application.createdAt).toLocaleDateString('ro-RO')}</p>
+                    <p><strong>Universitate:</strong> {app.program?.university?.name || 'N/A'}</p>
+                    <p><strong>Facultate:</strong> {app.program?.faculty || 'N/A'}</p>
+                    <p><strong>Data aplicării:</strong> {new Date(app.createdAt).toLocaleDateString()}</p>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="applications-submitted">
-          <h3>Aplicații trimise</h3>
-          {filterApplications('approved').length === 0 && filterApplications('rejected').length === 0 ? (
-            <p>Nu aveți aplicații trimise.</p>
-          ) : (
-            <div className="applications-list">
-              {[...filterApplications('approved'), ...filterApplications('rejected')].map((application) => (
-                <div key={application.id} className="application-card">
-                  <div className="application-header">
-                    <h4>{application.program.name}</h4>
-                    <span className={`status-badge ${getStatusClass(application.status)}`}>
-                      {getStatusLabel(application.status)}
-                    </span>
-                  </div>
-                  <div className="application-details">
-                    <p><strong>Universitate:</strong> {application.program.university.name}</p>
-                    <p><strong>Locație:</strong> {application.program.university.location}</p>
-                    <p><strong>Data aplicării:</strong> {new Date(application.createdAt).toLocaleDateString('ro-RO')}</p>
-                    {application.notes && (
-                      <p><strong>Note:</strong> {application.notes}</p>
+                  <div className="application-actions">
+                    <button 
+                      className="view-details-btn"
+                      onClick={() => handleViewDetails(app)}
+                    >
+                      Vezi detalii
+                    </button>
+                    {app.status === 'pending' && (
+                      <button 
+                        className="withdraw-btn"
+                        onClick={() => handleWithdrawApplication(app.id)}
+                      >
+                        Retrage aplicația
+                      </button>
                     )}
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+              ))
+            )}
+          </>
+        )}
       </div>
 
       {showCreateForm && (
-        <CreateApplicationForm
-          onClose={() => setShowCreateForm(false)}
-          onSuccess={handleCreateSuccess}
+        <CreateApplication onClose={handleCloseModal} />
+      )}
+
+      {showDetailsModal && selectedApplication && (
+        <ApplicationDetailsModal
+          application={selectedApplication}
+          onClose={() => setShowDetailsModal(false)}
         />
       )}
     </div>

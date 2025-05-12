@@ -27,7 +27,7 @@ const SignUp = (props) => {
       return;
     }
     try {
-      const response = await fetch('http://localhost:4000/api/auth/signup', {
+      const response = await fetch('http://localhost:4000/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -39,13 +39,14 @@ const SignUp = (props) => {
         }),
       });
 
-      if (response.ok) {
-        setSuccessMessage('Registration successful!');
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setSuccessMessage('Înregistrare reușită!');
         setErrorMessage('');
         navigate('/sign-in');
       } else {
-        const errorData = await response.json();
-        setErrorMessage(errorData.message || 'An error occurred during registration.');
+        setErrorMessage(data.message || 'A apărut o eroare în timpul înregistrării.');
         setSuccessMessage('');
       }
     } catch (error) {
