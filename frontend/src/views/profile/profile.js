@@ -65,6 +65,8 @@ const Profile = () => {
   const [userData, setUserData] = useState(null);
   const fileInputRef = useRef(null);
   const [activeTab, setActiveTab] = useState(() => localStorage.getItem('activeProfileTab') || 'profile');
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [programToDelete, setProgramToDelete] = useState(null);
 
   useEffect(() => {
     if (!isAuthenticated || !authUser) {
@@ -168,17 +170,26 @@ const Profile = () => {
         headers: getAuthHeaders()
       });
       
-      if (response.data) {
-        setSavedPrograms(response.data);
+      console.log('Răspuns programe salvate:', response.data);
+      
+      if (response.data?.data) {
+        const savedProgramsData = response.data.data;
+        console.log('Programe salvate procesate:', savedProgramsData);
+        setSavedPrograms(savedProgramsData);
+      } else {
+        console.error('Format răspuns neașteptat:', response.data);
+        setError('Format răspuns neașteptat de la server');
+        setSavedPrograms([]);
       }
     } catch (error) {
-      console.error('Error fetching saved programs:', error);
+      console.error('Eroare la obținerea programelor salvate:', error);
       
       if (error.response?.status === 401) {
         navigate('/sign-in');
         return;
       }
       setError(handleApiError(error).message);
+      setSavedPrograms([]);
     } finally {
       setLoading(false);
     }
@@ -187,15 +198,30 @@ const Profile = () => {
   const fetchDocuments = async () => {
     try {
       setError(null);
+      console.log('Începere preluare documente...');
+      
       const response = await axios.get(`${API_BASE_URL}/api/documents/user-documents`, {
         headers: getAuthHeaders()
       });
 
-      if (!response.data || !Array.isArray(response.data)) {
-        throw new Error('Format invalid al documentelor');
+      console.log('Răspuns server documente:', response.data);
+
+      if (!response.data) {
+        throw new Error('Nu s-au primit date de la server');
       }
 
-      const validDocuments = response.data.filter(doc => {
+      if (!response.data.success) {
+        throw new Error(response.data.message || 'Eroare la preluarea documentelor');
+      }
+
+      const documentsArray = response.data.data || [];
+      
+      if (!Array.isArray(documentsArray)) {
+        console.error('Format răspuns neașteptat:', response.data);
+        throw new Error('Format invalid al datelor primite de la server');
+      }
+
+      const validDocuments = documentsArray.filter(doc => {
         if (!doc.id || !doc.document_type || !doc.file_path) {
           console.warn('Document invalid - lipsesc câmpuri obligatorii:', doc);
           return false;
@@ -209,6 +235,7 @@ const Profile = () => {
         return true;
       });
 
+      console.log('Documente valide găsite:', validDocuments.length);
       setDocuments(validDocuments);
       
       const newUploadStatus = { ...initialDocuments };
@@ -224,9 +251,31 @@ const Profile = () => {
       });
       setUploadStatus(newUploadStatus);
     } catch (error) {
-      const apiError = handleApiError(error);
-      console.error('Eroare la preluarea documentelor:', apiError);
-      setError(apiError.message || 'A apărut o eroare la încărcarea documentelor');
+      console.error('Detalii eroare la preluarea documentelor:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        headers: error.response?.headers
+      });
+
+      let errorMessage = 'A apărut o eroare la încărcarea documentelor. ';
+      
+      if (error.response) {
+        if (error.response.status === 401) {
+          errorMessage = 'Sesiunea a expirat. Vă rugăm să vă autentificați din nou.';
+          navigate('/sign-in');
+        } else if (error.response.status === 403) {
+          errorMessage = 'Nu aveți permisiunea de a accesa aceste documente.';
+        } else {
+          errorMessage += error.response.data?.message || 'Eroare de server.';
+        }
+      } else if (error.request) {
+        errorMessage += 'Nu s-a putut conecta la server. Verificați conexiunea la internet.';
+      } else {
+        errorMessage += error.message;
+      }
+
+      setError(errorMessage);
       setDocuments([]);
     }
   };
@@ -544,21 +593,33 @@ const Profile = () => {
   };
 
   const handleRemoveSavedProgram = async (programId) => {
+    setProgramToDelete(programId);
+    setShowDeleteConfirmation(true);
+  };
+
+  const confirmDeleteProgram = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`${API_BASE_URL}/api/saved-programs/${programId}`, {
+      await axios.delete(`${API_BASE_URL}/api/saved-programs/${programToDelete}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
       
-      // Actualizează lista de programe salvate după ștergere
       setSavedPrograms(prevPrograms => 
-        prevPrograms.filter(program => program.id !== programId)
+        prevPrograms.filter(program => program.id !== programToDelete)
       );
+      setShowDeleteConfirmation(false);
+      setProgramToDelete(null);
     } catch (error) {
       console.error('Eroare la eliminarea programului:', error);
+      setError('A apărut o eroare la eliminarea programului. Vă rugăm să încercați din nou.');
     }
+  };
+
+  const cancelDeleteProgram = () => {
+    setShowDeleteConfirmation(false);
+    setProgramToDelete(null);
   };
 
   const handleSubmit = async (event) => {
@@ -719,12 +780,79 @@ const Profile = () => {
           {activeTab === 'profile' && (
             <div className="profile-section">
               <div className="user-info">
-                <h2>Informații personale</h2>
-                <p><strong>Nume:</strong> {authUser.name}</p>
-                <p><strong>Email:</strong> {authUser.email}</p>
-                {authUser.phone && <p><strong>Telefon:</strong> {authUser.phone}</p>}
-                {authUser.country_of_origin && <p><strong>Țara de origine:</strong> {authUser.country_of_origin}</p>}
-                {authUser.nationality && <p><strong>Naționalitate:</strong> {authUser.nationality}</p>}
+                <div className="profile-header-actions">
+                  <h2>Informații personale</h2>
+                  <button 
+                    className={`edit-profile-button ${isEditing ? 'active' : ''}`}
+                    onClick={() => setIsEditing(!isEditing)}
+                  >
+                    {isEditing ? 'Anulează' : 'Editează profil'}
+                  </button>
+                </div>
+                {!isEditing ? (
+                  <>
+                    <p><strong>Nume:</strong> {authUser.name}</p>
+                    <p><strong>Email:</strong> {authUser.email}</p>
+                    {authUser.phone && <p><strong>Telefon:</strong> {authUser.phone}</p>}
+                    {authUser.country_of_origin && <p><strong>Țara de origine:</strong> {authUser.country_of_origin}</p>}
+                    {authUser.nationality && <p><strong>Naționalitate:</strong> {authUser.nationality}</p>}
+                  </>
+                ) : (
+                  <form onSubmit={handleSubmit} className="edit-profile-form">
+                    <div className="form-group">
+                      <label>Nume complet:</label>
+                      <input
+                        type="text"
+                        name="full_name"
+                        value={formData.full_name}
+                        onChange={handleChange}
+                        placeholder="Introduceți numele complet"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Telefon:</label>
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        placeholder="Introduceți numărul de telefon"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Data nașterii:</label>
+                      <input
+                        type="date"
+                        name="date_of_birth"
+                        value={formData.date_of_birth}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Țara de origine:</label>
+                      <input
+                        type="text"
+                        name="country_of_origin"
+                        value={formData.country_of_origin}
+                        onChange={handleChange}
+                        placeholder="Introduceți țara de origine"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Naționalitate:</label>
+                      <input
+                        type="text"
+                        name="nationality"
+                        value={formData.nationality}
+                        onChange={handleChange}
+                        placeholder="Introduceți naționalitatea"
+                      />
+                    </div>
+                    <div className="form-actions">
+                      <button type="submit" className="save-button">Salvează modificările</button>
+                    </div>
+                  </form>
+                )}
               </div>
             </div>
           )}
@@ -843,7 +971,14 @@ const Profile = () => {
           {activeTab === 'saved-programs' && (
             <div className="saved-programs-section">
               <h2>Programe salvate</h2>
-              {savedPrograms.length > 0 ? (
+              {loading ? (
+                <div className="loading-spinner">
+                  <div className="spinner"></div>
+                  <p>Se încarcă programele salvate...</p>
+                </div>
+              ) : error ? (
+                <p className="error-message">{error}</p>
+              ) : savedPrograms && savedPrograms.length > 0 ? (
                 <div className="programs-grid">
                   {savedPrograms.map((savedProgram) => {
                     const program = savedProgram.program || savedProgram;
@@ -873,7 +1008,24 @@ const Profile = () => {
                   })}
                 </div>
               ) : (
-                <p>Nu aveți programe salvate.</p>
+                <p className="no-programs-message">Nu aveți programe salvate.</p>
+              )}
+
+              {showDeleteConfirmation && (
+                <div className="confirmation-modal">
+                  <div className="confirmation-content">
+                    <h3>Confirmare ștergere</h3>
+                    <p>Sunteți sigur că doriți să eliminați acest program din lista de programe salvate?</p>
+                    <div className="confirmation-buttons">
+                      <button className="cancel-button" onClick={cancelDeleteProgram}>
+                        Anulează
+                      </button>
+                      <button className="confirm-delete-button" onClick={confirmDeleteProgram}>
+                        Elimină
+                      </button>
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
           )}
