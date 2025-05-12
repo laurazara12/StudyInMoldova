@@ -8,7 +8,9 @@ router.use(verifyToken);
 
 // Rute pentru programele salvate
 router.post('/', savedProgramController.saveProgram);
+router.post('/bulk', savedProgramController.saveMultiplePrograms);
 router.get('/', savedProgramController.getSavedPrograms);
-router.delete('/:programId', savedProgramController.removeSavedProgram);
+router.get('/check/:program_id', savedProgramController.checkIfProgramSaved);
+router.delete('/:program_id', savedProgramController.unsaveProgram);
 
 module.exports = router; 

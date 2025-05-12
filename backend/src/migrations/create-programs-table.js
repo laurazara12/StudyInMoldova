@@ -1,11 +1,10 @@
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/database');
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    const tableExists = await queryInterface.tableExists('Programs');
+    const tableExists = await queryInterface.tableExists('programs');
     if (!tableExists) {
-      await queryInterface.createTable('Programs', {
+      await queryInterface.createTable('programs', {
         id: {
           type: DataTypes.INTEGER,
           primaryKey: true,
@@ -29,44 +28,47 @@ module.exports = {
         },
         languages: {
           type: DataTypes.JSON,
-          allowNull: false
+          allowNull: false,
+          defaultValue: []
         },
         description: {
           type: DataTypes.TEXT,
           allowNull: true
         },
         duration: {
-          type: DataTypes.INTEGER,
+          type: DataTypes.STRING,
           allowNull: false
         },
-        tuitionFee: {
-          type: DataTypes.FLOAT,
+        tuition_fee: {
+          type: DataTypes.STRING,
           allowNull: false
         },
-        universityId: {
+        university_id: {
           type: DataTypes.INTEGER,
           allowNull: false,
           references: {
-            model: 'Universities',
+            model: 'universities',
             key: 'id'
           }
         },
-        createdAt: {
+        created_at: {
           type: DataTypes.DATE,
-          allowNull: false
+          allowNull: false,
+          defaultValue: DataTypes.NOW
         },
-        updatedAt: {
+        updated_at: {
           type: DataTypes.DATE,
-          allowNull: false
+          allowNull: false,
+          defaultValue: DataTypes.NOW
         }
       });
     }
   },
 
   down: async (queryInterface, Sequelize) => {
-    const tableExists = await queryInterface.tableExists('Programs');
+    const tableExists = await queryInterface.tableExists('programs');
     if (tableExists) {
-      await queryInterface.dropTable('Programs');
+      await queryInterface.dropTable('programs');
     }
   }
 }; 

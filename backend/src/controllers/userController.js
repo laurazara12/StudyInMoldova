@@ -9,7 +9,11 @@ exports.register = async (req, res) => {
     // Verificăm dacă utilizatorul există deja
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
-      return res.status(400).json({ message: 'Email already registered' });
+      return res.status(400).json({ 
+        success: false,
+        message: 'Email deja înregistrat',
+        data: null
+      });
     }
 
     // Criptăm parola
@@ -31,18 +35,25 @@ exports.register = async (req, res) => {
     );
 
     res.status(201).json({
-      message: 'User created successfully',
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role
-      },
-      token
+      success: true,
+      message: 'Utilizator creat cu succes',
+      data: {
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role
+        },
+        token
+      }
     });
   } catch (error) {
-    console.error('Error registering:', error);
-    res.status(500).json({ message: 'Error registering' });
+    console.error('Eroare la înregistrare:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la înregistrare',
+      data: null
+    });
   }
 };
 
@@ -53,13 +64,21 @@ exports.login = async (req, res) => {
     // Găsim utilizatorul
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      return res.status(401).json({ message: 'Incorrect email or password' });
+      return res.status(401).json({ 
+        success: false,
+        message: 'Email sau parolă incorectă',
+        data: null
+      });
     }
 
     // Verificăm parola
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ message: 'Incorrect email or password' });
+      return res.status(401).json({ 
+        success: false,
+        message: 'Email sau parolă incorectă',
+        data: null
+      });
     }
 
     // Generăm token JWT
@@ -70,18 +89,25 @@ exports.login = async (req, res) => {
     );
 
     res.json({
-      message: 'Authentication successful',
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role
-      },
-      token
+      success: true,
+      message: 'Autentificare reușită',
+      data: {
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role
+        },
+        token
+      }
     });
   } catch (error) {
-    console.error('Error authenticating:', error);
-    res.status(500).json({ message: 'Error authenticating' });
+    console.error('Eroare la autentificare:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la autentificare',
+      data: null
+    });
   }
 };
 
@@ -92,13 +118,25 @@ exports.getUserProfile = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ 
+        success: false,
+        message: 'Utilizatorul nu a fost găsit',
+        data: null
+      });
     }
 
-    res.json(user);
+    res.json({
+      success: true,
+      message: 'Profil utilizator preluat cu succes',
+      data: user
+    });
   } catch (error) {
-    console.error('Error getting user profile:', error);
-    res.status(500).json({ message: 'Error getting user profile' });
+    console.error('Eroare la preluarea profilului:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la preluarea profilului',
+      data: null
+    });
   }
 };
 
@@ -108,7 +146,11 @@ exports.updateUserProfile = async (req, res) => {
     const user = await User.findByPk(req.user.userId);
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ 
+        success: false,
+        message: 'Utilizatorul nu a fost găsit',
+        data: null
+      });
     }
 
     // Actualizăm datele de bază
@@ -119,7 +161,11 @@ exports.updateUserProfile = async (req, res) => {
     if (currentPassword && newPassword) {
       const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
       if (!isPasswordValid) {
-        return res.status(401).json({ message: 'Current password is incorrect' });
+        return res.status(401).json({ 
+          success: false,
+          message: 'Parola actuală este incorectă',
+          data: null
+        });
       }
       user.password = await bcrypt.hash(newPassword, 10);
     }
@@ -127,8 +173,9 @@ exports.updateUserProfile = async (req, res) => {
     await user.save();
 
     res.json({
-      message: 'Profile updated successfully',
-      user: {
+      success: true,
+      message: 'Profil actualizat cu succes',
+      data: {
         id: user.id,
         email: user.email,
         name: user.name,
@@ -136,8 +183,12 @@ exports.updateUserProfile = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Error updating profile:', error);
-    res.status(500).json({ message: 'Error updating profile' });
+    console.error('Eroare la actualizarea profilului:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la actualizarea profilului',
+      data: null
+    });
   }
 };
 
@@ -146,14 +197,26 @@ exports.deleteUser = async (req, res) => {
     const user = await User.findByPk(req.user.userId);
     
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ 
+        success: false,
+        message: 'Utilizatorul nu a fost găsit',
+        data: null
+      });
     }
 
     await user.destroy();
-    res.json({ message: 'User deleted successfully' });
+    res.json({ 
+      success: true,
+      message: 'Utilizator șters cu succes',
+      data: null
+    });
   } catch (error) {
-    console.error('Error deleting user:', error);
-    res.status(500).json({ message: 'Error deleting user' });
+    console.error('Eroare la ștergerea utilizatorului:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la ștergerea utilizatorului',
+      data: null
+    });
   }
 };
 
@@ -164,15 +227,24 @@ exports.getCurrentUser = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ message: 'Utilizatorul nu a fost găsit' });
+      return res.status(404).json({ 
+        success: false,
+        message: 'Utilizatorul nu a fost găsit',
+        data: null
+      });
     }
 
-    res.json(user);
+    res.json({
+      success: true,
+      message: 'Utilizator preluat cu succes',
+      data: user
+    });
   } catch (error) {
     console.error('Eroare la obținerea utilizatorului:', error);
     res.status(500).json({ 
+      success: false,
       message: 'Eroare la obținerea utilizatorului',
-      error: error.message 
+      data: null
     });
   }
 };

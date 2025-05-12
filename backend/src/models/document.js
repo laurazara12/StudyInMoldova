@@ -1,4 +1,4 @@
-const { DataTypes } = require('sequelize');
+const { Model, DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
   const Document = sequelize.define('Document', {
@@ -36,11 +36,11 @@ module.exports = (sequelize) => {
     },
     filename: {
       type: DataTypes.STRING,
-      allowNull: true
+      allowNull: false
     },
     originalName: {
       type: DataTypes.STRING,
-      allowNull: true
+      allowNull: false
     },
     uploaded: {
       type: DataTypes.BOOLEAN,
@@ -53,7 +53,8 @@ module.exports = (sequelize) => {
     }
   }, {
     tableName: 'documents',
-    timestamps: true
+    timestamps: true,
+    underscored: true
   });
 
   Document.associate = (models) => {

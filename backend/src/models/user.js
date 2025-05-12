@@ -1,12 +1,12 @@
 const { DataTypes } = require('sequelize');
+const bcrypt = require('bcryptjs');
 
 module.exports = (sequelize) => {
   const User = sequelize.define('User', {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true,
-      allowNull: false
+      autoIncrement: true
     },
     name: {
       type: DataTypes.STRING,
@@ -25,27 +25,19 @@ module.exports = (sequelize) => {
       allowNull: false
     },
     role: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: 'user',
-      validate: {
-        isIn: [['user', 'admin']]
-      }
+      type: DataTypes.ENUM('student', 'admin'),
+      defaultValue: 'student'
     },
     status: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: 'active',
-      validate: {
-        isIn: [['active', 'inactive', 'pending']]
-      }
+      type: DataTypes.ENUM('active', 'inactive', 'pending'),
+      defaultValue: 'pending'
     },
     phone: {
       type: DataTypes.STRING,
       allowNull: true
     },
     date_of_birth: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       allowNull: true
     },
     country_of_origin: {
@@ -57,7 +49,7 @@ module.exports = (sequelize) => {
       allowNull: true
     },
     desired_study_level: {
-      type: DataTypes.STRING,
+      type: DataTypes.ENUM('Bachelor', 'Master', 'PhD'),
       allowNull: true
     },
     preferred_study_field: {
@@ -73,24 +65,61 @@ module.exports = (sequelize) => {
       allowNull: true
     },
     estimated_budget: {
-      type: DataTypes.STRING,
+      type: DataTypes.DECIMAL(10, 2),
       allowNull: true
     },
     accommodation_preferences: {
       type: DataTypes.STRING,
       allowNull: true
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
     }
   }, {
     tableName: 'users',
-    timestamps: false
+    timestamps: true,
+    underscored: true,
+    hooks: {
+      beforeCreate: async (user) => {
+        if (user.password) {
+          user.password = await bcrypt.hash(user.password, 10);
+        }
+      },
+      beforeUpdate: async (user) => {
+        if (user.changed('password')) {
+          user.password = await bcrypt.hash(user.password, 10);
+        }
+      }
+    }
   });
 
-  // Definirea explicită a asociării cu Document
+  User.prototype.validatePassword = async function(password) {
+    return bcrypt.compare(password, this.password);
+  };
+
   User.associate = (models) => {
     User.hasMany(models.Document, {
       foreignKey: 'user_id',
-      as: 'documents',
-      onDelete: 'CASCADE'
+      as: 'documents'
+    });
+    User.hasMany(models.SavedProgram, {
+      foreignKey: 'user_id',
+      as: 'savedPrograms'
+    });
+    User.hasMany(models.Application, {
+      foreignKey: 'user_id',
+      as: 'applications'
+    });
+    User.hasMany(models.Notification, {
+      foreignKey: 'user_id',
+      as: 'notifications'
     });
   };
 

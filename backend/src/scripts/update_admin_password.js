@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 async function updateAdminPassword() {
   try {
     const adminEmail = 'admin@example.com';
-    const newPassword = '123';
+    const newPassword = 'admin123';
     
     // Generăm hash-ul pentru noua parolă
     const hashedPassword = await bcrypt.hash(newPassword, 10);

@@ -6,10 +6,21 @@ exports.getAllScholarships = async (req, res) => {
       where: { isActive: true },
       order: [['createdAt', 'DESC']]
     });
-    res.json(scholarships);
+    res.json({
+      success: true,
+      message: 'Bursele au fost preluate cu succes',
+      data: scholarships,
+      total: scholarships.length
+    });
   } catch (error) {
     console.error('Eroare la obținerea burselor:', error);
-    res.status(500).json({ message: 'Eroare la obținerea burselor' });
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la obținerea burselor',
+      error: error.message,
+      data: [],
+      total: 0
+    });
   }
 };
 
@@ -18,13 +29,26 @@ exports.getScholarshipById = async (req, res) => {
     const scholarship = await Scholarship.findByPk(req.params.id);
     
     if (!scholarship) {
-      return res.status(404).json({ message: 'Bursa nu a fost găsită' });
+      return res.status(404).json({ 
+        success: false,
+        message: 'Bursa nu a fost găsită',
+        data: null
+      });
     }
     
-    res.json(scholarship);
+    res.json({
+      success: true,
+      message: 'Bursa a fost preluată cu succes',
+      data: scholarship
+    });
   } catch (error) {
     console.error('Eroare la obținerea bursei:', error);
-    res.status(500).json({ message: 'Eroare la obținerea bursei' });
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la obținerea bursei',
+      error: error.message,
+      data: null
+    });
   }
 };
 
@@ -41,10 +65,19 @@ exports.createScholarship = async (req, res) => {
       isActive: true
     });
     
-    res.status(201).json(scholarship);
+    res.status(201).json({
+      success: true,
+      message: 'Bursa a fost creată cu succes',
+      data: scholarship
+    });
   } catch (error) {
     console.error('Eroare la crearea bursei:', error);
-    res.status(500).json({ message: 'Eroare la crearea bursei' });
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la crearea bursei',
+      error: error.message,
+      data: null
+    });
   }
 };
 
@@ -96,30 +129,55 @@ exports.applyForScholarship = async (req, res) => {
 
     const scholarship = await Scholarship.findByPk(scholarshipId);
     if (!scholarship) {
-      return res.status(404).json({ message: 'Bursa nu a fost găsită' });
+      return res.status(404).json({ 
+        success: false,
+        message: 'Bursa nu a fost găsită',
+        data: null
+      });
     }
 
     if (!scholarship.isActive) {
-      return res.status(400).json({ message: 'Bursa nu mai este activă' });
+      return res.status(400).json({ 
+        success: false,
+        message: 'Bursa nu mai este activă',
+        data: null
+      });
     }
 
     const user = await User.findByPk(userId);
     if (!user) {
-      return res.status(404).json({ message: 'Utilizatorul nu a fost găsit' });
+      return res.status(404).json({ 
+        success: false,
+        message: 'Utilizatorul nu a fost găsit',
+        data: null
+      });
     }
 
     // Verificăm dacă utilizatorul a aplicat deja pentru această bursă
     const existingApplication = await user.hasScholarship(scholarship);
     if (existingApplication) {
-      return res.status(400).json({ message: 'Ați aplicat deja pentru această bursă' });
+      return res.status(400).json({ 
+        success: false,
+        message: 'Ați aplicat deja pentru această bursă',
+        data: null
+      });
     }
 
     // Adăugăm bursa la utilizator
     await user.addScholarship(scholarship);
 
-    res.json({ message: 'Aplicație pentru bursă trimisă cu succes' });
+    res.json({ 
+      success: true,
+      message: 'Aplicație pentru bursă trimisă cu succes',
+      data: null
+    });
   } catch (error) {
     console.error('Eroare la aplicarea pentru bursă:', error);
-    res.status(500).json({ message: 'Eroare la aplicarea pentru bursă' });
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la aplicarea pentru bursă',
+      error: error.message,
+      data: null
+    });
   }
 }; 

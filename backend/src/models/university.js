@@ -1,4 +1,4 @@
-const { DataTypes } = require('sequelize');
+const { Model, DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
   const University = sequelize.define('University', {
@@ -13,29 +13,29 @@ module.exports = (sequelize) => {
     },
     type: {
       type: DataTypes.STRING,
-      allowNull: true
+      allowNull: false
     },
     description: {
       type: DataTypes.TEXT,
-      allowNull: false
+      allowNull: true
     },
     location: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    imageUrl: {
+    image_url: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     website: {
       type: DataTypes.STRING,
       allowNull: true
     },
     ranking: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       allowNull: true
     },
-    tuitionFees: {
+    tuition_fees: {
       type: DataTypes.JSON,
       allowNull: true
     },
@@ -43,18 +43,19 @@ module.exports = (sequelize) => {
       type: DataTypes.JSON,
       allowNull: true
     },
-    contactInfo: {
+    contact_info: {
       type: DataTypes.JSON,
       allowNull: true
     }
   }, {
-    tableName: 'Universities',
-    timestamps: false
+    tableName: 'universities',
+    timestamps: true,
+    underscored: true
   });
 
   University.associate = (models) => {
     University.hasMany(models.Program, {
-      foreignKey: 'universityId',
+      foreignKey: 'university_id',
       as: 'Programs'
     });
   };

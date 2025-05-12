@@ -9,31 +9,20 @@ module.exports = (sequelize) => {
     },
     user_id: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'users',
-        key: 'id'
-      }
+      allowNull: false
     },
     program_id: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'programs',
-        key: 'id'
-      }
+      allowNull: false
     },
     status: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: 'pending',
-      validate: {
-        isIn: [['pending', 'approved', 'rejected']]
-      }
+      defaultValue: 'pending'
     },
     documents: {
       type: DataTypes.JSON,
-      allowNull: true
+      defaultValue: []
     },
     notes: {
       type: DataTypes.TEXT,
@@ -41,13 +30,17 @@ module.exports = (sequelize) => {
     }
   }, {
     tableName: 'applications',
-    timestamps: true
+    timestamps: true,
+    underscored: true
   });
 
   Application.associate = (models) => {
-    Application.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
-    Application.belongsTo(models.Program, { 
-      foreignKey: 'program_id', 
+    Application.belongsTo(models.User, {
+      foreignKey: 'user_id',
+      as: 'user'
+    });
+    Application.belongsTo(models.Program, {
+      foreignKey: 'program_id',
       as: 'program'
     });
   };

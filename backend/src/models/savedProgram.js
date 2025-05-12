@@ -1,13 +1,21 @@
-const { DataTypes } = require('sequelize');
+const { Model, DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-  const SavedProgram = sequelize.define('SavedProgram', {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true
-    },
-    userId: {
+  class SavedProgram extends Model {
+    static associate(models) {
+      SavedProgram.belongsTo(models.User, {
+        foreignKey: 'user_id',
+        as: 'User'
+      });
+      SavedProgram.belongsTo(models.Program, {
+        foreignKey: 'program_id',
+        as: 'Program'
+      });
+    }
+  }
+
+  SavedProgram.init({
+    user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
@@ -15,7 +23,7 @@ module.exports = (sequelize) => {
         key: 'id'
       }
     },
-    programId: {
+    program_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
@@ -23,32 +31,17 @@ module.exports = (sequelize) => {
         key: 'id'
       }
     },
-    savedAt: {
+    saved_at: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW
     }
   }, {
+    sequelize,
+    modelName: 'SavedProgram',
     tableName: 'saved_programs',
-    timestamps: false,
-    indexes: [
-      {
-        unique: true,
-        fields: ['userId', 'programId']
-      }
-    ]
+    underscored: true
   });
-
-  SavedProgram.associate = (models) => {
-    SavedProgram.belongsTo(models.User, {
-      foreignKey: 'userId',
-      as: 'User'
-    });
-    SavedProgram.belongsTo(models.Program, {
-      foreignKey: 'programId',
-      as: 'Program'
-    });
-  };
 
   return SavedProgram;
 }; 

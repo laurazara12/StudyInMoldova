@@ -12,10 +12,19 @@ exports.createContactMessage = async (req, res) => {
       status: 'pending'
     });
     
-    res.status(201).json(contactMessage);
+    res.status(201).json({
+      success: true,
+      message: 'Mesajul de contact a fost creat cu succes',
+      data: contactMessage
+    });
   } catch (error) {
     console.error('Eroare la crearea mesajului de contact:', error);
-    res.status(500).json({ message: 'Eroare la crearea mesajului de contact' });
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la crearea mesajului de contact',
+      error: error.message,
+      data: null
+    });
   }
 };
 
@@ -24,10 +33,21 @@ exports.getAllContactMessages = async (req, res) => {
     const messages = await ContactMessage.findAll({
       order: [['createdAt', 'DESC']]
     });
-    res.json(messages);
+    res.json({
+      success: true,
+      message: 'Mesajele de contact au fost preluate cu succes',
+      data: messages,
+      total: messages.length
+    });
   } catch (error) {
     console.error('Eroare la obținerea mesajelor de contact:', error);
-    res.status(500).json({ message: 'Eroare la obținerea mesajelor de contact' });
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la obținerea mesajelor de contact',
+      error: error.message,
+      data: [],
+      total: 0
+    });
   }
 };
 
@@ -36,13 +56,26 @@ exports.getContactMessageById = async (req, res) => {
     const message = await ContactMessage.findByPk(req.params.id);
     
     if (!message) {
-      return res.status(404).json({ message: 'Mesajul nu a fost găsit' });
+      return res.status(404).json({ 
+        success: false,
+        message: 'Mesajul nu a fost găsit',
+        data: null
+      });
     }
     
-    res.json(message);
+    res.json({
+      success: true,
+      message: 'Mesajul a fost preluat cu succes',
+      data: message
+    });
   } catch (error) {
     console.error('Eroare la obținerea mesajului:', error);
-    res.status(500).json({ message: 'Eroare la obținerea mesajului' });
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la obținerea mesajului',
+      error: error.message,
+      data: null
+    });
   }
 };
 
@@ -52,7 +85,11 @@ exports.updateContactMessage = async (req, res) => {
     const message = await ContactMessage.findByPk(req.params.id);
     
     if (!message) {
-      return res.status(404).json({ message: 'Mesajul nu a fost găsit' });
+      return res.status(404).json({ 
+        success: false,
+        message: 'Mesajul nu a fost găsit',
+        data: null
+      });
     }
     
     message.status = status || message.status;
@@ -60,10 +97,19 @@ exports.updateContactMessage = async (req, res) => {
     
     await message.save();
     
-    res.json(message);
+    res.json({
+      success: true,
+      message: 'Mesajul a fost actualizat cu succes',
+      data: message
+    });
   } catch (error) {
     console.error('Eroare la actualizarea mesajului:', error);
-    res.status(500).json({ message: 'Eroare la actualizarea mesajului' });
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la actualizarea mesajului',
+      error: error.message,
+      data: null
+    });
   }
 };
 

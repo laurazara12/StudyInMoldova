@@ -230,10 +230,21 @@ exports.getAllNotifications = async (req, res) => {
       where: { userId: req.user.userId },
       order: [['createdAt', 'DESC']]
     });
-    res.json(notifications);
+    res.json({
+      success: true,
+      message: 'Notificările au fost preluate cu succes',
+      data: notifications,
+      total: notifications.length
+    });
   } catch (error) {
     console.error('Error getting notifications:', error);
-    res.status(500).json({ message: 'Error getting notifications' });
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la preluarea notificărilor',
+      error: error.message,
+      data: [],
+      total: 0
+    });
   }
 };
 
@@ -247,13 +258,26 @@ exports.getNotificationById = async (req, res) => {
     });
     
     if (!notification) {
-      return res.status(404).json({ message: 'Notificarea nu a fost găsită' });
+      return res.status(404).json({ 
+        success: false,
+        message: 'Notificarea nu a fost găsită',
+        data: null
+      });
     }
     
-    res.json(notification);
+    res.json({
+      success: true,
+      message: 'Notificarea a fost preluată cu succes',
+      data: notification
+    });
   } catch (error) {
     console.error('Error getting notification:', error);
-    res.status(500).json({ message: 'Error getting notification' });
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la preluarea notificării',
+      error: error.message,
+      data: null
+    });
   }
 };
 
@@ -269,10 +293,19 @@ exports.createNotification = async (req, res) => {
       isRead: false
     });
     
-    res.status(201).json(notification);
+    res.status(201).json({
+      success: true,
+      message: 'Notificarea a fost creată cu succes',
+      data: notification
+    });
   } catch (error) {
     console.error('Error creating notification:', error);
-    res.status(500).json({ message: 'Error creating notification' });
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la crearea notificării',
+      error: error.message,
+      data: null
+    });
   }
 };
 
@@ -286,16 +319,29 @@ exports.markAsRead = async (req, res) => {
     });
     
     if (!notification) {
-      return res.status(404).json({ message: 'Notification not found' });
+      return res.status(404).json({ 
+        success: false,
+        message: 'Notificarea nu a fost găsită',
+        data: null
+      });
     }
     
     notification.isRead = true;
     await notification.save();
     
-    res.json(notification);
+    res.json({
+      success: true,
+      message: 'Notificarea a fost marcată ca citită',
+      data: notification
+    });
   } catch (error) {
     console.error('Error marking notification as read:', error);
-    res.status(500).json({ message: 'Error marking notification as read' });
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la marcarea notificării ca citită',
+      error: error.message,
+      data: null
+    });
   }
 };
 

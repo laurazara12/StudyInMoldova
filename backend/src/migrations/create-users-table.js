@@ -1,3 +1,5 @@
+'use strict';
+
 const { DataTypes } = require('sequelize');
 
 module.exports = {
@@ -25,16 +27,19 @@ module.exports = {
           allowNull: false
         },
         role: {
-          type: DataTypes.STRING,
-          allowNull: false,
-          defaultValue: 'user'
+          type: DataTypes.ENUM('student', 'admin'),
+          defaultValue: 'student'
+        },
+        status: {
+          type: DataTypes.ENUM('active', 'inactive', 'pending'),
+          defaultValue: 'pending'
         },
         phone: {
           type: DataTypes.STRING,
           allowNull: true
         },
         date_of_birth: {
-          type: DataTypes.DATE,
+          type: DataTypes.DATEONLY,
           allowNull: true
         },
         country_of_origin: {
@@ -46,7 +51,7 @@ module.exports = {
           allowNull: true
         },
         desired_study_level: {
-          type: DataTypes.STRING,
+          type: DataTypes.ENUM('Bachelor', 'Master', 'PhD'),
           allowNull: true
         },
         preferred_study_field: {
@@ -62,12 +67,22 @@ module.exports = {
           allowNull: true
         },
         estimated_budget: {
-          type: DataTypes.STRING,
+          type: DataTypes.DECIMAL(10, 2),
           allowNull: true
         },
         accommodation_preferences: {
           type: DataTypes.STRING,
           allowNull: true
+        },
+        created_at: {
+          type: DataTypes.DATE,
+          allowNull: false,
+          defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        },
+        updated_at: {
+          type: DataTypes.DATE,
+          allowNull: false,
+          defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
         }
       });
     }

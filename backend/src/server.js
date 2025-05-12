@@ -1,3 +1,11 @@
+require('dotenv').config();
+
+// Verificăm configurația
+if (!process.env.JWT_SECRET) {
+  console.error('EROARE: JWT_SECRET nu este configurat în fișierul .env');
+  process.exit(1);
+}
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -11,7 +19,6 @@ const documentsRouter = require('./routes/documents');
 const notificationRoutes = require('./routes/notificationRoutes');
 const savedProgramRoutes = require('./routes/savedProgramRoutes');
 const applicationsRouter = require('./routes/applications');
-require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -28,13 +35,13 @@ app.use((req, res, next) => {
 });
 
 // Creăm directorul pentru încărcări dacă nu există
-const uploadsDir = path.join(__dirname, '../../backend/backend/uploads');
+const uploadsDir = path.join(__dirname, '../uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
 // Configurare directorul pentru fișiere statice
-app.use('/uploads', express.static(path.join(__dirname, '../../backend/backend/uploads')));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Rute API
 app.use('/api/programs', programsRouter);
@@ -61,39 +68,78 @@ app.use('/api', (err, req, res, next) => {
 });
 
 // Servim fișierele statice din frontend/build
-app.use(express.static(path.join(__dirname, '../../frontend/build')));
+app.use(express.static(path.join(__dirname, '../../../frontend/build')));
 
 // Ruta pentru orice altă cerere
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../frontend/build', 'index.html'));
+  res.sendFile(path.join(__dirname, '../../../frontend/build', 'index.html'));
 });
 
 // Funcție pentru crearea unui utilizator admin
 async function createAdminUser() {
   try {
     const { User } = require('./models');
-    const bcrypt = require('bcryptjs');
     
     // Verificăm dacă există deja un utilizator admin
     const adminExists = await User.findOne({ where: { email: 'admin@example.com' } });
     
     if (!adminExists) {
       console.log('Creating admin user...');
-      const hashedPassword = await bcrypt.hash('123', 10);
       
       await User.create({
         name: 'Administrator',
         email: 'admin@example.com',
-        password: hashedPassword,
-        role: 'admin'
+        password: '123',
+        role: 'admin',
+        status: 'active'
       });
       
       console.log('Admin user created successfully.');
     } else {
-      console.log('Admin user already exists.');
+      // Verificăm dacă parola funcționează
+      const isValid = await adminExists.validatePassword('123');
+      if (!isValid) {
+        console.log('Resetting admin password...');
+        await adminExists.update({ password: '123' });
+        console.log('Admin password reset successfully.');
+      } else {
+        console.log('Admin user exists with correct password.');
+      }
     }
   } catch (error) {
     console.error('Error during admin user creation:', error);
+  }
+}
+
+// Funcție pentru crearea unui utilizator de test
+async function createTestUser() {
+  try {
+    const { User } = require('./models');
+    const testUser = await User.findOne({ where: { email: 'user@example.com' } });
+    
+    if (!testUser) {
+      console.log('Creating test user...');
+      await User.create({
+        email: 'user@example.com',
+        password: '123',
+        name: 'Test User',
+        role: 'student',
+        status: 'active'
+      });
+      console.log('Test user created successfully.');
+    } else {
+      // Verificăm dacă parola funcționează
+      const isValid = await testUser.validatePassword('123');
+      if (!isValid) {
+        console.log('Resetting test user password...');
+        await testUser.update({ password: '123' });
+        console.log('Test user password reset successfully.');
+      } else {
+        console.log('Test user exists with correct password.');
+      }
+    }
+  } catch (error) {
+    console.error('Error during test user creation:', error);
   }
 }
 
@@ -115,6 +161,8 @@ async function initializeDatabase() {
 
     // Creăm utilizatorul admin după ce tabelele sunt create
     await createAdminUser();
+    // Creăm utilizatorul de test după ce tabelele sunt create
+    await createTestUser();
   } catch (error) {
     console.error('Error during database initialization:', error);
   }
@@ -130,6 +178,20 @@ app.use((err, req, res, next) => {
     message: 'An error occurred on the server', 
     error: process.env.NODE_ENV === 'development' ? err.message : undefined 
   });
+});
+
+// Log registered routes
+console.log('Rute înregistrate:');
+app._router.stack.forEach((middleware) => {
+  if (middleware.route) {
+    console.log(`${Object.keys(middleware.route.methods).join(', ').toUpperCase()} ${middleware.route.path}`);
+  } else if (middleware.name === 'router') {
+    middleware.handle.stack.forEach((handler) => {
+      if (handler.route) {
+        console.log(`${Object.keys(handler.route.methods).join(', ').toUpperCase()} ${handler.route.path}`);
+      }
+    });
+  }
 });
 
 // Pornim serverul

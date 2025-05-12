@@ -2,117 +2,209 @@ const { SavedProgram, Program, University } = require('../models');
 
 exports.saveProgram = async (req, res) => {
   try {
-    const { programId } = req.body;
-    const userId = req.user.id;
+    const { program_id } = req.body;
 
-    // Verificăm dacă programul există
-    const program = await Program.findByPk(programId);
-    if (!program) {
-      return res.status(404).json({ message: 'Programul nu a fost găsit' });
+    if (!program_id) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID-ul programului este obligatoriu',
+        data: null
+      });
     }
 
-    // Verificăm dacă programul este deja salvat
-    const existingSavedProgram = await SavedProgram.findOne({
-      where: { userId, programId }
+    const [savedProgram, created] = await SavedProgram.findOrCreate({
+      where: {
+        user_id: req.user.id,
+        program_id: program_id
+      },
+      defaults: {
+        saved_at: new Date()
+      }
     });
 
-    if (existingSavedProgram) {
-      return res.status(400).json({ message: 'Programul este deja salvat' });
+    if (!created) {
+      return res.status(400).json({
+        success: false,
+        message: 'Programul este deja salvat',
+        data: null
+      });
     }
 
-    const savedProgram = await SavedProgram.create({
-      userId,
-      programId,
-      savedAt: new Date()
+    res.json({
+      success: true,
+      message: 'Programul a fost salvat cu succes',
+      data: savedProgram
     });
-
-    res.status(201).json(savedProgram);
   } catch (error) {
     console.error('Eroare la salvarea programului:', error);
     res.status(500).json({ 
+      success: false,
       message: 'Eroare la salvarea programului',
-      error: error.message 
+      error: error.message,
+      data: null
     });
   }
 };
 
 exports.getSavedPrograms = async (req, res) => {
   try {
-    const userId = req.user.id;
-
     const savedPrograms = await SavedProgram.findAll({
-      where: { userId },
+      where: { user_id: req.user.id },
       include: [{
         model: Program,
         as: 'Program',
         include: [{
           model: University,
           as: 'University',
-          attributes: ['id', 'name', 'imageUrl', 'location', 'website']
-        }],
-        attributes: ['id', 'name', 'faculty', 'degree', 'credits', 'languages', 'description', 'duration', 'tuitionFee', 'universityId']
+          attributes: ['id', 'name', 'image_url', 'location', 'website']
+        }]
       }],
-      order: [['savedAt', 'DESC']]
+      order: [['saved_at', 'DESC']]
     });
 
-    if (!savedPrograms || savedPrograms.length === 0) {
-      return res.json([]);
-    }
-
-    // Transformăm rezultatul pentru a include doar informațiile necesare
-    const formattedPrograms = savedPrograms.map(sp => ({
-      id: sp.id,
-      program: {
-        id: sp.Program.id,
-        name: sp.Program.name,
-        faculty: sp.Program.faculty,
-        degree: sp.Program.degree,
-        credits: sp.Program.credits,
-        languages: sp.Program.languages,
-        description: sp.Program.description,
-        duration: sp.Program.duration,
-        tuitionFee: sp.Program.tuitionFee,
-        university: {
-          id: sp.Program.University.id,
-          name: sp.Program.University.name,
-          imageUrl: sp.Program.University.imageUrl,
-          location: sp.Program.University.location,
-          website: sp.Program.University.website
-        }
-      },
-      savedAt: sp.savedAt
-    }));
-
-    res.json(formattedPrograms);
+    res.json({
+      success: true,
+      message: 'Programele salvate au fost preluate cu succes',
+      data: savedPrograms.map(sp => sp.Program),
+      total: savedPrograms.length
+    });
   } catch (error) {
     console.error('Eroare la obținerea programelor salvate:', error);
     res.status(500).json({ 
+      success: false,
       message: 'Eroare la obținerea programelor salvate',
-      error: error.message 
+      error: error.message,
+      data: [],
+      total: 0
     });
   }
 };
 
-exports.removeSavedProgram = async (req, res) => {
+exports.unsaveProgram = async (req, res) => {
   try {
-    const { programId } = req.params;
-    const userId = req.user.id;
+    const { program_id } = req.params;
 
-    const savedProgram = await SavedProgram.findOne({
-      where: { userId, programId }
+    const deleted = await SavedProgram.destroy({
+      where: {
+        user_id: req.user.id,
+        program_id: program_id
+      }
     });
 
-    if (!savedProgram) {
-      return res.status(404).json({ message: 'Programul salvat nu a fost găsit' });
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        message: 'Programul nu a fost găsit în lista de programe salvate',
+        data: null
+      });
     }
 
-    await savedProgram.destroy();
-    res.json({ message: 'Programul a fost șters din lista de favorite' });
+    res.json({
+      success: true,
+      message: 'Programul a fost eliminat din lista de programe salvate',
+      data: null
+    });
   } catch (error) {
-    console.error('Eroare la ștergerea programului salvat:', error);
+    console.error('Eroare la eliminarea programului din lista de programe salvate:', error);
     res.status(500).json({ 
-      message: 'Eroare la ștergerea programului salvat',
-      error: error.message 
+      success: false,
+      message: 'Eroare la eliminarea programului din lista de programe salvate',
+      error: error.message,
+      data: null
+    });
+  }
+};
+
+exports.checkIfProgramSaved = async (req, res) => {
+  try {
+    const { program_id } = req.params;
+
+    const savedProgram = await SavedProgram.findOne({
+      where: { 
+        user_id: req.user.id,
+        program_id: program_id
+      }
+    });
+
+    res.json({ 
+      success: true,
+      data: { isSaved: !!savedProgram },
+      message: 'Verificare program salvat realizată cu succes'
+    });
+  } catch (error) {
+    console.error('Eroare la verificarea programului salvat:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la verificarea programului salvat',
+      error: error.message,
+      data: null
+    });
+  }
+};
+
+exports.saveMultiplePrograms = async (req, res) => {
+  try {
+    const { program_ids } = req.body;
+
+    if (!Array.isArray(program_ids)) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'program_ids trebuie să fie un array',
+        data: null
+      });
+    }
+
+    // Verificăm dacă toate programele există
+    const programs = await Program.findAll({
+      where: { id: program_ids }
+    });
+
+    if (programs.length !== program_ids.length) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Unele programe nu au fost găsite',
+        data: null
+      });
+    }
+
+    // Verificăm programele deja salvate
+    const existingSavedPrograms = await SavedProgram.findAll({
+      where: { 
+        user_id: req.user.id,
+        program_id: program_ids
+      }
+    });
+
+    const existingProgramIds = existingSavedPrograms.map(sp => sp.program_id);
+    const newProgramIds = program_ids.filter(id => !existingProgramIds.includes(id));
+
+    // Salvăm noile programe
+    const savedPrograms = await Promise.all(
+      newProgramIds.map(program_id => 
+        SavedProgram.create({
+          user_id: req.user.id,
+          program_id,
+          saved_at: new Date()
+        })
+      )
+    );
+
+    res.status(201).json({
+      success: true,
+      data: {
+        savedCount: savedPrograms.length,
+        alreadySavedCount: existingSavedPrograms.length,
+        savedPrograms
+      },
+      message: 'Programe salvate cu succes'
+    });
+  } catch (error) {
+    console.error('Eroare la salvarea programelor:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la salvarea programelor',
+      error: error.message,
+      data: null
     });
   }
 }; 

@@ -105,3 +105,18 @@
 {"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-10T10:56:44.225Z","userId":1}
 {"error":"SQLITE_ERROR: no such column: expires_at","level":"error","message":"Error getting notifications","timestamp":"2025-05-10T14:00:41.368Z","userId":2}
 {"error":"SQLITE_ERROR: no such column: expires_at","level":"error","message":"Error getting notifications","timestamp":"2025-05-10T14:00:41.381Z","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-10T14:08:41.846Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-10T14:08:41.881Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: expires_at","level":"error","message":"Error getting notifications","timestamp":"2025-05-10T14:14:54.097Z","userId":2}
+{"error":"SQLITE_ERROR: no such column: expires_at","level":"error","message":"Error getting notifications","timestamp":"2025-05-10T14:14:54.109Z","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"user","timestamp":"2025-05-11T08:29:04.609Z","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"user","timestamp":"2025-05-11T08:29:04.623Z","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"user","timestamp":"2025-05-11T08:29:25.275Z","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-11T10:51:53.480Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-11T10:51:53.505Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-11T10:52:45.434Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-11T10:52:45.477Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: expires_at","level":"error","message":"Error getting notifications","timestamp":"2025-05-11T13:17:51.060Z","userId":2}
+{"error":"SQLITE_ERROR: no such column: expires_at","level":"error","message":"Error getting notifications","timestamp":"2025-05-11T13:17:51.073Z","userId":2}
+{"error":"SQLITE_ERROR: no such column: expires_at","level":"error","message":"Error getting notifications","timestamp":"2025-05-12T12:15:00.939Z","userId":2}
+{"error":"SQLITE_ERROR: no such column: expires_at","level":"error","message":"Error getting notifications","timestamp":"2025-05-12T12:15:00.951Z","userId":2}

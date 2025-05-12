@@ -58,3 +58,9 @@
 {"error":"SQLITE_ERROR: no such column: expires_at","level":"error","message":"Error getting notifications","timestamp":"2025-05-09T23:05:38.811Z","userId":2}
 {"error":"SQLITE_ERROR: no such column: expires_at","level":"error","message":"Error getting notifications","timestamp":"2025-05-10T14:00:41.368Z","userId":2}
 {"error":"SQLITE_ERROR: no such column: expires_at","level":"error","message":"Error getting notifications","timestamp":"2025-05-10T14:00:41.381Z","userId":2}
+{"error":"SQLITE_ERROR: no such column: expires_at","level":"error","message":"Error getting notifications","timestamp":"2025-05-10T14:14:54.097Z","userId":2}
+{"error":"SQLITE_ERROR: no such column: expires_at","level":"error","message":"Error getting notifications","timestamp":"2025-05-10T14:14:54.109Z","userId":2}
+{"error":"SQLITE_ERROR: no such column: expires_at","level":"error","message":"Error getting notifications","timestamp":"2025-05-11T13:17:51.060Z","userId":2}
+{"error":"SQLITE_ERROR: no such column: expires_at","level":"error","message":"Error getting notifications","timestamp":"2025-05-11T13:17:51.073Z","userId":2}
+{"error":"SQLITE_ERROR: no such column: expires_at","level":"error","message":"Error getting notifications","timestamp":"2025-05-12T12:15:00.939Z","userId":2}
+{"error":"SQLITE_ERROR: no such column: expires_at","level":"error","message":"Error getting notifications","timestamp":"2025-05-12T12:15:00.951Z","userId":2}

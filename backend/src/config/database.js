@@ -3,7 +3,8 @@ const { Sequelize } = require('sequelize');
 require('dotenv').config();
 const path = require('path');
 const fs = require('fs');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
+const config = require('./config.json')[process.env.NODE_ENV || 'development'];
 
 // Configurare directoare
 const DB_DIR = path.join(__dirname, '../../data');
@@ -32,9 +33,15 @@ const dbExists = fs.existsSync(DB_FILE);
 
 // Configurare Sequelize
 const sequelize = new Sequelize({
+  ...config,
   dialect: 'sqlite',
-  storage: DB_FILE,
-  logging: false
+  storage: config.storage,
+  logging: false,
+  define: {
+    timestamps: true,
+    underscored: true,
+    underscoredAll: true
+  }
 });
 
 // Import models
@@ -56,16 +63,53 @@ const Application = ApplicationModel(sequelize);
 const SavedProgram = SavedProgramModel(sequelize);
 
 // Define relationships
-Program.belongsTo(University, { foreignKey: 'universityId', as: 'University' });
-University.hasMany(Program, { foreignKey: 'universityId' });
-Application.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
-Application.belongsTo(Program, { foreignKey: 'program_id', as: 'program' });
-User.hasMany(Application, { foreignKey: 'user_id' });
-Program.hasMany(Application, { foreignKey: 'program_id' });
-SavedProgram.belongsTo(User, { foreignKey: 'userId', as: 'User' });
-SavedProgram.belongsTo(Program, { foreignKey: 'programId', as: 'Program' });
-User.hasMany(SavedProgram, { foreignKey: 'userId' });
-Program.hasMany(SavedProgram, { foreignKey: 'programId' });
+Program.belongsTo(University, { 
+  foreignKey: 'universityId', 
+  as: 'University',
+  onDelete: 'CASCADE'
+});
+University.hasMany(Program, { 
+  foreignKey: 'universityId',
+  onDelete: 'CASCADE'
+});
+
+Application.belongsTo(User, { 
+  foreignKey: 'user_id', 
+  as: 'user',
+  onDelete: 'CASCADE'
+});
+Application.belongsTo(Program, { 
+  foreignKey: 'program_id', 
+  as: 'program',
+  onDelete: 'CASCADE'
+});
+User.hasMany(Application, { 
+  foreignKey: 'user_id',
+  onDelete: 'CASCADE'
+});
+Program.hasMany(Application, { 
+  foreignKey: 'program_id',
+  onDelete: 'CASCADE'
+});
+
+SavedProgram.belongsTo(User, { 
+  foreignKey: 'userId', 
+  as: 'User',
+  onDelete: 'CASCADE'
+});
+SavedProgram.belongsTo(Program, { 
+  foreignKey: 'programId', 
+  as: 'Program',
+  onDelete: 'CASCADE'
+});
+User.hasMany(SavedProgram, { 
+  foreignKey: 'userId',
+  onDelete: 'CASCADE'
+});
+Program.hasMany(SavedProgram, { 
+  foreignKey: 'programId',
+  onDelete: 'CASCADE'
+});
 
 // Funcție pentru verificarea existenței tabelelor
 const checkTablesExist = async () => {
@@ -83,54 +127,69 @@ const checkTablesExist = async () => {
 };
 
 // Funcție pentru sincronizare sigură
-const safeSync = async (force = false) => {
+async function safeSync() {
   try {
-    // Verificăm dacă baza de date există și este accesibilă
-    if (dbExists) {
-      try {
-        // Testăm conexiunea
-        await sequelize.authenticate();
-        console.log('Conexiune la baza de date verificată.');
-      } catch (error) {
-        console.error('Eroare la conectarea la baza de date:', error);
-        return;
-      }
-    }
-
-    // Verificăm dacă tabelele există
+    console.log('Se creează tabelele în baza de date...');
+    
+    // Verificăm dacă tabelele există deja
     const tablesExist = await checkTablesExist();
     
-    if (tablesExist) {
-      console.log('Tabelele există în baza de date.');
-      // Doar actualizăm schema dacă este necesar, fără a șterge datele
-      await sequelize.sync({ alter: true });
-      console.log('Schema bazei de date a fost actualizată cu succes.');
-    } else {
-      console.log('Se creează tabelele în baza de date...');
-      // Creăm tabelele fără a șterge datele existente
-      await sequelize.sync();
-      console.log('Tabelele au fost create cu succes.');
+    if (!tablesExist) {
+      // Ștergem toate tabelele în ordinea corectă
+      await SavedProgram.drop();
+      await Application.drop();
+      await Document.drop();
+      await Program.drop();
+      await University.drop();
+      await Notification.drop();
+      await User.drop();
       
-      // Creăm utilizatorul admin implicit doar dacă tabelele nu există
-      try {
-        const hashedPassword = await bcrypt.hash('123', 10);
+      // Creăm tabelele în ordinea corectă
+      await User.sync();
+      await University.sync();
+      await Document.sync();
+      await Program.sync();
+      await Notification.sync();
+      await Application.sync();
+      await SavedProgram.sync();
+      
+      console.log('Tabelele au fost actualizate cu succes');
+
+      // Verificăm dacă există utilizatorul admin
+      const adminExists = await User.findOne({ where: { email: 'admin@example.com' } });
+      if (!adminExists) {
         await User.create({
-          name: 'Admin',
+          name: 'Admin User',
           email: 'admin@example.com',
-          password: hashedPassword,
-          role: 'admin'
+          password: '123',
+          role: 'admin',
+          status: 'active'
         });
-        console.log('Utilizator admin creat cu succes');
-      } catch (error) {
-        console.error('Eroare la crearea utilizatorului admin:', error);
+        console.log('Utilizatorul admin a fost creat');
       }
+
+      // Verificăm dacă există utilizatorul de test
+      const testUserExists = await User.findOne({ where: { email: 'user@example.com' } });
+      if (!testUserExists) {
+        await User.create({
+          name: 'Test User',
+          email: 'user@example.com',
+          password: '123',
+          role: 'student',
+          status: 'active'
+        });
+        console.log('Utilizatorul de test a fost creat');
+      }
+    } else {
+      console.log('Tabelele există deja, nu este nevoie să fie recreate.');
     }
 
-    console.log('Baza de date sincronizată cu succes');
+    console.log('Baza de date a fost sincronizată cu succes');
   } catch (error) {
     console.error('Eroare la sincronizarea bazei de date:', error);
+    throw error;
   }
-};
+}
 
 // Exportăm funcțiile și modelele
 module.exports = {

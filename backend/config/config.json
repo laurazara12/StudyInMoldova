@@ -1,14 +1,20 @@
 {
   "development": {
     "dialect": "sqlite",
-    "storage": "./data/database.sqlite"
+    "storage": "./data/database.sqlite",
+    "logging": false,
+    "migrationsPath": "./src/database/migrations"
   },
   "test": {
     "dialect": "sqlite",
-    "storage": ":memory:"
+    "storage": ":memory:",
+    "logging": false,
+    "migrationsPath": "./src/database/migrations"
   },
   "production": {
     "dialect": "sqlite",
-    "storage": "./data/database.sqlite"
+    "storage": "./data/database.sqlite",
+    "logging": false,
+    "migrationsPath": "./src/database/migrations"
   }
 } 

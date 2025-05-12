@@ -7,7 +7,7 @@ const { User } = require('../models');
 const { authMiddleware, adminMiddleware } = require('../middleware/auth');
 
 // Registration
-router.post('/signup', async (req, res) => {
+router.post('/register', async (req, res) => {
   try {
     const { email, password, name } = req.body;
     console.log('Registration attempt for:', email);
@@ -16,9 +16,16 @@ router.post('/signup', async (req, res) => {
     if (!email || !password || !name) {
       console.log('Missing data:', { email: !!email, password: !!password, name: !!name });
       return res.status(400).json({ 
+        success: false,
         message: 'All fields are required',
         received: { email: !!email, password: !!password, name: !!name }
       });
+    }
+
+    // Verifică dacă emailul există deja
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: 'Email is already registered' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -34,28 +41,30 @@ router.post('/signup', async (req, res) => {
     console.log('User created successfully');
 
     const token = jwt.sign(
-      { id: user.id, role: 'user' },
+      { id: user.id, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: '24h' }
     );
 
     console.log('Token generated for new user');
 
     res.status(201).json({
+      success: true,
       message: 'User created successfully',
       token,
       user: { 
+        id: user.id,
         email, 
         name, 
-        role: 'user' 
+        role: user.role 
       }
     });
   } catch (error) {
     console.error('Registration error:', error);
     if (error.name === 'SequelizeUniqueConstraintError') {
-      return res.status(400).json({ message: 'Email is already registered' });
+      return res.status(400).json({ success: false, message: 'Email is already registered' });
     }
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
@@ -63,63 +72,108 @@ router.post('/signup', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log('Login attempt for:', email);
+    console.log('=== Login Request Details ===');
+    console.log('Raw request body:', req.body);
+    console.log('Email:', email);
+    console.log('Password received:', password);
+    console.log('Password type:', typeof password);
+    console.log('Password length:', password ? password.length : 0);
+    console.log('========================');
 
     if (!email || !password) {
       console.log('Missing data:', { email: !!email, password: !!password });
       return res.status(400).json({ 
-        message: 'Email and password are required',
+        success: false,
+        message: 'Email și parolă sunt obligatorii',
         received: { email: !!email, password: !!password }
       });
     }
 
     const user = await User.findOne({ where: { email } });
+    console.log('User found:', user ? 'Yes' : 'No');
     
     if (!user) {
       console.log('User not found for email:', email);
-      return res.status(401).json({ message: 'Invalid email or password' });
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Email sau parolă incorectă' 
+      });
     }
 
-    // Verifică parola în două moduri:
-    // 1. Direct (pentru parolele hardcodate)
-    // 2. Cu bcrypt (pentru parolele hash-uite)
+    console.log('Checking password...');
+    console.log('Stored password hash:', user.password);
     let isValidPassword = false;
     
-    // Verifică dacă parola din baza de date este hash-uită
-    if (user.password.startsWith('$2a$') || user.password.startsWith('$2b$')) {
-      // Parola este hash-uită, folosește bcrypt
+    try {
       isValidPassword = await bcrypt.compare(password, user.password);
-    } else {
-      // Parola nu este hash-uită, verifică direct
-      isValidPassword = (password === user.password);
+      console.log('Password validation result:', isValidPassword);
+    } catch (bcryptError) {
+      console.error('Error comparing passwords:', bcryptError);
+      return res.status(500).json({
+        success: false,
+        message: 'Eroare la verificarea parolei'
+      });
     }
     
     if (!isValidPassword) {
       console.log('Invalid password for user:', email);
-      return res.status(401).json({ message: 'Invalid email or password' });
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Email sau parolă incorectă' 
+      });
     }
 
     console.log('Login successful for:', email);
+    console.log('Generating JWT token...');
+
+    if (!process.env.JWT_SECRET) {
+      console.error('JWT_SECRET is not configured');
+      return res.status(500).json({
+        success: false,
+        message: 'Server configuration error'
+      });
+    }
 
     const token = jwt.sign(
-      { id: user.id, role: user.role, email: user.email },
+      { id: user.id, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: '24h' }
     );
 
+    console.log('Token generated successfully');
+
+    const userData = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      phone: user.phone,
+      date_of_birth: user.date_of_birth,
+      country_of_origin: user.country_of_origin,
+      nationality: user.nationality,
+      desired_study_level: user.desired_study_level,
+      preferred_study_field: user.preferred_study_field,
+      desired_academic_year: user.desired_academic_year,
+      preferred_study_language: user.preferred_study_language,
+      estimated_budget: user.estimated_budget,
+      accommodation_preferences: user.accommodation_preferences
+    };
+
     res.json({
-      message: 'Login successful',
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role
+      success: true,
+      message: 'Autentificare reușită',
+      data: {
+        user: userData,
+        token: token
       }
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ 
+      success: false, 
+      message: 'Eroare la autentificare',
+      error: error.message 
+    });
   }
 });
 
@@ -256,52 +310,6 @@ router.delete('/users/:id', authMiddleware, adminMiddleware, async (req, res) =>
 // Health check endpoint
 router.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is running' });
-});
-
-// Ruta pentru înregistrare
-router.post('/register', async (req, res) => {
-  try {
-    const { email, password, name } = req.body;
-
-    // Verifică dacă emailul există deja
-    User.findOne({ where: { email } }).then(user => {
-      if (user) {
-        return res.status(400).json({ message: 'Emailul este deja înregistrat' });
-      }
-
-      // Creează utilizatorul nou
-      bcrypt.hash(password, 10).then(hashedPassword => {
-        User.create({
-          email,
-          password: hashedPassword,
-          name,
-          role: 'user'
-        }).then(user => {
-          res.status(201).json({ 
-            message: 'Utilizator înregistrat cu succes',
-            user: {
-              id: user.id,
-              email: user.email,
-              name: user.name,
-              role: user.role
-            }
-          });
-        }).catch(err => {
-          console.error('Eroare la crearea utilizatorului:', err);
-          res.status(500).json({ message: 'Eroare la înregistrare' });
-        });
-      }).catch(err => {
-        console.error('Eroare la hash-area parolei:', err);
-        res.status(500).json({ message: 'Eroare la înregistrare' });
-      });
-    }).catch(err => {
-      console.error('Eroare la verificarea emailului:', err);
-      res.status(500).json({ message: 'Eroare la înregistrare' });
-    });
-  } catch (error) {
-    console.error('Eroare la înregistrare:', error);
-    res.status(500).json({ message: 'Eroare la înregistrare' });
-  }
 });
 
 // Update user profile

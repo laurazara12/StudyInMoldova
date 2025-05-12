@@ -42,10 +42,24 @@ module.exports = (sequelize) => {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false
+    },
+    expires_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
+    },
+    priority: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'low',
+      validate: {
+        isIn: [['low', 'medium', 'high']]
+      }
     }
   }, {
     tableName: 'notifications',
-    timestamps: true
+    timestamps: true,
+    underscored: true
   });
 
   Notification.associate = (models) => {

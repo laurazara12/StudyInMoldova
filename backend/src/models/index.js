@@ -5,6 +5,7 @@ const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../config/config.json')[env];
 const db = {};
+const bcrypt = require('bcryptjs');
 
 let sequelize;
 if (config.use_env_variable) {
@@ -23,6 +24,7 @@ const modelFiles = [
   'university.js',
   'program.js',
   'savedProgram.js',
+  'application.js',
   'document.js',
   'notification.js'
 ];

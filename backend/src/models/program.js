@@ -1,88 +1,68 @@
-const { DataTypes } = require('sequelize');
+const { Model, DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-  const Program = sequelize.define('Program', {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true
-    },
+  class Program extends Model {
+    static associate(models) {
+      Program.belongsTo(models.University, {
+        foreignKey: 'university_id',
+        as: 'University'
+      });
+      Program.hasMany(models.SavedProgram, {
+        foreignKey: 'programId',
+        as: 'SavedPrograms'
+      });
+    }
+  }
+
+  Program.init({
     name: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    faculty: {
-      type: DataTypes.STRING,
-      allowNull: false
+    description: {
+      type: DataTypes.TEXT
     },
-    degree: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        isIn: [['Bachelor', 'Master', 'PhD']]
-      }
-    },
-    credits: {
+    duration: {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    languages: {
-      type: DataTypes.JSON,
-      allowNull: false,
-      defaultValue: [],
-      get() {
-        const rawValue = this.getDataValue('languages');
-        return Array.isArray(rawValue) ? rawValue : [];
-      },
-      set(value) {
-        this.setDataValue('languages', Array.isArray(value) ? value : [value]);
-      }
-    },
-    description: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
-    duration: {
+    degree_type: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    tuitionFee: {
+    language: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    universityId: {
+    tuition_fees: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false
+    },
+    start_date: {
+      type: DataTypes.DATE,
+      allowNull: false
+    },
+    application_deadline: {
+      type: DataTypes.DATE,
+      allowNull: false
+    },
+    requirements: {
+      type: DataTypes.TEXT
+    },
+    university_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: 'universities',
         key: 'id'
       }
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW
     }
   }, {
+    sequelize,
+    modelName: 'Program',
     tableName: 'programs',
-    timestamps: true
+    underscored: true
   });
-
-  Program.associate = (models) => {
-    Program.belongsTo(models.University, {
-      foreignKey: 'universityId',
-      as: 'University'
-    });
-    Program.hasMany(models.SavedProgram, {
-      foreignKey: 'programId',
-      as: 'SavedPrograms'
-    });
-  };
 
   return Program;
 }; 
