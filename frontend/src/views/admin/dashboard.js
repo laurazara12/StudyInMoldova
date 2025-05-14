@@ -15,7 +15,16 @@ const Dashboard = () => {
   const [loading, setLoading] = useState({
     users: true,
     documents: true,
-    universities: true
+    universities: true,
+    programs: true,
+    applications: true
+  });
+  const [errors, setErrors] = useState({
+    users: null,
+    documents: null,
+    universities: null,
+    programs: null,
+    applications: null
   });
   const [error, setError] = useState(null);
   const [docStatus, setDocStatus] = useState({});
@@ -108,9 +117,6 @@ const Dashboard = () => {
 
   const initializeDashboard = async () => {
     try {
-      setLoading(true);
-      setError(null);
-
       if (!token || !checkAdminAccess()) {
         navigate('/sign-in');
         return;
@@ -120,108 +126,43 @@ const Dashboard = () => {
       const headers = getAuthHeaders();
       console.log('Headers pentru cereri:', headers);
 
-      const [usersResponse, documentsResponse, universitiesResponse, programsResponse, applicationsResponse] = await Promise.all([
-        axios.get(`${API_BASE_URL}/api/auth/users`, { 
-          headers,
-          validateStatus: function (status) {
-            return status < 500;
-          }
-        }),
-        axios.get(`${API_BASE_URL}/api/documents`, { 
-          headers,
-          validateStatus: function (status) {
-            return status < 500;
-          }
-        }),
-        axios.get(`${API_BASE_URL}/api/universities`, { 
-          headers,
-          validateStatus: function (status) {
-            return status < 500;
-          }
-        }),
-        axios.get(`${API_BASE_URL}/api/programs`, { 
-          headers,
-          validateStatus: function (status) {
-            return status < 500;
-          }
-        }),
-        axios.get(`${API_BASE_URL}/api/applications`, { 
-          headers,
-          validateStatus: function (status) {
-            return status < 500;
-          }
-        })
-      ]);
+      // Funcție pentru a gestiona erorile individual pentru fiecare cerere
+      const handleSectionError = (section, error) => {
+        console.error(`Eroare la încărcarea ${section}:`, error);
+        setErrors(prev => ({
+          ...prev,
+          [section]: `Eroare la încărcarea ${section}: ${error.message}`
+        }));
+        setLoading(prev => ({
+          ...prev,
+          [section]: false
+        }));
+      };
 
-      console.log('Răspunsuri API detaliate:', {
-        users: {
-          status: usersResponse.status,
-          data: usersResponse.data,
-          headers: usersResponse.headers
-        },
-        documents: {
-          status: documentsResponse.status,
-          data: documentsResponse.data,
-          headers: documentsResponse.headers
-        },
-        universities: {
-          status: universitiesResponse.status,
-          data: universitiesResponse.data,
-          headers: universitiesResponse.headers
-        },
-        programs: {
-          status: programsResponse.status,
-          data: programsResponse.data,
-          headers: programsResponse.headers
-        },
-        applications: {
-          status: applicationsResponse.status,
-          data: applicationsResponse.data,
-          headers: applicationsResponse.headers
+      // Funcție pentru a actualiza datele unei secțiuni
+      const updateSectionData = (section, data) => {
+        switch(section) {
+          case 'users':
+            setUsers(data);
+            break;
+          case 'documents':
+            setDocuments(data);
+            break;
+          case 'universities':
+            setUniversities(data);
+            break;
+          case 'programs':
+            setPrograms(data);
+            break;
+          case 'applications':
+            setApplications(data);
+            break;
         }
-      });
-
-      // Verificăm statusul răspunsurilor
-      if (usersResponse.status !== 200) {
-        console.error('Eroare la obținerea utilizatorilor:', {
-          status: usersResponse.status,
-          data: usersResponse?.data,
-          headers: usersResponse?.headers
-        });
-        throw new Error(`Eroare la obținerea utilizatorilor: ${usersResponse.status} - ${usersResponse.data?.message || 'Necunoscut'}`);
-      }
-      if (documentsResponse.status !== 200) {
-        console.error('Eroare la obținerea documentelor:', {
-          status: documentsResponse.status,
-          data: documentsResponse?.data,
-          headers: documentsResponse?.headers
-        });
-        throw new Error(`Eroare la obținerea documentelor: ${documentsResponse.status} - ${documentsResponse.data?.message || 'Necunoscut'}`);
-      }
-      if (universitiesResponse.status !== 200) {
-        console.error('Eroare la obținerea universităților:', {
-          status: universitiesResponse.status,
-          data: universitiesResponse?.data,
-          headers: universitiesResponse?.headers
-        });
-        throw new Error(`Eroare la obținerea universităților: ${universitiesResponse.status} - ${universitiesResponse.data?.message || 'Necunoscut'}`);
-      }
-      if (programsResponse.status !== 200) {
-        console.error('Eroare la obținerea programelor:', {
-          status: programsResponse.status,
-          data: programsResponse?.data,
-          headers: programsResponse?.headers
-        });
-        throw new Error(`Eroare la obținerea programelor: ${programsResponse.status} - ${programsResponse.data?.message || 'Necunoscut'}`);
-      }
-      if (applicationsResponse.status !== 200) {
-        console.error('Eroare la obținerea aplicațiilor:', {
-          status: applicationsResponse.status,
-          data: applicationsResponse?.data,
-          headers: applicationsResponse?.headers
-        });
-        throw new Error(`Eroare la obținerea aplicațiilor: ${applicationsResponse.status} - ${applicationsResponse.data?.message || 'Necunoscut'}`);
-      }
+        setLoading(prev => ({
+          ...prev,
+          [section]: false
+        }));
+      };
 
       // Funcție pentru extragerea datelor din răspuns
       const extractData = (response) => {
@@ -230,17 +171,14 @@ const Dashboard = () => {
           return [];
         }
         
-        // Verificăm dacă răspunsul are formatul { data: [...] }
         if (response.data.data && Array.isArray(response.data.data)) {
           return response.data.data;
         }
         
-        // Verificăm dacă răspunsul este direct un array
         if (Array.isArray(response.data)) {
           return response.data;
         }
         
-        // Verificăm dacă răspunsul este un obiect cu proprietatea 'applications'
         if (response.data.applications && Array.isArray(response.data.applications)) {
           return response.data.applications;
         }
@@ -249,106 +187,131 @@ const Dashboard = () => {
         return [];
       };
 
-      // Extragem datele folosind funcția
-      const usersData = extractData(usersResponse);
-      const documentsData = extractData(documentsResponse);
-      const universitiesData = extractData(universitiesResponse);
-      const programsData = extractData(programsResponse);
-      const applicationsData = extractData(applicationsResponse);
+      // Încărcăm datele pentru fiecare secțiune independent
+      const loadUsers = async () => {
+        try {
+          const response = await axios.get(`${API_BASE_URL}/api/auth/users`, { 
+            headers,
+            validateStatus: function (status) {
+              return status < 500;
+            }
+          });
+          
+          if (response.status === 200) {
+            const usersData = extractData(response);
+            updateSectionData('users', usersData);
+          } else {
+            throw new Error(`Eroare la obținerea utilizatorilor: ${response.status}`);
+          }
+        } catch (error) {
+          handleSectionError('users', error);
+        }
+      };
 
-      console.log('Date extrase:', {
-        users: usersData,
-        documents: documentsData,
-        universities: universitiesData,
-        programs: programsData,
-        applications: applicationsData
-      });
+      const loadDocuments = async () => {
+        try {
+          const response = await axios.get(`${API_BASE_URL}/api/documents`, { 
+            headers,
+            validateStatus: function (status) {
+              return status < 500;
+            }
+          });
+          
+          if (response.status === 200) {
+            const documentsData = extractData(response);
+            updateSectionData('documents', documentsData);
+          } else {
+            throw new Error(`Eroare la obținerea documentelor: ${response.status}`);
+          }
+        } catch (error) {
+          handleSectionError('documents', error);
+        }
+      };
 
-      // Verificăm formatul datelor
-      if (!Array.isArray(usersData)) {
-        console.error('Răspuns invalid pentru utilizatori:', {
-          data: usersData,
-          type: typeof usersData,
-          isArray: Array.isArray(usersData)
-        });
-        throw new Error('Format invalid pentru datele utilizatorilor');
-      }
+      const loadUniversities = async () => {
+        try {
+          const response = await axios.get(`${API_BASE_URL}/api/universities`, { 
+            headers,
+            validateStatus: function (status) {
+              return status < 500;
+            }
+          });
+          
+          if (response.status === 200) {
+            const universitiesData = extractData(response);
+            updateSectionData('universities', universitiesData);
+          } else {
+            throw new Error(`Eroare la obținerea universităților: ${response.status}`);
+          }
+        } catch (error) {
+          handleSectionError('universities', error);
+        }
+      };
 
-      if (!Array.isArray(documentsData)) {
-        console.error('Răspuns invalid pentru documente:', {
-          data: documentsData,
-          type: typeof documentsData,
-          isArray: Array.isArray(documentsData)
-        });
-        throw new Error('Format invalid pentru datele documentelor');
-      }
+      const loadPrograms = async () => {
+        try {
+          const response = await axios.get(`${API_BASE_URL}/api/programs`, { 
+            headers,
+            validateStatus: function (status) {
+              return status < 500;
+            }
+          });
+          
+          if (response.status === 200) {
+            const programsData = extractData(response);
+            updateSectionData('programs', programsData);
+          } else {
+            throw new Error(`Eroare la obținerea programelor: ${response.status}`);
+          }
+        } catch (error) {
+          handleSectionError('programs', error);
+        }
+      };
 
-      if (!Array.isArray(universitiesData)) {
-        console.error('Răspuns invalid pentru universități:', {
-          data: universitiesData,
-          type: typeof universitiesData,
-          isArray: Array.isArray(universitiesData)
-        });
-        throw new Error('Format invalid pentru datele universităților');
-      }
+      const loadApplications = async () => {
+        try {
+          const response = await axios.get(`${API_BASE_URL}/api/applications`, { 
+            headers,
+            validateStatus: function (status) {
+              return status < 500;
+            }
+          });
+          
+          if (response.status === 200) {
+            const applicationsData = extractData(response);
+            updateSectionData('applications', applicationsData);
+          } else {
+            throw new Error(`Eroare la obținerea aplicațiilor: ${response.status}`);
+          }
+        } catch (error) {
+          handleSectionError('applications', error);
+        }
+      };
 
-      if (!Array.isArray(programsData)) {
-        console.error('Răspuns invalid pentru programe:', {
-          data: programsData,
-          type: typeof programsData,
-          isArray: Array.isArray(programsData)
-        });
-        throw new Error('Format invalid pentru datele programelor');
-      }
+      // Încărcăm toate secțiunile în paralel
+      await Promise.all([
+        loadUsers(),
+        loadDocuments(),
+        loadUniversities(),
+        loadPrograms(),
+        loadApplications()
+      ]);
 
-      if (!Array.isArray(applicationsData)) {
-        console.error('Răspuns invalid pentru aplicații:', {
-          data: applicationsData,
-          type: typeof applicationsData,
-          isArray: Array.isArray(applicationsData)
-        });
-        throw new Error('Format invalid pentru datele aplicațiilor');
-      }
-
-      // Actualizăm state-ul
-      setUsers(usersData);
-      setDocuments(documentsData);
-      setUniversities(universitiesData);
-      setPrograms(programsData);
-      setApplications(applicationsData);
-
-      // Actualizăm statisticile
+      // Actualizăm statisticile doar dacă avem date valide
       setStatistics({
-        totalUsers: usersData.length,
-        totalDocuments: documentsData.length,
-        totalUniversities: universitiesData.length,
-        totalPrograms: programsData.length,
-        totalApplications: applicationsData.length,
-        pendingApplications: applicationsData.filter(app => app.status === 'pending').length,
-        approvedApplications: applicationsData.filter(app => app.status === 'approved').length,
-        rejectedApplications: applicationsData.filter(app => app.status === 'rejected').length
+        totalUsers: users.length,
+        totalDocuments: documents.length,
+        totalUniversities: universities.length,
+        totalPrograms: programs.length,
+        totalApplications: applications.length,
+        pendingApplications: applications.filter(app => app.status === 'pending').length,
+        approvedApplications: applications.filter(app => app.status === 'approved').length,
+        rejectedApplications: applications.filter(app => app.status === 'rejected').length
       });
 
     } catch (error) {
-      console.error('Eroare detaliată la inițializarea dashboard-ului:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-        headers: error.response?.headers,
-        config: {
-          url: error.config?.url,
-          method: error.config?.method,
-          headers: error.config?.headers
-        }
-      });
-
-      if (error.response?.status === 401) {
-        navigate('/sign-in');
-      } else {
-        setError(`Eroare la inițializarea dashboard-ului: ${error.message}`);
-      }
-    } finally {
-      setLoading(false);
+      console.error('Eroare generală la inițializarea dashboard-ului:', error);
+      setError(`Eroare generală: ${error.message}`);
     }
   };
 
@@ -1860,7 +1823,7 @@ const Dashboard = () => {
             ) : null}
           </div>
 
-          {loading.users || loading.documents || loading.universities ? (
+          {loading.users || loading.documents || loading.universities || loading.programs || loading.applications ? (
             <div className="loading-container">
               <div className="loading-spinner"></div>
               <p>Loading data...</p>
@@ -2683,231 +2646,297 @@ const Dashboard = () => {
 
               {activeTab === 'users' ? (
                 <div className="users-table-container">
-                  <table className="dashboard-table">
-                    <thead>
-                      <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Diploma</th>
-                        <th>Transcript</th>
-                        <th>Passport</th>
-                        <th>Photo</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredUsers.map(user => {
-                        const docStatus = getDocumentStatus(user.id);
-                        return (
-                          <tr key={user.id}>
-                            <td>{user.id}</td>
-                            <td>{user.displayName}</td>
-                            <td>{user.email}</td>
-                            <td>{user.role === 'admin' ? 'Administrator' : 'Utilizator'}</td>
-                            <td>
-                              <span className={`status-${docStatus.diploma.status}`}>
-                                {docStatus.diploma.exists ? 'Încărcat' : 'Lipsește'}
-                                {docStatus.diploma.uploadDate && (
-                                  <span className="upload-date">
-                                    ({new Date(docStatus.diploma.uploadDate).toLocaleDateString()})
-                                  </span>
-                                )}
-                              </span>
-                            </td>
-                            <td>
-                              <span className={`status-${docStatus.transcript.status}`}>
-                                {docStatus.transcript.exists ? 'Încărcat' : 'Lipsește'}
-                                {docStatus.transcript.uploadDate && (
-                                  <span className="upload-date">
-                                    ({new Date(docStatus.transcript.uploadDate).toLocaleDateString()})
-                                  </span>
-                                )}
-                              </span>
-                            </td>
-                            <td>
-                              <span className={`status-${docStatus.passport.status}`}>
-                                {docStatus.passport.exists ? 'Încărcat' : 'Lipsește'}
-                                {docStatus.passport.uploadDate && (
-                                  <span className="upload-date">
-                                    ({new Date(docStatus.passport.uploadDate).toLocaleDateString()})
-                                  </span>
-                                )}
-                              </span>
-                            </td>
-                            <td>
-                              <span className={`status-${docStatus.photo.status}`}>
-                                {docStatus.photo.exists ? 'Încărcat' : 'Lipsește'}
-                                {docStatus.photo.uploadDate && (
-                                  <span className="upload-date">
-                                    ({new Date(docStatus.photo.uploadDate).toLocaleDateString()})
-                                  </span>
-                                )}
-                              </span>
-                            </td>
-                            <td>
-                              <div className="action-buttons">
-                                <button 
-                                  className="action-button view-button"
-                                  onClick={() => handleViewUser(user)}
-                                >
-                                  <i className="fas fa-eye"></i> View User
-                                </button>
-                                <button 
-                                  className="action-button view-docs-button"
-                                  onClick={() => handleViewDocuments(user)}
-                                >
-                                  <i className="fas fa-file"></i> View Docs
-                                </button>
-                                <button 
-                                  className="action-button delete-button"
-                                  onClick={() => confirmDelete(user.id)}
-                                >
-                                  <i className="fas fa-trash"></i> Delete
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                  {errors.users ? (
+                    <div className="error-message">
+                      <i className="fas fa-exclamation-circle"></i>
+                      <p>{errors.users}</p>
+                      <button 
+                        className="retry-button"
+                        onClick={() => {
+                          setErrors(prev => ({ ...prev, users: null }));
+                          setLoading(prev => ({ ...prev, users: true }));
+                          loadUsers();
+                        }}
+                      >
+                        Reîncearcă
+                      </button>
+                    </div>
+                  ) : loading.users ? (
+                    <div className="loading-container">
+                      <div className="loading-spinner"></div>
+                      <p>Se încarcă utilizatorii...</p>
+                    </div>
+                  ) : (
+                    <table className="dashboard-table">
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th>Name</th>
+                          <th>Email</th>
+                          <th>Role</th>
+                          <th>Diploma</th>
+                          <th>Transcript</th>
+                          <th>Passport</th>
+                          <th>Photo</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredUsers.map(user => {
+                          const docStatus = getDocumentStatus(user.id);
+                          return (
+                            <tr key={user.id}>
+                              <td>{user.id}</td>
+                              <td>{user.displayName}</td>
+                              <td>{user.email}</td>
+                              <td>{user.role === 'admin' ? 'Administrator' : 'Utilizator'}</td>
+                              <td>
+                                <span className={`status-${docStatus.diploma.status}`}>
+                                  {docStatus.diploma.exists ? 'Încărcat' : 'Lipsește'}
+                                  {docStatus.diploma.uploadDate && (
+                                    <span className="upload-date">
+                                      ({new Date(docStatus.diploma.uploadDate).toLocaleDateString()})
+                                    </span>
+                                  )}
+                                </span>
+                              </td>
+                              <td>
+                                <span className={`status-${docStatus.transcript.status}`}>
+                                  {docStatus.transcript.exists ? 'Încărcat' : 'Lipsește'}
+                                  {docStatus.transcript.uploadDate && (
+                                    <span className="upload-date">
+                                      ({new Date(docStatus.transcript.uploadDate).toLocaleDateString()})
+                                    </span>
+                                  )}
+                                </span>
+                              </td>
+                              <td>
+                                <span className={`status-${docStatus.passport.status}`}>
+                                  {docStatus.passport.exists ? 'Încărcat' : 'Lipsește'}
+                                  {docStatus.passport.uploadDate && (
+                                    <span className="upload-date">
+                                      ({new Date(docStatus.passport.uploadDate).toLocaleDateString()})
+                                    </span>
+                                  )}
+                                </span>
+                              </td>
+                              <td>
+                                <span className={`status-${docStatus.photo.status}`}>
+                                  {docStatus.photo.exists ? 'Încărcat' : 'Lipsește'}
+                                  {docStatus.photo.uploadDate && (
+                                    <span className="upload-date">
+                                      ({new Date(docStatus.photo.uploadDate).toLocaleDateString()})
+                                    </span>
+                                  )}
+                                </span>
+                              </td>
+                              <td>
+                                <div className="action-buttons">
+                                  <button 
+                                    className="action-button view-button"
+                                    onClick={() => handleViewUser(user)}
+                                  >
+                                    <i className="fas fa-eye"></i> View User
+                                  </button>
+                                  <button 
+                                    className="action-button view-docs-button"
+                                    onClick={() => handleViewDocuments(user)}
+                                  >
+                                    <i className="fas fa-file"></i> View Docs
+                                  </button>
+                                  <button 
+                                    className="action-button delete-button"
+                                    onClick={() => confirmDelete(user.id)}
+                                  >
+                                    <i className="fas fa-trash"></i> Delete
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  )}
                 </div>
               ) : activeTab === 'documents' ? (
                 <div className="documents-table-container">
-                  <table className="dashboard-table">
-                    <thead>
-                      <tr>
-                        <th>ID</th>
-                        <th>Utilizator</th>
-                        <th>Tip Document</th>
-                        <th>Data Încărcare</th>
-                        <th>Status</th>
-                        <th>Acțiuni</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredDocuments.map(doc => {
-                        const user = users.find(u => u.id === doc.user_id);
-                        const uploadDate = doc.created_at || doc.uploadDate;
-                        const documentStatus = doc.status || 'pending';
-                        
-                        return (
-                          <tr key={`${doc.id}_${doc.document_type}`}>
-                            <td>{doc.id}</td>
-                            <td>
-                              {user ? (
-                                <span className="user-name">{user.name}</span>
-                              ) : (
-                                <span className="unknown-user">
-                                  Utilizator ID: {doc.user_id}
+                  {errors.documents ? (
+                    <div className="error-message">
+                      <i className="fas fa-exclamation-circle"></i>
+                      <p>{errors.documents}</p>
+                      <button 
+                        className="retry-button"
+                        onClick={() => {
+                          setErrors(prev => ({ ...prev, documents: null }));
+                          setLoading(prev => ({ ...prev, documents: true }));
+                          loadDocuments();
+                        }}
+                      >
+                        Reîncearcă
+                      </button>
+                    </div>
+                  ) : loading.documents ? (
+                    <div className="loading-container">
+                      <div className="loading-spinner"></div>
+                      <p>Se încarcă documentele...</p>
+                    </div>
+                  ) : (
+                    <table className="dashboard-table">
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th>Utilizator</th>
+                          <th>Tip Document</th>
+                          <th>Data Încărcare</th>
+                          <th>Status</th>
+                          <th>Acțiuni</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredDocuments.map(doc => {
+                          const user = users.find(u => u.id === doc.user_id);
+                          const uploadDate = doc.created_at || doc.uploadDate;
+                          const documentStatus = doc.status || 'pending';
+                          
+                          return (
+                            <tr key={`${doc.id}_${doc.document_type}`}>
+                              <td>{doc.id}</td>
+                              <td>
+                                {user ? (
+                                  <span className="user-name">{user.name}</span>
+                                ) : (
+                                  <span className="unknown-user">
+                                    Utilizator ID: {doc.user_id}
+                                  </span>
+                                )}
+                              </td>
+                              <td>
+                                <span className="document-type">
+                                  {doc.document_type.charAt(0).toUpperCase() + doc.document_type.slice(1)}
                                 </span>
-                              )}
-                            </td>
-                            <td>
-                              <span className="document-type">
-                                {doc.document_type.charAt(0).toUpperCase() + doc.document_type.slice(1)}
-                              </span>
-                            </td>
-                            <td>{formatDate(uploadDate)}</td>
-                            <td>
-                              <span className={`status-badge status-${documentStatus}`}>
-                                {documentStatus === 'pending' ? 'În așteptare' :
-                                 documentStatus === 'approved' ? 'Aprobat' :
-                                 documentStatus === 'rejected' ? 'Respins' :
-                                 documentStatus === 'missing' ? 'Lipsește' :
-                                 documentStatus.charAt(0).toUpperCase() + documentStatus.slice(1)}
-                              </span>
-                            </td>
-                            <td>
-                              <div className="action-buttons">
-                                <button 
-                                  className="action-button download-button"
-                                  onClick={() => handleDownloadDocument(doc.document_type, doc.user_id)}
-                                  title="Descarcă documentul"
-                                >
-                                  <i className="fas fa-download"></i>
-                                  <span>Descarcă</span>
-                                </button>
-                                <button 
-                                  className="action-button delete-button"
-                                  onClick={() => handleDeleteDocument(doc.document_type, doc.user_id)}
-                                  title="Șterge documentul"
-                                >
-                                  <i className="fas fa-trash"></i>
-                                  <span>Șterge</span>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                              </td>
+                              <td>{formatDate(uploadDate)}</td>
+                              <td>
+                                <span className={`status-badge status-${documentStatus}`}>
+                                  {documentStatus === 'pending' ? 'În așteptare' :
+                                   documentStatus === 'approved' ? 'Aprobat' :
+                                   documentStatus === 'rejected' ? 'Respins' :
+                                   documentStatus === 'missing' ? 'Lipsește' :
+                                   documentStatus.charAt(0).toUpperCase() + documentStatus.slice(1)}
+                                </span>
+                              </td>
+                              <td>
+                                <div className="action-buttons">
+                                  <button 
+                                    className="action-button download-button"
+                                    onClick={() => handleDownloadDocument(doc.document_type, doc.user_id)}
+                                    title="Descarcă documentul"
+                                  >
+                                    <i className="fas fa-download"></i>
+                                    <span>Descarcă</span>
+                                  </button>
+                                  <button 
+                                    className="action-button delete-button"
+                                    onClick={() => handleDeleteDocument(doc.document_type, doc.user_id)}
+                                    title="Șterge documentul"
+                                  >
+                                    <i className="fas fa-trash"></i>
+                                    <span>Șterge</span>
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  )}
                 </div>
               ) : activeTab === 'applications' ? (
                 <div className="applications-table-container">
-                  <table className="dashboard-table">
-                    <thead>
-                      <tr>
-                        <th>ID</th>
-                        <th>Utilizator</th>
-                        <th>Program</th>
-                        <th>Universitate</th>
-                        <th>Data Aplicației</th>
-                        <th>Status</th>
-                        <th>Acțiuni</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredApplications.map(app => {
-                        const user = users.find(u => u.id === app.user_id);
-                        return (
-                          <tr key={app.id}>
-                            <td>{app.id}</td>
-                            <td>
-                              {user ? (
-                                <span className="user-name">{user.name}</span>
-                              ) : (
-                                <span className="unknown-user">
-                                  Utilizator ID: {app.user_id}
+                  {errors.applications ? (
+                    <div className="error-message">
+                      <i className="fas fa-exclamation-circle"></i>
+                      <p>{errors.applications}</p>
+                      <button 
+                        className="retry-button"
+                        onClick={() => {
+                          setErrors(prev => ({ ...prev, applications: null }));
+                          setLoading(prev => ({ ...prev, applications: true }));
+                          loadApplications();
+                        }}
+                      >
+                        Reîncearcă
+                      </button>
+                    </div>
+                  ) : loading.applications ? (
+                    <div className="loading-container">
+                      <div className="loading-spinner"></div>
+                      <p>Se încarcă aplicațiile...</p>
+                    </div>
+                  ) : (
+                    <table className="dashboard-table">
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th>Utilizator</th>
+                          <th>Program</th>
+                          <th>Universitate</th>
+                          <th>Data Aplicației</th>
+                          <th>Status</th>
+                          <th>Acțiuni</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredApplications.map(app => {
+                          const user = users.find(u => u.id === app.user_id);
+                          return (
+                            <tr key={app.id}>
+                              <td>{app.id}</td>
+                              <td>
+                                {user ? (
+                                  <span className="user-name">{user.name}</span>
+                                ) : (
+                                  <span className="unknown-user">
+                                    Utilizator ID: {app.user_id}
+                                  </span>
+                                )}
+                              </td>
+                              <td>{app.program?.name || 'N/A'}</td>
+                              <td>{app.university?.name || 'N/A'}</td>
+                              <td>{formatDate(app.created_at)}</td>
+                              <td>
+                                <span className={`status-badge status-${app.status}`}>
+                                  {app.status === 'pending' ? 'În Așteptare' :
+                                   app.status === 'approved' ? 'Aprobată' :
+                                   app.status === 'rejected' ? 'Respinsă' :
+                                   app.status === 'under_review' ? 'În Revizuire' :
+                                   app.status.charAt(0).toUpperCase() + app.status.slice(1)}
                                 </span>
-                              )}
-                            </td>
-                            <td>{app.program?.name || 'N/A'}</td>
-                            <td>{app.university?.name || 'N/A'}</td>
-                            <td>{formatDate(app.created_at)}</td>
-                            <td>
-                              <span className={`status-badge status-${app.status}`}>
-                                {app.status === 'pending' ? 'În Așteptare' :
-                                 app.status === 'approved' ? 'Aprobată' :
-                                 app.status === 'rejected' ? 'Respinsă' :
-                                 app.status === 'under_review' ? 'În Revizuire' :
-                                 app.status.charAt(0).toUpperCase() + app.status.slice(1)}
-                              </span>
-                            </td>
-                            <td>
-                              <div className="action-buttons">
-                                <button 
-                                  className="action-button view-button"
-                                  onClick={() => handleViewApplication(app)}
-                                >
-                                  <i className="fas fa-eye"></i> Vezi
-                                </button>
-                                <button 
-                                  className="action-button edit-button"
-                                  onClick={() => handleEditApplication(app)}
-                                >
-                                  <i className="fas fa-edit"></i> Editează
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                              </td>
+                              <td>
+                                <div className="action-buttons">
+                                  <button 
+                                    className="action-button view-button"
+                                    onClick={() => handleViewApplication(app)}
+                                  >
+                                    <i className="fas fa-eye"></i> Vezi
+                                  </button>
+                                  <button 
+                                    className="action-button edit-button"
+                                    onClick={() => handleEditApplication(app)}
+                                  >
+                                    <i className="fas fa-edit"></i> Editează
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  )}
                 </div>
               ) : null}
 
