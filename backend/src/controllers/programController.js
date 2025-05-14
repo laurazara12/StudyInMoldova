@@ -28,15 +28,31 @@ exports.getProgramById = async (req, res) => {
       include: [{
         model: University,
         as: 'University',
-        attributes: ['id', 'name']
+        attributes: ['id', 'name', 'image_url', 'location', 'website']
       }]
     });
+    
     if (!program) {
-      return res.status(404).json({ message: 'Programul nu a fost găsit' });
+      return res.status(404).json({ 
+        success: false,
+        message: 'Programul nu a fost găsit',
+        data: null
+      });
     }
-    res.json(program);
+
+    res.json({
+      success: true,
+      message: 'Programul a fost găsit cu succes',
+      data: program
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Eroare la obținerea programului', error: error.message });
+    console.error('Eroare la obținerea programului:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la obținerea programului',
+      error: error.message,
+      data: null
+    });
   }
 };
 

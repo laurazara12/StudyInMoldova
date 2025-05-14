@@ -11,9 +11,9 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false
     },
-    acronym: {
+    type: {
       type: DataTypes.STRING,
-      allowNull: true
+      allowNull: false
     },
     description: {
       type: DataTypes.TEXT,
@@ -21,18 +21,26 @@ module.exports = (sequelize) => {
     },
     location: {
       type: DataTypes.STRING,
+      allowNull: false
+    },
+    image_url: {
+      type: DataTypes.STRING,
       allowNull: true
     },
-    tuition_fee: {
-      type: DataTypes.DECIMAL(10, 2),
+    website: {
+      type: DataTypes.STRING,
       allowNull: true
     },
-    programs: {
+    ranking: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    tuition_fees: {
       type: DataTypes.JSON,
       allowNull: true
     },
     contact_info: {
-      type: DataTypes.TEXT,
+      type: DataTypes.JSON,
       allowNull: true
     },
     slug: {

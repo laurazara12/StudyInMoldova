@@ -185,7 +185,8 @@ async function safeSync(force = false) {
       const universities = [
         {
           name: 'Universitatea de Stat din Moldova',
-          acronym: 'USM',
+          type: 'public',
+          location: 'Chișinău',
           description: 'Universitatea de Stat din Moldova este cea mai mare instituție de învățământ superior din Republica Moldova.',
           tuitionFee: 15000,
           programs: JSON.stringify(['Informatică', 'Matematică', 'Fizică', 'Chimie', 'Biologie']),
@@ -199,7 +200,8 @@ async function safeSync(force = false) {
         },
         {
           name: 'Universitatea Tehnică a Moldovei',
-          acronym: 'UTM',
+          type: 'public',
+          location: 'Chișinău',
           description: 'Universitatea Tehnică a Moldovei este principala instituție de învățământ superior tehnic din Republica Moldova.',
           tuitionFee: 16000,
           programs: JSON.stringify(['Inginerie', 'Arhitectură', 'Tehnologii Informaționale']),
