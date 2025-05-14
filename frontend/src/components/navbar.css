@@ -49,11 +49,12 @@
 .navbar-text34,
 .navbar-text35,
 .navbar-text36,
-.navbar-text37 {
+.navbar-text37,
+.navbar-brand,
+.navbar-link,
+.navbar-navlink1,
+.navbar-navlink2 {
   font-size: var(--dl-font-size-small);
-  font-weight: 500;
-  color: var(--dl-color-theme-neutral-dark);
-  white-space: nowrap;
 }
  
 .navbar-desktop-menu {
@@ -74,7 +75,6 @@
   color: rgba(0, 0, 0, 1);
   width: 126px;
   height: auto;
-  font-size: 16px;
   font-style: Medium;
   text-align: left;
   font-family: Roboto;
@@ -88,7 +88,6 @@
   color: rgba(0, 0, 0, 1);
   width: 127px;
   height: auto;
-  font-size: 16px;
   font-style: Medium;
   text-align: left;
   font-family: Roboto;
@@ -102,7 +101,6 @@
   color: rgba(0, 0, 0, 1);
   width: 85px;
   height: auto;
-  font-size: 16px;
   font-style: Medium;
   text-align: left;
   font-family: Roboto;
@@ -116,7 +114,6 @@
   color: rgba(0, 0, 0, 1);
   width: 93px;
   height: auto;
-  font-size: 16px;
   font-style: Medium;
   text-align: left;
   font-family: Roboto;
@@ -130,7 +127,7 @@
   color: rgba(0, 0, 0, 1);
   width: 123px;
   height: auto;
-  font-size: 16px;
+  font-size: var(--dl-font-size-small);
   font-style: Medium;
   text-align: left;
   font-family: Roboto;
@@ -148,26 +145,39 @@
   gap: 1rem;
 }
  
-.navbar-login1 {
-  border-width: 0px;
-  margin-right: var(--dl-space-space-twounits);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.navbar-login1,
+.navbar-login2 {
+  padding: 0.5rem 1rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--dl-color-theme-neutral-dark);
 }
  
-.navbar-navlink1 {
-  font-family: "Roboto";
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
+.navbar-login1:hover,
+.navbar-login2:hover {
+  color: var(--dl-color-theme-primary1);
 }
  
+.navbar-navlink1,
 .navbar-navlink2 {
   text-decoration: none;
+  color: var(--dl-color-theme-neutral-dark);
+  font-size: var(--dl-font-size-small);
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+ 
+.navbar-navlink1:hover,
+.navbar-navlink2:hover {
+  color: var(--dl-color-theme-primary1);
+}
+ 
+.navbar-navlink1.active,
+.navbar-navlink2.active {
+  color: var(--dl-color-theme-primary1);
+  font-weight: 600;
 }
  
 .navbar-burger-menu {
@@ -280,18 +290,17 @@
   height: var(--dl-size-size-xsmall);
 }
  
-.navbar-text23 {
+.navbar-text23,
+.navbar-text25,
+.navbar-text29,
+.navbar-text30,
+.navbar-text35 {
   display: inline-block;
-  font-size: 12px;
+  font-size: var(--dl-font-size-small);
 }
  
 .navbar-text24 {
   display: inline-block;
-}
- 
-.navbar-text25 {
-  display: inline-block;
-  font-size: 12px;
 }
  
 .navbar-text26 {
@@ -306,23 +315,12 @@
   display: inline-block;
 }
  
-.navbar-text29 {
-  display: inline-block;
-  font-size: 12px;
-}
- 
-.navbar-text30 {
-  display: inline-block;
-  font-size: 12px;
-}
- 
 .navbar-text31 {
   display: inline-block;
 }
  
 .navbar-text32 {
   display: inline-block;
-  font-size: 12px;
 }
  
 .navbar-text33 {
@@ -331,11 +329,6 @@
  
 .navbar-text34 {
   display: inline-block;
-}
- 
-.navbar-text35 {
-  display: inline-block;
-  font-size: 12px;
 }
  
 .navbar-text36 {
@@ -355,6 +348,7 @@
   position: sticky;
   top: 0;
   z-index: 1000;
+  width: 100%;
 }
 
 .navbar-content {
@@ -456,34 +450,6 @@
   }
 }
 
-.navbar-login1,
-.navbar-login2 {
-  padding: 0.5rem 1rem;
-  border: none;
-  background: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.navbar-login1:hover,
-.navbar-login2:hover {
-  opacity: 0.8;
-}
-
-.navbar-navlink1,
-.navbar-navlink2 {
-  text-decoration: none;
-  color: inherit;
-  font-size: var(--dl-font-size-small);
-  font-weight: 500;
-}
-
-.navbar-navlink1.active,
-.navbar-navlink2.active {
-  color: #FF6B00;
-  font-weight: 600;
-}
-
 @media (max-width: 768px) {
   .navbar-text10,
   .navbar-text11,
@@ -520,4 +486,93 @@
   .navbar-login2 {
     padding: 0.4rem 0.8rem;
   }
+}
+
+/* Stiluri pentru link-uri și butoane */
+
+.navbar-link:hover,
+.navbar-navlink1:hover,
+.navbar-navlink2:hover,
+.navbar-login1:hover,
+.navbar-login2:hover {
+  color: #FF6B00;
+}
+
+.navbar-link.active,
+.navbar-navlink1.active,
+.navbar-navlink2.active {
+  color: #FF6B00;
+  font-weight: 600;
+}
+
+/* Stiluri pentru meniul mobil */
+.navbar-burger-menu {
+  display: none;
+}
+
+.navbar-mobile-menu {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: #fff;
+  padding: 2rem;
+  z-index: 1000;
+}
+
+/* Media queries */
+@media (max-width: 991px) {
+  .navbar-desktop-menu {
+    display: none;
+  }
+  
+  .navbar-burger-menu {
+    display: flex;
+  }
+  
+  .navbar-buttons1 {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0.75rem 1rem;
+  }
+  
+  .navbar-link,
+  .navbar-navlink1,
+  .navbar-navlink2,
+  .navbar-login1,
+  .navbar-login2 {
+    padding: 0.4rem 0.8rem;
+  }
+}
+
+@media (max-width: 479px) {
+  .navbar {
+    padding: 0.5rem;
+  }
+  
+  .navbar-mobile-menu {
+    padding: 1rem;
+  }
+}
+
+.navbar-text10 {
+  color: var(--dl-color-theme-neutral-dark);
+  text-decoration: none;
+  font-size: var(--dl-font-size-small);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+.navbar-text25 {
+  color: var(--dl-color-theme-neutral-dark);
+  font-size: var(--dl-font-size-small);
+  font-weight: 500;
+  font-family: Roboto;
 }

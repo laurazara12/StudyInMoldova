@@ -6,8 +6,6 @@
   flex-direction: column;
 }
 
-
-
 .university-body {
   padding: 3rem;
 }
@@ -18,8 +16,8 @@
   flex-wrap: wrap;
   gap: 1rem;
   padding: 1rem;
-  background-color: #f8f9fa;
-  border-radius: 8px;
+  background-color: var(--dl-color-theme-neutral-light);
+  border-radius: var(--dl-radius-radius-cardradius);
   margin-bottom: 2rem;
 }
 
@@ -34,7 +32,7 @@
 }
 
 .contact-item a {
-  color: #3498db;
+  color: var(--dl-color-theme-primary1);
   text-decoration: none;
 }
 
@@ -50,21 +48,21 @@
 
 .university-header h1 {
   font-size: 2.5rem;
-  color: #2c3e50;
+  color: var(--dl-color-theme-neutral-dark);
   margin-bottom: 0.5rem;
 }
 
 .university-header h2 {
   font-size: 1.8rem;
-  color: #34495e;
+  color: var(--dl-color-theme-neutral-dark);
   font-weight: normal;
 }
 
 /* Stiluri pentru anunț */
 .announcement {
-  background-color: #e3f2fd;
+  background-color: var(--dl-color-theme-secondary2);
   padding: 1rem;
-  border-radius: 8px;
+  border-radius: var(--dl-radius-radius-cardradius);
   margin-bottom: 2rem;
   text-align: center;
   font-weight: 500;
@@ -79,17 +77,17 @@
 
 /* Stiluri pentru secțiuni */
 .university-section {
-  background-color: #fff;
+  background-color: var(--dl-color-theme-secondary1);
   padding: 2rem;
-  border-radius: 8px;
+  border-radius: var(--dl-radius-radius-cardradius);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .university-section h3 {
-  color: #2c3e50;
+  color: var(--dl-color-theme-neutral-dark);
   font-size: 1.5rem;
   margin-bottom: 1rem;
-  border-bottom: 2px solid #3498db;
+  border-bottom: 2px solid var(--dl-color-theme-primary1);
   padding-bottom: 0.5rem;
 }
 
@@ -109,21 +107,22 @@
 .stat-item {
   text-align: center;
   padding: 1rem;
-  background-color: #f8f9fa;
-  border-radius: 8px;
+  background-color: var(--dl-color-theme-neutral-light);
+  border-radius: var(--dl-radius-radius-cardradius);
 }
 
 .stat-number {
   display: block;
   font-size: 1.5rem;
   font-weight: bold;
-  color: #2c3e50;
+  color: var(--dl-color-theme-neutral-dark);
 }
 
 .stat-label {
   display: block;
-  color: #7f8c8d;
+  color: var(--dl-color-theme-neutral-dark);
   margin-top: 0.5rem;
+  opacity: 0.7;
 }
 
 /* Stiluri pentru programe de studii */
@@ -134,8 +133,8 @@
 
 .university-section li {
   padding: 0.5rem 0;
-  border-bottom: 1px solid #eee;
-  color: #34495e;
+  border-bottom: 1px solid var(--dl-color-theme-secondary2);
+  color: var(--dl-color-theme-neutral-dark);
 }
 
 .university-section li:last-child {
@@ -148,31 +147,29 @@
 .not-found-container {
   text-align: center;
   padding: 2rem;
-  background-color: #f8f9fa;
-  border-radius: 8px;
+  background-color: var(--dl-color-theme-neutral-light);
+  border-radius: var(--dl-radius-radius-cardradius);
   margin: 2rem 0;
 }
 
 /* Stiluri pentru butoane */
 button {
-  background-color: #3498db;
-  color: white;
+  background-color: var(--dl-color-theme-primary1);
+  color: var(--dl-color-theme-secondary1);
   border: none;
   padding: 0.8rem 1.5rem;
-  border-radius: 4px;
+  border-radius: var(--dl-radius-radius-buttonradius);
   cursor: pointer;
-  font-size: 1rem;
+  font-size: var(--dl-font-size-small);
   transition: background-color 0.3s ease;
 }
 
 button:hover {
-  background-color: #2980b9;
+  background-color: var(--dl-color-theme-primary2);
 }
 
 /* Stiluri responsive */
 @media (max-width: 768px) {
-
-
   .university-header h1 {
     font-size: 2rem;
   }
@@ -207,8 +204,8 @@ button:hover {
 }
 
 .program-card {
-  background-color: #fff;
-  border-radius: 8px;
+  background-color: var(--dl-color-theme-secondary1);
+  border-radius: var(--dl-radius-radius-cardradius);
   padding: 1.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -220,15 +217,15 @@ button:hover {
 }
 
 .program-card h4 {
-  color: #2c3e50;
+  color: var(--dl-color-theme-neutral-dark);
   font-size: 1.3rem;
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid #3498db;
+  border-bottom: 2px solid var(--dl-color-theme-primary1);
 }
 
 .program-details {
-  color: #34495e;
+  color: var(--dl-color-theme-neutral-dark);
 }
 
 .program-details p {
@@ -237,17 +234,17 @@ button:hover {
 }
 
 .program-details strong {
-  color: #2c3e50;
+  color: var(--dl-color-theme-neutral-dark);
 }
 
 .specializations {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--dl-color-theme-secondary2);
 }
 
 .specializations h5 {
-  color: #2c3e50;
+  color: var(--dl-color-theme-neutral-dark);
   font-size: 1.1rem;
   margin-bottom: 0.5rem;
 }
@@ -260,13 +257,13 @@ button:hover {
 
 .specializations li {
   padding: 0.3rem 0;
-  color: #34495e;
-  font-size: 0.95rem;
+  color: var(--dl-color-theme-neutral-dark);
+  font-size: var(--dl-font-size-small);
 }
 
 .specializations li:before {
   content: "•";
-  color: #3498db;
+  color: var(--dl-color-theme-primary1);
   font-weight: bold;
   display: inline-block;
   width: 1em;
