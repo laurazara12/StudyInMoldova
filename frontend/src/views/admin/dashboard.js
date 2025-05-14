@@ -166,24 +166,33 @@ const Dashboard = () => {
 
       // Funcție pentru extragerea datelor din răspuns
       const extractData = (response) => {
-        if (!response?.data) {
-          console.error('Răspuns fără date:', response);
+        console.log('Răspuns brut de la server:', response);
+        
+        if (!response) {
+          console.error('Răspuns nul sau nedefinit');
           return [];
         }
-        
-        if (response.data.data && Array.isArray(response.data.data)) {
-          return response.data.data;
+
+        if (Array.isArray(response)) {
+          console.log('Răspuns este un array');
+          return response;
         }
-        
-        if (Array.isArray(response.data)) {
-          return response.data;
+
+        if (response.data) {
+          console.log('Răspuns conține data:', response.data);
+          if (Array.isArray(response.data)) {
+            return response.data;
+          }
+          if (response.data.data && Array.isArray(response.data.data)) {
+            return response.data.data;
+          }
+          if (typeof response.data === 'object') {
+            console.log('Răspunsul este un obiect:', response.data);
+            return [response.data];
+          }
         }
-        
-        if (response.data.applications && Array.isArray(response.data.applications)) {
-          return response.data.applications;
-        }
-        
-        console.error('Format neașteptat al răspunsului:', response.data);
+
+        console.error('Format neașteptat al răspunsului:', response);
         return [];
       };
 
@@ -598,7 +607,15 @@ const Dashboard = () => {
   const handleAddUniversity = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${API_BASE_URL}/universities`, newUniversity, {
+      // Generăm slug-ul din nume dacă nu există
+      const universityData = {
+        ...newUniversity,
+        slug: newUniversity.name.toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '')
+      };
+
+      await axios.post(`${API_BASE_URL}/api/universities`, universityData, {
         headers: getAuthHeaders()
       });
       setShowAddUniversityForm(false);
@@ -623,7 +640,7 @@ const Dashboard = () => {
         }
       });
       // Reload the list of universities
-      const response = await axios.get(`${API_BASE_URL}/universities`, {
+      const response = await axios.get(`${API_BASE_URL}/api/universities`, {
         headers: getAuthHeaders()
       });
       setUniversities(response.data);
@@ -649,7 +666,11 @@ const Dashboard = () => {
     } else {
       setNewUniversity(prev => ({
         ...prev,
-        [name]: value
+        [name]: value,
+        // Generăm slug-ul automat din nume
+        slug: name === 'name' ? value.toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '') : prev.slug
       }));
     }
   };
@@ -725,7 +746,7 @@ const Dashboard = () => {
       console.log('Datele pregătite pentru trimitere:', JSON.stringify(universityData, null, 2));
 
       const response = await axios.put(
-        `${API_BASE_URL}/universities/${editingUniversity.id}`,
+        `${API_BASE_URL}/api/universities/${editingUniversity.id}`,
         universityData,
         { 
           headers: {
@@ -759,11 +780,11 @@ const Dashboard = () => {
   const handleDeleteUniversity = async (universityId) => {
     if (window.confirm('Sigur doriți să ștergeți această universitate?')) {
       try {
-        await axios.delete(`${API_BASE_URL}/universities/${universityId}`, {
+        await axios.delete(`${API_BASE_URL}/api/universities/${universityId}`, {
           headers: getAuthHeaders()
         });
         // Reload the list of universities
-        const response = await axios.get(`${API_BASE_URL}/universities`, {
+        const response = await axios.get(`${API_BASE_URL}/api/universities`, {
           headers: getAuthHeaders()
         });
         setUniversities(response.data);
@@ -904,6 +925,7 @@ const Dashboard = () => {
 
       console.log('Datele programului înainte de validare:', newProgram);
 
+      // Validare câmpuri obligatorii
       const requiredFields = {
         name: 'Numele programului',
         duration: 'Durata',
@@ -921,22 +943,36 @@ const Dashboard = () => {
         throw new Error(`Câmpurile obligatorii lipsesc: ${missingFields.join(', ')}`);
       }
 
+      // Validare și formatare date
       const programData = {
         name: String(newProgram.name).trim(),
         description: newProgram.description ? String(newProgram.description).trim() : '',
         duration: parseInt(newProgram.duration),
         degree_type: newProgram.degree_type,
         language: newProgram.language,
-        tuition_fees: newProgram.tuition_fees,
+        tuition_fees: String(newProgram.tuition_fees).trim(),
         university_id: parseInt(newProgram.university_id),
         faculty: newProgram.faculty ? String(newProgram.faculty).trim() : null,
         credits: newProgram.credits ? parseInt(newProgram.credits) : null
       };
 
+      // Validări suplimentare
+      if (isNaN(programData.duration) || programData.duration < 1 || programData.duration > 6) {
+        throw new Error('Durata programului trebuie să fie între 1 și 6 ani');
+      }
+
+      if (isNaN(programData.university_id)) {
+        throw new Error('ID-ul universității nu este valid');
+      }
+
+      if (programData.credits && (isNaN(programData.credits) || programData.credits < 0)) {
+        throw new Error('Numărul de credite trebuie să fie un număr pozitiv');
+      }
+
       console.log('Datele pregătite pentru trimitere:', JSON.stringify(programData, null, 2));
 
       const response = await axios.post(
-        `${API_BASE_URL}/programs`,
+        `${API_BASE_URL}/api/programs`,
         programData,
         { 
           headers: {
@@ -948,40 +984,57 @@ const Dashboard = () => {
 
       console.log('Răspuns de la server:', JSON.stringify(response.data, null, 2));
 
-      if (response.data && response.data.id) {
-        // Programul a fost adăugat cu succes, reîncărcăm lista de programe
-        const programsResponse = await axios.get(`${API_BASE_URL}/programs`, {
+      if (!response.data) {
+        throw new Error('Nu s-a primit răspuns valid de la server');
+      }
+
+      // Programul a fost adăugat cu succes, reîncărcăm lista de programe
+      try {
+        const programsResponse = await axios.get(`${API_BASE_URL}/api/programs`, {
           headers: getAuthHeaders()
         });
-        if (Array.isArray(programsResponse.data)) {
-          setPrograms(programsResponse.data);
-        } else if (programsResponse.data && programsResponse.data.data) {
-          setPrograms(programsResponse.data.data);
+
+        const updatedPrograms = extractData(programsResponse.data);
+        if (updatedPrograms.length > 0) {
+          setPrograms(updatedPrograms);
+          // Închidem modalul și resetăm formularul
+          setShowAddProgramForm(false);
+          setNewProgram({
+            name: '',
+            description: '',
+            duration: '',
+            degree_type: '',
+            language: '',
+            tuition_fees: '',
+            university_id: '',
+            faculty: '',
+            credits: ''
+          });
+          
+          setSuccessMessage('Programul a fost adăugat cu succes!');
+          setTimeout(() => setSuccessMessage(''), 2000);
+        } else {
+          console.warn('Nu s-au putut încărca programele după adăugare');
+          // Adăugăm manual programul nou la lista existentă
+          setPrograms(prevPrograms => [...prevPrograms, response.data]);
+          setShowAddProgramForm(false);
+          setSuccessMessage('Programul a fost adăugat cu succes!');
+          setTimeout(() => setSuccessMessage(''), 2000);
         }
-        
-        // Închidem modalul și resetăm formularul
+      } catch (error) {
+        console.error('Eroare la reîncărcarea programelor:', error);
+        // Adăugăm manual programul nou la lista existentă
+        setPrograms(prevPrograms => [...prevPrograms, response.data]);
         setShowAddProgramForm(false);
-        setNewProgram({
-          name: '',
-          description: '',
-          duration: '',
-          degree_type: '',
-          language: '',
-          tuition_fees: '',
-          university_id: '',
-          faculty: '',
-          credits: ''
-        });
-        
         setSuccessMessage('Programul a fost adăugat cu succes!');
         setTimeout(() => setSuccessMessage(''), 2000);
-      } else {
-        throw new Error(response.data?.message || 'Eroare la adăugarea programului');
       }
+
     } catch (error) {
       console.error('Eroare detaliată la adăugarea programului:', {
         message: error.message,
         response: error.response?.data,
+        status: error.response?.status,
         headers: error.response?.headers,
         config: {
           url: error.config?.url,
@@ -991,9 +1044,19 @@ const Dashboard = () => {
         }
       });
       
-      const errorMessage = error.response?.data?.message || error.message;
-      console.error('Eroare la adăugarea programului:', error);
-      setError(`Eroare la adăugarea programului: ${errorMessage}`);
+      let errorMessage = 'Eroare la adăugarea programului: ';
+      
+      if (error.response?.data?.message) {
+        errorMessage += error.response.data.message;
+      } else if (error.response?.data?.error) {
+        errorMessage += error.response.data.error;
+      } else if (error.message) {
+        errorMessage += error.message;
+      } else {
+        errorMessage += 'A apărut o eroare neașteptată';
+      }
+      
+      setError(errorMessage);
     }
   };
 
