@@ -20,7 +20,7 @@ const CreateApplication = () => {
   const fetchPrograms = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:4000/api/programs', {
+      const response = await axios.get(`${API_BASE_URL}/programs`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setPrograms(response.data.data);
@@ -34,7 +34,7 @@ const CreateApplication = () => {
   const fetchUserDocuments = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:4000/api/documents/user-documents', {
+      const response = await axios.get(`${API_BASE_URL}/documents/user-documents`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setDocuments(response.data.data);

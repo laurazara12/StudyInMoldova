@@ -370,14 +370,13 @@ router.get('/user-documents', authMiddleware, async (req, res) => {
   }
 });
 
-router.get('/', authMiddleware, getAllDocuments);
 router.get('/:id', authMiddleware, getDocumentById);
 router.post('/', authMiddleware, createDocument);
 router.put('/:id', authMiddleware, updateDocument);
 router.delete('/:id', authMiddleware, deleteDocument);
 
 // Get all documents (admin only)
-router.get('/', authMiddleware, async (req, res) => {
+router.get('/', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     logger.info('Încărcare documente pentru admin', {
       role: req.user.role,
@@ -394,7 +393,12 @@ router.get('/', authMiddleware, async (req, res) => {
       order: [['createdAt', 'DESC']]
     });
 
-    res.json(documents);
+    res.json({
+      success: true,
+      message: 'Documentele au fost preluate cu succes',
+      data: documents,
+      total: documents.length
+    });
   } catch (error) {
     logger.error('Eroare la încărcarea documentelor', {
       error: error.message,
@@ -402,7 +406,13 @@ router.get('/', authMiddleware, async (req, res) => {
       timestamp: new Date().toISOString(),
       userId: req.user.id
     });
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la încărcarea documentelor',
+      error: error.message,
+      data: [],
+      total: 0
+    });
   }
 });
 

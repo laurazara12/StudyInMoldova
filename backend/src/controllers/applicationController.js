@@ -3,7 +3,7 @@ const { Application, Program, User, Document, University } = require('../models'
 exports.createApplication = async (req, res) => {
   try {
     const { programId, documents } = req.body;
-    const userId = req.user.id;
+    const user_id = req.user.id;
 
     // Verificăm dacă programul există
     const program = await Program.findByPk(programId);
@@ -17,7 +17,7 @@ exports.createApplication = async (req, res) => {
 
     // Verificăm dacă utilizatorul are deja o aplicație pentru acest program
     const existingApplication = await Application.findOne({
-      where: { userId, programId }
+      where: { user_id, program_id: programId }
     });
     if (existingApplication) {
       return res.status(400).json({ 
@@ -29,8 +29,8 @@ exports.createApplication = async (req, res) => {
 
     // Creăm aplicația
     const application = await Application.create({
-      userId,
-      programId,
+      user_id,
+      program_id: programId,
       status: 'pending',
       documents
     });
@@ -56,7 +56,7 @@ exports.getUserApplications = async (req, res) => {
     console.log('Căutăm aplicații pentru utilizatorul:', req.user.id);
     
     const applications = await Application.findAll({
-      where: { userId: req.user.id },
+      where: { user_id: req.user.id },
       include: [
         { 
           model: Program,
@@ -147,7 +147,7 @@ exports.getApplicationById = async (req, res) => {
     const application = await Application.findOne({
       where: {
         id: req.params.id,
-        userId: req.user.id
+        user_id: req.user.id
       },
       include: [
         { 
@@ -209,7 +209,7 @@ exports.updateApplication = async (req, res) => {
     const application = await Application.findOne({
       where: {
         id: req.params.id,
-        userId: req.user.id
+        user_id: req.user.id
       },
       include: [
         { 
@@ -281,7 +281,7 @@ exports.cancelApplication = async (req, res) => {
     const application = await Application.findOne({
       where: {
         id: req.params.id,
-        userId: req.user.id
+        user_id: req.user.id
       },
       include: [
         { 

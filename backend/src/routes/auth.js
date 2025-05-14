@@ -73,19 +73,17 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     console.log('=== Login Request Details ===');
-    console.log('Raw request body:', req.body);
     console.log('Email:', email);
-    console.log('Password received:', password);
+    console.log('Password received:', password ? 'present' : 'missing');
     console.log('Password type:', typeof password);
     console.log('Password length:', password ? password.length : 0);
-    console.log('========================');
 
     if (!email || !password) {
       console.log('Missing data:', { email: !!email, password: !!password });
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
         message: 'Email și parolă sunt obligatorii',
-        received: { email: !!email, password: !!password }
+        error: 'MISSING_CREDENTIALS'
       });
     }
 
@@ -94,43 +92,43 @@ router.post('/login', async (req, res) => {
     
     if (!user) {
       console.log('User not found for email:', email);
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Email sau parolă incorectă' 
+      return res.status(401).json({
+        success: false,
+        message: 'Email sau parolă incorectă',
+        error: 'INVALID_CREDENTIALS'
       });
     }
 
     console.log('Checking password...');
-    console.log('Stored password hash:', user.password);
-    let isValidPassword = false;
+    let isPasswordValid = false;
     
     try {
-      isValidPassword = await bcrypt.compare(password, user.password);
-      console.log('Password validation result:', isValidPassword);
+      isPasswordValid = await bcrypt.compare(password, user.password);
+      console.log('Password validation result:', isPasswordValid);
     } catch (bcryptError) {
       console.error('Error comparing passwords:', bcryptError);
       return res.status(500).json({
         success: false,
-        message: 'Eroare la verificarea parolei'
-      });
-    }
-    
-    if (!isValidPassword) {
-      console.log('Invalid password for user:', email);
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Email sau parolă incorectă' 
+        message: 'Eroare la verificarea parolei',
+        error: 'PASSWORD_VERIFICATION_ERROR'
       });
     }
 
-    console.log('Login successful for:', email);
-    console.log('Generating JWT token...');
+    if (!isPasswordValid) {
+      console.log('Invalid password for user:', email);
+      return res.status(401).json({
+        success: false,
+        message: 'Email sau parolă incorectă',
+        error: 'INVALID_CREDENTIALS'
+      });
+    }
 
     if (!process.env.JWT_SECRET) {
       console.error('JWT_SECRET is not configured');
       return res.status(500).json({
         success: false,
-        message: 'Server configuration error'
+        message: 'Eroare de configurare a serverului',
+        error: 'SERVER_CONFIG_ERROR'
       });
     }
 
@@ -140,7 +138,7 @@ router.post('/login', async (req, res) => {
       { expiresIn: '24h' }
     );
 
-    console.log('Token generated successfully');
+    console.log('Token generat cu succes pentru utilizatorul:', user.email);
 
     const userData = {
       id: user.id,
@@ -164,15 +162,17 @@ router.post('/login', async (req, res) => {
       message: 'Autentificare reușită',
       data: {
         user: userData,
-        token: token
+        token: token,
+        expiresIn: 86400 // 24 ore în secunde
       }
     });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Eroare la autentificare:', error);
     res.status(500).json({ 
       success: false, 
       message: 'Eroare la autentificare',
-      error: error.message 
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 });

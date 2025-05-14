@@ -84,6 +84,16 @@ const Dashboard = () => {
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [showApplicationDetails, setShowApplicationDetails] = useState(false);
   const [showApplicationEdit, setShowApplicationEdit] = useState(false);
+  const [statistics, setStatistics] = useState({
+    totalUsers: 0,
+    totalDocuments: 0,
+    totalUniversities: 0,
+    totalPrograms: 0,
+    totalApplications: 0,
+    pendingApplications: 0,
+    approvedApplications: 0,
+    rejectedApplications: 0
+  });
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user'));
@@ -97,126 +107,248 @@ const Dashboard = () => {
   };
 
   const initializeDashboard = async () => {
-    if (!checkAdminAccess()) return;
-
     try {
+      setLoading(true);
       setError(null);
-      setLoading(prev => ({ ...prev, users: true, documents: true, universities: true, applications: true }));
 
-      // Încărcăm toate datele în paralel
+      if (!token || !checkAdminAccess()) {
+        navigate('/sign-in');
+        return;
+      }
+
+      console.log('Inițializare dashboard cu token:', token);
+      const headers = getAuthHeaders();
+      console.log('Headers pentru cereri:', headers);
+
       const [usersResponse, documentsResponse, universitiesResponse, programsResponse, applicationsResponse] = await Promise.all([
-        axios.get(`${API_BASE_URL}/api/auth/users`, { headers: getAuthHeaders() }),
-        axios.get(`${API_BASE_URL}/api/documents`, { headers: getAuthHeaders() }),
-        axios.get(`${API_BASE_URL}/api/universities`, { headers: getAuthHeaders() }),
-        axios.get(`${API_BASE_URL}/api/programs`, { headers: getAuthHeaders() }),
-        axios.get(`${API_BASE_URL}/api/applications`, { headers: getAuthHeaders() })
+        axios.get(`${API_BASE_URL}/api/auth/users`, { 
+          headers,
+          validateStatus: function (status) {
+            return status < 500;
+          }
+        }),
+        axios.get(`${API_BASE_URL}/api/documents`, { 
+          headers,
+          validateStatus: function (status) {
+            return status < 500;
+          }
+        }),
+        axios.get(`${API_BASE_URL}/api/universities`, { 
+          headers,
+          validateStatus: function (status) {
+            return status < 500;
+          }
+        }),
+        axios.get(`${API_BASE_URL}/api/programs`, { 
+          headers,
+          validateStatus: function (status) {
+            return status < 500;
+          }
+        }),
+        axios.get(`${API_BASE_URL}/api/applications`, { 
+          headers,
+          validateStatus: function (status) {
+            return status < 500;
+          }
+        })
       ]);
 
-      // Procesăm utilizatorii
-      if (Array.isArray(usersResponse.data)) {
-        console.log('Date utilizatori primite:', usersResponse.data);
-        const processedUsers = usersResponse.data.map(user => {
-          console.log('Procesare utilizator:', user);
-          return {
-            ...user,
-            displayName: user.name || user.email
-          };
+      console.log('Răspunsuri API detaliate:', {
+        users: {
+          status: usersResponse.status,
+          data: usersResponse.data,
+          headers: usersResponse.headers
+        },
+        documents: {
+          status: documentsResponse.status,
+          data: documentsResponse.data,
+          headers: documentsResponse.headers
+        },
+        universities: {
+          status: universitiesResponse.status,
+          data: universitiesResponse.data,
+          headers: universitiesResponse.headers
+        },
+        programs: {
+          status: programsResponse.status,
+          data: programsResponse.data,
+          headers: programsResponse.headers
+        },
+        applications: {
+          status: applicationsResponse.status,
+          data: applicationsResponse.data,
+          headers: applicationsResponse.headers
+        }
+      });
+
+      // Verificăm statusul răspunsurilor
+      if (usersResponse.status !== 200) {
+        console.error('Eroare la obținerea utilizatorilor:', {
+          status: usersResponse.status,
+          data: usersResponse?.data,
+          headers: usersResponse?.headers
         });
-        setUsers(processedUsers);
+        throw new Error(`Eroare la obținerea utilizatorilor: ${usersResponse.status} - ${usersResponse.data?.message || 'Necunoscut'}`);
       }
-
-      // Procesăm documentele
-      if (documentsResponse.data) {
-        const documents = Array.isArray(documentsResponse.data) 
-          ? documentsResponse.data 
-          : documentsResponse.data.data || [];
-
-        // Inițializăm statusul pentru toți utilizatorii
-        const statusByUser = {};
-        usersResponse.data.forEach(user => {
-          if (user && user.id) {
-            statusByUser[user.id] = {
-              passport: { exists: false, status: 'missing', uploadDate: null },
-              diploma: { exists: false, status: 'missing', uploadDate: null },
-              transcript: { exists: false, status: 'missing', uploadDate: null },
-              cv: { exists: false, status: 'missing', uploadDate: null },
-              other: { exists: false, status: 'missing', uploadDate: null },
-              photo: { exists: false, status: 'missing', uploadDate: null },
-              medical: { exists: false, status: 'missing', uploadDate: null },
-              insurance: { exists: false, status: 'missing', uploadDate: null }
-            };
-          }
+      if (documentsResponse.status !== 200) {
+        console.error('Eroare la obținerea documentelor:', {
+          status: documentsResponse.status,
+          data: documentsResponse?.data,
+          headers: documentsResponse?.headers
         });
-
-        // Procesăm documentele
-        const processedDocuments = documents.reduce((acc, doc) => {
-          if (!doc || !doc.user_id || !doc.document_type) {
-            return acc;
-          }
-
-          const userId = doc.user_id;
-          const documentType = doc.document_type.toLowerCase();
-
-          // Verificăm dacă documentul există deja
-          const existingDocIndex = acc.findIndex(d => 
-            d.user_id === userId && d.document_type === documentType
-          );
-
-          if (existingDocIndex === -1) {
-            const processedDoc = {
-              ...doc,
-              user_id: userId,
-              document_type: documentType,
-              status: (doc.status || 'pending').toLowerCase(),
-              created_at: doc.created_at || doc.uploadDate || doc.createdAt || new Date().toISOString(),
-              uploadDate: doc.uploadDate || doc.created_at || doc.createdAt || new Date().toISOString()
-            };
-            acc.push(processedDoc);
-
-            // Actualizăm statusul pentru acest document
-            if (statusByUser[userId] && statusByUser[userId][documentType]) {
-              statusByUser[userId][documentType] = {
-                exists: true,
-                status: processedDoc.status,
-                id: processedDoc.id,
-                uploadDate: processedDoc.uploadDate
-              };
-            }
-          }
-          return acc;
-        }, []);
-
-        setDocuments(processedDocuments);
-        setDocStatus(statusByUser);
+        throw new Error(`Eroare la obținerea documentelor: ${documentsResponse.status} - ${documentsResponse.data?.message || 'Necunoscut'}`);
+      }
+      if (universitiesResponse.status !== 200) {
+        console.error('Eroare la obținerea universităților:', {
+          status: universitiesResponse.status,
+          data: universitiesResponse?.data,
+          headers: universitiesResponse?.headers
+        });
+        throw new Error(`Eroare la obținerea universităților: ${universitiesResponse.status} - ${universitiesResponse.data?.message || 'Necunoscut'}`);
+      }
+      if (programsResponse.status !== 200) {
+        console.error('Eroare la obținerea programelor:', {
+          status: programsResponse.status,
+          data: programsResponse?.data,
+          headers: programsResponse?.headers
+        });
+        throw new Error(`Eroare la obținerea programelor: ${programsResponse.status} - ${programsResponse.data?.message || 'Necunoscut'}`);
+      }
+      if (applicationsResponse.status !== 200) {
+        console.error('Eroare la obținerea aplicațiilor:', {
+          status: applicationsResponse.status,
+          data: applicationsResponse?.data,
+          headers: applicationsResponse?.headers
+        });
+        throw new Error(`Eroare la obținerea aplicațiilor: ${applicationsResponse.status} - ${applicationsResponse.data?.message || 'Necunoscut'}`);
       }
 
-      // Procesăm universitățile și programele
-      if (Array.isArray(universitiesResponse.data)) {
-        setUniversities(universitiesResponse.data);
+      // Funcție pentru extragerea datelor din răspuns
+      const extractData = (response) => {
+        if (!response?.data) {
+          console.error('Răspuns fără date:', response);
+          return [];
+        }
+        
+        // Verificăm dacă răspunsul are formatul { data: [...] }
+        if (response.data.data && Array.isArray(response.data.data)) {
+          return response.data.data;
+        }
+        
+        // Verificăm dacă răspunsul este direct un array
+        if (Array.isArray(response.data)) {
+          return response.data;
+        }
+        
+        // Verificăm dacă răspunsul este un obiect cu proprietatea 'applications'
+        if (response.data.applications && Array.isArray(response.data.applications)) {
+          return response.data.applications;
+        }
+        
+        console.error('Format neașteptat al răspunsului:', response.data);
+        return [];
+      };
+
+      // Extragem datele folosind funcția
+      const usersData = extractData(usersResponse);
+      const documentsData = extractData(documentsResponse);
+      const universitiesData = extractData(universitiesResponse);
+      const programsData = extractData(programsResponse);
+      const applicationsData = extractData(applicationsResponse);
+
+      console.log('Date extrase:', {
+        users: usersData,
+        documents: documentsData,
+        universities: universitiesData,
+        programs: programsData,
+        applications: applicationsData
+      });
+
+      // Verificăm formatul datelor
+      if (!Array.isArray(usersData)) {
+        console.error('Răspuns invalid pentru utilizatori:', {
+          data: usersData,
+          type: typeof usersData,
+          isArray: Array.isArray(usersData)
+        });
+        throw new Error('Format invalid pentru datele utilizatorilor');
       }
 
-      // Procesăm programele
-      if (programsResponse.data && programsResponse.data.data) {
-        console.log('Programe primite:', programsResponse.data.data);
-        setPrograms(programsResponse.data.data);
-      } else if (Array.isArray(programsResponse.data)) {
-        console.log('Programe primite (array):', programsResponse.data);
-        setPrograms(programsResponse.data);
+      if (!Array.isArray(documentsData)) {
+        console.error('Răspuns invalid pentru documente:', {
+          data: documentsData,
+          type: typeof documentsData,
+          isArray: Array.isArray(documentsData)
+        });
+        throw new Error('Format invalid pentru datele documentelor');
+      }
+
+      if (!Array.isArray(universitiesData)) {
+        console.error('Răspuns invalid pentru universități:', {
+          data: universitiesData,
+          type: typeof universitiesData,
+          isArray: Array.isArray(universitiesData)
+        });
+        throw new Error('Format invalid pentru datele universităților');
+      }
+
+      if (!Array.isArray(programsData)) {
+        console.error('Răspuns invalid pentru programe:', {
+          data: programsData,
+          type: typeof programsData,
+          isArray: Array.isArray(programsData)
+        });
+        throw new Error('Format invalid pentru datele programelor');
+      }
+
+      if (!Array.isArray(applicationsData)) {
+        console.error('Răspuns invalid pentru aplicații:', {
+          data: applicationsData,
+          type: typeof applicationsData,
+          isArray: Array.isArray(applicationsData)
+        });
+        throw new Error('Format invalid pentru datele aplicațiilor');
+      }
+
+      // Actualizăm state-ul
+      setUsers(usersData);
+      setDocuments(documentsData);
+      setUniversities(universitiesData);
+      setPrograms(programsData);
+      setApplications(applicationsData);
+
+      // Actualizăm statisticile
+      setStatistics({
+        totalUsers: usersData.length,
+        totalDocuments: documentsData.length,
+        totalUniversities: universitiesData.length,
+        totalPrograms: programsData.length,
+        totalApplications: applicationsData.length,
+        pendingApplications: applicationsData.filter(app => app.status === 'pending').length,
+        approvedApplications: applicationsData.filter(app => app.status === 'approved').length,
+        rejectedApplications: applicationsData.filter(app => app.status === 'rejected').length
+      });
+
+    } catch (error) {
+      console.error('Eroare detaliată la inițializarea dashboard-ului:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        headers: error.response?.headers,
+        config: {
+          url: error.config?.url,
+          method: error.config?.method,
+          headers: error.config?.headers
+        }
+      });
+
+      if (error.response?.status === 401) {
+        navigate('/sign-in');
       } else {
-        console.error('Format invalid pentru programe:', programsResponse.data);
-        setPrograms([]);
+        setError(`Eroare la inițializarea dashboard-ului: ${error.message}`);
       }
-
-      // Procesăm aplicațiile
-      if (Array.isArray(applicationsResponse.data)) {
-        setApplications(applicationsResponse.data);
-      }
-
-    } catch (err) {
-      console.error('Error initializing dashboard:', err);
-      setError('A apărut o eroare la încărcarea datelor. Vă rugăm să încercați din nou.');
     } finally {
-      setLoading(prev => ({ ...prev, users: false, documents: false, universities: false, applications: false }));
+      setLoading(false);
     }
   };
 
@@ -294,7 +426,7 @@ const Dashboard = () => {
       });
 
       const response = await axios({
-        url: `${API_BASE_URL}/documents/download/${doc.id}`,
+        url: `${API_BASE_URL}/api/documents/download/${doc.id}`,
         method: 'GET',
         responseType: 'blob',
         headers: getAuthHeaders()
@@ -503,7 +635,9 @@ const Dashboard = () => {
   const handleAddUniversity = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:4000/api/universities', newUniversity);
+      await axios.post(`${API_BASE_URL}/universities`, newUniversity, {
+        headers: getAuthHeaders()
+      });
       setShowAddUniversityForm(false);
       setNewUniversity({
         name: '',
@@ -526,7 +660,9 @@ const Dashboard = () => {
         }
       });
       // Reload the list of universities
-      const response = await axios.get('http://localhost:4000/api/universities');
+      const response = await axios.get(`${API_BASE_URL}/universities`, {
+        headers: getAuthHeaders()
+      });
       setUniversities(response.data);
       setSuccessMessage('Universitatea a fost adăugată cu succes!');
       setTimeout(() => setSuccessMessage(''), 2000);
@@ -626,7 +762,7 @@ const Dashboard = () => {
       console.log('Datele pregătite pentru trimitere:', JSON.stringify(universityData, null, 2));
 
       const response = await axios.put(
-        `${API_BASE_URL}/api/universities/${editingUniversity.id}`,
+        `${API_BASE_URL}/universities/${editingUniversity.id}`,
         universityData,
         { 
           headers: {
@@ -660,9 +796,13 @@ const Dashboard = () => {
   const handleDeleteUniversity = async (universityId) => {
     if (window.confirm('Sigur doriți să ștergeți această universitate?')) {
       try {
-        await axios.delete(`http://localhost:4000/api/universities/${universityId}`);
+        await axios.delete(`${API_BASE_URL}/universities/${universityId}`, {
+          headers: getAuthHeaders()
+        });
         // Reload the list of universities
-        const response = await axios.get('http://localhost:4000/api/universities');
+        const response = await axios.get(`${API_BASE_URL}/universities`, {
+          headers: getAuthHeaders()
+        });
         setUniversities(response.data);
       } catch (error) {
         console.error('Error deleting university:', error);
@@ -833,7 +973,7 @@ const Dashboard = () => {
       console.log('Datele pregătite pentru trimitere:', JSON.stringify(programData, null, 2));
 
       const response = await axios.post(
-        `${API_BASE_URL}/api/programs`,
+        `${API_BASE_URL}/programs`,
         programData,
         { 
           headers: {
@@ -847,7 +987,7 @@ const Dashboard = () => {
 
       if (response.data && response.data.id) {
         // Programul a fost adăugat cu succes, reîncărcăm lista de programe
-        const programsResponse = await axios.get(`${API_BASE_URL}/api/programs`, {
+        const programsResponse = await axios.get(`${API_BASE_URL}/programs`, {
           headers: getAuthHeaders()
         });
         if (Array.isArray(programsResponse.data)) {
@@ -855,6 +995,23 @@ const Dashboard = () => {
         } else if (programsResponse.data && programsResponse.data.data) {
           setPrograms(programsResponse.data.data);
         }
+        
+        // Închidem modalul și resetăm formularul
+        setShowAddProgramForm(false);
+        setNewProgram({
+          name: '',
+          description: '',
+          duration: '',
+          degree_type: '',
+          language: '',
+          tuition_fees: '',
+          university_id: '',
+          faculty: '',
+          credits: ''
+        });
+        
+        setSuccessMessage('Programul a fost adăugat cu succes!');
+        setTimeout(() => setSuccessMessage(''), 2000);
       } else {
         throw new Error(response.data?.message || 'Eroare la adăugarea programului');
       }
@@ -862,7 +1019,6 @@ const Dashboard = () => {
       console.error('Eroare detaliată la adăugarea programului:', {
         message: error.message,
         response: error.response?.data,
-        status: error.response?.status,
         headers: error.response?.headers,
         config: {
           url: error.config?.url,
@@ -895,11 +1051,11 @@ const Dashboard = () => {
   const handleDeleteProgram = async (programId) => {
     if (window.confirm('Sigur doriți să ștergeți acest program?')) {
       try {
-        await axios.delete(`${API_BASE_URL}/api/programs/${programId}`, {
+        await axios.delete(`${API_BASE_URL}/programs/${programId}`, {
           headers: getAuthHeaders()
         });
         // Reîncărcăm lista de programe
-        const response = await axios.get(`${API_BASE_URL}/api/programs`, {
+        const response = await axios.get(`${API_BASE_URL}/programs`, {
           headers: getAuthHeaders()
         });
         if (response.data && response.data.data) {
@@ -943,7 +1099,7 @@ const Dashboard = () => {
   const handleUpdateApplicationStatus = async (applicationId, newStatus) => {
     try {
       const response = await axios.patch(
-        `${API_BASE_URL}/api/applications/${applicationId}`,
+        `${API_BASE_URL}/applications/${applicationId}`,
         { status: newStatus },
         { headers: getAuthHeaders() }
       );
@@ -973,6 +1129,8 @@ const Dashboard = () => {
         throw new Error('Nu există program selectat pentru editare');
       }
 
+      console.log('Datele programului înainte de actualizare:', editingProgram);
+
       const programData = {
         name: String(editingProgram.name).trim(),
         description: editingProgram.description ? String(editingProgram.description).trim() : '',
@@ -988,7 +1146,7 @@ const Dashboard = () => {
       console.log('Datele pregătite pentru actualizare:', JSON.stringify(programData, null, 2));
 
       const response = await axios.put(
-        `${API_BASE_URL}/api/programs/${editingProgram.id}`,
+        `${API_BASE_URL}/programs/${editingProgram.id}`,
         programData,
         { 
           headers: {
@@ -1000,14 +1158,16 @@ const Dashboard = () => {
 
       console.log('Răspuns de la server:', JSON.stringify(response.data, null, 2));
 
-      if (response.data && response.data.success) {
+      if (response.data) {
         // Reîncărcăm lista completă de programe
-        const programsResponse = await axios.get(`${API_BASE_URL}/api/programs`, {
+        const programsResponse = await axios.get(`${API_BASE_URL}/programs`, {
           headers: getAuthHeaders()
         });
         
         if (programsResponse.data && programsResponse.data.data) {
           setPrograms(programsResponse.data.data);
+        } else if (Array.isArray(programsResponse.data)) {
+          setPrograms(programsResponse.data);
         }
 
         setShowEditProgramForm(false);
@@ -1015,7 +1175,7 @@ const Dashboard = () => {
         setSuccessMessage('Program actualizat cu succes!');
         setTimeout(() => setSuccessMessage(''), 2000);
       } else {
-        throw new Error(response.data?.message || 'Eroare la actualizarea programului');
+        throw new Error('Nu s-a primit răspuns valid de la server');
       }
     } catch (error) {
       console.error('Eroare detaliată la actualizarea programului:', {
@@ -1031,9 +1191,19 @@ const Dashboard = () => {
         }
       });
       
-      const errorMessage = error.response?.data?.message || error.message;
-      console.error('Eroare la actualizarea programului:', error);
-      setError(`Eroare la actualizarea programului: ${errorMessage}`);
+      let errorMessage = 'Eroare la actualizarea programului: ';
+      
+      if (error.response?.data?.message) {
+        errorMessage += error.response.data.message;
+      } else if (error.response?.data?.error) {
+        errorMessage += error.response.data.error;
+      } else if (error.message) {
+        errorMessage += error.message;
+      } else {
+        errorMessage += 'A apărut o eroare neașteptată';
+      }
+      
+      setError(errorMessage);
     }
   };
 
@@ -2114,6 +2284,7 @@ const Dashboard = () => {
                     <table className="dashboard-table">
                       <thead>
                         <tr>
+                          <th>ID</th>
                           <th>Nume</th>
                           <th>Grad</th>
                           <th>Durată</th>
@@ -2126,6 +2297,7 @@ const Dashboard = () => {
                       <tbody>
                         {programs.map(program => (
                           <tr key={program.id}>
+                            <td>{program.id}</td>
                             <td>{program.name}</td>
                             <td>{program.degree_type}</td>
                             <td>{program.duration}</td>

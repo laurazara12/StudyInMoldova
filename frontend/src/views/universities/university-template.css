@@ -1,0 +1,282 @@
+.university-template {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Stiluri pentru informațiile de contact */
+.contact-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.contact-item .icon {
+  font-size: 1.2rem;
+}
+
+.contact-item a {
+  color: #3498db;
+  text-decoration: none;
+}
+
+.contact-item a:hover {
+  text-decoration: underline;
+}
+
+/* Stiluri pentru header */
+.university-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.university-header h1 {
+  font-size: 2.5rem;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.university-header h2 {
+  font-size: 1.8rem;
+  color: #34495e;
+  font-weight: normal;
+}
+
+/* Stiluri pentru anunț */
+.announcement {
+  background-color: #e3f2fd;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Stiluri pentru conținut principal */
+.university-content {
+  flex: 1;
+  display: grid;
+  gap: 2rem;
+}
+
+/* Stiluri pentru secțiuni */
+.university-section {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.university-section h3 {
+  color: #2c3e50;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 0.5rem;
+}
+
+/* Stiluri pentru statistici */
+.about-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+}
+
+.about-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.stat-number {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.stat-label {
+  display: block;
+  color: #7f8c8d;
+  margin-top: 0.5rem;
+}
+
+/* Stiluri pentru programe de studii */
+.university-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.university-section li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+  color: #34495e;
+}
+
+.university-section li:last-child {
+  border-bottom: none;
+}
+
+/* Stiluri pentru stări */
+.loading-container,
+.error-container,
+.not-found-container {
+  text-align: center;
+  padding: 2rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  margin: 2rem 0;
+}
+
+/* Stiluri pentru butoane */
+button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #2980b9;
+}
+
+/* Stiluri responsive */
+@media (max-width: 768px) {
+  .university-template {
+    padding: 1rem;
+  }
+
+  .university-header h1 {
+    font-size: 2rem;
+  }
+
+  .university-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .about-content {
+    grid-template-columns: 1fr;
+  }
+
+  .about-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .contact-info {
+    flex-direction: column;
+  }
+
+  .university-section {
+    padding: 1.5rem;
+  }
+}
+
+/* Stiluri pentru grila de programe */
+.programs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.program-card {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.program-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.program-card h4 {
+  color: #2c3e50;
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #3498db;
+}
+
+.program-details {
+  color: #34495e;
+}
+
+.program-details p {
+  margin: 0.5rem 0;
+  line-height: 1.4;
+}
+
+.program-details strong {
+  color: #2c3e50;
+}
+
+.specializations {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+.specializations h5 {
+  color: #2c3e50;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.specializations ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.specializations li {
+  padding: 0.3rem 0;
+  color: #34495e;
+  font-size: 0.95rem;
+}
+
+.specializations li:before {
+  content: "•";
+  color: #3498db;
+  font-weight: bold;
+  display: inline-block;
+  width: 1em;
+  margin-left: -1em;
+}
+
+/* Stiluri responsive pentru programe */
+@media (max-width: 768px) {
+  .programs-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .program-card {
+    padding: 1rem;
+  }
+} 

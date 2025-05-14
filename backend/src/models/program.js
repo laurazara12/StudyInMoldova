@@ -1,43 +1,47 @@
-const { Model, DataTypes } = require('sequelize');
+const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-  class Program extends Model {
-    static associate(models) {
-      Program.belongsTo(models.University, {
-        foreignKey: 'university_id',
-        as: 'University'
-      });
-      Program.hasMany(models.SavedProgram, {
-        foreignKey: 'program_id',
-        as: 'savedPrograms'
-      });
-    }
-  }
-
-  Program.init({
+  const Program = sequelize.define('Program', {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
     name: {
       type: DataTypes.STRING,
       allowNull: false
     },
     description: {
       type: DataTypes.TEXT,
-      allowNull: false
+      allowNull: true
     },
     duration: {
-      type: DataTypes.INTEGER,
-      allowNull: false
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    degree: {
+      type: DataTypes.STRING,
+      allowNull: true
     },
     degree_type: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     language: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     tuition_fees: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: true
+    },
+    credits: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    faculty: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     university_id: {
       type: DataTypes.INTEGER,
@@ -46,21 +50,19 @@ module.exports = (sequelize) => {
         model: 'universities',
         key: 'id'
       }
-    },
-    faculty: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    credits: {
-      type: DataTypes.INTEGER,
-      allowNull: true
     }
   }, {
-    sequelize,
-    modelName: 'Program',
+    timestamps: true,
     tableName: 'programs',
     underscored: true
   });
+
+  Program.associate = (models) => {
+    Program.belongsTo(models.University, {
+      foreignKey: 'university_id',
+      as: 'University'
+    });
+  };
 
   return Program;
 }; 

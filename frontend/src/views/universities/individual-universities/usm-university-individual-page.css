@@ -1,0 +1,636 @@
+.usm-university-individual-page-container {
+  width: 100%;
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  flex-direction: column;
+}
+ 
+.usm-university-individual-page-text10 {
+  display: inline-block;
+  font-size: 12px;
+}
+ 
+.usm-university-individual-page-text11 {
+  display: inline-block;
+  font-family: "Inter";
+  letter-spacing: 0em;
+}
+ 
+.usm-university-individual-page-text12 {
+  display: inline-block;
+  font-size: 12px;
+}
+ 
+.usm-university-individual-page-text13 {
+  display: inline-block;
+  font-size: 12px;
+}
+ 
+.usm-university-individual-page-text14 {
+  display: inline-block;
+  font-size: 12px;
+}
+ 
+.usm-university-individual-page-text15 {
+  display: inline-block;
+  font-size: 12px;
+}
+ 
+.usm-university-individual-page-text16 {
+  display: inline-block;
+  font-size: 12px;
+}
+ 
+.usm-university-individual-page-text17 {
+  display: inline-block;
+}
+ 
+.usm-university-individual-page-text18 {
+  display: inline-block;
+}
+ 
+.usm-university-individual-page-text19 {
+  display: inline-block;
+}
+ 
+.usm-university-individual-page-text20 {
+  display: inline-block;
+}
+ 
+.usm-university-individual-page-text21 {
+  display: inline-block;
+}
+ 
+.usm-university-individual-page-text22 {
+  display: inline-block;
+}
+ 
+.usm-university-individual-page-text23 {
+  display: inline-block;
+}
+ 
+.usm-university-individual-page-text24 {
+  display: inline-block;
+}
+ 
+.usm-university-individual-page-text25 {
+  display: inline-block;
+}
+ 
+.usm-university-individual-page-text26 {
+  display: inline-block;
+}
+ 
+.usm-university-individual-page-text27 {
+  display: inline-block;
+}
+ 
+.usm-university-individual-page-text28 {
+  color: var(--dl-color-theme-primary1);
+  display: inline-block;
+}
+ 
+.usm-university-individual-page-text29 {
+  color: var(--dl-color-theme-primary1);
+  display: inline-block;
+}
+ 
+.usm-university-individual-page-text30 {
+  color: var(--dl-color-theme-primary1);
+  display: inline-block;
+}
+ 
+.usm-university-individual-page-text31 {
+  color: var(--dl-color-theme-primary1);
+  display: inline-block;
+}
+ 
+.usm-university-individual-page-text32 {
+  color: var(--dl-color-theme-primary1);
+  display: inline-block;
+}
+ 
+.usm-university-individual-page-text33 {
+  display: inline-block;
+}
+ 
+.usm-university-individual-page-text34 {
+  display: inline-block;
+}
+ 
+.usm-university-individual-page-text35 {
+  display: inline-block;
+}
+ 
+.usm-university-individual-page-text36 {
+  font-size: 14px;
+}
+ 
+.usm-university-individual-page-text38 {
+  display: inline-block;
+}
+ 
+.usm-university-individual-page-text39 {
+  display: inline-block;
+}
+ 
+.usm-university-individual-page-text40 {
+  display: inline-block;
+}
+ 
+.usm-university-individual-page-text41 {
+  font-size: 14px;
+}
+ 
+.usm-university-individual-page-text43 {
+  display: inline-block;
+}
+ 
+.usm-university-individual-page-text44 {
+  font-size: 14px;
+}
+ 
+.usm-university-individual-page-text46 {
+  display: inline-block;
+  font-size: 12px;
+}
+ 
+.usm-university-individual-page-text47 {
+  display: inline-block;
+  font-size: 12px;
+}
+ 
+.usm-university-individual-page-text48 {
+  display: inline-block;
+  font-size: 12px;
+}
+ 
+.usm-university-individual-page-text49 {
+  display: inline-block;
+  font-size: 12px;
+}
+ 
+.usm-university-individual-page-text50 {
+  display: inline-block;
+}
+ 
+.usm-university-individual-page-text53 {
+  display: inline-block;
+}
+
+/* Contact Information */
+.usm-contact-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+}
+
+.contact-item .icon {
+  font-size: 1.2rem;
+}
+
+.contact-item a {
+  color: #2c3e50;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.contact-item a:hover {
+  color: #3498db;
+}
+
+/* About Section */
+.usm-about {
+  padding: 2rem 0;
+}
+
+.about-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.about-text p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+  color: #2c3e50;
+}
+
+.about-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.stat-item {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stat-number {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #3498db;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  color: #2c3e50;
+  font-size: 0.9rem;
+}
+
+/* Faculties Section */
+.usm-faculties {
+  padding: 2rem 0;
+  background: #f8f9fa;
+}
+
+.faculties-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.faculty-card {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+}
+
+.faculty-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Mission Section */
+.usm-mission {
+  padding: 2rem 0;
+}
+
+.mission-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.mission-card {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.mission-card:hover {
+  transform: translateY(-5px);
+}
+
+.mission-card h3 {
+  color: #3498db;
+  margin-bottom: 1rem;
+}
+
+/* Cooperation Section */
+.usm-cooperation {
+  padding: 2rem 0;
+  background: #f8f9fa;
+}
+
+.cooperation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.cooperation-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.cooperation-card h3 {
+  color: #3498db;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+/* Achievements Section */
+.usm-achievements {
+  padding: 2rem 0;
+}
+
+.achievements-timeline {
+  max-width: 800px;
+  margin: 2rem auto;
+  position: relative;
+}
+
+.achievements-timeline::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 100%;
+  background: #3498db;
+}
+
+.achievement-item {
+  position: relative;
+  margin-bottom: 2rem;
+  padding-left: 2rem;
+}
+
+.achievement-item .year {
+  position: absolute;
+  left: -2rem;
+  background: #3498db;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: bold;
+}
+
+/* Facilities Section */
+.usm-facilities {
+  padding: 2rem 0;
+  background: #f8f9fa;
+}
+
+.facilities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.facility-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+}
+
+.facility-card:hover {
+  transform: translateY(-5px);
+}
+
+.facility-icon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.facility-card h3 {
+  color: #2c3e50;
+  font-size: 1rem;
+}
+
+/* Why Choose USM Section */
+.why-choose-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.why-choose-card {
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.why-choose-card:hover {
+  transform: translateY(-5px);
+}
+
+.why-choose-card h3 {
+  color: #0056b3;
+  margin-bottom: 1rem;
+  font-size: 1.4rem;
+}
+
+.why-choose-card p {
+  color: #333;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.why-choose-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.why-choose-card li {
+  padding: 0.5rem 0;
+  color: #555;
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.why-choose-card li:before {
+  content: "•";
+  color: #0056b3;
+  position: absolute;
+  left: 0;
+  font-size: 1.2rem;
+}
+
+/* Careers Section */
+.careers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.career-card {
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.career-card h3 {
+  color: #0056b3;
+  margin-bottom: 1rem;
+  font-size: 1.4rem;
+}
+
+.career-card p {
+  color: #333;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.career-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.career-card li {
+  padding: 0.5rem 0;
+  color: #555;
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.career-card li:before {
+  content: "•";
+  color: #0056b3;
+  position: absolute;
+  left: 0;
+  font-size: 1.2rem;
+}
+
+/* Admission Section */
+.admission-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.admission-feature {
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.admission-feature:hover {
+  transform: translateY(-5px);
+}
+
+.feature-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.admission-feature h3 {
+  color: #0056b3;
+  margin-bottom: 0.5rem;
+  font-size: 1.4rem;
+}
+
+.admission-feature p {
+  color: #555;
+  line-height: 1.6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .about-content {
+    grid-template-columns: 1fr;
+  }
+
+  .about-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .achievements-timeline::before {
+    left: 0;
+  }
+
+  .achievement-item {
+    padding-left: 3rem;
+  }
+
+  .achievement-item .year {
+    left: 0;
+  }
+
+  .contact-item {
+    width: 100%;
+  }
+
+  .usm-contact-info {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+
+  .usm-announcement {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  .usm-special-programs {
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .usm-section {
+    padding: 2rem 1rem;
+  }
+
+  .faculties-grid,
+  .cooperation-grid,
+  .facilities-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .why-choose-grid,
+  .careers-grid,
+  .admission-features {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .why-choose-card,
+  .career-card,
+  .admission-feature {
+    padding: 1.5rem;
+  }
+
+  .why-choose-card h3,
+  .career-card h3,
+  .admission-feature h3 {
+    font-size: 1.2rem;
+  }
+
+  .feature-icon {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .faculties-grid,
+  .mission-grid,
+  .cooperation-grid,
+  .facilities-grid {
+    grid-template-columns: 1fr;
+  }
+}

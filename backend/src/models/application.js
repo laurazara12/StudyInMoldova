@@ -1,4 +1,4 @@
-const { Model, DataTypes } = require('sequelize');
+const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
   const Application = sequelize.define('Application', {
@@ -9,39 +9,43 @@ module.exports = (sequelize) => {
     },
     user_id: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      references: {
+        model: 'users',
+        key: 'id'
+      }
     },
     program_id: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      references: {
+        model: 'programs',
+        key: 'id'
+      }
     },
     status: {
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: 'pending'
     },
-    documents: {
-      type: DataTypes.JSON,
-      defaultValue: []
-    },
-    notes: {
+    admin_notes: {
       type: DataTypes.TEXT,
       allowNull: true
     }
   }, {
-    tableName: 'applications',
     timestamps: true,
+    tableName: 'applications',
     underscored: true
   });
 
   Application.associate = (models) => {
     Application.belongsTo(models.User, {
       foreignKey: 'user_id',
-      as: 'user'
+      as: 'User'
     });
     Application.belongsTo(models.Program, {
       foreignKey: 'program_id',
-      as: 'program'
+      as: 'Program'
     });
   };
 

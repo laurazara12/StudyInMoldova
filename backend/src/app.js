@@ -6,6 +6,8 @@ const userRoutes = require('./routes/userRoutes');
 const universityRoutes = require('./routes/universityRoutes');
 const programRoutes = require('./routes/programRoutes');
 const savedProgramRoutes = require('./routes/savedProgramRoutes');
+const documentRoutes = require('./routes/documents');
+const applicationRoutes = require('./routes/applications');
 
 const app = express();
 
@@ -20,6 +22,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/universities', universityRoutes);
 app.use('/api/programs', programRoutes);
 app.use('/api/saved-programs', savedProgramRoutes);
+app.use('/api/documents', documentRoutes);
+app.use('/api/applications', applicationRoutes);
 
 // Servire fișiere statice pentru frontend
 app.use(express.static(path.join(__dirname, '../frontend/build')));

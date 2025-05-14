@@ -4,6 +4,8 @@ const { safeSync } = require('./config/database');
 const authRoutes = require('./routes/auth');
 const documentsRoutes = require('./routes/documents');
 const universitiesRoutes = require('./routes/universities');
+const programsRoutes = require('./routes/programs');
+const applicationsRoutes = require('./routes/applications');
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -16,6 +18,8 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentsRoutes);
 app.use('/api/universities', universitiesRoutes);
+app.use('/api/programs', programsRoutes);
+app.use('/api/applications', applicationsRoutes);
 
 // Initialize database and start server
 async function startServer() {

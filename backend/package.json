@@ -6,8 +6,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "migrate": "node src/migrations/run-migrations.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "reset-db": "node -e \"require('./src/config/database').safeSync(true).then(() => process.exit())\""
   },
   "keywords": [],
   "author": "",

@@ -77,37 +77,52 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (userData, token) => {
     try {
+      console.log('=== Începe procesul de autentificare ===');
+      console.log('User Data:', userData);
+      console.log('Token:', token ? 'Prezent' : 'Lipsă');
+
       if (!userData || !token) {
-        console.error('Date de autentificare lipsă');
-        return false;
+        console.error('Date de autentificare incomplete:', { userData, token });
+        throw new Error('Date de autentificare incomplete');
       }
 
-      // Verificăm dacă avem toate datele necesare
-      if (!userData.id || !userData.email || !userData.role) {
-        console.error('Date utilizator incomplete:', userData);
-        return false;
+      // Salvăm token-ul și datele utilizatorului
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(userData));
+
+      // Verificăm token-ul
+      const response = await axios.get(`${API_BASE_URL}/api/auth/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log('Verificare token:', response.data);
+
+      if (!response.data || !response.data.success) {
+        console.error('Verificare token eșuată:', response.data);
+        throw new Error('Verificare token eșuată');
       }
 
-      // Verificăm validitatea token-ului
-      const isValid = await verifyToken(token);
-      if (!isValid) {
-        console.error('Token invalid');
-        return false;
-      }
-
-      // Salvăm datele doar dacă totul este valid
       setUser(userData);
       setIsAuthenticated(true);
-      localStorage.setItem('user', JSON.stringify(userData));
-      localStorage.setItem('token', token);
+      console.log('Autentificare reușită pentru:', userData.email);
       return true;
     } catch (error) {
-      console.error('Eroare la autentificare:', error);
+      console.error('=== Eroare la autentificare ===');
+      console.error('Tip eroare:', error.name);
+      console.error('Mesaj eroare:', error.message);
+      console.error('Status:', error.response?.status);
+      console.error('Status Text:', error.response?.statusText);
+      console.error('Data răspuns:', error.response?.data);
+
+      // Curățăm datele de autentificare în caz de eroare
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       setUser(null);
       setIsAuthenticated(false);
-      return false;
+      throw error;
     }
   };
 

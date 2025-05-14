@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const savedProgramController = require('../controllers/savedProgramController');
-const { verifyToken } = require('../controllers/authController');
+const { authMiddleware } = require('../middleware/auth');
 
 // Toate rutele necesită autentificare
-router.use(verifyToken);
+router.use(authMiddleware);
 
 // Rute pentru programele salvate
 router.post('/', savedProgramController.saveProgram);

@@ -5,6 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
 const config = require('./config.json')[process.env.NODE_ENV || 'development'];
+const UniversityModel = require('../models/university');
 
 // Configurare directoare
 const DB_DIR = path.join(__dirname, '../../data');
@@ -46,7 +47,6 @@ const sequelize = new Sequelize({
 
 // Import models
 const UserModel = require('../models/user');
-const UniversityModel = require('../models/university');
 const DocumentModel = require('../models/document');
 const ProgramModel = require('../models/program');
 const NotificationModel = require('../models/notification');
@@ -55,12 +55,12 @@ const SavedProgramModel = require('../models/savedProgram');
 
 // Initialize models
 const User = UserModel(sequelize);
-const University = UniversityModel(sequelize);
 const Document = DocumentModel(sequelize);
 const Program = ProgramModel(sequelize);
 const Notification = NotificationModel(sequelize);
 const Application = ApplicationModel(sequelize);
 const SavedProgram = SavedProgramModel(sequelize);
+const University = UniversityModel(sequelize);
 
 // Define relationships
 Program.belongsTo(University, { 
@@ -127,14 +127,14 @@ const checkTablesExist = async () => {
 };
 
 // Funcție pentru sincronizare sigură
-async function safeSync() {
+async function safeSync(force = false) {
   try {
     console.log('Se creează tabelele în baza de date...');
     
     // Verificăm dacă tabelele există deja
     const tablesExist = await checkTablesExist();
     
-    if (!tablesExist) {
+    if (!tablesExist || force) {
       // Ștergem toate tabelele în ordinea corectă
       await SavedProgram.drop();
       await Application.drop();
@@ -180,6 +180,46 @@ async function safeSync() {
         });
         console.log('Utilizatorul de test a fost creat');
       }
+
+      // Adăugăm datele inițiale pentru universități
+      const universities = [
+        {
+          name: 'Universitatea de Stat din Moldova',
+          acronym: 'USM',
+          description: 'Universitatea de Stat din Moldova este cea mai mare instituție de învățământ superior din Republica Moldova.',
+          tuitionFee: 15000,
+          programs: JSON.stringify(['Informatică', 'Matematică', 'Fizică', 'Chimie', 'Biologie']),
+          contactInfo: {
+            address: 'Str. Alexei Mateevici 60, Chișinău, MD-2009',
+            phone: '+373 22 244 810',
+            email: 'rector@usm.md',
+            website: 'https://usm.md'
+          },
+          slug: 'usm'
+        },
+        {
+          name: 'Universitatea Tehnică a Moldovei',
+          acronym: 'UTM',
+          description: 'Universitatea Tehnică a Moldovei este principala instituție de învățământ superior tehnic din Republica Moldova.',
+          tuitionFee: 16000,
+          programs: JSON.stringify(['Inginerie', 'Arhitectură', 'Tehnologii Informaționale']),
+          contactInfo: {
+            address: 'Bd. Ștefan cel Mare și Sfânt 168, Chișinău, MD-2004',
+            phone: '+373 22 235 555',
+            email: 'rector@utm.md',
+            website: 'https://utm.md'
+          },
+          slug: 'utm'
+        }
+      ];
+
+      for (const universityData of universities) {
+        const universityExists = await University.findOne({ where: { slug: universityData.slug } });
+        if (!universityExists) {
+          await University.create(universityData);
+          console.log(`Universitatea ${universityData.name} a fost creată`);
+        }
+      }
     } else {
       console.log('Tabelele există deja, nu este nevoie să fie recreate.');
     }
@@ -190,6 +230,17 @@ async function safeSync() {
     throw error;
   }
 }
+
+const testConnection = async () => {
+  try {
+    await sequelize.authenticate();
+    console.log('Conexiunea la baza de date a fost stabilită cu succes.');
+  } catch (error) {
+    console.error('Nu s-a putut conecta la baza de date:', error);
+  }
+};
+
+testConnection();
 
 // Exportăm funcțiile și modelele
 module.exports = {

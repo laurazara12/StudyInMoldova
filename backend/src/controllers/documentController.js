@@ -60,7 +60,7 @@ exports.getAllDocuments = async (req, res) => {
           [Op.not]: 'deleted'
         }
       },
-      attributes: ['id', 'document_type', 'file_path', 'createdAt', 'status', 'filename', 'originalName'],
+      attributes: ['id', 'document_type', 'file_path', 'createdAt', 'status', 'filename', 'originalName', 'user_id'],
       order: [['createdAt', 'DESC']]
     });
 

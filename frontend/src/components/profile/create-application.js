@@ -21,7 +21,7 @@ const CreateApplication = () => {
 
   const checkExistingApplication = async () => {
     try {
-      const response = await axios.get('/api/applications/current');
+      const response = await axios.get(`${API_BASE_URL}/applications/current`);
       if (response.data) {
         setApplicationId(response.data.id);
         setApplicationStatus(response.data.status);
@@ -35,7 +35,7 @@ const CreateApplication = () => {
 
   const fetchSavedPrograms = async () => {
     try {
-      const response = await axios.get('/api/saved-programs');
+      const response = await axios.get(`${API_BASE_URL}/saved-programs`);
       setSavedPrograms(response.data);
     } catch (err) {
       setError('Eroare la încărcarea programelor salvate');
@@ -44,7 +44,7 @@ const CreateApplication = () => {
 
   const fetchUploadedDocuments = async () => {
     try {
-      const response = await axios.get('/api/documents');
+      const response = await axios.get(`${API_BASE_URL}/documents`);
       setUploadedDocuments(response.data);
     } catch (err) {
       setError('Eroare la încărcarea documentelor');

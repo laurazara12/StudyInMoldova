@@ -12,6 +12,7 @@ const Programs = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [degreeFilter, setDegreeFilter] = useState('');
   const [languageFilter, setLanguageFilter] = useState('');
 
@@ -35,16 +36,19 @@ const Programs = () => {
   useEffect(() => {
     const checkAuth = () => {
       const token = localStorage.getItem('token');
-      setIsAuthenticated(!!token);
+      const user = JSON.parse(localStorage.getItem('user'));
+      const isAuth = !!token;
+      setIsAuthenticated(isAuth);
+      setIsAdmin(user?.role === 'admin');
+      
+      if (isAuth) {
+        fetchSavedPrograms();
+      }
     };
 
-    // Verificăm autentificarea la fiecare schimbare a token-ului
-    window.addEventListener('storage', checkAuth);
     checkAuth();
-
-    return () => {
-      window.removeEventListener('storage', checkAuth);
-    };
+    window.addEventListener('storage', checkAuth);
+    return () => window.removeEventListener('storage', checkAuth);
   }, []);
 
   useEffect(() => {
@@ -55,7 +59,7 @@ const Programs = () => {
   const fetchPrograms = async () => {
     try {
       console.log('Începe încărcarea programelor...');
-      const response = await axios.get(`${API_BASE_URL}/api/programs`);
+      const response = await axios.get(`${API_BASE_URL}/programs`);
       console.log('Răspuns de la server:', response.data);
       
       if (Array.isArray(response.data)) {
@@ -83,9 +87,7 @@ const Programs = () => {
   const fetchSavedPrograms = async () => {
     try {
       const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Nu sunteți autentificat');
-      }
+      if (!token) return;
 
       const response = await axios.get(`${API_BASE_URL}/api/saved-programs`, {
         headers: { 
@@ -94,56 +96,136 @@ const Programs = () => {
         }
       });
 
-      if (!response.data) {
-        throw new Error('Nu s-au primit date de la server');
-      }
-
-      // Setăm programele salvate din response.data.data
-      setSavedPrograms(response.data.data || []);
-    } catch (error) {
-      console.error('Eroare detaliată la obținerea programelor salvate:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status
-      });
+      console.log('Răspuns programe salvate:', response.data);
       
+      if (response.data?.data) {
+        const savedProgramsData = response.data.data;
+        console.log('Programe salvate procesate:', savedProgramsData);
+        setSavedPrograms(savedProgramsData);
+      }
+    } catch (error) {
+      console.error('Eroare la obținerea programelor salvate:', error);
       if (error.response?.status === 401) {
         localStorage.removeItem('token');
         setIsAuthenticated(false);
-        throw new Error('Sesiunea a expirat. Vă rugăm să vă autentificați din nou.');
       }
-      
-      throw new Error(error.response?.data?.message || 'Eroare la obținerea programelor salvate');
     }
+  };
+
+  const isProgramSaved = (programId) => {
+    const programIdInt = parseInt(programId);
+    const isSaved = savedPrograms.some(sp => {
+      const savedId = sp.id || sp.program_id || sp.program?.id;
+      return savedId === programIdInt;
+    });
+    console.log(`Verificare program ${programIdInt}:`, isSaved, 'Lista programe salvate:', savedPrograms);
+    return isSaved;
   };
 
   const handleSaveProgram = async (programId) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${API_BASE_URL}/api/saved-programs`, { programId }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      await fetchSavedPrograms();
+      if (!token) {
+        throw new Error('Trebuie să fiți autentificat pentru a salva programe');
+      }
+
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (!user?.id) {
+        throw new Error('Informațiile utilizatorului nu sunt disponibile');
+      }
+
+      const programIdInt = parseInt(programId);
+      
+      // Verificăm dacă programul este deja salvat
+      if (isProgramSaved(programIdInt)) {
+        const successMessage = document.createElement('div');
+        successMessage.className = 'success-message';
+        successMessage.textContent = 'Programul este deja salvat!';
+        document.body.appendChild(successMessage);
+        setTimeout(() => successMessage.remove(), 3000);
+        return;
+      }
+
+      const response = await axios.post(
+        `${API_BASE_URL}/api/saved-programs`,
+        { program_id: programIdInt, user_id: user.id },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      console.log('Răspuns salvare program:', response.data);
+
+      if (response.data?.data) {
+        // Adăugăm noul program salvat la lista existentă
+        setSavedPrograms(prev => [...prev, response.data.data]);
+        
+        const successMessage = document.createElement('div');
+        successMessage.className = 'success-message';
+        successMessage.textContent = 'Program salvat cu succes!';
+        document.body.appendChild(successMessage);
+        setTimeout(() => successMessage.remove(), 3000);
+      }
     } catch (error) {
       console.error('Eroare la salvarea programului:', error);
+      
+      // Verificăm dacă eroarea este deja salvat
+      if (error.response?.data?.message?.includes('deja salvat')) {
+        const successMessage = document.createElement('div');
+        successMessage.className = 'success-message';
+        successMessage.textContent = 'Programul este deja salvat!';
+        document.body.appendChild(successMessage);
+        setTimeout(() => successMessage.remove(), 3000);
+        return;
+      }
+      
+      const errorMessage = error.response?.data?.message || error.message || 'Eroare la salvarea programului';
+      const errorElement = document.createElement('div');
+      errorElement.className = 'error-message';
+      errorElement.textContent = errorMessage;
+      document.body.appendChild(errorElement);
+      setTimeout(() => errorElement.remove(), 3000);
     }
   };
 
   const handleRemoveSavedProgram = async (programId) => {
     try {
       const token = localStorage.getItem('token');
+      if (!token) return;
+
       await axios.delete(`${API_BASE_URL}/api/saved-programs/${programId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      await fetchSavedPrograms();
+
+      // Eliminăm programul din lista locală
+      setSavedPrograms(prev => prev.filter(sp => (sp.program_id || sp.program?.id) !== programId));
+      
+      const successMessage = document.createElement('div');
+      successMessage.className = 'success-message';
+      successMessage.textContent = 'Program eliminat din lista salvată!';
+      document.body.appendChild(successMessage);
+      setTimeout(() => successMessage.remove(), 3000);
     } catch (error) {
-      console.error('Eroare la eliminarea programului salvat:', error);
+      console.error('Eroare la eliminarea programului:', error);
+      
+      const errorElement = document.createElement('div');
+      errorElement.className = 'error-message';
+      errorElement.textContent = 'Eroare la eliminarea programului din lista salvată';
+      document.body.appendChild(errorElement);
+      setTimeout(() => errorElement.remove(), 3000);
     }
   };
 
-  const isProgramSaved = (programId) => {
-    return savedPrograms.some(sp => sp.program?.id === programId);
-  };
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchSavedPrograms();
+      const interval = setInterval(fetchSavedPrograms, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated]);
 
   const filteredPrograms = programs.filter(program => {
     const matchesDegree = !degreeFilter || program.degree_type === degreeFilter;
@@ -226,20 +308,40 @@ const Programs = () => {
               <tbody>
                 {filteredPrograms.map(program => (
                   <tr key={program.id}>
-                    <td>{program.name}</td>
+                    <td>
+                      <div className="program-name">
+                        <strong>{program.name}</strong>
+                        {program.description && (
+                          <div className="program-description">{program.description}</div>
+                        )}
+                      </div>
+                    </td>
                     <td>{program.University?.name || 'N/A'}</td>
                     <td>{program.faculty || 'N/A'}</td>
-                    <td>{program.degree_type}</td>
+                    <td>
+                      <span className={`degree-badge ${program.degree_type?.toLowerCase()}`}>
+                        {program.degree_type === 'Bachelor' ? 'Licență' : 
+                         program.degree_type === 'Master' ? 'Master' : 
+                         program.degree_type === 'PhD' ? 'Doctorat' : program.degree_type}
+                      </span>
+                    </td>
                     <td>{program.credits || 'N/A'}</td>
-                    <td>{program.language}</td>
+                    <td>
+                      <span className={`language-badge ${program.language?.toLowerCase()}`}>
+                        {program.language === 'Romanian' ? 'Română' :
+                         program.language === 'Russian' ? 'Rusă' :
+                         program.language === 'English' ? 'Engleză' : program.language}
+                      </span>
+                    </td>
                     <td>{program.duration} ani</td>
                     <td>{program.tuition_fees ? `${program.tuition_fees} EUR` : 'N/A'}</td>
                     <td>
-                      {isAuthenticated && (
+                      {isAuthenticated && !isAdmin ? (
                         isProgramSaved(program.id) ? (
                           <button 
                             className="remove-save-button"
                             onClick={() => handleRemoveSavedProgram(program.id)}
+                            title="Elimină din programele salvate"
                           >
                             Elimină
                           </button>
@@ -247,11 +349,12 @@ const Programs = () => {
                           <button 
                             className="save-button"
                             onClick={() => handleSaveProgram(program.id)}
+                            title="Salvează programul"
                           >
                             Salvează
                           </button>
                         )
-                      )}
+                      ) : null}
                     </td>
                   </tr>
                 ))}
@@ -266,4 +369,4 @@ const Programs = () => {
   );
 };
 
-export default Programs; 
+export default Programs;

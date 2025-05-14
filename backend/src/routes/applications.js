@@ -31,7 +31,7 @@ router.get('/', authMiddleware, async (req, res) => {
       status: app.status,
       createdAt: app.createdAt,
       updatedAt: app.updatedAt,
-      notes: app.notes || '',
+      adminNotes: app.adminNotes || '',
       program: app.program ? {
         id: app.program.id,
         name: app.program.name,
@@ -41,8 +41,7 @@ router.get('/', authMiddleware, async (req, res) => {
           name: app.program.University?.name || 'N/A',
           location: app.program.University?.location || 'N/A'
         }
-      } : null,
-      documents: app.documents || []
+      } : null
     }));
 
     const groupedApplications = {

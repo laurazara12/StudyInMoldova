@@ -41,7 +41,11 @@ const SignIn = (props) => {
       };
       console.log('Request data being sent:', requestData);
       
-      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, requestData, {
+      // Verificăm URL-ul API-ului
+      const loginUrl = `${API_BASE_URL}/api/auth/login`;
+      console.log('API URL:', loginUrl);
+      
+      const response = await axios.post(loginUrl, requestData, {
         headers: {
           'Content-Type': 'application/json'
         }
@@ -77,17 +81,31 @@ const SignIn = (props) => {
       }
     } catch (error) {
       console.error('Eroare la autentificare:', error);
+      
+      // Logging detaliat pentru debugging
       if (error.response) {
         console.error('Detalii eroare:', {
           status: error.response.status,
-          data: error.response.data
+          statusText: error.response.statusText,
+          data: error.response.data,
+          headers: error.response.headers,
+          config: {
+            url: error.config?.url,
+            method: error.config?.method,
+            headers: error.config?.headers
+          }
         });
+        
         if (error.response.status === 401) {
           setError('Email sau parolă incorectă.');
         } else {
           setError(error.response.data?.message || 'A apărut o eroare în timpul autentificării.');
         }
+      } else if (error.request) {
+        console.error('Nu s-a primit răspuns de la server:', error.request);
+        setError('Nu s-a putut conecta la server. Verificați conexiunea la internet.');
       } else {
+        console.error('Eroare la configurarea cererii:', error.message);
         setError('A apărut o eroare în timpul comunicării cu serverul.');
       }
     } finally {

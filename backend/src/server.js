@@ -68,11 +68,20 @@ app.use('/api', (err, req, res, next) => {
 });
 
 // Servim fișierele statice din frontend/build
-app.use(express.static(path.join(__dirname, '../../../frontend/build')));
+app.use(express.static(path.join(__dirname, '../../frontend/build')));
 
 // Ruta pentru orice altă cerere
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../../frontend/build', 'index.html'));
+  const indexPath = path.join(__dirname, '../../frontend/build', 'index.html');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    console.error('Frontend build not found at:', indexPath);
+    res.status(404).json({ 
+      message: 'Frontend build not found. Please run npm run build in the frontend directory.',
+      path: indexPath
+    });
+  }
 });
 
 // Funcție pentru crearea unui utilizator admin

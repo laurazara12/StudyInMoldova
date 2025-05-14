@@ -19,7 +19,25 @@ const DocumentsAdmin = () => {
       const response = await axios.get(`${API_BASE_URL}/api/documents/all`, {
         headers: getAuthHeaders()
       });
-      setDocuments(response.data.data || []);
+
+      console.log('Răspuns server documente:', response.data);
+
+      if (!response.data) {
+        throw new Error('Nu s-au primit date de la server');
+      }
+
+      if (!response.data.success) {
+        throw new Error(response.data.message || 'Eroare la preluarea documentelor');
+      }
+
+      const documentsArray = response.data.data || [];
+      
+      if (!Array.isArray(documentsArray)) {
+        console.error('Format răspuns neașteptat:', response.data);
+        throw new Error('Format invalid al datelor primite de la server');
+      }
+
+      setDocuments(documentsArray);
       setError(null);
     } catch (err) {
       setError('Eroare la încărcarea documentelor');

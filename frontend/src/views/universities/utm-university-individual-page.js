@@ -15,7 +15,7 @@ const UTMUniversityIndividualPage = (props) => {
   useEffect(() => {
     const fetchPrograms = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/programs?universityId=2`, {
+        const response = await fetch(`${API_BASE_URL}/programs?universityId=2`, {
           headers: getAuthHeaders()
         });
         

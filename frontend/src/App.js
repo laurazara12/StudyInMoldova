@@ -15,13 +15,12 @@ import Programs from './views/programs/programs';
 import LivingInMoldova from './views/living/overview';
 import PlanYourStudies from './views/planning/plan';
 import NotFound from './views/error/not-found';
-import USMUniversityIndividualPage from './views/universities/usm-university-individual-page';
-import UTMUniversityIndividualPage from './views/universities/utm-university-individual-page';
 import PrivateRoute from './components/PrivateRoute';
 import Dashboard from './views/admin/dashboard';
 import TransportationGuide from './views/living/transportation-guide';
 import ProfileAdmin from './views/admin/profile-admin';
 import Error404Page from './views/error/error404-page';
+import UniversityIndividualPage from './views/universities/individual-universities/university-individual-page';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
 
@@ -81,8 +80,7 @@ const App = () => {
             <Route path="/programs" element={<Programs />} />
             <Route path="/living-in-moldova" element={<LivingInMoldova />} />
             <Route path="/plan-your-studies" element={<PlanYourStudies />} />
-            <Route path="/universities/usm-university-individual-page" element={<USMUniversityIndividualPage />} />
-            <Route path="/universities/utm-university-individual-page" element={<UTMUniversityIndividualPage />} />
+            <Route path="/universities/:slug" element={<UniversityIndividualPage />} />
             <Route path="/profile" element={
               <PrivateRoute>
                 <Profile />

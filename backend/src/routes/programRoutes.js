@@ -1,16 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const programController = require('../controllers/programController');
-const { verifyToken } = require('../controllers/authController');
+const { authMiddleware, adminMiddleware } = require('../middleware/auth');
 
 // Rute publice
 router.get('/', programController.getAllPrograms);
 router.get('/:id', programController.getProgramById);
 
 // Rute protejate
-router.use(verifyToken);
-router.post('/', programController.createProgram);
-router.put('/:id', programController.updateProgram);
-router.delete('/:id', programController.deleteProgram);
+router.use(authMiddleware);
+
+// Rute pentru admin
+router.post('/', adminMiddleware, programController.createProgram);
+router.put('/:id', adminMiddleware, programController.updateProgram);
+router.delete('/:id', adminMiddleware, programController.deleteProgram);
 
 module.exports = router; 
