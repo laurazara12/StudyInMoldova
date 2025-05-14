@@ -1,10 +1,15 @@
 .university-template {
-  max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
-  padding: 2rem;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+
+
+.university-body {
+  padding: 3rem;
 }
 
 /* Stiluri pentru informațiile de contact */
@@ -166,9 +171,7 @@ button:hover {
 
 /* Stiluri responsive */
 @media (max-width: 768px) {
-  .university-template {
-    padding: 1rem;
-  }
+
 
   .university-header h1 {
     font-size: 2rem;
