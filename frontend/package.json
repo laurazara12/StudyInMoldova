@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "@cloudinary/url-gen": "^1.21.0",
     "@craco/craco": "^7.1.0",
     "@remix-run/router": "^1.15.3",
     "ajv": "^8.17.1",

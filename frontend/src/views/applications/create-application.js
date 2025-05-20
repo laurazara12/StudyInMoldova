@@ -20,7 +20,7 @@ const CreateApplication = () => {
   const fetchPrograms = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_BASE_URL}/programs`, {
+      const response = await axios.get(`${API_BASE_URL}/api/programs`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setPrograms(response.data.data);

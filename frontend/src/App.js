@@ -4,6 +4,7 @@ import axios from 'axios';
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/navbar';
+import ScrollToTop from './components/ScrollToTop';
 
 import './style.css';
 import Home from './views/landing/landing';
@@ -21,6 +22,13 @@ import TransportationGuide from './views/living/transportation-guide';
 import ProfileAdmin from './views/admin/profile-admin';
 import Error404Page from './views/error/error404-page';
 import UniversityIndividualPage from './views/universities/individual-universities/university-individual-page';
+import Contact from './views/contact/contact';
+import About from './views/about/about';
+import HelpYouChoose from './views/help-you-choose-AI/help-you-choose-AI';
+import Privacy from './views/privacy/privacy';
+import Terms from './views/terms/terms';
+import Cookies from './views/cookies/cookies';
+import FAQ from './views/faq/faq';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
 
@@ -72,6 +80,7 @@ const App = () => {
     <HelmetProvider>
       <AuthProvider>
         <div className="App">
+          <ScrollToTop />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/sign-in" element={<SignIn />} />
@@ -80,6 +89,7 @@ const App = () => {
             <Route path="/programs" element={<Programs />} />
             <Route path="/living-in-moldova" element={<LivingInMoldova />} />
             <Route path="/plan-your-studies" element={<PlanYourStudies />} />
+            <Route path="/help-you-choose-AI" element={<HelpYouChoose />} />
             <Route path="/universities/:slug" element={<UniversityIndividualPage />} />
             <Route path="/profile" element={
               <PrivateRoute>
@@ -98,6 +108,12 @@ const App = () => {
             } />
             <Route path="/living-in-moldova/transportation-guide" element={<TransportationGuide />} />
             <Route path="/error404-page" element={<Error404Page />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/cookies" element={<Cookies />} />
+            <Route path="/faq" element={<FAQ />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>

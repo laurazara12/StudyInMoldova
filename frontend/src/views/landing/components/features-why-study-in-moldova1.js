@@ -2,6 +2,8 @@ import React, { useState, Fragment } from 'react'
 
 import PropTypes from 'prop-types'
 
+import { getCloudinaryImageUrl } from '../../../config/cloudinary'
+
 import './features-why-study-in-moldova1.css'
 
 const FeaturesWhyStudyInMoldova1 = (props) => {
@@ -13,21 +15,21 @@ const FeaturesWhyStudyInMoldova1 = (props) => {
           {activeTab === 0 && (
             <img
               alt={props.feature1ImgAlt}
-              src="https://raw.githubusercontent.com/laurazara12/Study-in-Moldova/refs/heads/main/images/WhatsApp%20Image%202024-11-15%20at%2014.32.59%20(8).jpeg"
+              src="https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599121/pexels-anaghan-km-177642992-11351622-1400w_cwfhbp.jpg"
               className="features-why-study-in-moldova1-image1 thq-img-ratio-16-9"
             />
           )}
           {activeTab === 1 && (
             <img
               alt={props.feature2ImgAlt}
-              src="/images/pexels-anaghan-km-177642992-11351622-1400w.jpg"
+              src="https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599121/moldavskaya-ekonomicheskaya-akademiya-asem_thumb-1400w_q98ahh.jpg"
               className="features-why-study-in-moldova1-image2 thq-img-ratio-16-9"
             />
           )}
           {activeTab === 2 && (
             <img
               alt={props.feature3ImgAlt}
-              src="/images/moldavskaya-ekonomicheskaya-akademiya-asem_thumb-1400w.jpg"
+              src="https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599121/dsc_5137-1000w_bmf680.jpg"
               className="features-why-study-in-moldova1-image3 thq-img-ratio-16-9"
             />
           )}
@@ -136,12 +138,12 @@ const FeaturesWhyStudyInMoldova1 = (props) => {
 
 FeaturesWhyStudyInMoldova1.defaultProps = {
   feature1Title: undefined,
-  feature2ImgAlt: 'Affordable Education Image',
-  feature3ImgAlt: 'image',
+  feature2ImgAlt: 'Feature 2 Image',
+  feature3ImgAlt: 'Feature 3 Image',
   feature2Description: undefined,
   feature2Description1: undefined,
   feature2Title: undefined,
-  feature1ImgAlt: 'High Literacy Rates Image',
+  feature1ImgAlt: 'Feature 1 Image',
   feature3Title: undefined,
   feature1Description: undefined,
 }

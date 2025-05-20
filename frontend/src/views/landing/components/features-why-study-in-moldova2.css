@@ -1,9 +1,10 @@
 .features-why-study-in-moldova2-container2 {
   width: 100%;
   display: grid;
-  grid-gap: var(--dl-space-space-fiveunits);
+  grid-gap: var(--dl-space-space-threeunits);
   position: relative;
   grid-template-columns: 1fr 1fr;
+  align-items: center;
 }
  
 .features-why-study-in-moldova2-tabs-menu {
@@ -134,38 +135,22 @@
 }
  
 .features-why-study-in-moldova2-image-container {
-  height: 100%;
+  height: 350px;
   display: flex;
   position: relative;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
 }
  
-.features-why-study-in-moldova2-image1 {
-  animation-name: fadeIn;
-  animation-delay: 0s;
-  background-size: cover;
-  background-image: url("https://play.teleporthq.io/static/svg/default-img.svg");
-  animation-duration: 300ms;
-  animation-direction: normal;
-  animation-iteration-count: 1;
-  animation-timing-function: ease;
-}
- 
-.features-why-study-in-moldova2-image2 {
-  animation-name: fadeIn;
-  animation-delay: 0s;
-  animation-duration: 300ms;
-  animation-direction: normal;
-  animation-iteration-count: 1;
-  animation-timing-function: ease;
-}
- 
+.features-why-study-in-moldova2-image1,
+.features-why-study-in-moldova2-image2,
 .features-why-study-in-moldova2-image3 {
-  animation-name: fadeIn;
-  animation-delay: 0s;
-  animation-duration: 300ms;
-  animation-direction: normal;
-  animation-iteration-count: 1;
-  animation-timing-function: ease;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
  
 .features-why-study-in-moldova2-text1 {
@@ -199,5 +184,15 @@
   }
   .features-why-study-in-moldova2-tabs-menu {
     order: 2;
+  }
+  
+  .features-why-study-in-moldova2-image-container {
+    height: 300px;
+  }
+}
+
+@media(max-width: 767px) {
+  .features-why-study-in-moldova2-image-container {
+    height: 250px;
   }
 }

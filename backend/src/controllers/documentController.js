@@ -3,6 +3,7 @@ const { createNotification } = require('./notificationController');
 const fs = require('fs');
 const path = require('path');
 const { Op } = require('sequelize');
+const cloudinary = require('../config/cloudinary');
 
 const deleteDocument = async (req, res) => {
   try {
@@ -18,6 +19,11 @@ const deleteDocument = async (req, res) => {
       });
     }
 
+    // Ștergere din Cloudinary
+    if (document.filename) {
+      await cloudinary.uploader.destroy(document.filename);
+    }
+
     // Create notification for the user before deleting the document
     await createNotification(
       document.user_id,
@@ -26,12 +32,6 @@ const deleteDocument = async (req, res) => {
       document.id,
       admin_message
     );
-
-    // Delete file from storage
-    const filePath = path.join(__dirname, '..', 'uploads', document.file_path);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
 
     // Delete document from database
     await document.destroy();
@@ -120,15 +120,28 @@ exports.getDocumentById = async (req, res) => {
 
 exports.createDocument = async (req, res) => {
   try {
-    const { document_type, file_path, filename, originalName } = req.body;
+    const { document_type } = req.body;
     const user_id = req.user.id;
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Nu s-a încărcat niciun fișier'
+      });
+    }
+
+    // Încărcare pe Cloudinary
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: `documents/${user_id}`,
+      resource_type: "auto"
+    });
 
     const document = await Document.create({
       user_id,
       document_type,
-      file_path,
-      filename,
-      originalName,
+      file_path: result.secure_url,
+      filename: result.public_id,
+      originalName: req.file.originalname,
       status: 'pending',
       uploaded: true,
       uploadDate: new Date()

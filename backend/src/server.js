@@ -2,8 +2,8 @@ require('dotenv').config();
 
 // Verificăm configurația
 if (!process.env.JWT_SECRET) {
-  console.error('EROARE: JWT_SECRET nu este configurat în fișierul .env');
-  process.exit(1);
+  console.warn('AVERTISMENT: JWT_SECRET nu este configurat în fișierul .env. Se va folosi o cheie temporară.');
+  process.env.JWT_SECRET = 'temporary_secret_key_for_development';
 }
 
 const express = require('express');
@@ -19,20 +19,31 @@ const documentsRouter = require('./routes/documents');
 const notificationRoutes = require('./routes/notificationRoutes');
 const savedProgramRoutes = require('./routes/savedProgramRoutes');
 const applicationsRouter = require('./routes/applications');
+const helpYouChooseRoutes = require('./routes/helpYouChooseRoutes');
+const { setupRoutes } = require('./routes');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Configurare CORS mai permisivă pentru dezvoltare
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:5173'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
 
 // Middleware pentru logging
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
   next();
 });
+
+// Middleware pentru parsare JSON
+app.use(express.json());
+
+// Middleware pentru parsare URL-encoded
+app.use(express.urlencoded({ extended: true }));
 
 // Creăm directorul pentru încărcări dacă nu există
 const uploadsDir = path.join(__dirname, '../uploads');
@@ -43,45 +54,34 @@ if (!fs.existsSync(uploadsDir)) {
 // Configurare directorul pentru fișiere statice
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// Rute API
-app.use('/api/programs', programsRouter);
-app.use('/api/saved-programs', savedProgramRoutes);
-app.use('/api/auth', authRouter);
-app.use('/api/documents', documentsRouter);
-app.use('/api/universities', universitiesRouter);
-app.use('/api/notifications', notificationRoutes);
-app.use('/api/applications', applicationsRouter);
-
 // Ruta pentru verificarea stării serverului
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
-});
-
-// Middleware pentru gestionarea erorilor API
-app.use('/api', (err, req, res, next) => {
-  console.error('API Error:', err);
-  res.status(500).json({ 
-    success: false,
-    message: 'An error occurred on the server', 
-    error: process.env.NODE_ENV === 'development' ? err.message : undefined 
+  res.json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
-// Servim fișierele statice din frontend/build
-app.use(express.static(path.join(__dirname, '../../frontend/build')));
+// Configurare rute API
+setupRoutes(app);
 
-// Ruta pentru orice altă cerere
+// Ruta pentru servirea fișierelor statice
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Ruta pentru servirea aplicației React
 app.get('*', (req, res) => {
-  const indexPath = path.join(__dirname, '../../frontend/build', 'index.html');
-  if (fs.existsSync(indexPath)) {
-    res.sendFile(indexPath);
-  } else {
-    console.error('Frontend build not found at:', indexPath);
-    res.status(404).json({ 
-      message: 'Frontend build not found. Please run npm run build in the frontend directory.',
-      path: indexPath
-    });
-  }
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Middleware pentru gestionarea erorilor
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(500).json({
+    success: false,
+    message: 'A apărut o eroare pe server',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
 });
 
 // Funcție pentru crearea unui utilizator admin
@@ -174,78 +174,62 @@ async function initializeDatabase() {
     await createTestUser();
   } catch (error) {
     console.error('Error during database initialization:', error);
+    throw error;
   }
 }
 
-// Inițializăm baza de date
-initializeDatabase();
-
-// Middleware pentru gestionarea erorilor
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ 
-    message: 'An error occurred on the server', 
-    error: process.env.NODE_ENV === 'development' ? err.message : undefined 
-  });
-});
-
-// Log registered routes
-console.log('Rute înregistrate:');
-app._router.stack.forEach((middleware) => {
-  if (middleware.route) {
-    console.log(`${Object.keys(middleware.route.methods).join(', ').toUpperCase()} ${middleware.route.path}`);
-  } else if (middleware.name === 'router') {
-    middleware.handle.stack.forEach((handler) => {
-      if (handler.route) {
-        console.log(`${Object.keys(handler.route.methods).join(', ').toUpperCase()} ${handler.route.path}`);
-      }
+// Inițializare bază de date și pornire server
+const startServer = async () => {
+  try {
+    await initializeDatabase();
+    const server = app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`CORS enabled for: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
     });
-  }
-});
 
-// Pornim serverul
-const server = app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+    // Gestionare închidere sigură
+    const gracefulShutdown = async (signal) => {
+      console.log(`Received signal: ${signal}. Shutting down server...`);
+      
+      server.close(() => {
+        console.log('HTTP server closed.');
+        
+        // Închidem conexiunea la baza de date
+        sequelize.close().then(() => {
+          console.log('Database connection closed.');
+          process.exit(0);
+        }).catch(err => {
+          console.error('Error closing database connection:', err);
+          process.exit(1);
+        });
+      });
+      
+      // Setăm un timeout pentru a forța închiderea dacă durează prea mult
+      setTimeout(() => {
+        console.error('Server did not close in time. Forcing shutdown.');
+        process.exit(1);
+      }, 10000);
+    };
 
-// Gestionare închidere sigură
-const gracefulShutdown = async (signal) => {
-  console.log(`Received signal: ${signal}. Shutting down server...`);
-  
-  // Închidem serverul HTTP
-  server.close(() => {
-    console.log('HTTP server closed.');
-    
-    // Închidem conexiunea la baza de date
-    sequelize.close().then(() => {
-      console.log('Database connection closed.');
-      process.exit(0);
-    }).catch(err => {
-      console.error('Error closing database connection:', err);
-      process.exit(1);
-    });
-  });
-  
-  // Setăm un timeout pentru a forța închiderea dacă durează prea mult
-  setTimeout(() => {
-    console.error('Server did not close in time. Forcing shutdown.');
+    // Ascultăm semnalele de închidere
+    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+  } catch (error) {
+    console.error('Failed to start server:', error);
     process.exit(1);
-  }, 10000);
+  }
 };
-
-// Ascultăm semnalele de închidere
-process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 // Gestionare erori neașteptate
 process.on('uncaughtException', (err) => {
   console.error('Unexpected error:', err);
-  gracefulShutdown('uncaughtException');
+  process.exit(1);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled promise rejection:', reason);
-  // Nu închidem serverul aici, doar logăm eroarea
 });
 
 // Gestionare erori de memorie
@@ -257,5 +241,7 @@ process.on('exit', (code) => {
 if (process.memoryUsage().heapUsed > 1024 * 1024 * 1024) { // 1GB
   console.warn('High memory usage detected. It is recommended to restart the server.');
 }
+
+startServer();
 
 module.exports = app; 

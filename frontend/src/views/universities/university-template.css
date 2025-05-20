@@ -152,22 +152,6 @@
   margin: 2rem 0;
 }
 
-/* Stiluri pentru butoane */
-button {
-  background-color: var(--dl-color-theme-primary1);
-  color: var(--dl-color-theme-secondary1);
-  border: none;
-  padding: 0.8rem 1.5rem;
-  border-radius: var(--dl-radius-radius-buttonradius);
-  cursor: pointer;
-  font-size: var(--dl-font-size-small);
-  transition: background-color 0.3s ease;
-}
-
-button:hover {
-  background-color: var(--dl-color-theme-primary2);
-}
-
 /* Stiluri responsive */
 @media (max-width: 768px) {
   .university-header h1 {

@@ -2,10 +2,11 @@ import React, { useState, Fragment } from 'react'
 
 import PropTypes from 'prop-types'
 
+import { getCloudinaryImageUrl } from '../../../config/cloudinary'
 import './features-why-study-in-moldova2.css'
 
 const FeaturesWhyStudyInMoldova2 = (props) => {
-  const [activeTab, setActiveTab] = useState(1)
+  const [activeTab, setActiveTab] = useState(0)
   return (
     <div className="thq-section-padding">
       <div className="features-why-study-in-moldova2-container2 thq-section-max-width">
@@ -105,7 +106,7 @@ const FeaturesWhyStudyInMoldova2 = (props) => {
           {activeTab === 0 && (
             <img
               alt={props.feature1ImgAlt}
-              src="https://raw.githubusercontent.com/laurazara12/Study-in-Moldova/refs/heads/main/images/WhatsApp%20Image%202024-11-15%20at%2014.32.59%20(4).jpeg"
+              src="https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599121/dorin-seremet-_atwwma7pyw-unsplash-1400w_w6dekv.jpg"
               loading="eager"
               className="features-why-study-in-moldova2-image1 thq-img-ratio-16-9"
             />
@@ -113,7 +114,7 @@ const FeaturesWhyStudyInMoldova2 = (props) => {
           {activeTab === 1 && (
             <img
               alt={props.feature2ImgAlt}
-              src="https://raw.githubusercontent.com/laurazara12/Study-in-Moldova/refs/heads/main/images/IMG_4923.jpg"
+              src="https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599120/young-people-dancing-folk-low-angle_p9pe0a.jpg"
               loading="eager"
               className="features-why-study-in-moldova2-image2 thq-img-ratio-16-9"
             />
@@ -122,7 +123,7 @@ const FeaturesWhyStudyInMoldova2 = (props) => {
             <img
               alt={props.feature3ImgAlt}
               loading="eager"
-              src="https://raw.githubusercontent.com/laurazara12/Study-in-Moldova/refs/heads/main/images/asem.jpg"
+              src="https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599120/WhatsApp_Image_2024-11-15_at_14.33.02_3_rthlii.jpg"
               className="features-why-study-in-moldova2-image3 thq-img-ratio-16-9"
             />
           )}
@@ -133,29 +134,26 @@ const FeaturesWhyStudyInMoldova2 = (props) => {
 }
 
 FeaturesWhyStudyInMoldova2.defaultProps = {
-  activeTab: 0,
-  feature2ImgAlt: 'Image showing affordable education in Moldova',
-  feature3Title: undefined,
-  feature3ImgAlt:
-    'Image showcasing diverse programs and universities in Moldova',
+  feature1ImgAlt: 'Feature 4 Image',
+  feature2ImgAlt: 'Feature 5 Image',
+  feature3ImgAlt: 'Feature 6 Image',
   feature1Description: undefined,
-  feature1ImgAlt: 'Image depicting high literacy rates in Moldova',
+  feature1Title: undefined,
   feature2Title: undefined,
   feature2Description: undefined,
-  feature1Title: undefined,
+  feature3Title: undefined,
   feature3Description: undefined,
 }
 
 FeaturesWhyStudyInMoldova2.propTypes = {
-  activeTab: PropTypes.number,
+  feature1ImgAlt: PropTypes.string,
   feature2ImgAlt: PropTypes.string,
-  feature3Title: PropTypes.element,
   feature3ImgAlt: PropTypes.string,
   feature1Description: PropTypes.element,
-  feature1ImgAlt: PropTypes.string,
+  feature1Title: PropTypes.element,
   feature2Title: PropTypes.element,
   feature2Description: PropTypes.element,
-  feature1Title: PropTypes.element,
+  feature3Title: PropTypes.element,
   feature3Description: PropTypes.element,
 }
 

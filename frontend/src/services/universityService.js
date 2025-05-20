@@ -112,7 +112,7 @@ export const getUniversityBySlug = async (slug) => {
       throw new Error('Slug-ul universității este obligatoriu');
     }
     console.log('Încărcare universitate după slug:', slug);
-    const response = await axiosInstance.get(`/universities/slug/${slug}`);
+    const response = await axiosInstance.get(`/api/universities/slug/${slug}`);
     return response.data;
   } catch (error) {
     console.error('Eroare la încărcarea universității:', error);
@@ -123,8 +123,8 @@ export const getUniversityBySlug = async (slug) => {
 // Funcție pentru încărcarea programelor de studiu pentru o universitate
 export const getUniversityPrograms = async (universityId) => {
   try {
-    const response = await axiosInstance.get(`/universities/${universityId}/programs`);
-    return response.data;
+    const response = await axiosInstance.get(`/api/universities/${universityId}/programs`);
+    return Array.isArray(response.data.data) ? response.data.data : [];
   } catch (error) {
     console.error('Eroare la încărcarea programelor de studiu:', error);
     throw new Error('Nu s-au putut încărca programele de studiu');
@@ -134,18 +134,18 @@ export const getUniversityPrograms = async (universityId) => {
 // Funcție pentru încărcarea detaliilor unui program de studiu
 export const getProgramDetails = async (programId) => {
   try {
-    const response = await axiosInstance.get(`/programs/${programId}`);
-    return response.data;
+    const response = await axiosInstance.get(`/api/programs/${programId}`);
+    return response.data.data;
   } catch (error) {
     console.error('Eroare la încărcarea detaliilor programului:', error);
-    throw new Error('Nu s-au putut încărca detaliile programului');
+    throw new Error(error.response?.data?.message || 'Nu s-au putut încărca detaliile programului');
   }
 };
 
 // Funcție pentru încărcarea specializărilor unui program
 export const getProgramSpecializations = async (programId) => {
   try {
-    const response = await axiosInstance.get(`/programs/${programId}/specializations`);
+    const response = await axiosInstance.get(`/api/programs/${programId}/specializations`);
     return response.data;
   } catch (error) {
     console.error('Eroare la încărcarea specializărilor:', error);
@@ -156,7 +156,7 @@ export const getProgramSpecializations = async (programId) => {
 // Funcție pentru încărcarea taxelor de școlarizare pentru un program
 export const getProgramTuitionFees = async (programId) => {
   try {
-    const response = await axiosInstance.get(`/programs/${programId}/tuition-fees`);
+    const response = await axiosInstance.get(`/api/programs/${programId}/tuition-fees`);
     return response.data;
   } catch (error) {
     console.error('Eroare la încărcarea taxelor de școlarizare:', error);
@@ -164,20 +164,21 @@ export const getProgramTuitionFees = async (programId) => {
   }
 };
 
-const universityService = {
-  getAllUniversities: async () => {
-    try {
-      const response = await axiosInstance.get('/universities');
-      return response.data;
-    } catch (error) {
-      console.error('Eroare la obținerea listei de universități:', error);
-      throw new Error('Nu am putut încărca lista de universități');
-    }
-  },
+// Funcție pentru încărcarea tuturor universităților
+export const getAllUniversities = async () => {
+  try {
+    const response = await axiosInstance.get('/api/universities');
+    return response.data;
+  } catch (error) {
+    console.error('Eroare la obținerea listei de universități:', error);
+    throw new Error('Nu am putut încărca lista de universități');
+  }
+};
 
+const universityService = {
   getUniversityById: async (id) => {
     try {
-      const response = await axiosInstance.get(`/universities/${id}`);
+      const response = await axiosInstance.get(`/api/universities/${id}`);
       return response.data;
     } catch (error) {
       console.error('Eroare la obținerea universității:', error);
@@ -187,7 +188,7 @@ const universityService = {
 
   createUniversity: async (universityData) => {
     try {
-      const response = await axiosInstance.post('/universities', universityData);
+      const response = await axiosInstance.post('/api/universities', universityData);
       return response.data;
     } catch (error) {
       console.error('Eroare la crearea universității:', error);
@@ -197,7 +198,7 @@ const universityService = {
 
   updateUniversity: async (id, universityData) => {
     try {
-      const response = await axiosInstance.put(`/universities/${id}`, universityData);
+      const response = await axiosInstance.put(`/api/universities/${id}`, universityData);
       return response.data;
     } catch (error) {
       console.error('Eroare la actualizarea universității:', error);
@@ -207,7 +208,7 @@ const universityService = {
 
   deleteUniversity: async (id) => {
     try {
-      const response = await axiosInstance.delete(`/universities/${id}`);
+      const response = await axiosInstance.delete(`/api/universities/${id}`);
       return response.data;
     } catch (error) {
       console.error('Eroare la ștergerea universității:', error);

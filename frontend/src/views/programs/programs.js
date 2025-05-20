@@ -4,7 +4,7 @@ import Navbar from '../../components/navbar';
 import Footer from '../../components/footer';
 import axios from 'axios';
 import { API_BASE_URL } from '../../config/api.config';
-import './styles.css';
+import './programs.css';
 
 const Programs = () => {
   const [programs, setPrograms] = useState([]);
@@ -59,7 +59,7 @@ const Programs = () => {
   const fetchPrograms = async () => {
     try {
       console.log('Începe încărcarea programelor...');
-      const response = await axios.get(`${API_BASE_URL}/programs`);
+      const response = await axios.get(`${API_BASE_URL}/api/programs`);
       console.log('Răspuns de la server:', response.data);
       
       if (Array.isArray(response.data)) {

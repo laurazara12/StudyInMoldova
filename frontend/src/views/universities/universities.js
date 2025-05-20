@@ -5,6 +5,7 @@ import Navbar from '../../components/navbar';
 import Footer from '../../components/footer';
 import FilterSection from '../../components/filter-section';
 import UniversityPresentation from '../../components/university-presentation';
+import { getAllUniversities } from '../../services/universityService';
 import './universities.css';
 
 const Universities = () => {
@@ -19,18 +20,14 @@ const Universities = () => {
   const [filterLocation, setFilterLocation] = useState('');
   const [sortBy, setSortBy] = useState('name');
   
-  // Opțiuni pen tru filtre
+  // Opțiuni pentru filtre
   const typeOptions = ['Public', 'Private'];
   const locationOptions = ['Chișinău', 'Bălți', 'Comrat', 'Tiraspol'];
 
   useEffect(() => {
     const fetchUniversities = async () => {
       try {
-        const response = await fetch('http://localhost:4000/api/universities');
-        if (!response.ok) {
-          throw new Error('Failed to fetch universities');
-        }
-        const data = await response.json();
+        const data = await getAllUniversities();
         setUniversities(data);
         setFilteredUniversities(data);
       } catch (err) {

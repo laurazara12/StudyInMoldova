@@ -143,7 +143,6 @@ const UniversityPresentation = ({ university }) => {
 
   const getUniversityPath = (university) => {
     if (!university) return '/universities';
-    
     // Folosim slug-ul dacă există, altfel generăm unul folosind funcția generateSlug
     const slug = university.slug || generateSlug(university.name);
     return `/universities/${slug}`;

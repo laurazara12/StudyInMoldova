@@ -41,9 +41,9 @@ const Navbar = (props) => {
             <Link to="/programs" className={`navbar-text14 ${location.pathname === '/programs' ? 'active' : ''}`}>
               <span className="navbar-text29">Programmes</span>
             </Link>
-            <span className="navbar-text15">
-              <span className="navbar-text30">Help You Choose</span>
-            </span>
+            <Link to="/help-you-choose-AI" className={`navbar-text15 ${location.pathname === '/help-you-choose-AI' ? 'active' : ''}`}>
+              <span className="navbar-text30">Help You Choose AI</span>
+            </Link>
           </nav>
           <div className="navbar-buttons1">
             {isAuthenticated && user ? (
@@ -112,9 +112,9 @@ const Navbar = (props) => {
             <Link to="/programs" className="navbar-text19" onClick={toggleMenu}>
               <span className="navbar-text28">Programmes</span>
             </Link>
-            <span className="navbar-text20">
-              <span className="navbar-text27">Help You Choose</span>
-            </span>
+            <Link to="/help-you-choose-AI" className="navbar-text20" onClick={toggleMenu}>
+              <span className="navbar-text27">Help You Choose AI</span>
+            </Link>
           </nav>
           <div className="navbar-buttons2">
             {isAuthenticated && user ? (

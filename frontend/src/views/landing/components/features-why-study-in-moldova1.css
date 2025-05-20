@@ -1,46 +1,33 @@
 .features-why-study-in-moldova1-container2 {
   width: 100%;
   display: grid;
-  grid-gap: var(--dl-space-space-fiveunits);
+  grid-gap: var(--dl-space-space-threeunits);
   position: relative;
   grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: var(--dl-space-space-threeunits) 0;
 }
  
 .features-why-study-in-moldova1-image-container {
-  height: 100%;
+  height: 400px;
   display: flex;
   position: relative;
+  align-items: center;
+  justify-content: center;
 }
  
-.features-why-study-in-moldova1-image1 {
-  animation-name: fadeIn;
-  animation-delay: 0s;
-  animation-duration: 300ms;
-  animation-direction: normal;
-  animation-iteration-count: 1;
-  animation-timing-function: ease;
-}
- 
-.features-why-study-in-moldova1-image2 {
-  animation-name: fadeIn;
-  animation-delay: 0s;
-  animation-duration: 300ms;
-  animation-direction: normal;
-  animation-iteration-count: 1;
-  animation-timing-function: ease;
-}
- 
+.features-why-study-in-moldova1-image1,
+.features-why-study-in-moldova1-image2,
 .features-why-study-in-moldova1-image3 {
-  animation-name: fadeIn;
-  animation-delay: 0s;
-  animation-duration: 300ms;
-  animation-direction: normal;
-  animation-iteration-count: 1;
-  animation-timing-function: ease;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
  
 .features-why-study-in-moldova1-tabs-menu {
-  gap: var(--dl-space-space-twounits);
+  gap: var(--dl-space-space-unit);
   width: 100%;
   display: flex;
   align-items: flex-start;
@@ -51,7 +38,7 @@
 .features-why-study-in-moldova1-tab-horizontal1,
 .features-why-study-in-moldova1-tab-horizontal2,
 .features-why-study-in-moldova1-tab-horizontal3 {
-  gap: var(--dl-space-space-twounits);
+  gap: var(--dl-space-space-unit);
   cursor: pointer;
   display: flex;
   overflow: hidden;
@@ -59,7 +46,8 @@
   align-items: flex-start;
   flex-shrink: 0;
   padding: var(--dl-space-space-unit);
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  border-radius: 4px;
 }
 
 .features-why-study-in-moldova1-tab-horizontal1:hover,
@@ -86,8 +74,10 @@
   background-color: var(--dl-color-theme-neutral-dark);
 }
  
-.features-why-study-in-moldova1-content1 {
-  gap: 16px;
+.features-why-study-in-moldova1-content1,
+.features-why-study-in-moldova1-content2,
+.features-why-study-in-moldova1-content3 {
+  gap: 12px;
   flex: 1;
   display: flex;
   overflow: hidden;
@@ -120,20 +110,11 @@
   background-color: var(--dl-color-theme-neutral-dark);
 }
  
-.features-why-study-in-moldova1-content2 {
-  gap: 16px;
-  flex: 1;
-  display: flex;
-  overflow: hidden;
-  flex-grow: 1;
-  align-items: flex-start;
-  flex-shrink: 0;
-  flex-direction: column;
-  justify-content: center;
-}
- 
-.features-why-study-in-moldova1-feature2-description1 {
+.features-why-study-in-moldova1-feature2-description1,
+.features-why-study-in-moldova1-feature2-description2 {
   font-size: 14px;
+  line-height: 1.5;
+  color: var(--dl-color-theme-neutral-dark);
 }
  
 .features-why-study-in-moldova1-tab-horizontal3 {
@@ -158,24 +139,8 @@
   background-color: var(--dl-color-theme-neutral-dark);
 }
  
-.features-why-study-in-moldova1-content3 {
-  gap: 16px;
-  flex: 1;
-  display: flex;
-  overflow: hidden;
-  flex-grow: 1;
-  align-items: flex-start;
-  flex-shrink: 0;
-  flex-direction: column;
-  justify-content: center;
-}
- 
 .features-why-study-in-moldova1-feature3-title {
   font-size: 36px;
-}
- 
-.features-why-study-in-moldova1-feature2-description2 {
-  font-size: 12px;
 }
  
 .features-why-study-in-moldova1-text1 {
@@ -211,5 +176,15 @@
   .features-why-study-in-moldova1-container2 {
     grid-gap: var(--dl-space-space-twounits);
     grid-template-columns: 1fr;
+  }
+  
+  .features-why-study-in-moldova1-image-container {
+    height: 300px;
+  }
+}
+
+@media(max-width: 767px) {
+  .features-why-study-in-moldova1-image-container {
+    height: 250px;
   }
 }

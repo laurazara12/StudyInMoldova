@@ -24,6 +24,16 @@ module.exports = (sequelize) => {
     },
     file_path: {
       type: DataTypes.STRING,
+      allowNull: false,
+      comment: 'URL-ul fișierului în Cloudinary'
+    },
+    filename: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      comment: 'Public ID în Cloudinary'
+    },
+    originalName: {
+      type: DataTypes.STRING,
       allowNull: false
     },
     status: {
@@ -33,14 +43,6 @@ module.exports = (sequelize) => {
       validate: {
         isIn: [['pending', 'approved', 'rejected', 'deleted']]
       }
-    },
-    filename: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    originalName: {
-      type: DataTypes.STRING,
-      allowNull: false
     },
     uploaded: {
       type: DataTypes.BOOLEAN,
