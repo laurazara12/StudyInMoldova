@@ -6,13 +6,23 @@ import { useAuth } from '../context/AuthContext'
 
 const Navbar = (props) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, user, logout } = useAuth();
 
   const handleLogout = () => {
+    setShowLogoutConfirm(true);
+  };
+
+  const confirmLogout = () => {
     logout();
     navigate('/sign-in');
+    setShowLogoutConfirm(false);
+  };
+
+  const cancelLogout = () => {
+    setShowLogoutConfirm(false);
   };
 
   const toggleMenu = () => {
@@ -69,7 +79,7 @@ const Navbar = (props) => {
                     </button>
                   </Link>
                 )}
-                <button className="button" onClick={handleLogout}>
+                <button className="navbar-login1 button" onClick={handleLogout}>
                   <span className="navbar-text33">Logout</span>
                 </button>
               </>
@@ -161,6 +171,26 @@ const Navbar = (props) => {
                 </button>
               </>
             )}
+          </div>
+        </div>
+      )}
+      {showLogoutConfirm && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h2>Confirmare Deconectare</h2>
+            </div>
+            <div className="modal-body">
+              <p>Sigur doriți să vă deconectați?</p>
+            </div>
+            <div className="modal-buttons">
+              <button className="cancel-button" onClick={cancelLogout}>
+                Anulează
+              </button>
+              <button className="confirm-button" onClick={confirmLogout}>
+                Da, deconectează-mă
+              </button>
+            </div>
           </div>
         </div>
       )}
