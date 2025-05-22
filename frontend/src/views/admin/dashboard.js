@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../../components/navbar';
 import Footer from '../../components/footer';
+
 import './dashboard.css';
 import { API_BASE_URL, getAuthHeaders, handleApiError } from '../../config/api.config';
 import DeleteDocumentModal from '../../components/DeleteDocumentModal';
 
 const Dashboard = () => {
   const [users, setUsers] = useState([]);
+  const [editingUniversity, setEditingUniversity] = useState(null);
   const [documents, setDocuments] = useState([]);
   const [universities, setUniversities] = useState([]);
   const [programs, setPrograms] = useState([]);
@@ -47,10 +49,7 @@ const Dashboard = () => {
   const [filterTuitionFee, setFilterTuitionFee] = useState({ min: '', max: '' });
   const [filterRanking, setFilterRanking] = useState({ min: '', max: '' });
   const [showAddUniversityForm, setShowAddUniversityForm] = useState(false);
-  const [showEditUniversityForm, setShowEditUniversityForm] = useState(false);
-  const [editingUniversity, setEditingUniversity] = useState(null);
   const [showAddProgramForm, setShowAddProgramForm] = useState(false);
-  const [showEditProgramForm, setShowEditProgramForm] = useState(false);
   const [editingProgram, setEditingProgram] = useState(null);
   const [newUniversity, setNewUniversity] = useState({
     name: '',
@@ -104,6 +103,7 @@ const Dashboard = () => {
     rejectedApplications: 0
   });
   const [filterUniversityDateRange, setFilterUniversityDateRange] = useState({ start: '', end: '' });
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user'));
@@ -678,7 +678,7 @@ const Dashboard = () => {
 
   const handleEditUniversity = (university) => {
     setEditingUniversity(university);
-    setShowEditUniversityForm(true);
+    setIsModalOpen(true);
   };
 
   const handleEditUniversityChange = (e) => {
@@ -687,23 +687,23 @@ const Dashboard = () => {
     setEditingUniversity(prev => {
       const newState = { ...prev };
       
-      if (name.startsWith('tuitionFees.')) {
+      if (name.startsWith('tuition_fees.')) {
         const field = name.split('.')[1];
-        newState.tuitionFees = {
-          ...newState.tuitionFees,
-          [field]: value
+        newState.tuition_fees = {
+          ...newState.tuition_fees,
+          [field]: value === '' ? null : value
         };
-      } else if (name.startsWith('contactInfo.')) {
+        console.log('Updated tuition fees:', newState.tuition_fees);
+      } else if (name.startsWith('contact_info.')) {
         const field = name.split('.')[1];
-        newState.contactInfo = {
-          ...newState.contactInfo,
-          [field]: value
+        newState.contact_info = {
+          ...newState.contact_info,
+          [field]: value === '' ? null : value
         };
       } else {
         newState[name] = value;
       }
       
-      console.log('Updated state:', JSON.stringify(newState, null, 2));
       return newState;
     });
   };
@@ -711,70 +711,43 @@ const Dashboard = () => {
   const handleUpdateUniversity = async (e) => {
     e.preventDefault();
     try {
-      if (!editingUniversity || !editingUniversity.id) {
-        throw new Error('Universitatea selectată nu este validă');
+      // Validare date
+      if (!editingUniversity.name || !editingUniversity.type || !editingUniversity.location) {
+        throw new Error('Toate câmpurile obligatorii trebuie completate');
       }
 
-      // Verificăm câmpurile obligatorii
-      const requiredFields = ['name', 'type', 'location', 'website'];
-      const missingFields = requiredFields.filter(field => !editingUniversity[field]);
-      
-      if (missingFields.length > 0) {
-        throw new Error(`Required fields are missing: ${missingFields.join(', ')}`);
-      }
+      console.log('Datele care vor fi trimise:', editingUniversity);
 
-      // Pregătim datele pentru trimitere
-      const universityData = {
-        name: String(editingUniversity.name).trim(),
-        type: editingUniversity.type,
-        description: editingUniversity.description ? String(editingUniversity.description).trim() : '',
-        location: String(editingUniversity.location).trim(),
-        image_url: editingUniversity.imageUrl ? String(editingUniversity.imageUrl).trim() : null,
-        website: String(editingUniversity.website).trim(),
-        ranking: editingUniversity.ranking ? String(editingUniversity.ranking).trim() : null,
-        tuition_fees: {
-          bachelor: editingUniversity.tuitionFees?.bachelor || null,
-          master: editingUniversity.tuitionFees?.master || null,
-          phd: editingUniversity.tuitionFees?.phd || null
+      const response = await fetch(`${API_BASE_URL}/api/universities/${editingUniversity.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
-        contact_info: {
-          email: editingUniversity.contactInfo?.email || null,
-          phone: editingUniversity.contactInfo?.phone || null,
-          address: editingUniversity.contactInfo?.address || null
-        }
-      };
+        body: JSON.stringify(editingUniversity)
+      });
 
-      console.log('Data prepared for submission:', JSON.stringify(universityData, null, 2));
-
-      const response = await axios.put(
-        `${API_BASE_URL}/api/universities/${editingUniversity.id}`,
-        universityData,
-        { 
-          headers: {
-            ...getAuthHeaders(),
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      console.log('Server response:', JSON.stringify(response.data, null, 2));
-
-      if (response.data) {
-        setUniversities(prevUniversities => 
-          prevUniversities.map(university => 
-            university.id === editingUniversity.id ? response.data : university
-          )
-        );
-        
-        setShowEditUniversityForm(false);
-        setEditingUniversity(null);
-        setSuccessMessage('University updated successfully!');
-        setTimeout(() => setSuccessMessage(''), 2000);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Eroare la actualizarea universității');
       }
+
+      const updatedUniversity = await response.json();
+      console.log('Răspuns de la server:', updatedUniversity);
+
+      setUniversities(universities.map(u => 
+        u.id === updatedUniversity.id ? updatedUniversity : u
+      ));
+      
+      // Închide modalul și resetează starea
+      setIsModalOpen(false);
+      setEditingUniversity(null);
+      
+      // Afișează un mesaj de succes
+      alert('Universitatea a fost actualizată cu succes!');
     } catch (error) {
-      console.error('Error updating university:', error);
-      console.error('Error details:', error.response?.data);
-      setError('Error updating university: ' + (error.response?.data?.message || error.message));
+      console.error('Eroare detaliată la actualizarea universității:', error);
+      alert(`Eroare: ${error.message || 'A apărut o eroare la actualizarea universității. Vă rugăm să încercați din nou.'}`);
     }
   };
 
@@ -850,7 +823,7 @@ const Dashboard = () => {
       }
 
       setEditingProgram(programToEdit);
-      setShowEditProgramForm(true);
+      setShowAddProgramForm(true);
     } catch (error) {
       console.error('Error loading data for editing:', error);
       setError('Error loading data for editing: ' + (error.response?.data?.message || error.message));
@@ -1197,7 +1170,7 @@ const Dashboard = () => {
           setPrograms(programsResponse.data);
         }
 
-        setShowEditProgramForm(false);
+        setShowAddProgramForm(false);
         setEditingProgram(null);
         setSuccessMessage('Program updated successfully!');
         setTimeout(() => setSuccessMessage(''), 2000);
@@ -1232,6 +1205,16 @@ const Dashboard = () => {
       
       setError(errorMessage);
     }
+  };
+
+  const handleEdit = (university) => {
+    setEditingUniversity(university);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingUniversity(null);
   };
 
   if (error) {
@@ -1851,200 +1834,170 @@ const Dashboard = () => {
                     </div>
                   )}
 
-                  {showEditUniversityForm && editingUniversity && (
-                    <div className="modal show d-block" tabIndex="-1">
-                      <div className="modal-dialog modal-lg">
-                        <div className="modal-content">
-                          <div className="modal-header">
-                            <h5 className="modal-title">Editează Universitatea</h5>
-                            <button 
-                              type="button" 
-                              className="btn-close" 
-                              onClick={() => {
-                                setShowEditUniversityForm(false);
-                                setEditingUniversity(null);
-                              }}
-                              style={{
-                                position: 'absolute',
-                                right: '10px',
-                                top: '10px',
-                                background: 'none',
-                                border: 'none',
-                                fontSize: '1.5rem',
-                                cursor: 'pointer',
-                                padding: '5px',
-                                color: '#666'
-                              }}
-                            >
-                              ×
-                            </button>
-                          </div>
-                          <div className="modal-body">
-                            <form onSubmit={handleUpdateUniversity}>
-                              <div className="form-group mb-3">
-                                <label>Nume</label>
+                  {isModalOpen && (
+                    <div className="modal-overlay">
+                      <div className="modal-content">
+                        <div className="modal-header" style={{ position: 'relative' }}>
+                          <h2>Editare Universitate</h2>
+                          <button 
+                            className="close-button" 
+                            onClick={handleCloseModal}
+                            style={{
+                              position: 'absolute',
+                              right: '10px',
+                              top: '10px',
+                              background: 'none',
+                              border: 'none',
+                              fontSize: '24px',
+                              cursor: 'pointer',
+                              padding: '5px 10px',
+                              color: '#666',
+                              zIndex: 1000
+                            }}
+                          >×</button>
+                        </div>
+                        <div className="modal-body">
+                          {editingUniversity && (
+                            <form onSubmit={handleUpdateUniversity} className="university-form">
+                              <div className="form-group">
+                                <label>Nume:</label>
                                 <input
                                   type="text"
-                                  className="form-control"
                                   name="name"
-                                  value={editingUniversity.name || ''}
+                                  value={editingUniversity.name}
                                   onChange={handleEditUniversityChange}
                                   required
                                 />
                               </div>
-                              <div className="form-group mb-3">
-                                <label>Tip</label>
-                                <select
-                                  className="form-control"
+                              <div className="form-group">
+                                <label>Tip:</label>
+                                <input
+                                  type="text"
                                   name="type"
-                                  value={editingUniversity.type || ''}
+                                  value={editingUniversity.type}
                                   onChange={handleEditUniversityChange}
                                   required
-                                >
-                                  <option value="">Select Type</option>
-                                  <option value="Public">Public</option>
-                                  <option value="Privat">Private</option>
-                                </select>
+                                />
                               </div>
-                              <div className="form-group mb-3">
-                                <label>Descriere</label>
+                              <div className="form-group">
+                                <label>Descriere:</label>
                                 <textarea
-                                  className="form-control"
                                   name="description"
-                                  value={editingUniversity.description || ''}
+                                  value={editingUniversity.description}
                                   onChange={handleEditUniversityChange}
-                                  rows="3"
+                                  required
                                 />
                               </div>
-                              <div className="form-group mb-3">
-                                <label>Location</label>
+                              <div className="form-group">
+                                <label>Locație:</label>
                                 <input
                                   type="text"
-                                  className="form-control"
                                   name="location"
-                                  value={editingUniversity.location || ''}
+                                  value={editingUniversity.location}
                                   onChange={handleEditUniversityChange}
                                   required
                                 />
                               </div>
-                              <div className="form-group mb-3">
-                                <label>Image URL</label>
+                              <div className="form-group">
+                                <label>URL Imagine:</label>
                                 <input
                                   type="text"
-                                  className="form-control"
-                                  name="imageUrl"
-                                  value={editingUniversity.imageUrl || ''}
+                                  name="image_url"
+                                  value={editingUniversity.image_url}
                                   onChange={handleEditUniversityChange}
-                                  placeholder="https://example.com/image.jpg"
                                 />
                               </div>
-                              <div className="form-group mb-3">
-                                <label>Website</label>
+                              <div className="form-group">
+                                <label>Website:</label>
                                 <input
                                   type="text"
-                                  className="form-control"
                                   name="website"
-                                  value={editingUniversity.website || ''}
+                                  value={editingUniversity.website}
                                   onChange={handleEditUniversityChange}
-                                  required
                                 />
                               </div>
-                              <div className="form-group mb-3">
-                                <label>Ranking</label>
+                              <div className="form-group">
+                                <label>Clasament:</label>
                                 <input
                                   type="text"
-                                  className="form-control"
                                   name="ranking"
-                                  value={editingUniversity.ranking || ''}
+                                  value={editingUniversity.ranking}
                                   onChange={handleEditUniversityChange}
                                 />
                               </div>
-                              <div className="form-group mb-3">
-                                <label>Tuition Fees</label>
-                                <div className="row">
-                                  <div className="col-md-4">
+                              <div className="form-group">
+                                <label>Taxe de Studii:</label>
+                                <div className="nested-form">
+                                  <div className="form-group">
+                                    <label>Licență:</label>
                                     <input
                                       type="text"
-                                      className="form-control"
-                                      name="tuitionFees.bachelor"
-                                      value={editingUniversity.tuitionFees?.bachelor || ''}
+                                      name="tuition_fees.bachelor"
+                                      value={editingUniversity.tuition_fees?.bachelor || ''}
                                       onChange={handleEditUniversityChange}
-                                      placeholder="ex: 3000-4000 EUR/year"
-                                      maxLength="20"
+                                      placeholder="Introduceți taxa de studii pentru licență"
                                     />
-                                    <small className="form-text text-muted">Bachelor (max 20 characters)</small>
                                   </div>
-                                  <div className="col-md-4">
+                                  <div className="form-group">
+                                    <label>Master:</label>
                                     <input
                                       type="text"
-                                      className="form-control"
-                                      name="tuitionFees.master"
-                                      value={editingUniversity.tuitionFees?.master || ''}
+                                      name="tuition_fees.master"
+                                      value={editingUniversity.tuition_fees?.master || ''}
                                       onChange={handleEditUniversityChange}
-                                      placeholder="ex: 4000-5000 EUR/year"
-                                      maxLength="20"
+                                      placeholder="Introduceți taxa de studii pentru master"
                                     />
-                                    <small className="form-text text-muted">Master (max 20 characters)</small>
                                   </div>
-                                  <div className="col-md-4">
+                                  <div className="form-group">
+                                    <label>Doctorat:</label>
                                     <input
                                       type="text"
-                                      className="form-control"
-                                      name="tuitionFees.phd"
-                                      value={editingUniversity.tuitionFees?.phd || ''}
+                                      name="tuition_fees.phd"
+                                      value={editingUniversity.tuition_fees?.phd || ''}
                                       onChange={handleEditUniversityChange}
-                                      placeholder="ex: 5000-6000 EUR/year"
-                                      maxLength="20"
+                                      placeholder="Introduceți taxa de studii pentru doctorat"
                                     />
-                                    <small className="form-text text-muted">PhD (max 20 characters)</small>
                                   </div>
                                 </div>
                               </div>
-                              <div className="form-group mb-3">
-                                <label>Contact Info</label>
-                                <div className="row">
-                                  <div className="col-md-4">
+                              <div className="form-group">
+                                <label>Informații de Contact:</label>
+                                <div className="nested-form">
+                                  <div className="form-group">
+                                    <label>Email:</label>
                                     <input
                                       type="email"
-                                      className="form-control"
-                                      name="contactInfo.email"
-                                      value={editingUniversity.contactInfo?.email || ''}
+                                      name="contact_info.email"
+                                      value={editingUniversity.contact_info?.email || ''}
                                       onChange={handleEditUniversityChange}
-                                      placeholder="Email"
                                     />
                                   </div>
-                                  <div className="col-md-4">
+                                  <div className="form-group">
+                                    <label>Telefon:</label>
                                     <input
                                       type="text"
-                                      className="form-control"
-                                      name="contactInfo.phone"
-                                      value={editingUniversity.contactInfo?.phone || ''}
+                                      name="contact_info.phone"
+                                      value={editingUniversity.contact_info?.phone || ''}
                                       onChange={handleEditUniversityChange}
-                                      placeholder="Telefon"
                                     />
                                   </div>
-                                  <div className="col-md-4">
+                                  <div className="form-group">
+                                    <label>Adresă:</label>
                                     <input
                                       type="text"
-                                      className="form-control"
-                                      name="contactInfo.address"
-                                      value={editingUniversity.contactInfo?.address || ''}
+                                      name="contact_info.address"
+                                      value={editingUniversity.contact_info?.address || ''}
                                       onChange={handleEditUniversityChange}
-                                      placeholder="Adresă"
                                     />
                                   </div>
                                 </div>
                               </div>
-                              <div className="modal-footer">
-                                <button type="button" className="btn btn-secondary" onClick={() => setShowEditUniversityForm(false)}>
-                                  Anulează
-                                </button>
-                                <button type="submit" className="btn btn-primary">
-                                  Salvează
-                                </button>
+                              <div className="form-actions">
+                                <button type="submit" className="save-button">Salvează</button>
+                                <button type="button" className="cancel-button" onClick={handleCloseModal}>Anulează</button>
                               </div>
                             </form>
-                          </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -2451,7 +2404,7 @@ const Dashboard = () => {
                               type="button"
                               className="cancel-button"
                               onClick={() => {
-                                setShowEditProgramForm(false);
+                                setShowAddProgramForm(false);
                                 setEditingProgram(null);
                               }}
                             >

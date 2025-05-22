@@ -40,6 +40,8 @@ exports.createUniversity = async (req, res) => {
 
 exports.updateUniversity = async (req, res) => {
   try {
+    console.log('Received update request with body:', JSON.stringify(req.body, null, 2));
+    
     // Pregătim datele pentru actualizare
     const updateData = {
       name: req.body.name,
@@ -49,16 +51,16 @@ exports.updateUniversity = async (req, res) => {
       image_url: req.body.image_url,
       website: req.body.website,
       ranking: req.body.ranking,
-      tuition_fees: req.body.tuition_fees ? {
-        bachelor: req.body.tuition_fees.bachelor || null,
-        master: req.body.tuition_fees.master || null,
-        phd: req.body.tuition_fees.phd || null
-      } : null,
-      contact_info: req.body.contact_info ? {
-        email: req.body.contact_info.email || null,
-        phone: req.body.contact_info.phone || null,
-        address: req.body.contact_info.address || null
-      } : null
+      tuition_fees: {
+        bachelor: req.body.tuition_fees?.bachelor || null,
+        master: req.body.tuition_fees?.master || null,
+        phd: req.body.tuition_fees?.phd || null
+      },
+      contact_info: {
+        email: req.body.contact_info?.email || null,
+        phone: req.body.contact_info?.phone || null,
+        address: req.body.contact_info?.address || null
+      }
     };
 
     console.log('Data prepared for update:', JSON.stringify(updateData, null, 2));
@@ -72,6 +74,7 @@ exports.updateUniversity = async (req, res) => {
     }
     
     const updatedUniversity = await University.findByPk(req.params.id);
+    console.log('Updated university data:', JSON.stringify(updatedUniversity, null, 2));
     res.json(updatedUniversity);
   } catch (error) {
     console.error('Error updating university:', error);

@@ -222,14 +222,14 @@ const UniversityPresentation = ({ university }) => {
           <div className="university-details-col">
             <h3 className="university-details-title-small">Taxe de studii (2023)</h3>
             <ul className="tuition-fees tuition-fees-small">
-              {university.tuitionFees && Object.keys(university.tuitionFees).length > 0 ? (
+              {university.tuition_fees && Object.keys(university.tuition_fees).length > 0 ? (
                 <>
-                  {university.tuitionFees.bachelor && <li>Licență: {university.tuitionFees.bachelor} MDL/an</li>}
-                  {university.tuitionFees.master && <li>Master: {university.tuitionFees.master} MDL/an</li>}
-                  {university.tuitionFees.phd && <li>Doctorat: {university.tuitionFees.phd} MDL/an</li>}
+                  {university.tuition_fees.bachelor && <li>Licență: {university.tuition_fees.bachelor}</li>}
+                  {university.tuition_fees.master && <li>Master: {university.tuition_fees.master}</li>}
+                  {university.tuition_fees.phd && <li>Doctorat: {university.tuition_fees.phd}</li>}
                 </>
               ) : (
-                <li>Pentru informații actualizate despre taxele de studii, vă rugăm să contactați universitatea la adresa: {university.contactEmail || 'contact@ase.md'}</li>
+                <li>Pentru informații actualizate despre taxele de studii, vă rugăm să contactați universitatea la adresa: {university.contact_info?.email || 'contact@ase.md'}</li>
               )}
             </ul>
           </div>
