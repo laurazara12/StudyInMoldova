@@ -50,6 +50,7 @@ const Dashboard = () => {
   const [filterRanking, setFilterRanking] = useState({ min: '', max: '' });
   const [showAddUniversityForm, setShowAddUniversityForm] = useState(false);
   const [showAddProgramForm, setShowAddProgramForm] = useState(false);
+  const [showEditProgramForm, setShowEditProgramForm] = useState(false);
   const [editingProgram, setEditingProgram] = useState(null);
   const [newUniversity, setNewUniversity] = useState({
     name: '',
@@ -107,6 +108,130 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user'));
+  const [filteredDocuments, setFilteredDocuments] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [filteredUniversities, setFilteredUniversities] = useState([]);
+  const [filteredApplications, setFilteredApplications] = useState([]);
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'Invalid Date';
+      return date.toLocaleDateString('ro-RO', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Invalid Date';
+    }
+  };
+
+  const handleConfirmDocument = async (document) => {
+    try {
+      console.log('Încercare aprobare document:', document);
+      
+      const response = await axios.put(
+        `${API_BASE_URL}/api/documents/${document.id}`,
+        {
+          status: 'approved',
+          document_type: document.document_type,
+          file_path: document.file_path,
+          filename: document.filename,
+          originalName: document.originalName,
+          user_id: document.user_id
+        },
+        { headers: getAuthHeaders() }
+      );
+
+      console.log('Răspuns server la aprobare:', response);
+
+      if (response.data.success) {
+        setSuccessMessage('Document aprobat cu succes!');
+        setTimeout(() => setSuccessMessage(''), 3000);
+
+        // Actualizăm lista de documente
+        const updatedDocumentsResponse = await axios.get(`${API_BASE_URL}/api/documents`, {
+          headers: getAuthHeaders()
+        });
+        
+        if (updatedDocumentsResponse.data && updatedDocumentsResponse.data.data) {
+          setDocuments(updatedDocumentsResponse.data.data);
+        }
+      }
+    } catch (error) {
+      console.error('Eroare la aprobarea documentului:', error);
+      let errorMessage = 'A apărut o eroare la aprobarea documentului. ';
+      
+      if (error.response?.status === 404) {
+        errorMessage += 'Documentul nu a fost găsit.';
+      } else if (error.response?.status === 401) {
+        errorMessage += 'Nu aveți permisiunea de a aproba documentul.';
+      } else if (error.response?.data?.message) {
+        errorMessage += error.response.data.message;
+      } else {
+        errorMessage += 'Vă rugăm să încercați din nou.';
+      }
+      
+      setError(errorMessage);
+      setTimeout(() => setError(null), 5000);
+    }
+  };
+
+  const handleRejectDocument = async (document) => {
+    try {
+      console.log('Încercare respingere document:', document);
+      
+      const response = await axios.put(
+        `${API_BASE_URL}/api/documents/${document.id}`,
+        {
+          status: 'rejected',
+          document_type: document.document_type,
+          file_path: document.file_path,
+          filename: document.filename,
+          originalName: document.originalName,
+          user_id: document.user_id
+        },
+        { headers: getAuthHeaders() }
+      );
+
+      console.log('Răspuns server la respingere:', response);
+
+      if (response.data.success) {
+        setSuccessMessage('Document respins cu succes!');
+        setTimeout(() => setSuccessMessage(''), 3000);
+
+        // Actualizăm lista de documente
+        const updatedDocumentsResponse = await axios.get(`${API_BASE_URL}/api/documents`, {
+          headers: getAuthHeaders()
+        });
+        
+        if (updatedDocumentsResponse.data && updatedDocumentsResponse.data.data) {
+          setDocuments(updatedDocumentsResponse.data.data);
+        }
+      }
+    } catch (error) {
+      console.error('Eroare la respingerea documentului:', error);
+      let errorMessage = 'A apărut o eroare la respingerea documentului. ';
+      
+      if (error.response?.status === 404) {
+        errorMessage += 'Documentul nu a fost găsit.';
+      } else if (error.response?.status === 401) {
+        errorMessage += 'Nu aveți permisiunea de a respinge documentul.';
+      } else if (error.response?.data?.message) {
+        errorMessage += error.response.data.message;
+      } else {
+        errorMessage += 'Vă rugăm să încercați din nou.';
+      }
+      
+      setError(errorMessage);
+      setTimeout(() => setError(null), 5000);
+    }
+  };
 
   const checkAdminAccess = () => {
     if (!user || user.role !== 'admin') {
@@ -189,7 +314,7 @@ const Dashboard = () => {
           }
           if (typeof response.data === 'object') {
             console.log('Response is an object:', response.data);
-            return [response.data];
+            return response.data.data || [];
           }
         }
 
@@ -309,14 +434,14 @@ const Dashboard = () => {
 
       // Actualizăm statisticile doar dacă avem date valide
       setStatistics({
-        totalUsers: users.length,
-        totalDocuments: documents.length,
-        totalUniversities: universities.length,
-        totalPrograms: programs.length,
-        totalApplications: applications.length,
-        pendingApplications: applications.filter(app => app.status === 'pending').length,
-        approvedApplications: applications.filter(app => app.status === 'approved').length,
-        rejectedApplications: applications.filter(app => app.status === 'rejected').length
+        totalUsers: Array.isArray(users) ? users.length : 0,
+        totalDocuments: Array.isArray(documents) ? documents.length : 0,
+        totalUniversities: Array.isArray(universities) ? universities.length : 0,
+        totalPrograms: Array.isArray(programs) ? programs.length : 0,
+        totalApplications: Array.isArray(applications) ? applications.length : 0,
+        pendingApplications: Array.isArray(applications) ? applications.filter(app => app.status === 'pending').length : 0,
+        approvedApplications: Array.isArray(applications) ? applications.filter(app => app.status === 'approved').length : 0,
+        rejectedApplications: Array.isArray(applications) ? applications.filter(app => app.status === 'rejected').length : 0
       });
 
     } catch (error) {
@@ -329,33 +454,233 @@ const Dashboard = () => {
     initializeDashboard();
   }, [navigate, token, user?.role]);
 
+  useEffect(() => {
+    if (Array.isArray(documents)) {
+      let filtered = [...documents];
+
+      // Filtrare după tipul documentului
+      if (filterDocumentType !== 'all') {
+        filtered = filtered.filter(doc => doc.document_type === filterDocumentType);
+      }
+
+      // Filtrare după status
+      if (filterStatus !== 'all') {
+        filtered = filtered.filter(doc => doc.status === filterStatus);
+      }
+
+      // Filtrare după intervalul de date
+      if (filterDateRange.start) {
+        filtered = filtered.filter(doc => new Date(doc.created_at) >= new Date(filterDateRange.start));
+      }
+      if (filterDateRange.end) {
+        filtered = filtered.filter(doc => new Date(doc.created_at) <= new Date(filterDateRange.end));
+      }
+
+      // Filtrare după termenul de căutare
+      if (searchTerm) {
+        const searchLower = searchTerm.toLowerCase();
+        filtered = filtered.filter(doc => 
+          doc.document_type.toLowerCase().includes(searchLower) ||
+          doc.originalName.toLowerCase().includes(searchLower) ||
+          doc.filename.toLowerCase().includes(searchLower)
+        );
+      }
+
+      setFilteredDocuments(filtered);
+    }
+  }, [documents, filterDocumentType, filterStatus, filterDateRange, searchTerm]);
+
+  useEffect(() => {
+    if (Array.isArray(users)) {
+      let filtered = [...users];
+
+      // Filtrare după rol
+      if (filterRole !== 'all') {
+        filtered = filtered.filter(user => user.role === filterRole);
+      }
+
+      // Filtrare după status
+      if (filterStatus !== 'all') {
+        filtered = filtered.filter(user => user.is_active === (filterStatus === 'active'));
+      }
+
+      // Filtrare după intervalul de date
+      if (filterUserDateRange.start) {
+        filtered = filtered.filter(user => new Date(user.created_at) >= new Date(filterUserDateRange.start));
+      }
+      if (filterUserDateRange.end) {
+        filtered = filtered.filter(user => new Date(user.created_at) <= new Date(filterUserDateRange.end));
+      }
+
+      // Filtrare după termenul de căutare
+      if (searchTerm) {
+        const searchLower = searchTerm.toLowerCase();
+        filtered = filtered.filter(user => 
+          user.name?.toLowerCase().includes(searchLower) ||
+          user.email?.toLowerCase().includes(searchLower) ||
+          user.id?.toString().includes(searchTerm)
+        );
+      }
+
+      setFilteredUsers(filtered);
+    }
+  }, [users, filterRole, filterStatus, filterUserDateRange, searchTerm]);
+
+  useEffect(() => {
+    if (!universities) return;
+
+    let result = [...universities];
+
+    // Filtrare după tip
+    if (filterType) {
+      result = result.filter(uni => uni.type.toLowerCase() === filterType.toLowerCase());
+    }
+
+    // Filtrare după locație
+    if (filterLocation) {
+      result = result.filter(uni => uni.location === filterLocation);
+    }
+
+    // Filtrare după ranking
+    if (filterRanking.min) {
+      result = result.filter(uni => uni.ranking >= parseInt(filterRanking.min));
+    }
+    if (filterRanking.max) {
+      result = result.filter(uni => uni.ranking <= parseInt(filterRanking.max));
+    }
+
+    // Filtrare după taxă de școlarizare
+    if (filterTuitionFee.min) {
+      result = result.filter(uni => {
+        const minFee = Math.min(
+          uni.tuitionFees?.bachelor || Infinity,
+          uni.tuitionFees?.master || Infinity,
+          uni.tuitionFees?.phd || Infinity
+        );
+        return minFee >= parseInt(filterTuitionFee.min);
+      });
+    }
+    if (filterTuitionFee.max) {
+      result = result.filter(uni => {
+        const maxFee = Math.max(
+          uni.tuitionFees?.bachelor || 0,
+          uni.tuitionFees?.master || 0,
+          uni.tuitionFees?.phd || 0
+        );
+        return maxFee <= parseInt(filterTuitionFee.max);
+      });
+    }
+
+    // Filtrare după dată
+    if (filterUniversityDateRange.start) {
+      result = result.filter(uni => new Date(uni.createdAt) >= new Date(filterUniversityDateRange.start));
+    }
+    if (filterUniversityDateRange.end) {
+      result = result.filter(uni => new Date(uni.createdAt) <= new Date(filterUniversityDateRange.end));
+    }
+
+    // Căutare după nume
+    if (searchTerm) {
+      result = result.filter(uni => 
+        uni.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        uni.description?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    setFilteredUniversities(result);
+  }, [universities, filterType, filterLocation, filterRanking, filterTuitionFee, filterUniversityDateRange, searchTerm]);
+
+  useEffect(() => {
+    if (Array.isArray(applications)) {
+      let filtered = [...applications];
+
+      // Filtrare după status
+      if (filterApplicationStatus !== 'all') {
+        filtered = filtered.filter(app => app.status === filterApplicationStatus);
+      }
+
+      // Filtrare după intervalul de date
+      if (filterApplicationDateRange.start) {
+        filtered = filtered.filter(app => new Date(app.created_at) >= new Date(filterApplicationDateRange.start));
+      }
+      if (filterApplicationDateRange.end) {
+        filtered = filtered.filter(app => new Date(app.created_at) <= new Date(filterApplicationDateRange.end));
+      }
+
+      // Filtrare după termenul de căutare
+      if (searchTerm) {
+        const searchLower = searchTerm.toLowerCase();
+        filtered = filtered.filter(app => {
+          const user = users.find(u => u.id === app.user_id);
+          return (
+            (user?.name?.toLowerCase().includes(searchLower)) ||
+            (app.program?.name?.toLowerCase().includes(searchLower)) ||
+            (app.university?.name?.toLowerCase().includes(searchLower))
+          );
+        });
+      }
+
+      setFilteredApplications(filtered);
+    }
+  }, [applications, filterApplicationStatus, filterApplicationDateRange, searchTerm, users]);
+
   const getDocumentStatus = (userId) => {
-    if (!userId) {
-      console.warn('getDocumentStatus: userId is undefined or null');
+    try {
+      // Verificăm dacă documents există și este un array
+      if (!Array.isArray(documents)) {
+        console.warn('Documents nu este un array:', documents);
+        return getDefaultDocumentStatus();
+      }
+
+      // Găsim toate documentele pentru acest utilizator
+      const userDocuments = documents.filter(doc => doc.user_id === userId);
+      
+      if (!userDocuments || userDocuments.length === 0) {
+        return getDefaultDocumentStatus();
+      }
+
+      // Creăm un obiect cu statusul pentru fiecare tip de document
+      const status = {
+        diploma: { exists: false, status: 'missing', uploadDate: null },
+        transcript: { exists: false, status: 'missing', uploadDate: null },
+        passport: { exists: false, status: 'missing', uploadDate: null },
+        photo: { exists: false, status: 'missing', uploadDate: null },
+        medical: { exists: false, status: 'missing', uploadDate: null },
+        insurance: { exists: false, status: 'missing', uploadDate: null },
+        other: { exists: false, status: 'missing', uploadDate: null }
+      };
+
+      // Actualizăm statusul pentru fiecare document încărcat
+      userDocuments.forEach(doc => {
+        if (doc && doc.document_type) {
+          const docType = doc.document_type.toLowerCase();
+          if (status[docType]) {
+            status[docType] = {
+              exists: true,
+              status: doc.status || 'pending',
+              uploadDate: doc.created_at || doc.uploadDate
+            };
+          }
+        }
+      });
+
+      return status;
+    } catch (error) {
+      console.warn(`getDocumentStatus: Eroare la procesarea documentelor pentru utilizatorul ${userId}`, error);
       return getDefaultDocumentStatus();
     }
-
-    const status = docStatus[userId];
-    if (!status) {
-      console.warn(`getDocumentStatus: Nu există status pentru utilizatorul ${userId}`);
-      return getDefaultDocumentStatus();
-    }
-
-    console.log(`Document status for user ${userId}:`, JSON.stringify(status, null, 2));
-    return status;
   };
 
   const getDefaultDocumentStatus = () => {
-      return {
-        passport: { exists: false, status: 'missing', uploadDate: null },
-        diploma: { exists: false, status: 'missing', uploadDate: null },
-        transcript: { exists: false, status: 'missing', uploadDate: null },
-        cv: { exists: false, status: 'missing', uploadDate: null },
-        other: { exists: false, status: 'missing', uploadDate: null },
-        photo: { exists: false, status: 'missing', uploadDate: null },
-        medical: { exists: false, status: 'missing', uploadDate: null },
-        insurance: { exists: false, status: 'missing', uploadDate: null }
-      };
+    return {
+      diploma: { exists: false, status: 'missing', uploadDate: null },
+      transcript: { exists: false, status: 'missing', uploadDate: null },
+      passport: { exists: false, status: 'missing', uploadDate: null },
+      photo: { exists: false, status: 'missing', uploadDate: null },
+      medical: { exists: false, status: 'missing', uploadDate: null },
+      insurance: { exists: false, status: 'missing', uploadDate: null },
+      other: { exists: false, status: 'missing', uploadDate: null }
+    };
   };
 
   const handleDeleteUser = async (userId) => {
@@ -430,9 +755,67 @@ const Dashboard = () => {
   };
 
   const handleDeleteDocument = async (documentType, userId) => {
+    try {
+      console.log('Încercare ștergere document:', { documentType, userId });
+      
     const doc = documents.find(doc => doc.document_type === documentType && doc.user_id === userId);
-    if (doc) {
-      setDocumentToDelete(doc);
+      if (!doc) {
+        throw new Error('Documentul nu a fost găsit în lista locală');
+      }
+
+      const response = await axios.delete(
+        `${API_BASE_URL}/api/documents/admin/${doc.id}`,
+        { 
+          headers: {
+            ...getAuthHeaders(),
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      console.log('Răspuns server la ștergere:', response);
+
+      if (response.data.success) {
+        // Actualizăm lista de documente
+        setDocuments(documents.filter(d => d.id !== doc.id));
+        
+        setSuccessMessage('Document șters cu succes!');
+        setTimeout(() => setSuccessMessage(''), 3000);
+
+        // Reîncărcăm lista de documente
+        const updatedDocumentsResponse = await axios.get(`${API_BASE_URL}/api/documents`, {
+          headers: getAuthHeaders()
+        });
+        
+        if (updatedDocumentsResponse.data && updatedDocumentsResponse.data.data) {
+          setDocuments(updatedDocumentsResponse.data.data);
+        }
+      }
+    } catch (error) {
+      console.error('Eroare detaliată la ștergerea documentului:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        documentType,
+        userId,
+        url: `${API_BASE_URL}/api/documents/admin/${doc?.id}`,
+        headers: getAuthHeaders()
+      });
+
+      let errorMessage = 'A apărut o eroare la ștergerea documentului. ';
+      
+      if (error.response?.status === 404) {
+        errorMessage += 'Documentul nu a fost găsit în baza de date.';
+      } else if (error.response?.status === 401) {
+        errorMessage += 'Nu aveți permisiunea de a șterge documentul.';
+      } else if (error.response?.data?.message) {
+        errorMessage += error.response.data.message;
+      } else {
+        errorMessage += 'Vă rugăm să încercați din nou.';
+      }
+      
+      setError(errorMessage);
+      setTimeout(() => setError(null), 5000);
     }
   };
 
@@ -441,643 +824,131 @@ const Dashboard = () => {
     setDocumentToDelete(null);
   };
 
-  const renderUserDocuments = () => {
-    if (!documents || documents.length === 0) {
-      return <p>Nu există documente încărcate.</p>;
-    }
-
-    const filteredDocs = documents.filter(doc => 
-      doc && 
-      doc.user_id && 
-      doc.document_type && 
-      doc.status
-    );
-
-    if (filteredDocs.length === 0) {
-      return <p>Nu există documente valide pentru afișare.</p>;
-    }
-
-    return (
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-200">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="px-4 py-2 border">Utilizator</th>
-              <th className="px-4 py-2 border">Tip Document</th>
-              <th className="px-4 py-2 border">Data Încărcării</th>
-              <th className="px-4 py-2 border">Status</th>
-              <th className="px-4 py-2 border">Acțiuni</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredDocs.map(doc => {
-              const user = users.find(u => u && u.id === doc.user_id);
-              const userName = user ? `${user.firstName} ${user.lastName}` : `User ID: ${doc.user_id}`;
-              const docType = doc.document_type?.toLowerCase();
-              const docStatus = doc.status?.toLowerCase();
-              const uploadDate = doc.uploadDate || doc.created_at || 'Unknown';
-
-              return (
-                <tr key={`${doc.id}-${docType}`} className="hover:bg-gray-50">
-                  <td className="px-4 py-2 border">{userName}</td>
-                  <td className="px-4 py-2 border">
-                    {docType === 'passport' ? 'Passport' :
-                     docType === 'diploma' ? 'Diploma' :
-                     docType === 'transcript' ? 'Transcript' :
-                     docType === 'cv' ? 'CV' :
-                     docType === 'photo' ? 'Photo' :
-                     docType === 'medical' ? 'Medical Certificate' :
-                     docType === 'insurance' ? 'Insurance' :
-                     'Other'}
-                  </td>
-                  <td className="px-4 py-2 border">
-                    {new Date(uploadDate).toLocaleDateString('ro-RO')}
-                  </td>
-                  <td className="px-4 py-2 border">
-                    {docStatus === 'pending' ? 'Pending' :
-                     docStatus === 'approved' ? 'Approved' :
-                     docStatus === 'rejected' ? 'Rejected' :
-                     'Missing'}
-                  </td>
-                  <td className="px-4 py-2 border">
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleDownloadDocument(doc.document_type, doc.user_id)}
-                        disabled={!doc.id}
-                        className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-                      >
-                        Download
-                      </button>
-                      <button
-                        onClick={() => handleDeleteDocument(doc.document_type, doc.user_id)}
-                        disabled={!doc.id}
-                        className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50"
-                      >
-                          Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    );
-  };
-
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = 
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.id.toString().includes(searchTerm.toLowerCase());
-    
-    const matchesRole = filterRole === 'all' || user.role === filterRole;
-    const matchesStatus = filterStatus === 'all' || 
-      (filterStatus === 'active' && user.status === 'active') ||
-      (filterStatus === 'inactive' && user.status === 'inactive');
-    
-    const matchesDateRange = (!filterUserDateRange.start || new Date(user.created_at) >= new Date(filterUserDateRange.start)) &&
-                           (!filterUserDateRange.end || new Date(user.created_at) <= new Date(filterUserDateRange.end));
-    
-    return matchesSearch && matchesRole && matchesStatus && matchesDateRange;
-  });
-
-  const filteredDocuments = documents.filter(doc => {
-    const user = users.find(u => u.id === doc.user_id);
-    const matchesSearch = 
-      (user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
-      doc.document_type.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesType = filterDocumentType === 'all' || doc.document_type === filterDocumentType;
-    
-    const matchesDateRange = (!filterDateRange.start || new Date(doc.created_at) >= new Date(filterDateRange.start)) &&
-                           (!filterDateRange.end || new Date(doc.created_at) <= new Date(filterDateRange.end));
-    
-    return matchesSearch && matchesType && matchesDateRange;
-  });
-
-  const filteredUniversities = Array.isArray(universities) ? universities.filter(uni => {
-    const matchesSearch = searchTerm === '' || 
-      uni.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      uni.location.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesType = filterType === '' || uni.type === filterType;
-    const matchesLocation = filterLocation === '' || uni.location === filterLocation;
-    
-    const matchesRanking = (!filterRanking.min || uni.ranking >= parseInt(filterRanking.min)) &&
-                         (!filterRanking.max || uni.ranking <= parseInt(filterRanking.max));
-    
-    const matchesTuitionFee = (!filterTuitionFee.min || 
-                             (uni.tuitionFees?.bachelor && parseInt(uni.tuitionFees.bachelor) >= parseInt(filterTuitionFee.min))) &&
-                            (!filterTuitionFee.max || 
-                             (uni.tuitionFees?.bachelor && parseInt(uni.tuitionFees.bachelor) <= parseInt(filterTuitionFee.max)));
-    
-    return matchesSearch && matchesType && matchesLocation && matchesRanking && matchesTuitionFee;
-  }) : [];
-
-  const filteredPrograms = Array.isArray(programs) ? programs.filter(program => {
-    const matchesSearch = searchTerm === '' || 
-      program.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      program.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesDegree = filterDegree === 'all' || program.degree_type === filterDegree;
-    const matchesLanguage = filterLanguage === '' || program.language === filterLanguage;
-    
-    const matchesTuitionFee = (!filterTuitionFee.min || program.tuition_fees >= parseInt(filterTuitionFee.min)) &&
-                            (!filterTuitionFee.max || program.tuition_fees <= parseInt(filterTuitionFee.max));
-    
-    return matchesSearch && matchesDegree && matchesLanguage && matchesTuitionFee;
-  }) : [];
-
-  const filteredApplications = applications.filter(app => {
-    const user = users.find(u => u.id === app.user_id);
-    const matchesSearch = 
-      (user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
-      app.program?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      app.university?.name?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = filterApplicationStatus === 'all' || app.status === filterApplicationStatus;
-    
-    const matchesDateRange = (!filterApplicationDateRange.start || new Date(app.created_at) >= new Date(filterApplicationDateRange.start)) &&
-                           (!filterApplicationDateRange.end || new Date(app.created_at) <= new Date(filterApplicationDateRange.end));
-    
-    return matchesSearch && matchesStatus && matchesDateRange;
-  });
-
-  const handleAddUniversity = async (e) => {
-    e.preventDefault();
+  const handleUpdateDocumentStatus = async (userId, documentType, newStatus) => {
     try {
-      // Generăm slug-ul din nume dacă nu există
-      const universityData = {
-        ...newUniversity,
-        slug: newUniversity.name.toLowerCase()
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/(^-|-$)/g, '')
-      };
-
-      await axios.post(`${API_BASE_URL}/api/universities`, universityData, {
-        headers: getAuthHeaders()
-      });
-      setShowAddUniversityForm(false);
-      setNewUniversity({
-        name: '',
-        type: 'Public',
-        description: '',
-        location: '',
-        imageUrl: '',
-        website: '',
-        ranking: '',
-        tuitionFees: {
-          bachelor: '',
-          master: '',
-          phd: ''
-        },
-        programs: [],
-        contactInfo: {
-          email: '',
-          phone: '',
-          address: ''
-        }
-      });
-      // Reload the list of universities
-      const response = await axios.get(`${API_BASE_URL}/api/universities`, {
-        headers: getAuthHeaders()
-      });
-      setUniversities(response.data);
-      setSuccessMessage('University added successfully!');
-      setTimeout(() => setSuccessMessage(''), 2000);
-    } catch (error) {
-      console.error('Error adding university:', error);
-      setError('Error adding university');
-    }
-  };
-
-  const handleUniversityInputChange = (e) => {
-    const { name, value } = e.target;
-    if (name.includes('.')) {
-      const [parent, child] = name.split('.');
-      setNewUniversity(prev => ({
-        ...prev,
-        [parent]: {
-          ...prev[parent],
-          [child]: value
-        }
-      }));
-    } else {
-      setNewUniversity(prev => ({
-        ...prev,
-        [name]: value,
-        // Generăm slug-ul automat din nume
-        slug: name === 'name' ? value.toLowerCase()
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/(^-|-$)/g, '') : prev.slug
-      }));
-    }
-  };
-
-  const handleEditUniversity = (university) => {
-    setEditingUniversity(university);
-    setIsModalOpen(true);
-  };
-
-  const handleEditUniversityChange = (e) => {
-    const { name, value } = e.target;
-    
-    setEditingUniversity(prev => {
-      const newState = { ...prev };
-      
-      if (name.startsWith('tuition_fees.')) {
-        const field = name.split('.')[1];
-        newState.tuition_fees = {
-          ...newState.tuition_fees,
-          [field]: value === '' ? null : value
-        };
-        console.log('Updated tuition fees:', newState.tuition_fees);
-      } else if (name.startsWith('contact_info.')) {
-        const field = name.split('.')[1];
-        newState.contact_info = {
-          ...newState.contact_info,
-          [field]: value === '' ? null : value
-        };
-      } else {
-        newState[name] = value;
-      }
-      
-      return newState;
-    });
-  };
-
-  const handleUpdateUniversity = async (e) => {
-    e.preventDefault();
-    try {
-      // Validare date
-      if (!editingUniversity.name || !editingUniversity.type || !editingUniversity.location) {
-        throw new Error('Toate câmpurile obligatorii trebuie completate');
-      }
-
-      console.log('Datele care vor fi trimise:', editingUniversity);
-
-      const response = await fetch(`${API_BASE_URL}/api/universities/${editingUniversity.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(editingUniversity)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Eroare la actualizarea universității');
-      }
-
-      const updatedUniversity = await response.json();
-      console.log('Răspuns de la server:', updatedUniversity);
-
-      setUniversities(universities.map(u => 
-        u.id === updatedUniversity.id ? updatedUniversity : u
-      ));
-      
-      // Închide modalul și resetează starea
-      setIsModalOpen(false);
-      setEditingUniversity(null);
-      
-      // Afișează un mesaj de succes
-      alert('Universitatea a fost actualizată cu succes!');
-    } catch (error) {
-      console.error('Eroare detaliată la actualizarea universității:', error);
-      alert(`Eroare: ${error.message || 'A apărut o eroare la actualizarea universității. Vă rugăm să încercați din nou.'}`);
-    }
-  };
-
-  const handleDeleteUniversity = async (universityId) => {
-    if (window.confirm('Are you sure you want to delete this university?')) {
-      try {
-        await axios.delete(`${API_BASE_URL}/api/universities/${universityId}`, {
-          headers: getAuthHeaders()
-        });
-        // Reload the list of universities
-        const response = await axios.get(`${API_BASE_URL}/api/universities`, {
-          headers: getAuthHeaders()
-        });
-        setUniversities(response.data);
-      } catch (error) {
-        console.error('Error deleting university:', error);
-        setError('Error deleting university');
-      }
-    }
-  };
-
-  const handleOpenAddProgramForm = async () => {
-    try {
-      // Load the list of universities if we're not in the universities tab
-      if (activeTab !== 'universities') {
-        const response = await axios.get(`${API_BASE_URL}/api/universities`, {
-          headers: getAuthHeaders()
-        });
-        setUniversities(response.data);
-      }
-      setShowAddProgramForm(true);
-    } catch (error) {
-      console.error('Error loading universities:', error);
-      setError('Error loading university list');
-    }
-  };
-
-  const handleEditProgram = async (program) => {
-    try {
-      if (!program || !program.id) {
-        console.error('Invalid program:', program);
-        throw new Error('Selected program is invalid');
-      }
-
-      console.log('Program selected for editing:', program);
-
-      // Load the list of universities if we're not in the universities tab
-      if (activeTab !== 'universities') {
-        const response = await axios.get(`${API_BASE_URL}/api/universities`, {
-          headers: getAuthHeaders()
-        });
-        console.log('Universities loaded:', response.data);
-        setUniversities(response.data);
-      }
-
-      // Asigurăm-ne că programul are toate câmpurile necesare
-      const programToEdit = {
-        id: program.id,
-        name: program.name || '',
-        description: program.description || '',
-        duration: program.duration || '',
-        degree_type: program.degree_type || '',
-        language: program.language || '',
-        tuition_fees: program.tuition_fees || '',
-        university_id: program.university_id || program.university?.id || ''
-      };
-
-      console.log('Program prepared for editing:', programToEdit);
-      
-      if (!programToEdit.id) {
-        console.error('Missing ID in prepared program:', programToEdit);
-        throw new Error('Program ID is missing from prepared data');
-      }
-
-      setEditingProgram(programToEdit);
-      setShowAddProgramForm(true);
-    } catch (error) {
-      console.error('Error loading data for editing:', error);
-      setError('Error loading data for editing: ' + (error.response?.data?.message || error.message));
-    }
-  };
-
-  // Funcții de validare și formatare
-  const validateRequiredFields = (data, requiredFields) => {
-    const missingFields = requiredFields.filter(field => !data[field]);
-    if (missingFields.length > 0) {
-      throw new Error(`Required fields are missing: ${missingFields.join(', ')}`);
-    }
-  };
-
-  const validateNumber = (value, fieldName, min, max) => {
-    const num = parseFloat(value);
-    if (isNaN(num)) {
-      throw new Error(`${fieldName} must be a valid number`);
-    }
-    if (min !== undefined && num < min) {
-      throw new Error(`${fieldName} must be greater than or equal to ${min}`);
-    }
-    if (max !== undefined && num > max) {
-      throw new Error(`${fieldName} must be less than or equal to ${max}`);
-    }
-    return num;
-  };
-
-  const validateDate = (dateString, fieldName, allowPast = false) => {
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) {
-      throw new Error(`${fieldName} is not a valid date`);
-    }
-    if (!allowPast && date < new Date()) {
-      throw new Error(`${fieldName} cannot be in the past`);
-    }
-    return date.toISOString().split('T')[0];
-  };
-
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('ro-RO', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(amount);
-  };
-
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    try {
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) return 'N/A';
-      return date.toLocaleDateString('ro-RO', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
-    } catch (error) {
-      console.error('Error formatting date:', error);
-      return 'N/A';
-    }
-  };
-
-  // Actualizare handleAddProgram cu noile validări
-  const handleAddProgram = async (e) => {
-    e.preventDefault();
-    try {
-      if (!token || !user || user.role !== 'admin') {
-        setError('You do not have permission to add programs. Please log in as an administrator.');
-        return;
-      }
-
-      console.log('Program data before validation:', newProgram);
-
-      // Validare câmpuri obligatorii
-      const requiredFields = {
-        name: 'Program name',
-        duration: 'Duration',
-        degree_type: 'Degree type',
-        language: 'Language',
-        tuition_fees: 'Tuition fees',
-        university_id: 'University'
-      };
-
-      const missingFields = Object.entries(requiredFields)
-        .filter(([field]) => !newProgram[field])
-        .map(([_, label]) => label);
-
-      if (missingFields.length > 0) {
-        throw new Error(`Required fields are missing: ${missingFields.join(', ')}`);
-      }
-
-      // Validare și formatare date
-      const programData = {
-        name: String(newProgram.name).trim(),
-        description: newProgram.description ? String(newProgram.description).trim() : '',
-        duration: parseInt(newProgram.duration),
-        degree_type: newProgram.degree_type,
-        language: newProgram.language,
-        tuition_fees: String(newProgram.tuition_fees).trim(),
-        university_id: parseInt(newProgram.university_id),
-        faculty: newProgram.faculty ? String(newProgram.faculty).trim() : null,
-        credits: newProgram.credits ? parseInt(newProgram.credits) : null
-      };
-
-      // Validări suplimentare
-      if (isNaN(programData.duration) || programData.duration < 1 || programData.duration > 6) {
-        throw new Error('Program duration must be between 1 and 6 years');
-      }
-
-      if (isNaN(programData.university_id)) {
-        throw new Error('University ID is not valid');
-      }
-
-      if (programData.credits && (isNaN(programData.credits) || programData.credits < 0)) {
-        throw new Error('Credits must be a positive number');
-      }
-
-      console.log('Data prepared for submission:', JSON.stringify(programData, null, 2));
-
-      const response = await axios.post(
-        `${API_BASE_URL}/api/programs`,
-        programData,
-        { 
-          headers: {
-            ...getAuthHeaders(),
-            'Content-Type': 'application/json'
-          }
-        }
+      // Găsim documentul specific pentru acest utilizator și tip
+      const document = documents.find(doc => 
+        doc.user_id === userId && doc.document_type === documentType
       );
 
-      console.log('Răspuns de la server:', JSON.stringify(response.data, null, 2));
-
-      if (!response.data) {
-        throw new Error('Invalid server response');
+      if (!document) {
+        throw new Error('Documentul nu a fost găsit');
       }
 
-      // Program added successfully, reload the list of programs
-      try {
-        const programsResponse = await axios.get(`${API_BASE_URL}/api/programs`, {
-          headers: getAuthHeaders()
-        });
+      const response = await axios.put(
+        `${API_BASE_URL}/api/documents/${document.id}`,
+        { 
+          document_type: documentType,
+          status: newStatus,
+          file_path: document.file_path,
+          filename: document.filename,
+          originalName: document.originalName
+        },
+        { headers: getAuthHeaders() }
+      );
 
-        const updatedPrograms = extractData(programsResponse.data);
-        if (updatedPrograms.length > 0) {
-          setPrograms(updatedPrograms);
-          // Close the modal and reset the form
-          setShowAddProgramForm(false);
-          setNewProgram({
-            name: '',
-            description: '',
-            duration: '',
-            degree_type: '',
-            language: '',
-            tuition_fees: '',
-            university_id: '',
-            faculty: '',
-            credits: ''
-          });
-          
-          setSuccessMessage('Program added successfully!');
-          setTimeout(() => setSuccessMessage(''), 2000);
-        } else {
-          console.warn('Failed to load programs after addition');
-          // Add the new program manually to the existing list
-          setPrograms(prevPrograms => [...prevPrograms, response.data]);
-          setShowAddProgramForm(false);
-          setSuccessMessage('Program added successfully!');
-          setTimeout(() => setSuccessMessage(''), 2000);
-        }
-      } catch (error) {
-        console.error('Error reloading programs:', error);
-        // Add the new program manually to the existing list
-        setPrograms(prevPrograms => [...prevPrograms, response.data]);
-        setShowAddProgramForm(false);
-        setSuccessMessage('Program added successfully!');
-        setTimeout(() => setSuccessMessage(''), 2000);
+      if (response.data.success) {
+        // Actualizăm starea locală
+        setDocuments(prevDocuments => 
+          prevDocuments.map(doc => 
+            doc.id === document.id 
+              ? { ...doc, status: newStatus }
+              : doc
+          )
+        );
+        
+        // Reîncărcăm documentele pentru a ne asigura că avem datele actualizate
+        await loadDocuments();
       }
-
     } catch (error) {
-      console.error('Detailed error adding program:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-        headers: error.response?.headers,
-        config: {
-          url: error.config?.url,
-          method: error.config?.method,
-          headers: error.config?.headers,
-          data: error.config?.data
-        }
-      });
-      
-      let errorMessage = 'Error adding program: ';
-      
-      if (error.response?.data?.message) {
-        errorMessage += error.response.data.message;
-      } else if (error.response?.data?.error) {
-        errorMessage += error.response.data.error;
-      } else if (error.message) {
-        errorMessage += error.message;
-      } else {
-        errorMessage += 'An unexpected error occurred';
-      }
-      
-      setError(errorMessage);
+      console.error('Error updating document status:', error);
+      setError('Eroare la actualizarea statusului documentului');
     }
   };
 
-  const handleProgramInputChange = (e) => {
-    const { name, value } = e.target;
-    console.log('Program field change:', name, value);
+  const renderUserDocuments = (user) => {
+    const userDocStatus = getDocumentStatus(user.id);
+    const userDocuments = documents.filter(doc => doc.user_id === user.id);
     
-    setNewProgram(prev => {
-      const updatedProgram = {
-        ...prev,
-        [name]: value
-      };
-      console.log('Updated program state:', updatedProgram);
-      return updatedProgram;
-    });
-  };
+    return (
+      <div className="user-documents-content">
+        <div className="user-info">
+          <h3>Informații Utilizator</h3>
+          <p><strong>Nume:</strong> {user.name}</p>
+          <p><strong>Email:</strong> {user.email}</p>
+          <p><strong>Rol:</strong> {user.role === 'admin' ? 'Administrator' : 'Utilizator'}</p>
+        </div>
 
-  const handleDeleteProgram = async (programId) => {
-    if (window.confirm('Are you sure you want to delete this program?')) {
-      try {
-        await axios.delete(`${API_BASE_URL}/programs/${programId}`, {
-          headers: getAuthHeaders()
-        });
-        // Reload the list of programs
-        const response = await axios.get(`${API_BASE_URL}/programs`, {
-          headers: getAuthHeaders()
-        });
-        if (response.data && response.data.data) {
-          setPrograms(response.data.data);
-        }
-        setSuccessMessage('Program deleted successfully!');
-        setTimeout(() => setSuccessMessage(''), 2000);
-      } catch (error) {
-        console.error('Error deleting program:', error);
-        setError('Error deleting program: ' + (error.response?.data?.message || error.message));
-      }
-    }
-  };
-
-  const handleViewUser = (user) => {
-    setSelectedUser(user);
-    setShowUserDetails(true);
+        <div className="documents-list">
+          <h3>Documente Utilizator</h3>
+          <table className="documents-table">
+            <thead>
+              <tr>
+                <th>Tip Document</th>
+                <th>Status</th>
+                <th>Data Încărcării</th>
+                <th>Acțiuni</th>
+              </tr>
+            </thead>
+            <tbody>
+              {userDocuments.map(doc => (
+                <tr key={doc.id}>
+                  <td>{doc.document_type}</td>
+                  <td>
+                    <span className={`status-badge status-${doc.status}`}>
+                      {doc.status === 'pending' ? 'În așteptare' :
+                       doc.status === 'approved' ? 'Aprobat' :
+                       doc.status === 'rejected' ? 'Respins' :
+                       doc.status}
+                    </span>
+                  </td>
+                  <td>{formatDate(doc.created_at)}</td>
+                  <td>
+                    <div className="action-buttons">
+              <button
+                        className="view-button"
+                        onClick={() => handleDownloadDocument(doc.document_type, doc.user_id)}
+              >
+                        Descarcă
+              </button>
+                      {doc.status === 'pending' && (
+                        <>
+                          <button
+                            className="approve-button"
+                            onClick={() => handleConfirmDocument(doc)}
+                          >
+                            Aprobă
+                          </button>
+                          <button
+                            className="reject-button"
+                            onClick={() => handleRejectDocument(doc)}
+                          >
+                            Respinge
+                          </button>
+                        </>
+                      )}
+                      <button
+                        className="delete-button"
+                        onClick={() => setDocumentToDelete(doc)}
+                      >
+                        Șterge
+                      </button>
+          </div>
+                  </td>
+                </tr>
+        ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
   };
 
   const handleViewDocuments = (user) => {
     setSelectedUser(user);
     setShowUserDocuments(true);
+    const userDocuments = documents.filter(doc => doc.user_id === user.id);
+    setFilteredDocuments(userDocuments);
   };
 
   const closeModals = () => {
@@ -1086,129 +957,44 @@ const Dashboard = () => {
     setSelectedUser(null);
   };
 
-  const handleViewApplication = (application) => {
-    setSelectedApplication(application);
-    setShowApplicationDetails(true);
+  const handleViewUser = (user) => {
+    setSelectedUser(user);
+    setShowUserDetails(true);
+    // Obținem statusul documentelor pentru utilizatorul selectat
+    const docStatus = getDocumentStatus(user.id);
+    setDocStatus(docStatus);
   };
 
-  const handleEditApplication = (application) => {
-    setSelectedApplication(application);
-    setShowApplicationEdit(true);
+  const handleOpenAddProgramForm = () => {
+    setShowAddProgramForm(true);
+    setNewProgram({
+      name: '',
+      description: '',
+      duration: '',
+      degree_type: '',
+      language: '',
+      tuition_fees: '',
+      university_id: '',
+      faculty: '',
+      credits: ''
+    });
   };
 
-  const handleUpdateApplicationStatus = async (applicationId, newStatus) => {
-    try {
-      const response = await axios.patch(
-        `${API_BASE_URL}/applications/${applicationId}`,
-        { status: newStatus },
-        { headers: getAuthHeaders() }
-      );
-
-      if (response.status === 200) {
-        setApplications(applications.map(app => 
-          app.id === applicationId ? { ...app, status: newStatus } : app
-        ));
-        setShowApplicationEdit(false);
-        setSelectedApplication(null);
+  const handleEditUniversity = (university) => {
+    console.log('Universitate pentru editare:', university);
+    setEditingUniversity({
+      ...university,
+      tuition_fees: {
+        bachelor: university.tuitionFees?.bachelor || '',
+        master: university.tuitionFees?.master || '',
+        phd: university.tuitionFees?.phd || ''
+      },
+      contact_info: {
+        email: university.contactInfo?.email || '',
+        phone: university.contactInfo?.phone || '',
+        address: university.contactInfo?.address || ''
       }
-    } catch (err) {
-      console.error('Error updating application status:', err);
-      setError('An error occurred while updating the application status.');
-    }
-  };
-
-  const handleUpdateProgram = async (e) => {
-    e.preventDefault();
-    try {
-      if (!token || !user || user.role !== 'admin') {
-        setError('You do not have permission to update programs. Please log in as an administrator.');
-        return;
-      }
-
-      if (!editingProgram) {
-        throw new Error('No program selected for editing');
-      }
-
-      console.log('Program data before update:', editingProgram);
-
-      const programData = {
-        name: String(editingProgram.name).trim(),
-        description: editingProgram.description ? String(editingProgram.description).trim() : '',
-        duration: parseInt(editingProgram.duration),
-        degree_type: editingProgram.degree_type,
-        language: editingProgram.language,
-        tuition_fees: editingProgram.tuition_fees,
-        university_id: parseInt(editingProgram.university_id),
-        faculty: editingProgram.faculty ? String(editingProgram.faculty).trim() : null,
-        credits: editingProgram.credits ? parseInt(editingProgram.credits) : null
-      };
-
-      console.log('Data prepared for update:', JSON.stringify(programData, null, 2));
-
-      const response = await axios.put(
-        `${API_BASE_URL}/programs/${editingProgram.id}`,
-        programData,
-        { 
-          headers: {
-            ...getAuthHeaders(),
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      console.log('Server response:', JSON.stringify(response.data, null, 2));
-
-      if (response.data) {
-        // Reload the complete list of programs
-        const programsResponse = await axios.get(`${API_BASE_URL}/programs`, {
-          headers: getAuthHeaders()
-        });
-        
-        if (programsResponse.data && programsResponse.data.data) {
-          setPrograms(programsResponse.data.data);
-        } else if (Array.isArray(programsResponse.data)) {
-          setPrograms(programsResponse.data);
-        }
-
-        setShowAddProgramForm(false);
-        setEditingProgram(null);
-        setSuccessMessage('Program updated successfully!');
-        setTimeout(() => setSuccessMessage(''), 2000);
-      } else {
-        throw new Error('Invalid server response');
-      }
-    } catch (error) {
-      console.error('Detailed error updating program:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-        headers: error.response?.headers,
-        config: {
-          url: error.config?.url,
-          method: error.config?.method,
-          headers: error.config?.headers,
-          data: error.config?.data
-        }
-      });
-      
-      let errorMessage = 'Error updating program: ';
-      
-      if (error.response?.data?.message) {
-        errorMessage += error.response.data.message;
-      } else if (error.response?.data?.error) {
-        errorMessage += error.response.data.error;
-      } else if (error.message) {
-        errorMessage += error.message;
-      } else {
-          errorMessage += 'An unexpected error occurred';
-      }
-      
-      setError(errorMessage);
-    }
-  };
-
-  const handleEdit = (university) => {
-    setEditingUniversity(university);
+    });
     setIsModalOpen(true);
   };
 
@@ -1217,32 +1003,114 @@ const Dashboard = () => {
     setEditingUniversity(null);
   };
 
-  if (error) {
-    return (
-      <div className="dashboard-page">
+  const handleEditUniversityChange = (e) => {
+    const { name, value } = e.target;
+    console.log('Modificare câmp:', name, value);
+    
+    if (name.includes('.')) {
+      const [parent, child] = name.split('.');
+      setEditingUniversity(prev => ({
+        ...prev,
+        [parent]: {
+          ...prev[parent],
+          [child]: value
+        }
+      }));
+    } else {
+      setEditingUniversity(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+  };
+
+  const handleUpdateUniversity = async (e) => {
+    e.preventDefault();
+    console.log('Încercare actualizare universitate:', editingUniversity);
+    
+    try {
+      const universityData = {
+        name: editingUniversity.name,
+        type: editingUniversity.type,
+        description: editingUniversity.description,
+        location: editingUniversity.location,
+        image_url: editingUniversity.image_url,
+        website: editingUniversity.website,
+        ranking: editingUniversity.ranking || '',
+        tuition_fees: {
+          bachelor: editingUniversity.tuition_fees?.bachelor || '',
+          master: editingUniversity.tuition_fees?.master || '',
+          phd: editingUniversity.tuition_fees?.phd || ''
+        },
+        contact_info: {
+          email: editingUniversity.contact_info?.email || '',
+          phone: editingUniversity.contact_info?.phone || '',
+          address: editingUniversity.contact_info?.address || ''
+        }
+      };
+
+      console.log('Date trimise la server:', universityData);
+
+      const response = await axios.put(
+        `${API_BASE_URL}/api/universities/${editingUniversity.id}`,
+        universityData,
+        { 
+          headers: getAuthHeaders(),
+          validateStatus: function (status) {
+            return status < 500;
+          }
+        }
+      );
+
+      console.log('Răspuns complet de la server:', {
+        status: response.status,
+        statusText: response.statusText,
+        data: response.data,
+        headers: response.headers
+      });
+
+      if (response.status === 200 || response.status === 201) {
+        // Actualizăm lista de universități
+        const updatedUniversities = universities.map(uni => 
+          uni.id === editingUniversity.id ? { 
+            ...uni, 
+            ...universityData,
+            tuitionFees: universityData.tuition_fees // Asigurăm că taxele sunt actualizate corect
+          } : uni
+        );
+        setUniversities(updatedUniversities);
         
-        <Navbar />
-        <div className="dashboard-container">
-          <div className="dashboard-content">
-            <div className="error-message">
-              <i className="fas fa-exclamation-circle"></i>
-              <p>{error}</p>
-              <button 
-                className="retry-button"
-                onClick={() => {
-                  setError(null);
-                  initializeDashboard();
-                }}
-              >
-                Reîncarcă
-              </button>
-            </div>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
+        setSuccessMessage('Universitatea a fost actualizată cu succes!');
+        setTimeout(() => setSuccessMessage(''), 3000);
+
+        // Reîncărcăm lista completă
+        const refreshResponse = await axios.get(`${API_BASE_URL}/api/universities`, {
+          headers: getAuthHeaders()
+        });
+        
+        if (refreshResponse.data) {
+          const processedData = refreshResponse.data.map(uni => ({
+            ...uni,
+            ranking: uni.ranking || '',
+            tuitionFees: uni.tuition_fees || {
+              bachelor: '',
+              master: '',
+              phd: ''
+            }
+          }));
+          setUniversities(processedData);
+        }
+        
+        handleCloseModal();
+      } else {
+        throw new Error(response.data.message || 'Eroare la actualizarea universității');
+      }
+    } catch (error) {
+      console.error('Eroare la actualizarea universității:', error);
+      setError('A apărut o eroare la actualizarea universității. Vă rugăm să încercați din nou.');
+      setTimeout(() => setError(null), 5000);
+    }
+  };
 
   return (
     <div className="dashboard-page">
@@ -1291,7 +1159,6 @@ const Dashboard = () => {
           <div className="dashboard-filters">
             <div className="search-box">
               <div className="search-input-wrapper">
-                <i className="fas fa-search search-icon"></i>
                 <input
                   type="text"
                   className="search-input"
@@ -1632,15 +1499,16 @@ const Dashboard = () => {
                       {successMessage}
                     </div>
                   )}
-                  <div className="universities-table-container">
+                  <div className="dashboard-table-container">
                     <table className="dashboard-table">
                       <thead>
                         <tr>
-                          <th>Name</th>
-                          <th>Type</th>
-                          <th>Location</th>
-                          <th>Website</th>
-                          <th>Actions</th>
+                          <th>Nume</th>
+                          <th>Tip</th>
+                          <th>Locație</th>
+                          <th>Ranking</th>
+                          <th>Taxe de școlarizare</th>
+                          <th>Acțiuni</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -1649,24 +1517,29 @@ const Dashboard = () => {
                             <td>{university.name}</td>
                             <td>{university.type}</td>
                             <td>{university.location}</td>
+                            <td>{university.ranking}</td>
                             <td>
-                              <a href={university.website} target="_blank" rel="noopener noreferrer">
-                                {university.website}
-                              </a>
+                              {university.tuitionFees && (
+                                <div>
+                                  <div>Bachelor: {university.tuitionFees.bachelor} EUR</div>
+                                  <div>Master: {university.tuitionFees.master} EUR</div>
+                                  <div>PhD: {university.tuitionFees.phd} EUR</div>
+                                </div>
+                              )}
                             </td>
                             <td>
                               <div className="action-buttons">
                                 <button 
-                                  className="edit-button"
+                                  className="action-button edit-button"
                                   onClick={() => handleEditUniversity(university)}
                                 >
-                                  Edit
+                                  <i className="fas fa-edit"></i> Editează
                                 </button>
                                 <button 
-                                  className="delete-button"
+                                  className="action-button delete-button"
                                   onClick={() => handleDeleteUniversity(university.id)}
                                 >
-                                  Delete
+                                  <i className="fas fa-trash"></i> Șterge
                                 </button>
                               </div>
                             </td>
@@ -1864,26 +1737,28 @@ const Dashboard = () => {
                                 <input
                                   type="text"
                                   name="name"
-                                  value={editingUniversity.name}
+                                  value={editingUniversity.name || ''}
                                   onChange={handleEditUniversityChange}
                                   required
                                 />
                               </div>
                               <div className="form-group">
                                 <label>Tip:</label>
-                                <input
-                                  type="text"
+                                <select
                                   name="type"
-                                  value={editingUniversity.type}
+                                  value={editingUniversity.type || ''}
                                   onChange={handleEditUniversityChange}
                                   required
-                                />
+                                >
+                                  <option value="Public">Public</option>
+                                  <option value="Private">Privat</option>
+                                </select>
                               </div>
                               <div className="form-group">
                                 <label>Descriere:</label>
                                 <textarea
                                   name="description"
-                                  value={editingUniversity.description}
+                                  value={editingUniversity.description || ''}
                                   onChange={handleEditUniversityChange}
                                   required
                                 />
@@ -1893,7 +1768,7 @@ const Dashboard = () => {
                                 <input
                                   type="text"
                                   name="location"
-                                  value={editingUniversity.location}
+                                  value={editingUniversity.location || ''}
                                   onChange={handleEditUniversityChange}
                                   required
                                 />
@@ -1903,17 +1778,18 @@ const Dashboard = () => {
                                 <input
                                   type="text"
                                   name="image_url"
-                                  value={editingUniversity.image_url}
+                                  value={editingUniversity.image_url || ''}
                                   onChange={handleEditUniversityChange}
                                 />
                               </div>
                               <div className="form-group">
                                 <label>Website:</label>
                                 <input
-                                  type="text"
+                                  type="url"
                                   name="website"
-                                  value={editingUniversity.website}
+                                  value={editingUniversity.website || ''}
                                   onChange={handleEditUniversityChange}
+                                  required
                                 />
                               </div>
                               <div className="form-group">
@@ -1921,8 +1797,9 @@ const Dashboard = () => {
                                 <input
                                   type="text"
                                   name="ranking"
-                                  value={editingUniversity.ranking}
+                                  value={editingUniversity.ranking || ''}
                                   onChange={handleEditUniversityChange}
+                                  placeholder="Introduceți clasamentul"
                                 />
                               </div>
                               <div className="form-group">
@@ -1992,9 +1869,35 @@ const Dashboard = () => {
                                   </div>
                                 </div>
                               </div>
-                              <div className="form-actions">
-                                <button type="submit" className="save-button">Salvează</button>
-                                <button type="button" className="cancel-button" onClick={handleCloseModal}>Anulează</button>
+                              <div className="form-actions" style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                                <button 
+                                  type="button" 
+                                  className="cancel-button" 
+                                  onClick={handleCloseModal}
+                                  style={{
+                                    padding: '8px 16px',
+                                    border: '1px solid #ccc',
+                                    borderRadius: '4px',
+                                    background: '#fff',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  Anulează
+                                </button>
+                                <button 
+                                  type="submit" 
+                                  className="save-button"
+                                  style={{
+                                    padding: '8px 16px',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    background: '#4CAF50',
+                                    color: 'white',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  Salvează
+                                </button>
                               </div>
                             </form>
                           )}
@@ -2519,7 +2422,7 @@ const Dashboard = () => {
                                     className="action-button view-docs-button"
                                     onClick={() => handleViewDocuments(user)}
                                   >
-                                    <i className="fas fa-file"></i> View Docs
+                                    <i className="fas fa-file"></i> Vezi Documente
                                   </button>
                                   <button 
                                     className="action-button delete-button"
@@ -2538,97 +2441,65 @@ const Dashboard = () => {
                 </div>
               ) : activeTab === 'documents' ? (
                 <div className="documents-table-container">
-                  {errors.documents ? (
-                    <div className="error-message">
-                      <i className="fas fa-exclamation-circle"></i>
-                      <p>{errors.documents}</p>
-                      <button 
-                        className="retry-button"
-                        onClick={() => {
-                          setErrors(prev => ({ ...prev, documents: null }));
-                          setLoading(prev => ({ ...prev, documents: true }));
-                          loadDocuments();
-                        }}
-                      >
-                        Reîncearcă
-                      </button>
-                    </div>
-                  ) : loading.documents ? (
-                    <div className="loading-container">
-                      <div className="loading-spinner"></div>
-                      <p>Loading documents...</p>
-                    </div>
-                  ) : (
                     <table className="dashboard-table">
                       <thead>
                         <tr>
                           <th>ID</th>
                           <th>User</th>
-                          <th>Document Type</th>
-                          <th>Upload Date</th>
+                        <th>Type</th>
                           <th>Status</th>
+                        <th>Upload Date</th>
                           <th>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {filteredDocuments.map(doc => {
-                          const user = users.find(u => u.id === doc.user_id);
-                          const uploadDate = doc.created_at || doc.uploadDate;
-                          const documentStatus = doc.status || 'pending';
-                          
-                          return (
-                            <tr key={`${doc.id}_${doc.document_type}`}>
+                      {filteredDocuments.map(doc => (
+                        <tr key={doc.id}>
                               <td>{doc.id}</td>
-                              <td>
-                                {user ? (
-                                  <span className="user-name">{user.name}</span>
-                                ) : (
-                                  <span className="unknown-user">
-                                    Utilizator ID: {doc.user_id}
+                          <td>{users.find(u => u.id === doc.user_id)?.name || 'N/A'}</td>
+                          <td>{doc.document_type}</td>
+                          <td>
+                            <span className={`status-badge status-${doc.status}`}>
+                              {doc.status}
                                   </span>
-                                )}
                               </td>
-                              <td>
-                                <span className="document-type">
-                                  {doc.document_type.charAt(0).toUpperCase() + doc.document_type.slice(1)}
-                                </span>
-                              </td>
-                              <td>{formatDate(uploadDate)}</td>
-                              <td>
-                                <span className={`status-badge status-${documentStatus}`}>
-                                  {documentStatus === 'pending' ? 'In waiting' :
-                                   documentStatus === 'approved' ? 'Approved' :
-                                   documentStatus === 'rejected' ? 'Rejected' :
-                                   documentStatus === 'missing' ? 'Missing' :
-                                   documentStatus.charAt(0).toUpperCase() + documentStatus.slice(1)}
-                                </span>
-                              </td>
+                          <td>{formatDate(doc.created_at)}</td>
                               <td>
                                 <div className="action-buttons">
                                   <button 
-                                    className="action-button download-button"
+                                className="view-button , download-button"
                                     onClick={() => handleDownloadDocument(doc.document_type, doc.user_id)}
-                                    title="Download document"
                                   >
-                                    <i className="fas fa-download"></i>
-                                    <span>Download</span>
+                                Descarcă
                                   </button>
+                                  {doc.status === 'pending' && (
+                                    <>
+                                      <button 
+                                    className="approve-button"
+                                    onClick={() => handleConfirmDocument(doc)}
+                                      >
+                                    Aprobă
+                                      </button>
+                                      <button 
+                                    className="reject-button"
+                                    onClick={() => handleRejectDocument(doc)}
+                                      >
+                                    Respinge
+                                      </button>
+                                    </>
+                                  )}
                                   <button 
-                                    className="action-button delete-button"
-                                    onClick={() => handleDeleteDocument(doc.document_type, doc.user_id)}
-                                    title="Delete document"
+                                className="delete-button"
+                                onClick={() => setDocumentToDelete(doc)}
                                   >
-                                    <i className="fas fa-trash"></i>
-                                    <span>Delete</span>
+                                Șterge
                                   </button>
                                 </div>
                               </td>
                             </tr>
-                          );
-                        })}
+                      ))}
                       </tbody>
                     </table>
-                  )}
                 </div>
               ) : activeTab === 'applications' ? (
                 <div className="applications-table-container">
@@ -2747,11 +2618,11 @@ const Dashboard = () => {
                         </div>
                         <div className="detail-row">
                           <span className="detail-label">Registration Date:</span>
-                          <span className="detail-value">{new Date(selectedUser.created_at).toLocaleDateString('ro-RO')}</span>
+                          <span className="detail-value">{formatDate(selectedUser.created_at)}</span>
                         </div>
                         <div className="detail-row">
                           <span className="detail-label">Last Update:</span>
-                          <span className="detail-value">{new Date(selectedUser.updated_at).toLocaleDateString('ro-RO')}</span>
+                          <span className="detail-value">{formatDate(selectedUser.updated_at)}</span>
                         </div>
                       </div>
 
@@ -2759,7 +2630,7 @@ const Dashboard = () => {
                         <h3>Personal Information</h3>
                         <div className="detail-row">
                           <span className="detail-label">Date of Birth:</span>
-                          <span className="detail-value">{selectedUser.date_of_birth ? new Date(selectedUser.date_of_birth).toLocaleDateString('en-US') : 'Not specified'}</span>
+                          <span className="detail-value">{selectedUser.date_of_birth ? formatDate(selectedUser.date_of_birth) : 'Not specified'}</span>
                         </div>
                         <div className="detail-row">
                           <span className="detail-label">Country of Origin:</span>
@@ -2784,7 +2655,7 @@ const Dashboard = () => {
                               {docStatus.diploma.exists ? 'Uploaded' : 'Missing'}
                               {docStatus.diploma.uploadDate && (
                                 <span className="upload-date">
-                                  ({new Date(docStatus.diploma.uploadDate).toLocaleDateString()})
+                                  ({formatDate(docStatus.diploma.uploadDate)})
                                 </span>
                               )}
                             </span>
@@ -2795,7 +2666,7 @@ const Dashboard = () => {
                               {docStatus.transcript.exists ? 'Încărcat' : 'Lipsește'}
                               {docStatus.transcript.uploadDate && (
                                 <span className="upload-date">
-                                  ({new Date(docStatus.transcript.uploadDate).toLocaleDateString()})
+                                  ({formatDate(docStatus.transcript.uploadDate)})
                                 </span>
                               )}
                             </span>
@@ -2806,7 +2677,7 @@ const Dashboard = () => {
                               {docStatus.passport.exists ? 'Încărcat' : 'Lipsește'}
                               {docStatus.passport.uploadDate && (
                                 <span className="upload-date">
-                                  ({new Date(docStatus.passport.uploadDate).toLocaleDateString()})
+                                  ({formatDate(docStatus.passport.uploadDate)})
                                 </span>
                               )}
                             </span>
@@ -2817,7 +2688,7 @@ const Dashboard = () => {
                               {docStatus.photo.exists ? 'Încărcat' : 'Lipsește'}
                               {docStatus.photo.uploadDate && (
                                 <span className="upload-date">
-                                  ({new Date(docStatus.photo.uploadDate).toLocaleDateString()})
+                                  ({formatDate(docStatus.photo.uploadDate)})
                                 </span>
                               )}
                             </span>
@@ -2829,7 +2700,7 @@ const Dashboard = () => {
                         <h3>Recent Activities</h3>
                         <div className="detail-row">
                           <span className="detail-label">Last Login:</span>
-                          <span className="detail-value">{selectedUser.last_login ? new Date(selectedUser.last_login).toLocaleString('ro-RO') : 'Nespecificată'}</span>
+                          <span className="detail-value">{selectedUser.last_login ? formatDate(selectedUser.last_login) : 'Nespecificată'}</span>
                         </div>
                         <div className="detail-row">
                           <span className="detail-label">Account Status:</span>
@@ -2851,7 +2722,7 @@ const Dashboard = () => {
                       </button>
                     </div>
                     <div className="user-documents">
-                      {renderUserDocuments()}
+                      {renderUserDocuments(selectedUser)}
                     </div>
                   </div>
                 </div>

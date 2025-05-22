@@ -51,15 +51,15 @@ exports.updateUniversity = async (req, res) => {
       image_url: req.body.image_url,
       website: req.body.website,
       ranking: req.body.ranking,
-      tuition_fees: {
-        bachelor: req.body.tuition_fees?.bachelor || null,
-        master: req.body.tuition_fees?.master || null,
-        phd: req.body.tuition_fees?.phd || null
+      tuition_fees: req.body.tuition_fees || {
+        bachelor: null,
+        master: null,
+        phd: null
       },
-      contact_info: {
-        email: req.body.contact_info?.email || null,
-        phone: req.body.contact_info?.phone || null,
-        address: req.body.contact_info?.address || null
+      contact_info: req.body.contact_info || {
+        email: null,
+        phone: null,
+        address: null
       }
     };
 
@@ -75,7 +75,18 @@ exports.updateUniversity = async (req, res) => {
     
     const updatedUniversity = await University.findByPk(req.params.id);
     console.log('Updated university data:', JSON.stringify(updatedUniversity, null, 2));
-    res.json(updatedUniversity);
+    
+    // Asigurăm că răspunsul include taxele de studii în formatul corect
+    const responseData = {
+      ...updatedUniversity.toJSON(),
+      tuition_fees: updatedUniversity.tuition_fees || {
+        bachelor: null,
+        master: null,
+        phd: null
+      }
+    };
+    
+    res.json(responseData);
   } catch (error) {
     console.error('Error updating university:', error);
     res.status(500).json({ message: 'Error updating university' });
