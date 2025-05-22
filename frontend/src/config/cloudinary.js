@@ -7,20 +7,31 @@ const cld = new Cloudinary({
 });
 
 export const getCloudinaryImageUrl = (publicId, options = {}) => {
-  const image = cld.image(publicId);
+  // Construim URL-ul direct pentru Cloudinary
+  const baseUrl = `https://res.cloudinary.com/dlbu43xwt/image/upload`;
+  const transformations = [];
   
-  // Aplică transformările implicite
-  image.format('auto')
-       .quality('auto')
-       .delivery('q_auto,f_auto');
+  // Adăugăm transformările de bază
+  transformations.push('f_auto,q_auto');
   
-  // Aplică transformările personalizate
-  if (options.width) image.resize({ width: options.width });
-  if (options.height) image.resize({ height: options.height });
-  if (options.crop) image.resize({ crop: options.crop });
-  if (options.radius) image.roundCorners(options.radius);
+  // Adăugăm transformările personalizate
+  if (options.width || options.height || options.crop) {
+    let resize = '';
+    if (options.crop) resize += `c_${options.crop},`;
+    if (options.width) resize += `w_${options.width},`;
+    if (options.height) resize += `h_${options.height}`;
+    // Eliminăm ultima virgulă dacă există
+    resize = resize.replace(/,$/, '');
+    transformations.push(resize);
+  }
   
-  return image.toURL();
+  if (options.radius) {
+    transformations.push(`r_${options.radius}`);
+  }
+  
+  // Construim URL-ul final
+  const transformString = transformations.join('/');
+  return `${baseUrl}/${transformString}/${publicId}`;
 };
 
 export default cld; 

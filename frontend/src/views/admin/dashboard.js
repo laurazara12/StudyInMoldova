@@ -103,6 +103,7 @@ const Dashboard = () => {
     approvedApplications: 0,
     rejectedApplications: 0
   });
+  const [filterUniversityDateRange, setFilterUniversityDateRange] = useState({ start: '', end: '' });
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user'));
@@ -124,14 +125,14 @@ const Dashboard = () => {
 
       console.log('Inițializare dashboard cu token:', token);
       const headers = getAuthHeaders();
-      console.log('Headers pentru cereri:', headers);
+      console.log('Headers for requests:', headers);
 
       // Funcție pentru a gestiona erorile individual pentru fiecare cerere
       const handleSectionError = (section, error) => {
         console.error(`Eroare la încărcarea ${section}:`, error);
         setErrors(prev => ({
           ...prev,
-          [section]: `Eroare la încărcarea ${section}: ${error.message}`
+          [section]: `Error loading ${section}: ${error.message}`
         }));
         setLoading(prev => ({
           ...prev,
@@ -166,20 +167,20 @@ const Dashboard = () => {
 
       // Funcție pentru extragerea datelor din răspuns
       const extractData = (response) => {
-        console.log('Răspuns brut de la server:', response);
+        console.log('Raw response from server:', response);
         
         if (!response) {
-          console.error('Răspuns nul sau nedefinit');
+          console.error('Null or undefined response');
           return [];
         }
 
         if (Array.isArray(response)) {
-          console.log('Răspuns este un array');
+          console.log('Response is an array');
           return response;
         }
 
         if (response.data) {
-          console.log('Răspuns conține data:', response.data);
+          console.log('Response contains data:', response.data);
           if (Array.isArray(response.data)) {
             return response.data;
           }
@@ -187,12 +188,12 @@ const Dashboard = () => {
             return response.data.data;
           }
           if (typeof response.data === 'object') {
-            console.log('Răspunsul este un obiect:', response.data);
+            console.log('Response is an object:', response.data);
             return [response.data];
           }
         }
 
-        console.error('Format neașteptat al răspunsului:', response);
+        console.error('Unexpected response format:', response);
         return [];
       };
 
@@ -210,7 +211,7 @@ const Dashboard = () => {
             const usersData = extractData(response);
             updateSectionData('users', usersData);
           } else {
-            throw new Error(`Eroare la obținerea utilizatorilor: ${response.status}`);
+            throw new Error(`Error getting users: ${response.status}`);
           }
         } catch (error) {
           handleSectionError('users', error);
@@ -230,7 +231,7 @@ const Dashboard = () => {
             const documentsData = extractData(response);
             updateSectionData('documents', documentsData);
           } else {
-            throw new Error(`Eroare la obținerea documentelor: ${response.status}`);
+            throw new Error(`Error getting documents: ${response.status}`);
           }
         } catch (error) {
           handleSectionError('documents', error);
@@ -250,7 +251,7 @@ const Dashboard = () => {
             const universitiesData = extractData(response);
             updateSectionData('universities', universitiesData);
           } else {
-            throw new Error(`Eroare la obținerea universităților: ${response.status}`);
+            throw new Error(`Error getting universities: ${response.status}`);
           }
         } catch (error) {
           handleSectionError('universities', error);
@@ -270,7 +271,7 @@ const Dashboard = () => {
             const programsData = extractData(response);
             updateSectionData('programs', programsData);
           } else {
-            throw new Error(`Eroare la obținerea programelor: ${response.status}`);
+            throw new Error(`Error getting programs: ${response.status}`);
           }
         } catch (error) {
           handleSectionError('programs', error);
@@ -290,7 +291,7 @@ const Dashboard = () => {
             const applicationsData = extractData(response);
             updateSectionData('applications', applicationsData);
           } else {
-            throw new Error(`Eroare la obținerea aplicațiilor: ${response.status}`);
+            throw new Error(`Error getting applications: ${response.status}`);
           }
         } catch (error) {
           handleSectionError('applications', error);
@@ -330,7 +331,7 @@ const Dashboard = () => {
 
   const getDocumentStatus = (userId) => {
     if (!userId) {
-      console.warn('getDocumentStatus: userId este undefined sau null');
+      console.warn('getDocumentStatus: userId is undefined or null');
       return getDefaultDocumentStatus();
     }
 
@@ -340,7 +341,7 @@ const Dashboard = () => {
       return getDefaultDocumentStatus();
     }
 
-    console.log(`Status documente pentru utilizatorul ${userId}:`, JSON.stringify(status, null, 2));
+    console.log(`Document status for user ${userId}:`, JSON.stringify(status, null, 2));
     return status;
   };
 
@@ -471,32 +472,32 @@ const Dashboard = () => {
           <tbody>
             {filteredDocs.map(doc => {
               const user = users.find(u => u && u.id === doc.user_id);
-              const userName = user ? `${user.firstName} ${user.lastName}` : `Utilizator ID: ${doc.user_id}`;
+              const userName = user ? `${user.firstName} ${user.lastName}` : `User ID: ${doc.user_id}`;
               const docType = doc.document_type?.toLowerCase();
               const docStatus = doc.status?.toLowerCase();
-              const uploadDate = doc.uploadDate || doc.created_at || 'Necunoscută';
+              const uploadDate = doc.uploadDate || doc.created_at || 'Unknown';
 
               return (
                 <tr key={`${doc.id}-${docType}`} className="hover:bg-gray-50">
                   <td className="px-4 py-2 border">{userName}</td>
                   <td className="px-4 py-2 border">
-                    {docType === 'passport' ? 'Pașaport' :
-                     docType === 'diploma' ? 'Diplomă' :
-                     docType === 'transcript' ? 'Adeverință' :
+                    {docType === 'passport' ? 'Passport' :
+                     docType === 'diploma' ? 'Diploma' :
+                     docType === 'transcript' ? 'Transcript' :
                      docType === 'cv' ? 'CV' :
-                     docType === 'photo' ? 'Fotografie' :
-                     docType === 'medical' ? 'Certificat Medical' :
-                     docType === 'insurance' ? 'Asigurare' :
-                     'Altele'}
+                     docType === 'photo' ? 'Photo' :
+                     docType === 'medical' ? 'Medical Certificate' :
+                     docType === 'insurance' ? 'Insurance' :
+                     'Other'}
                   </td>
                   <td className="px-4 py-2 border">
                     {new Date(uploadDate).toLocaleDateString('ro-RO')}
                   </td>
                   <td className="px-4 py-2 border">
-                    {docStatus === 'pending' ? 'În așteptare' :
-                     docStatus === 'approved' ? 'Aprobat' :
-                     docStatus === 'rejected' ? 'Respins' :
-                     'Lipsește'}
+                    {docStatus === 'pending' ? 'Pending' :
+                     docStatus === 'approved' ? 'Approved' :
+                     docStatus === 'rejected' ? 'Rejected' :
+                     'Missing'}
                   </td>
                   <td className="px-4 py-2 border">
                     <div className="flex space-x-2">
@@ -505,14 +506,14 @@ const Dashboard = () => {
                         disabled={!doc.id}
                         className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
                       >
-                        Descarcă
+                        Download
                       </button>
                       <button
                         onClick={() => handleDeleteDocument(doc.document_type, doc.user_id)}
                         disabled={!doc.id}
                         className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50"
                       >
-                        Șterge
+                          Delete
                       </button>
                     </div>
                   </td>
@@ -644,7 +645,7 @@ const Dashboard = () => {
         headers: getAuthHeaders()
       });
       setUniversities(response.data);
-      setSuccessMessage('Universitatea a fost adăugată cu succes!');
+      setSuccessMessage('University added successfully!');
       setTimeout(() => setSuccessMessage(''), 2000);
     } catch (error) {
       console.error('Error adding university:', error);
@@ -702,7 +703,7 @@ const Dashboard = () => {
         newState[name] = value;
       }
       
-      console.log('Starea actualizată:', JSON.stringify(newState, null, 2));
+      console.log('Updated state:', JSON.stringify(newState, null, 2));
       return newState;
     });
   };
@@ -719,7 +720,7 @@ const Dashboard = () => {
       const missingFields = requiredFields.filter(field => !editingUniversity[field]);
       
       if (missingFields.length > 0) {
-        throw new Error(`Câmpurile obligatorii lipsesc: ${missingFields.join(', ')}`);
+        throw new Error(`Required fields are missing: ${missingFields.join(', ')}`);
       }
 
       // Pregătim datele pentru trimitere
@@ -743,7 +744,7 @@ const Dashboard = () => {
         }
       };
 
-      console.log('Datele pregătite pentru trimitere:', JSON.stringify(universityData, null, 2));
+      console.log('Data prepared for submission:', JSON.stringify(universityData, null, 2));
 
       const response = await axios.put(
         `${API_BASE_URL}/api/universities/${editingUniversity.id}`,
@@ -756,7 +757,7 @@ const Dashboard = () => {
         }
       );
 
-      console.log('Răspuns de la server:', JSON.stringify(response.data, null, 2));
+      console.log('Server response:', JSON.stringify(response.data, null, 2));
 
       if (response.data) {
         setUniversities(prevUniversities => 
@@ -767,18 +768,18 @@ const Dashboard = () => {
         
         setShowEditUniversityForm(false);
         setEditingUniversity(null);
-        setSuccessMessage('Universitatea a fost actualizată cu succes!');
+        setSuccessMessage('University updated successfully!');
         setTimeout(() => setSuccessMessage(''), 2000);
       }
     } catch (error) {
-      console.error('Eroare la actualizarea universității:', error);
-      console.error('Detalii eroare:', error.response?.data);
-      setError('Eroare la actualizarea universității: ' + (error.response?.data?.message || error.message));
+      console.error('Error updating university:', error);
+      console.error('Error details:', error.response?.data);
+      setError('Error updating university: ' + (error.response?.data?.message || error.message));
     }
   };
 
   const handleDeleteUniversity = async (universityId) => {
-    if (window.confirm('Sigur doriți să ștergeți această universitate?')) {
+    if (window.confirm('Are you sure you want to delete this university?')) {
       try {
         await axios.delete(`${API_BASE_URL}/api/universities/${universityId}`, {
           headers: getAuthHeaders()
@@ -814,18 +815,18 @@ const Dashboard = () => {
   const handleEditProgram = async (program) => {
     try {
       if (!program || !program.id) {
-        console.error('Program invalid:', program);
-        throw new Error('Programul selectat nu este valid');
+        console.error('Invalid program:', program);
+        throw new Error('Selected program is invalid');
       }
 
-      console.log('Programul selectat pentru editare:', program);
+      console.log('Program selected for editing:', program);
 
       // Load the list of universities if we're not in the universities tab
       if (activeTab !== 'universities') {
         const response = await axios.get(`${API_BASE_URL}/api/universities`, {
           headers: getAuthHeaders()
         });
-        console.log('Universități încărcate:', response.data);
+        console.log('Universities loaded:', response.data);
         setUniversities(response.data);
       }
 
@@ -841,18 +842,18 @@ const Dashboard = () => {
         university_id: program.university_id || program.university?.id || ''
       };
 
-      console.log('Programul pregătit pentru editare:', programToEdit);
+      console.log('Program prepared for editing:', programToEdit);
       
       if (!programToEdit.id) {
-        console.error('ID lipsă din programul pregătit:', programToEdit);
-        throw new Error('ID-ul programului lipsește din datele pregătite');
+        console.error('Missing ID in prepared program:', programToEdit);
+        throw new Error('Program ID is missing from prepared data');
       }
 
       setEditingProgram(programToEdit);
       setShowEditProgramForm(true);
     } catch (error) {
-      console.error('Eroare la încărcarea datelor pentru editare:', error);
-      setError('Eroare la încărcarea datelor pentru editare: ' + (error.response?.data?.message || error.message));
+      console.error('Error loading data for editing:', error);
+      setError('Error loading data for editing: ' + (error.response?.data?.message || error.message));
     }
   };
 
@@ -860,20 +861,20 @@ const Dashboard = () => {
   const validateRequiredFields = (data, requiredFields) => {
     const missingFields = requiredFields.filter(field => !data[field]);
     if (missingFields.length > 0) {
-      throw new Error(`Câmpurile obligatorii lipsesc: ${missingFields.join(', ')}`);
+      throw new Error(`Required fields are missing: ${missingFields.join(', ')}`);
     }
   };
 
   const validateNumber = (value, fieldName, min, max) => {
     const num = parseFloat(value);
     if (isNaN(num)) {
-      throw new Error(`${fieldName} trebuie să fie un număr valid`);
+      throw new Error(`${fieldName} must be a valid number`);
     }
     if (min !== undefined && num < min) {
-      throw new Error(`${fieldName} trebuie să fie mai mare sau egal cu ${min}`);
+      throw new Error(`${fieldName} must be greater than or equal to ${min}`);
     }
     if (max !== undefined && num > max) {
-      throw new Error(`${fieldName} trebuie să fie mai mic sau egal cu ${max}`);
+      throw new Error(`${fieldName} must be less than or equal to ${max}`);
     }
     return num;
   };
@@ -881,10 +882,10 @@ const Dashboard = () => {
   const validateDate = (dateString, fieldName, allowPast = false) => {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) {
-      throw new Error(`${fieldName} nu este o dată validă`);
+      throw new Error(`${fieldName} is not a valid date`);
     }
     if (!allowPast && date < new Date()) {
-      throw new Error(`${fieldName} nu poate fi în trecut`);
+      throw new Error(`${fieldName} cannot be in the past`);
     }
     return date.toISOString().split('T')[0];
   };
@@ -909,7 +910,7 @@ const Dashboard = () => {
         day: 'numeric'
       });
     } catch (error) {
-      console.error('Eroare la formatarea datei:', error);
+      console.error('Error formatting date:', error);
       return 'N/A';
     }
   };
@@ -919,20 +920,20 @@ const Dashboard = () => {
     e.preventDefault();
     try {
       if (!token || !user || user.role !== 'admin') {
-        setError('Nu aveți permisiunea de a adăuga programe. Vă rugăm să vă autentificați ca administrator.');
+        setError('You do not have permission to add programs. Please log in as an administrator.');
         return;
       }
 
-      console.log('Datele programului înainte de validare:', newProgram);
+      console.log('Program data before validation:', newProgram);
 
       // Validare câmpuri obligatorii
       const requiredFields = {
-        name: 'Numele programului',
-        duration: 'Durata',
-        degree_type: 'Tipul de diplomă',
-        language: 'Limba de predare',
-        tuition_fees: 'Taxa de școlarizare',
-        university_id: 'Universitatea'
+        name: 'Program name',
+        duration: 'Duration',
+        degree_type: 'Degree type',
+        language: 'Language',
+        tuition_fees: 'Tuition fees',
+        university_id: 'University'
       };
 
       const missingFields = Object.entries(requiredFields)
@@ -940,7 +941,7 @@ const Dashboard = () => {
         .map(([_, label]) => label);
 
       if (missingFields.length > 0) {
-        throw new Error(`Câmpurile obligatorii lipsesc: ${missingFields.join(', ')}`);
+        throw new Error(`Required fields are missing: ${missingFields.join(', ')}`);
       }
 
       // Validare și formatare date
@@ -958,18 +959,18 @@ const Dashboard = () => {
 
       // Validări suplimentare
       if (isNaN(programData.duration) || programData.duration < 1 || programData.duration > 6) {
-        throw new Error('Durata programului trebuie să fie între 1 și 6 ani');
+        throw new Error('Program duration must be between 1 and 6 years');
       }
 
       if (isNaN(programData.university_id)) {
-        throw new Error('ID-ul universității nu este valid');
+        throw new Error('University ID is not valid');
       }
 
       if (programData.credits && (isNaN(programData.credits) || programData.credits < 0)) {
-        throw new Error('Numărul de credite trebuie să fie un număr pozitiv');
+        throw new Error('Credits must be a positive number');
       }
 
-      console.log('Datele pregătite pentru trimitere:', JSON.stringify(programData, null, 2));
+      console.log('Data prepared for submission:', JSON.stringify(programData, null, 2));
 
       const response = await axios.post(
         `${API_BASE_URL}/api/programs`,
@@ -985,10 +986,10 @@ const Dashboard = () => {
       console.log('Răspuns de la server:', JSON.stringify(response.data, null, 2));
 
       if (!response.data) {
-        throw new Error('Nu s-a primit răspuns valid de la server');
+        throw new Error('Invalid server response');
       }
 
-      // Programul a fost adăugat cu succes, reîncărcăm lista de programe
+      // Program added successfully, reload the list of programs
       try {
         const programsResponse = await axios.get(`${API_BASE_URL}/api/programs`, {
           headers: getAuthHeaders()
@@ -997,7 +998,7 @@ const Dashboard = () => {
         const updatedPrograms = extractData(programsResponse.data);
         if (updatedPrograms.length > 0) {
           setPrograms(updatedPrograms);
-          // Închidem modalul și resetăm formularul
+          // Close the modal and reset the form
           setShowAddProgramForm(false);
           setNewProgram({
             name: '',
@@ -1011,27 +1012,27 @@ const Dashboard = () => {
             credits: ''
           });
           
-          setSuccessMessage('Programul a fost adăugat cu succes!');
+          setSuccessMessage('Program added successfully!');
           setTimeout(() => setSuccessMessage(''), 2000);
         } else {
-          console.warn('Nu s-au putut încărca programele după adăugare');
-          // Adăugăm manual programul nou la lista existentă
+          console.warn('Failed to load programs after addition');
+          // Add the new program manually to the existing list
           setPrograms(prevPrograms => [...prevPrograms, response.data]);
           setShowAddProgramForm(false);
-          setSuccessMessage('Programul a fost adăugat cu succes!');
+          setSuccessMessage('Program added successfully!');
           setTimeout(() => setSuccessMessage(''), 2000);
         }
       } catch (error) {
-        console.error('Eroare la reîncărcarea programelor:', error);
-        // Adăugăm manual programul nou la lista existentă
+        console.error('Error reloading programs:', error);
+        // Add the new program manually to the existing list
         setPrograms(prevPrograms => [...prevPrograms, response.data]);
         setShowAddProgramForm(false);
-        setSuccessMessage('Programul a fost adăugat cu succes!');
+        setSuccessMessage('Program added successfully!');
         setTimeout(() => setSuccessMessage(''), 2000);
       }
 
     } catch (error) {
-      console.error('Eroare detaliată la adăugarea programului:', {
+      console.error('Detailed error adding program:', {
         message: error.message,
         response: error.response?.data,
         status: error.response?.status,
@@ -1044,7 +1045,7 @@ const Dashboard = () => {
         }
       });
       
-      let errorMessage = 'Eroare la adăugarea programului: ';
+      let errorMessage = 'Error adding program: ';
       
       if (error.response?.data?.message) {
         errorMessage += error.response.data.message;
@@ -1053,7 +1054,7 @@ const Dashboard = () => {
       } else if (error.message) {
         errorMessage += error.message;
       } else {
-        errorMessage += 'A apărut o eroare neașteptată';
+        errorMessage += 'An unexpected error occurred';
       }
       
       setError(errorMessage);
@@ -1062,36 +1063,36 @@ const Dashboard = () => {
 
   const handleProgramInputChange = (e) => {
     const { name, value } = e.target;
-    console.log('Modificare câmp program:', name, value);
+    console.log('Program field change:', name, value);
     
     setNewProgram(prev => {
       const updatedProgram = {
         ...prev,
         [name]: value
       };
-      console.log('Starea actualizată a programului:', updatedProgram);
+      console.log('Updated program state:', updatedProgram);
       return updatedProgram;
     });
   };
 
   const handleDeleteProgram = async (programId) => {
-    if (window.confirm('Sigur doriți să ștergeți acest program?')) {
+    if (window.confirm('Are you sure you want to delete this program?')) {
       try {
         await axios.delete(`${API_BASE_URL}/programs/${programId}`, {
           headers: getAuthHeaders()
         });
-        // Reîncărcăm lista de programe
+        // Reload the list of programs
         const response = await axios.get(`${API_BASE_URL}/programs`, {
           headers: getAuthHeaders()
         });
         if (response.data && response.data.data) {
           setPrograms(response.data.data);
         }
-        setSuccessMessage('Programul a fost șters cu succes!');
+        setSuccessMessage('Program deleted successfully!');
         setTimeout(() => setSuccessMessage(''), 2000);
       } catch (error) {
         console.error('Error deleting program:', error);
-        setError('Eroare la ștergerea programului: ' + (error.response?.data?.message || error.message));
+        setError('Error deleting program: ' + (error.response?.data?.message || error.message));
       }
     }
   };
@@ -1139,7 +1140,7 @@ const Dashboard = () => {
       }
     } catch (err) {
       console.error('Error updating application status:', err);
-      setError('A apărut o eroare la actualizarea statusului aplicației.');
+      setError('An error occurred while updating the application status.');
     }
   };
 
@@ -1147,15 +1148,15 @@ const Dashboard = () => {
     e.preventDefault();
     try {
       if (!token || !user || user.role !== 'admin') {
-        setError('Nu aveți permisiunea de a actualiza programe. Vă rugăm să vă autentificați ca administrator.');
+        setError('You do not have permission to update programs. Please log in as an administrator.');
         return;
       }
 
       if (!editingProgram) {
-        throw new Error('Nu există program selectat pentru editare');
+        throw new Error('No program selected for editing');
       }
 
-      console.log('Datele programului înainte de actualizare:', editingProgram);
+      console.log('Program data before update:', editingProgram);
 
       const programData = {
         name: String(editingProgram.name).trim(),
@@ -1169,7 +1170,7 @@ const Dashboard = () => {
         credits: editingProgram.credits ? parseInt(editingProgram.credits) : null
       };
 
-      console.log('Datele pregătite pentru actualizare:', JSON.stringify(programData, null, 2));
+      console.log('Data prepared for update:', JSON.stringify(programData, null, 2));
 
       const response = await axios.put(
         `${API_BASE_URL}/programs/${editingProgram.id}`,
@@ -1182,10 +1183,10 @@ const Dashboard = () => {
         }
       );
 
-      console.log('Răspuns de la server:', JSON.stringify(response.data, null, 2));
+      console.log('Server response:', JSON.stringify(response.data, null, 2));
 
       if (response.data) {
-        // Reîncărcăm lista completă de programe
+        // Reload the complete list of programs
         const programsResponse = await axios.get(`${API_BASE_URL}/programs`, {
           headers: getAuthHeaders()
         });
@@ -1198,13 +1199,13 @@ const Dashboard = () => {
 
         setShowEditProgramForm(false);
         setEditingProgram(null);
-        setSuccessMessage('Program actualizat cu succes!');
+        setSuccessMessage('Program updated successfully!');
         setTimeout(() => setSuccessMessage(''), 2000);
       } else {
-        throw new Error('Nu s-a primit răspuns valid de la server');
+        throw new Error('Invalid server response');
       }
     } catch (error) {
-      console.error('Eroare detaliată la actualizarea programului:', {
+      console.error('Detailed error updating program:', {
         message: error.message,
         response: error.response?.data,
         status: error.response?.status,
@@ -1217,7 +1218,7 @@ const Dashboard = () => {
         }
       });
       
-      let errorMessage = 'Eroare la actualizarea programului: ';
+      let errorMessage = 'Error updating program: ';
       
       if (error.response?.data?.message) {
         errorMessage += error.response.data.message;
@@ -1226,7 +1227,7 @@ const Dashboard = () => {
       } else if (error.message) {
         errorMessage += error.message;
       } else {
-        errorMessage += 'A apărut o eroare neașteptată';
+          errorMessage += 'An unexpected error occurred';
       }
       
       setError(errorMessage);
@@ -1236,58 +1237,7 @@ const Dashboard = () => {
   if (error) {
     return (
       <div className="dashboard-page">
-        <style>
-          {`
-            .action-buttons {
-              display: flex;
-              gap: 8px;
-              justify-content: center;
-            }
-            
-            .action-button {
-              padding: 6px 12px;
-              border: none;
-              border-radius: 4px;
-              cursor: pointer;
-              font-size: 14px;
-              display: flex;
-              align-items: center;
-              gap: 5px;
-              transition: all 0.3s ease;
-            }
-            
-            .action-button i {
-              font-size: 14px;
-            }
-            
-            .view-button {
-              background-color: #4CAF50;
-              color: white;
-            }
-            
-            .view-button:hover {
-              background-color: #45a049;
-            }
-            
-            .view-docs-button {
-              background-color: #2196F3;
-              color: white;
-            }
-            
-            .view-docs-button:hover {
-              background-color: #0b7dda;
-            }
-            
-            .delete-button {
-              background-color: #f44336;
-              color: white;
-            }
-            
-            .delete-button:hover {
-              background-color: #da190b;
-            }
-          `}
-        </style>
+        
         <Navbar />
         <div className="dashboard-container">
           <div className="dashboard-content">
@@ -1313,216 +1263,7 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-page">
-      <style>
-        {`
-          .action-buttons {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-          }
-          
-          .action-button {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: all 0.3s ease;
-          }
-          
-          .action-button i {
-            font-size: 14px;
-          }
-          
-          .view-button {
-            background-color: #4CAF50;
-            color: white;
-          }
-          
-          .view-button:hover {
-            background-color: #45a049;
-          }
-          
-          .view-docs-button {
-            background-color: #2196F3;
-            color: white;
-          }
-          
-          .view-docs-button:hover {
-            background-color: #0b7dda;
-          }
-          
-          .delete-button {
-            background-color: #f44336;
-            color: white;
-          }
-          
-          .delete-button:hover {
-            background-color: #da190b;
-          }
-
-          .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-          }
-
-          .modal-content {
-            background-color: white;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-            padding: 2rem;
-          }
-
-          .program-modal {
-            max-height: 80vh;
-            overflow-y: auto;
-          }
-
-          .program-form {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-          }
-
-          .form-row {
-            display: flex;
-            gap: 1rem;
-            width: 100%;
-          }
-
-          .form-group {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-          }
-
-          .form-group label {
-            font-weight: 500;
-            color: #333;
-          }
-
-          .form-input, .form-select {
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-            width: 100%;
-          }
-
-          .form-input:focus, .form-select:focus {
-            outline: none;
-            border-color: #4a90e2;
-            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
-          }
-
-          .modal-buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: 1rem;
-            margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 1px solid #eee;
-          }
-
-          .cancel-button, .confirm-button {
-            padding: 0.75rem 1.5rem;
-            border-radius: 4px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: none;
-          }
-
-          .cancel-button {
-            background-color: #f0f0f0;
-            color: #555;
-          }
-
-          .cancel-button:hover {
-            background-color: #e0e0e0;
-          }
-
-          .confirm-button {
-            background-color: #4a90e2;
-            color: white;
-          }
-
-          .confirm-button:hover {
-            background-color: #357abd;
-          }
-
-          @media (max-width: 768px) {
-            .form-row {
-              flex-direction: column;
-              gap: 1rem;
-            }
-
-            .modal-content {
-              width: 95%;
-              padding: 1.5rem;
-            }
-          }
-
-          .user-name {
-            font-weight: 500;
-            color: #333;
-          }
-
-          .unknown-user {
-            color: #666;
-            font-style: italic;
-          }
-
-          .status-badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-          }
-
-          .status-pending {
-            background-color: #fff3cd;
-            color: #856404;
-          }
-
-          .status-approved {
-            background-color: #d4edda;
-            color: #155724;
-          }
-
-          .status-rejected {
-            background-color: #f8d7da;
-            color: #721c24;
-          }
-
-          .status-missing {
-            background-color: #e2e3e5;
-            color: #383d41;
-          }
-
-          .document-type {
-            font-weight: 500;
-            color: #2196F3;
-          }
-        `}
-      </style>
+      
       <Navbar />
       <div className="dashboard-container">
         <div className="dashboard-content">
@@ -1558,7 +1299,7 @@ const Dashboard = () => {
                   className={`tab-button ${activeTab === 'applications' ? 'active' : ''}`}
                   onClick={() => setActiveTab('applications')}
                 >
-                  Aplicații
+                  Applications
                 </button>
               </nav>
             </div>
@@ -1631,7 +1372,7 @@ const Dashboard = () => {
                     setFilterUserDateRange({ start: '', end: '' });
                   }}
                 >
-                  Clear
+                  Clear Filters
                 </button>
               </div>
             ) : activeTab === 'documents' ? (
@@ -1748,6 +1489,24 @@ const Dashboard = () => {
                   </div>
                 </div>
                 <div className="filter-group">
+                  <label>Date:</label>
+                  <div className="date-range-inputs">
+                    <input
+                      type="date"
+                      className="date-input"
+                      value={filterUniversityDateRange.start}
+                      onChange={e => setFilterUniversityDateRange({...filterUniversityDateRange, start: e.target.value})}
+                    />
+                    <span>to</span>
+                    <input
+                      type="date"
+                      className="date-input"
+                      value={filterUniversityDateRange.end}
+                      onChange={e => setFilterUniversityDateRange({...filterUniversityDateRange, end: e.target.value})}
+                    />
+                  </div>
+                </div>
+                <div className="filter-group">
                   <label>Sort:</label>
                   <select
                     value={sortBy}
@@ -1764,7 +1523,7 @@ const Dashboard = () => {
                     <option value="tuition_desc">Tuition Fee (High-Low)</option>
                   </select>
                 </div>
-                <button 
+                <button
                   className="clear-filters-button"
                   onClick={() => {
                     setSearchTerm('');
@@ -1772,6 +1531,7 @@ const Dashboard = () => {
                     setFilterLocation('');
                     setFilterRanking({ min: '', max: '' });
                     setFilterTuitionFee({ min: '', max: '' });
+                    setFilterUniversityDateRange({ start: '', end: '' });
                     setSortBy('name');
                   }}
                 >
@@ -1787,10 +1547,10 @@ const Dashboard = () => {
                     onChange={(e) => setFilterDegree(e.target.value)}
                     className="filter-select"
                   >
-                    <option value="all">Toate gradele</option>
-                    <option value="Bachelor">Licență</option>
+                    <option value="all">All Degrees</option>
+                    <option value="Bachelor">Bachelor</option>
                     <option value="Master">Master</option>
-                    <option value="PhD">Doctorat</option>
+                    <option value="PhD">PhD</option>
                   </select>
                 </div>
                 <div className="filter-group">
@@ -1800,21 +1560,21 @@ const Dashboard = () => {
                     onChange={(e) => setFilterLanguage(e.target.value)}
                     className="filter-select"
                   >
-                    <option value="">Toate limbile</option>
-                    <option value="Romanian">Română</option>
-                    <option value="English">Engleză</option>
-                    <option value="Russian">Rusă</option>
+                    <option value="">All Languages</option>
+                    <option value="Romanian">Romanian</option>
+                    <option value="English">English</option>
+                    <option value="Russian">Russian</option>
                   </select>
                 </div>
                 <div className="filter-group">
-                  <label>Taxă de școlarizare:</label>
+                  <label>Tuition Fee:</label>
                   <div className="range-inputs">
                     <input
                       type="number"
                       placeholder="Min"
                       value={filterTuitionFee.min}
                       onChange={(e) => setFilterTuitionFee(prev => ({ ...prev, min: e.target.value }))}
-                      className="filter-input"
+                      className="range-input"
                     />
                     <span>-</span>
                     <input
@@ -1822,7 +1582,7 @@ const Dashboard = () => {
                       placeholder="Max"
                       value={filterTuitionFee.max}
                       onChange={(e) => setFilterTuitionFee(prev => ({ ...prev, max: e.target.value }))}
-                      className="filter-input"
+                      className="range-input"
                     />
                   </div>
                 </div>
@@ -1835,7 +1595,7 @@ const Dashboard = () => {
                     setFilterTuitionFee({ min: '', max: '' });
                   }}
                 >
-                  Resetează filtrele
+                  Clear Filters
                 </button>
               </div>
             ) : activeTab === 'applications' ? (
@@ -1847,41 +1607,22 @@ const Dashboard = () => {
                     onChange={(e) => setFilterApplicationStatus(e.target.value)}
                     className="filter-select"
                   >
-                    <option value="all">Toate Statusurile</option>
-                    <option value="pending">În Așteptare</option>
-                    <option value="approved">Aprobate</option>
-                    <option value="rejected">Respinse</option>
-                    <option value="under_review">În Revizuire</option>
+                    <option value="all">All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="under_review">Under Review</option>
                   </select>
                 </div>
                 <div className="filter-group">
-                  <label>Interval Dată:</label>
+                  <label>Date:</label>
                   <div className="date-range-inputs">
-                    <input
-                      type="date"
-                      value={filterApplicationDateRange.start}
-                      onChange={(e) => setFilterApplicationDateRange({...filterApplicationDateRange, start: e.target.value})}
-                      className="date-input"
-                    />
-                    <span>până la</span>
-                    <input
-                      type="date"
-                      value={filterApplicationDateRange.end}
-                      onChange={(e) => setFilterApplicationDateRange({...filterApplicationDateRange, end: e.target.value})}
-                      className="date-input"
-                    />
+                    <input type="date" className="date-input" value={filterApplicationDateRange?.start || ''} onChange={e => setFilterApplicationDateRange({...filterApplicationDateRange, start: e.target.value})} />
+                    <span>to</span>
+                    <input type="date" className="date-input" value={filterApplicationDateRange?.end || ''} onChange={e => setFilterApplicationDateRange({...filterApplicationDateRange, end: e.target.value})} />
                   </div>
                 </div>
-                <button 
-                  className="clear-filters-button"
-                  onClick={() => {
-                    setSearchTerm('');
-                    setFilterApplicationStatus('all');
-                    setFilterApplicationDateRange({ start: '', end: '' });
-                  }}
-                >
-                  Resetează Filtrele
-                </button>
+                <button className="clear-filters-button" onClick={() => setFilterApplicationDateRange({ start: '', end: '' })}>Clear</button>
               </div>
             ) : null}
           </div>
@@ -2116,7 +1857,27 @@ const Dashboard = () => {
                         <div className="modal-content">
                           <div className="modal-header">
                             <h5 className="modal-title">Editează Universitatea</h5>
-                            <button type="button" className="btn-close" onClick={() => setShowEditUniversityForm(false)}></button>
+                            <button 
+                              type="button" 
+                              className="btn-close" 
+                              onClick={() => {
+                                setShowEditUniversityForm(false);
+                                setEditingUniversity(null);
+                              }}
+                              style={{
+                                position: 'absolute',
+                                right: '10px',
+                                top: '10px',
+                                background: 'none',
+                                border: 'none',
+                                fontSize: '1.5rem',
+                                cursor: 'pointer',
+                                padding: '5px',
+                                color: '#666'
+                              }}
+                            >
+                              ×
+                            </button>
                           </div>
                           <div className="modal-body">
                             <form onSubmit={handleUpdateUniversity}>
@@ -2140,9 +1901,9 @@ const Dashboard = () => {
                                   onChange={handleEditUniversityChange}
                                   required
                                 >
-                                  <option value="">Selectează tipul</option>
+                                  <option value="">Select Type</option>
                                   <option value="Public">Public</option>
-                                  <option value="Privat">Privat</option>
+                                  <option value="Privat">Private</option>
                                 </select>
                               </div>
                               <div className="form-group mb-3">
@@ -2156,7 +1917,7 @@ const Dashboard = () => {
                                 />
                               </div>
                               <div className="form-group mb-3">
-                                <label>Locație</label>
+                                <label>Location</label>
                                 <input
                                   type="text"
                                   className="form-control"
@@ -2167,7 +1928,7 @@ const Dashboard = () => {
                                 />
                               </div>
                               <div className="form-group mb-3">
-                                <label>URL Imagine</label>
+                                <label>Image URL</label>
                                 <input
                                   type="text"
                                   className="form-control"
@@ -2189,7 +1950,7 @@ const Dashboard = () => {
                                 />
                               </div>
                               <div className="form-group mb-3">
-                                <label>Clasament</label>
+                                <label>Ranking</label>
                                 <input
                                   type="text"
                                   className="form-control"
@@ -2199,7 +1960,7 @@ const Dashboard = () => {
                                 />
                               </div>
                               <div className="form-group mb-3">
-                                <label>Taxe de Școlarizare</label>
+                                <label>Tuition Fees</label>
                                 <div className="row">
                                   <div className="col-md-4">
                                     <input
@@ -2211,7 +1972,7 @@ const Dashboard = () => {
                                       placeholder="ex: 3000-4000 EUR/year"
                                       maxLength="20"
                                     />
-                                    <small className="form-text text-muted">Licență (max 20 caractere)</small>
+                                    <small className="form-text text-muted">Bachelor (max 20 characters)</small>
                                   </div>
                                   <div className="col-md-4">
                                     <input
@@ -2223,7 +1984,7 @@ const Dashboard = () => {
                                       placeholder="ex: 4000-5000 EUR/year"
                                       maxLength="20"
                                     />
-                                    <small className="form-text text-muted">Master (max 20 caractere)</small>
+                                    <small className="form-text text-muted">Master (max 20 characters)</small>
                                   </div>
                                   <div className="col-md-4">
                                     <input
@@ -2235,12 +1996,12 @@ const Dashboard = () => {
                                       placeholder="ex: 5000-6000 EUR/year"
                                       maxLength="20"
                                     />
-                                    <small className="form-text text-muted">Doctorat (max 20 caractere)</small>
+                                    <small className="form-text text-muted">PhD (max 20 characters)</small>
                                   </div>
                                 </div>
                               </div>
                               <div className="form-group mb-3">
-                                <label>Informații de Contact</label>
+                                <label>Contact Info</label>
                                 <div className="row">
                                   <div className="col-md-4">
                                     <input
@@ -2311,13 +2072,13 @@ const Dashboard = () => {
                       <thead>
                         <tr>
                           <th>ID</th>
-                          <th>Nume</th>
-                          <th>Grad</th>
-                          <th>Durată</th>
-                          <th>Limbă</th>
-                          <th>Taxă</th>
-                          <th>Universitate</th>
-                          <th>Acțiuni</th>
+                          <th>Name</th>
+                          <th>Degree</th>
+                          <th>Duration</th>
+                          <th>Language</th>
+                          <th>Tuition Fee</th>
+                          <th>University</th>
+                          <th>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -2336,7 +2097,7 @@ const Dashboard = () => {
                                   Editează
                                 </button>
                                 <button onClick={() => handleDeleteProgram(program.id)} className="delete-button">
-                                  Șterge
+                                  Delete
                                 </button>
                               </div>
                             </td>
@@ -2349,24 +2110,24 @@ const Dashboard = () => {
                   {showAddProgramForm && (
                     <div className="modal-overlay">
                       <div className="modal-content program-modal">
-                        <h2>Adaugă Program Nou</h2>
+                        <h2>Add New Program</h2>
                         <form onSubmit={handleAddProgram} className="program-form">
                           <div className="form-row">
                             <div className="form-group">
-                              <label>Nume Program:</label>
+                              <label>Program Name:</label>
                               <input
                                 type="text"
                                 name="name"
                                 value={newProgram.name}
                                 onChange={handleProgramInputChange}
-                                placeholder="Introduceți numele programului"
+                                placeholder="Enter the program name"
                                 required
                                 className="form-input"
                               />
                             </div>
 
                             <div className="form-group">
-                              <label>Grad:</label>
+                              <label>Degree:</label>
                               <select
                                 name="degree_type"
                                 value={newProgram.degree_type}
@@ -2374,35 +2135,35 @@ const Dashboard = () => {
                                 required
                                 className="form-select"
                               >
-                                <option value="">Selectează gradul</option>
-                                <option value="Bachelor">Licență</option>
+                                <option value="">Select Degree</option>
+                                <option value="Bachelor">Bachelor</option>
                                 <option value="Master">Master</option>
-                                <option value="PhD">Doctorat</option>
+                                <option value="PhD">PhD</option>
                               </select>
                             </div>
                           </div>
 
                           <div className="form-row">
                             <div className="form-group">
-                              <label>Facultate:</label>
+                              <label>Faculty:</label>
                               <input
                                 type="text"
                                 name="faculty"
                                 value={newProgram.faculty}
                                 onChange={handleProgramInputChange}
-                                placeholder="Introduceți numele facultății"
+                                placeholder="Enter the faculty name"
                                 className="form-input"
                               />
                             </div>
 
                             <div className="form-group">
-                              <label>Credite:</label>
+                              <label>Credits:</label>
                               <input
                                 type="number"
                                 name="credits"
                                 value={newProgram.credits}
                                 onChange={handleProgramInputChange}
-                                placeholder="Introduceți numărul de credite"
+                                placeholder="Enter the number of credits"
                                 className="form-input"
                               />
                             </div>
@@ -2410,7 +2171,7 @@ const Dashboard = () => {
 
                           <div className="form-row">
                             <div className="form-group">
-                              <label>Durată (ani):</label>
+                              <label>Duration (years):</label>
                               <input
                                 type="number"
                                 name="duration"
@@ -2418,14 +2179,14 @@ const Dashboard = () => {
                                 max="6"
                                 value={newProgram.duration}
                                 onChange={handleProgramInputChange}
-                                placeholder="Număr de ani"
+                                placeholder="Number of years"
                                 required
                                 className="form-input"
                               />
                             </div>
 
                             <div className="form-group">
-                              <label>Limbă de Predare:</label>
+                              <label>Teaching Language:</label>
                               <select
                                 name="language"
                                 value={newProgram.language}
@@ -2433,10 +2194,10 @@ const Dashboard = () => {
                                 required
                                 className="form-select"
                               >
-                                <option value="">Selectează limba</option>
-                                <option value="Romanian">Română</option>
-                                <option value="English">Engleză</option>
-                                <option value="Russian">Rusă</option>
+                                <option value="">Select Language</option>
+                                <option value="Romanian">Romanian</option>
+                                <option value="English">English</option>
+                                <option value="Russian">Russian</option>
                               </select>
                             </div>
                           </div>
@@ -2455,21 +2216,21 @@ const Dashboard = () => {
 
                           <div className="form-row">
                             <div className="form-group">
-                              <label>Taxă de Școlarizare:</label>
+                              <label>Tuition Fee:</label>
                               <input
                                 type="text"
                                 name="tuition_fees"
                                 maxLength="50"
                                 value={newProgram.tuition_fees}
                                 onChange={handleProgramInputChange}
-                                placeholder="ex: 3000-4000 EUR/an"
+                                placeholder="ex: 3000-4000 EUR/year"
                                 required
                                 className="form-input"
                               />
                             </div>
 
                             <div className="form-group">
-                              <label>Universitate:</label>
+                              <label>University:</label>
                               <select
                                 name="university_id"
                                 value={newProgram.university_id}
@@ -2477,7 +2238,7 @@ const Dashboard = () => {
                                 required
                                 className="form-select"
                               >
-                                <option value="">Selectează universitatea</option>
+                                <option value="">Select University</option>
                                 {Array.isArray(universities) ? universities.map(university => (
                                   <option key={university.id} value={university.id}>
                                     {university.name}
@@ -2509,7 +2270,7 @@ const Dashboard = () => {
                               Anulează
                             </button>
                             <button type="submit" className="confirm-button">
-                              Adaugă Program
+                              Add Program
                             </button>
                           </div>
                         </form>
@@ -2520,11 +2281,11 @@ const Dashboard = () => {
                   {showEditProgramForm && editingProgram && (
                     <div className="modal-overlay">
                       <div className="modal-content program-modal">
-                        <h2>Editează Programul</h2>
+                        <h2>Edit Program</h2>
                         <form onSubmit={handleUpdateProgram} className="program-form">
                           <div className="form-row">
                             <div className="form-group">
-                              <label>Nume Program:</label>
+                              <label>Program Name:</label>
                               <input
                                 type="text"
                                 name="name"
@@ -2533,14 +2294,14 @@ const Dashboard = () => {
                                   ...editingProgram,
                                   name: e.target.value
                                 })}
-                                placeholder="Introduceți numele programului"
+                                placeholder="Enter the program name"
                                 required
                                 className="form-input"
                               />
                             </div>
 
                             <div className="form-group">
-                              <label>Grad:</label>
+                              <label>Degree:</label>
                               <select
                                 name="degree_type"
                                 value={editingProgram.degree_type}
@@ -2551,10 +2312,10 @@ const Dashboard = () => {
                                 required
                                 className="form-select"
                               >
-                                <option value="">Selectează gradul</option>
-                                <option value="Bachelor">Licență</option>
+                                <option value="">Select Degree</option>
+                                <option value="Bachelor">Bachelor</option>
                                 <option value="Master">Master</option>
-                                <option value="PhD">Doctorat</option>
+                                <option value="PhD">PhD</option>
                               </select>
                             </div>
                           </div>
@@ -2570,13 +2331,13 @@ const Dashboard = () => {
                                   ...editingProgram,
                                   faculty: e.target.value
                                 })}
-                                placeholder="Introduceți numele facultății"
+                                placeholder="Enter the faculty name"
                                 className="form-input"
                               />
                             </div>
 
                             <div className="form-group">
-                              <label>Credite:</label>
+                              <label>Credits:</label>
                               <input
                                 type="number"
                                 name="credits"
@@ -2585,7 +2346,7 @@ const Dashboard = () => {
                                   ...editingProgram,
                                   credits: e.target.value
                                 })}
-                                placeholder="Introduceți numărul de credite"
+                                placeholder="Enter the number of credits"
                                 className="form-input"
                               />
                             </div>
@@ -2593,7 +2354,7 @@ const Dashboard = () => {
 
                           <div className="form-row">
                             <div className="form-group">
-                              <label>Durată (ani):</label>
+                              <label>Duration (years):</label>
                               <input
                                 type="number"
                                 name="duration"
@@ -2604,14 +2365,14 @@ const Dashboard = () => {
                                   ...editingProgram,
                                   duration: e.target.value
                                 })}
-                                placeholder="Număr de ani"
+                                placeholder="Number of years"
                                 required
                                 className="form-input"
                               />
                             </div>
 
                             <div className="form-group">
-                              <label>Limbă de Predare:</label>
+                              <label>Teaching Language:</label>
                               <select
                                 name="language"
                                 value={editingProgram.language}
@@ -2622,10 +2383,10 @@ const Dashboard = () => {
                                 required
                                 className="form-select"
                               >
-                                <option value="">Selectează limba</option>
-                                <option value="Romanian">Română</option>
-                                <option value="English">Engleză</option>
-                                <option value="Russian">Rusă</option>
+                                <option value="">Select Language</option>
+                                <option value="Romanian">Romanian</option>
+                                <option value="English">English</option>
+                                <option value="Russian">Russian</option>
                               </select>
                             </div>
                           </div>
@@ -2639,7 +2400,7 @@ const Dashboard = () => {
                                 ...editingProgram,
                                 description: e.target.value
                               })}
-                              placeholder="Descrieți programul de studiu"
+                              placeholder="Describe the study program"
                               className="form-textarea"
                               rows="4"
                             />
@@ -2647,7 +2408,7 @@ const Dashboard = () => {
 
                           <div className="form-row">
                             <div className="form-group">
-                              <label>Taxă de Școlarizare:</label>
+                              <label>Tuition Fee:</label>
                               <input
                                 type="text"
                                 name="tuition_fees"
@@ -2657,14 +2418,14 @@ const Dashboard = () => {
                                   ...editingProgram,
                                   tuition_fees: e.target.value
                                 })}
-                                placeholder="ex: 3000-4000 EUR/an"
+                                placeholder="ex: 3000-4000 EUR/year"
                                 required
                                 className="form-input"
                               />
                             </div>
 
                             <div className="form-group">
-                              <label>Universitate:</label>
+                              <label>University:</label>
                               <select
                                 name="university_id"
                                 value={editingProgram.university_id}
@@ -2675,7 +2436,7 @@ const Dashboard = () => {
                                 required
                                 className="form-select"
                               >
-                                <option value="">Selectează universitatea</option>
+                                <option value="">Select University</option>
                                 {Array.isArray(universities) ? universities.map(university => (
                                   <option key={university.id} value={university.id}>
                                     {university.name}
@@ -2697,7 +2458,7 @@ const Dashboard = () => {
                               Anulează
                             </button>
                             <button type="submit" className="confirm-button">
-                              Salvează Modificările
+                              Save Changes
                             </button>
                           </div>
                         </form>
@@ -2842,18 +2603,18 @@ const Dashboard = () => {
                   ) : loading.documents ? (
                     <div className="loading-container">
                       <div className="loading-spinner"></div>
-                      <p>Se încarcă documentele...</p>
+                      <p>Loading documents...</p>
                     </div>
                   ) : (
                     <table className="dashboard-table">
                       <thead>
                         <tr>
                           <th>ID</th>
-                          <th>Utilizator</th>
-                          <th>Tip Document</th>
-                          <th>Data Încărcare</th>
+                          <th>User</th>
+                          <th>Document Type</th>
+                          <th>Upload Date</th>
                           <th>Status</th>
-                          <th>Acțiuni</th>
+                          <th>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -2882,10 +2643,10 @@ const Dashboard = () => {
                               <td>{formatDate(uploadDate)}</td>
                               <td>
                                 <span className={`status-badge status-${documentStatus}`}>
-                                  {documentStatus === 'pending' ? 'În așteptare' :
-                                   documentStatus === 'approved' ? 'Aprobat' :
-                                   documentStatus === 'rejected' ? 'Respins' :
-                                   documentStatus === 'missing' ? 'Lipsește' :
+                                  {documentStatus === 'pending' ? 'In waiting' :
+                                   documentStatus === 'approved' ? 'Approved' :
+                                   documentStatus === 'rejected' ? 'Rejected' :
+                                   documentStatus === 'missing' ? 'Missing' :
                                    documentStatus.charAt(0).toUpperCase() + documentStatus.slice(1)}
                                 </span>
                               </td>
@@ -2894,18 +2655,18 @@ const Dashboard = () => {
                                   <button 
                                     className="action-button download-button"
                                     onClick={() => handleDownloadDocument(doc.document_type, doc.user_id)}
-                                    title="Descarcă documentul"
+                                    title="Download document"
                                   >
                                     <i className="fas fa-download"></i>
-                                    <span>Descarcă</span>
+                                    <span>Download</span>
                                   </button>
                                   <button 
                                     className="action-button delete-button"
                                     onClick={() => handleDeleteDocument(doc.document_type, doc.user_id)}
-                                    title="Șterge documentul"
+                                    title="Delete document"
                                   >
                                     <i className="fas fa-trash"></i>
-                                    <span>Șterge</span>
+                                    <span>Delete</span>
                                   </button>
                                 </div>
                               </td>
@@ -2936,19 +2697,19 @@ const Dashboard = () => {
                   ) : loading.applications ? (
                     <div className="loading-container">
                       <div className="loading-spinner"></div>
-                      <p>Se încarcă aplicațiile...</p>
+                      <p>Loading applications...</p>
                     </div>
                   ) : (
                     <table className="dashboard-table">
                       <thead>
                         <tr>
                           <th>ID</th>
-                          <th>Utilizator</th>
+                          <th>User</th>
                           <th>Program</th>
-                          <th>Universitate</th>
-                          <th>Data Aplicației</th>
+                          <th>University</th>
+                          <th>Application Date</th>
                           <th>Status</th>
-                          <th>Acțiuni</th>
+                          <th>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -2971,10 +2732,10 @@ const Dashboard = () => {
                               <td>{formatDate(app.created_at)}</td>
                               <td>
                                 <span className={`status-badge status-${app.status}`}>
-                                  {app.status === 'pending' ? 'În Așteptare' :
-                                   app.status === 'approved' ? 'Aprobată' :
-                                   app.status === 'rejected' ? 'Respinsă' :
-                                   app.status === 'under_review' ? 'În Revizuire' :
+                                  {app.status === 'pending' ? 'In Waiting' :
+                                   app.status === 'approved' ? 'Approved' :
+                                   app.status === 'rejected' ? 'Rejected' :
+                                   app.status === 'under_review' ? 'In Review' :
                                    app.status.charAt(0).toUpperCase() + app.status.slice(1)}
                                 </span>
                               </td>
@@ -2984,13 +2745,13 @@ const Dashboard = () => {
                                     className="action-button view-button"
                                     onClick={() => handleViewApplication(app)}
                                   >
-                                    <i className="fas fa-eye"></i> Vezi
+                                    <i className="fas fa-eye"></i> View
                                   </button>
                                   <button 
                                     className="action-button edit-button"
                                     onClick={() => handleEditApplication(app)}
                                   >
-                                    <i className="fas fa-edit"></i> Editează
+                                    <i className="fas fa-edit"></i> Edit
                                   </button>
                                 </div>
                               </td>
@@ -3007,20 +2768,20 @@ const Dashboard = () => {
                 <div className="modal-overlay">
                   <div className="modal-content user-details-modal">
                     <div className="modal-header">
-                      <h2>Detalii Utilizator</h2>
+                      <h2>User Details</h2>
                       <button className="close-button" onClick={closeModals}>
                         <span className="close-x">×</span>
                       </button>
                     </div>
                     <div className="user-details-content">
                       <div className="user-details-section">
-                        <h3>Informații de Bază</h3>
+                        <h3>Basic Information</h3>
                         <div className="detail-row">
                           <span className="detail-label">ID:</span>
                           <span className="detail-value">{selectedUser.id}</span>
                         </div>
                         <div className="detail-row">
-                          <span className="detail-label">Nume:</span>
+                          <span className="detail-label">Name:</span>
                           <span className="detail-value">{selectedUser.name}</span>
                         </div>
                         <div className="detail-row">
@@ -3028,46 +2789,46 @@ const Dashboard = () => {
                           <span className="detail-value">{selectedUser.email}</span>
                         </div>
                         <div className="detail-row">
-                          <span className="detail-label">Rol:</span>
-                          <span className="detail-value">{selectedUser.role === 'admin' ? 'Administrator' : 'Utilizator'}</span>
+                          <span className="detail-label">Role:</span>
+                          <span className="detail-value">{selectedUser.role === 'admin' ? 'Administrator' : 'User'}</span>
                         </div>
                         <div className="detail-row">
-                          <span className="detail-label">Data Înregistrării:</span>
+                          <span className="detail-label">Registration Date:</span>
                           <span className="detail-value">{new Date(selectedUser.created_at).toLocaleDateString('ro-RO')}</span>
                         </div>
                         <div className="detail-row">
-                          <span className="detail-label">Ultima Actualizare:</span>
+                          <span className="detail-label">Last Update:</span>
                           <span className="detail-value">{new Date(selectedUser.updated_at).toLocaleDateString('ro-RO')}</span>
                         </div>
                       </div>
 
                       <div className="user-details-section">
-                        <h3>Informații Personale</h3>
+                        <h3>Personal Information</h3>
                         <div className="detail-row">
-                          <span className="detail-label">Data Nașterii:</span>
-                          <span className="detail-value">{selectedUser.date_of_birth ? new Date(selectedUser.date_of_birth).toLocaleDateString('ro-RO') : 'Nespecificată'}</span>
+                          <span className="detail-label">Date of Birth:</span>
+                          <span className="detail-value">{selectedUser.date_of_birth ? new Date(selectedUser.date_of_birth).toLocaleDateString('en-US') : 'Not specified'}</span>
                         </div>
                         <div className="detail-row">
-                          <span className="detail-label">Țara de Origine:</span>
-                          <span className="detail-value">{selectedUser.country_of_origin || 'Nespecificată'}</span>
+                          <span className="detail-label">Country of Origin:</span>
+                          <span className="detail-value">{selectedUser.country_of_origin || 'Not specified'}</span>
                         </div>
                         <div className="detail-row">
-                          <span className="detail-label">Naționalitate:</span>
-                          <span className="detail-value">{selectedUser.nationality || 'Nespecificată'}</span>
+                          <span className="detail-label">Nationality:</span>
+                          <span className="detail-value">{selectedUser.nationality || 'Not specified'}</span>
                         </div>
                         <div className="detail-row">
-                          <span className="detail-label">Număr de Telefon:</span>
-                          <span className="detail-value">{selectedUser.phone || 'Nespecificat'}</span>
+                          <span className="detail-label">Phone Number:</span>
+                          <span className="detail-value">{selectedUser.phone || 'Not specified'}</span>
                         </div>
                       </div>
 
                       <div className="user-details-section">
-                        <h3>Statut Documente</h3>
+                        <h3>Document Status</h3>
                         <div className="document-status-grid">
                           <div className="document-status-item">
-                            <span className="status-label">Diplomă:</span>
+                            <span className="status-label">Diploma:</span>
                             <span className={`status-value ${docStatus.diploma.status}`}>
-                              {docStatus.diploma.exists ? 'Încărcat' : 'Lipsește'}
+                              {docStatus.diploma.exists ? 'Uploaded' : 'Missing'}
                               {docStatus.diploma.uploadDate && (
                                 <span className="upload-date">
                                   ({new Date(docStatus.diploma.uploadDate).toLocaleDateString()})
@@ -3112,14 +2873,14 @@ const Dashboard = () => {
                       </div>
 
                       <div className="user-details-section">
-                        <h3>Activități Recente</h3>
+                        <h3>Recent Activities</h3>
                         <div className="detail-row">
-                          <span className="detail-label">Ultima Autentificare:</span>
+                          <span className="detail-label">Last Login:</span>
                           <span className="detail-value">{selectedUser.last_login ? new Date(selectedUser.last_login).toLocaleString('ro-RO') : 'Nespecificată'}</span>
                         </div>
                         <div className="detail-row">
-                          <span className="detail-label">Status Cont:</span>
-                          <span className="detail-value">{selectedUser.is_active ? 'Activ' : 'Inactiv'}</span>
+                          <span className="detail-label">Account Status:</span>
+                          <span className="detail-value">{selectedUser.is_active ? 'Active' : 'Inactive'}</span>
                         </div>
                       </div>
                     </div>
@@ -3131,7 +2892,7 @@ const Dashboard = () => {
                 <div className="modal-overlay">
                   <div className="modal-content documents-modal">
                     <div className="modal-header">
-                      <h2>Documente Utilizator</h2>
+                      <h2>User Documents</h2>
                       <button className="close-button" onClick={closeModals}>
                         <span className="close-x">×</span>
                       </button>
@@ -3188,7 +2949,7 @@ const Dashboard = () => {
                 <div className="modal-overlay">
                   <div className="modal-content">
                     <div className="modal-header">
-                      <h2>Detalii Aplicație</h2>
+                      <h2>Application Details</h2>
                       <button className="close-button" onClick={() => {
                         setShowApplicationDetails(false);
                         setSelectedApplication(null);
@@ -3198,11 +2959,11 @@ const Dashboard = () => {
                     </div>
                     <div className="application-details">
                       <div className="detail-row">
-                        <span className="detail-label">ID Aplicație:</span>
+                        <span className="detail-label">Application ID:</span>
                         <span className="detail-value">{selectedApplication.id}</span>
                       </div>
                       <div className="detail-row">
-                        <span className="detail-label">Utilizator:</span>
+                        <span className="detail-label">User:</span>
                         <span className="detail-value">
                           {users.find(u => u.id === selectedApplication.user_id)?.name || 'N/A'}
                         </span>
@@ -3212,26 +2973,26 @@ const Dashboard = () => {
                         <span className="detail-value">{selectedApplication.program?.name || 'N/A'}</span>
                       </div>
                       <div className="detail-row">
-                        <span className="detail-label">Universitate:</span>
+                        <span className="detail-label">University:</span>
                         <span className="detail-value">{selectedApplication.university?.name || 'N/A'}</span>
                       </div>
                       <div className="detail-row">
-                        <span className="detail-label">Data Aplicației:</span>
+                        <span className="detail-label">Application Date:</span>
                         <span className="detail-value">{formatDate(selectedApplication.created_at)}</span>
                       </div>
                       <div className="detail-row">
                         <span className="detail-label">Status:</span>
                         <span className={`status-badge status-${selectedApplication.status}`}>
-                          {selectedApplication.status === 'pending' ? 'În Așteptare' :
-                           selectedApplication.status === 'approved' ? 'Aprobată' :
-                           selectedApplication.status === 'rejected' ? 'Respinsă' :
-                           selectedApplication.status === 'under_review' ? 'În Revizuire' :
+                          {selectedApplication.status === 'pending' ? 'In Waiting' :
+                           selectedApplication.status === 'approved' ? 'Approved' :
+                           selectedApplication.status === 'rejected' ? 'Rejected' :
+                           selectedApplication.status === 'under_review' ? 'In Review' :
                            selectedApplication.status.charAt(0).toUpperCase() + selectedApplication.status.slice(1)}
                         </span>
                       </div>
                       {selectedApplication.notes && (
                         <div className="detail-row">
-                          <span className="detail-label">Note:</span>
+                          <span className="detail-label">Notes:</span>
                           <span className="detail-value">{selectedApplication.notes}</span>
                         </div>
                       )}
@@ -3244,7 +3005,7 @@ const Dashboard = () => {
                 <div className="modal-overlay">
                   <div className="modal-content">
                     <div className="modal-header">
-                      <h2>Editare Aplicație</h2>
+                      <h2>Edit Application</h2>
                       <button className="close-button" onClick={() => {
                         setShowApplicationEdit(false);
                         setSelectedApplication(null);
@@ -3260,10 +3021,10 @@ const Dashboard = () => {
                           onChange={(e) => handleUpdateApplicationStatus(selectedApplication.id, e.target.value)}
                           className="form-select"
                         >
-                          <option value="pending">În Așteptare</option>
-                          <option value="approved">Aprobată</option>
-                          <option value="rejected">Respinsă</option>
-                          <option value="under_review">În Revizuire</option>
+                          <option value="pending">In Waiting</option>
+                          <option value="approved">Approved</option>
+                          <option value="rejected">Rejected</option>
+                          <option value="under_review">In Review</option>
                         </select>
                       </div>
                       <div className="form-group">
@@ -3283,13 +3044,13 @@ const Dashboard = () => {
                             setSelectedApplication(null);
                           }}
                         >
-                          Anulează
+                          Cancel
                         </button>
                         <button
                           className="confirm-button"
                           onClick={() => handleUpdateApplicationStatus(selectedApplication.id, selectedApplication.status)}
                         >
-                          Salvează
+                          Save
                         </button>
                       </div>
                     </div>

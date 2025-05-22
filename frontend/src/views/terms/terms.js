@@ -9,98 +9,98 @@ const Terms = () => {
       <Navbar />
       <div className="terms-container">
         <div className="terms-content">
-          <h1>Termeni și Condiții</h1>
+          <h1>Terms and Conditions</h1>
           
           <section>
-            <h2>1. Acceptarea Termenilor</h2>
+            <h2>1. Accepting the Terms</h2>
             <p>
-              Prin accesarea și utilizarea platformei StudyInMoldova, acceptați să fiți obligat de acești termeni și condiții. 
-              Dacă nu sunteți de acord cu oricare dintre acești termeni, vă rugăm să nu utilizați platforma noastră.
+              By accessing and using the StudyInMoldova platform, you agree to be bound by these terms and conditions. 
+              If you do not agree with any of these terms, please do not use our platform.
             </p>
           </section>
 
           <section>
-            <h2>2. Descrierea Serviciilor</h2>
+            <h2>2. Service Description</h2>
             <p>
-              StudyInMoldova oferă o platformă educațională care facilitează procesul de înscriere și informare despre 
-              oportunitățile de studiu în Republica Moldova. Serviciile noastre includ:
+              StudyInMoldova provides an educational platform that facilitates the enrollment process and information about 
+              study opportunities in the Republic of Moldova. Our services include:
             </p>
             <ul>
-              <li>Informații despre universități și programe de studii</li>
-              <li>Asistență în procesul de înscriere</li>
-              <li>Resurse educaționale și ghiduri</li>
-              <li>Comunitate pentru studenți și candidați</li>
+              <li>Information about universities and study programs</li>
+              <li>Enrollment process assistance</li>
+              <li>Educational resources and guides</li>
+              <li>Community for students and applicants</li>
             </ul>
           </section>
 
           <section>
-            <h2>3. Obligațiile Utilizatorului</h2>
-            <p>Ca utilizator al platformei, sunteți de acord să:</p>
+            <h2>3. User Obligations</h2>
+            <p>As a user of the platform, you agree to:</p>
             <ul>
-              <li>Furnizați informații exacte și complete</li>
-              <li>Mențineți confidențialitatea contului dumneavoastră</li>
-              <li>Nu utilizați platforma în scopuri ilegale sau neautorizate</li>
-              <li>Nu încercați să accesați zone restrânse ale platformei</li>
-              <li>Nu utilizați platforma într-un mod care ar putea deteriora serviciile noastre</li>
+              <li>Provide accurate and complete information</li>
+              <li>Maintain the confidentiality of your account</li>
+              <li>Not use the platform for illegal or unauthorized purposes</li>
+              <li>Not attempt to access restricted areas of the platform</li>
+              <li>Not use the platform in a way that could damage our services</li>
             </ul>
           </section>
 
           <section>
-            <h2>4. Proprietatea Intelectuală</h2>
+            <h2>4. Intellectual Property</h2>
             <p>
-              Toate materialele, conținutul și designul platformei StudyInMoldova sunt protejate de legile drepturilor de autor 
-              și sunt proprietatea noastră sau a furnizorilor noștri de licențe. Nu aveți dreptul să:
+              All materials, content, and design of the StudyInMoldova platform are protected by copyright laws and are 
+              our property or that of our license providers. You do not have the right to:
             </p>
             <ul>
-              <li>Reproduceți, distribuiți sau modificați conținutul platformei</li>
-              <li>Utilizați marca StudyInMoldova fără permisiunea noastră scrisă</li>
-              <li>Eliminați sau modificați orice notificări de drepturi de autor</li>
+              <li>Reproduce, distribute, or modify the platform's content</li>
+              <li>Use the StudyInMoldova brand without our written permission</li>
+              <li>Remove or modify any copyright notices</li>
             </ul>
           </section>
 
           <section>
-            <h2>5. Limitarea Răspunderii</h2>
+            <h2>5. Limitation of Liability</h2>
             <p>
-              StudyInMoldova nu poate fi trasă la răspundere pentru:
+              StudyInMoldova cannot be held liable for:
             </p>
             <ul>
-              <li>Precizia informațiilor furnizate de universități sau alte surse terțe</li>
-              <li>Deciziile de admitere ale instituțiilor educaționale</li>
-              <li>Orice întreruperi sau erori în funcționarea platformei</li>
-              <li>Pierderi sau daune rezultate din utilizarea platformei</li>
+              <li>The accuracy of information provided by universities or other third-party sources</li>
+              <li>Admission decisions of educational institutions</li>
+              <li>Any interruptions or errors in platform operation</li>
+              <li>Losses or damages resulting from platform use</li>
             </ul>
           </section>
 
           <section>
-            <h2>6. Modificări ale Termenilor</h2>
+            <h2>6. Terms Modifications</h2>
             <p>
-              Ne rezervăm dreptul de a modifica acești termeni și condiții în orice moment. Modificările vor intra în vigoare 
-              imediat după publicarea lor pe platformă. Utilizarea continuă a platformei după modificări constituie acceptarea 
-              noilor termeni.
+              We reserve the right to modify these terms and conditions at any time. Changes will take effect 
+              immediately after their publication on the platform. Continued use of the platform after changes 
+              constitutes acceptance of the new terms.
             </p>
           </section>
 
           <section>
-            <h2>7. Legea Aplicabilă</h2>
+            <h2>7. Applicable Law</h2>
             <p>
-              Acești termeni și condiții sunt guvernați și interpretați în conformitate cu legile Republicii Moldova. 
-              Orice dispută va fi supusă jurisdicției exclusive a instanțelor din Republica Moldova.
+              These terms and conditions are governed and interpreted in accordance with the laws of the Republic of Moldova. 
+              Any dispute will be subject to the exclusive jurisdiction of the courts of the Republic of Moldova.
             </p>
           </section>
 
           <section>
             <h2>8. Contact</h2>
             <p>
-              Pentru întrebări sau clarificări legate de acești termeni și condiții, vă rugăm să ne contactați la:
+              For questions or clarifications regarding these terms and conditions, please contact us at:
               <br />
               Email: terms@studyinmoldova.md
               <br />
-              Telefon: +373 XX XXX XXX
+              Phone: +373 XX XXX XXX
             </p>
           </section>
 
           <section className="last-updated">
-            <p>Ultima actualizare: {new Date().toLocaleDateString('ro-RO')}</p>
+            <p>Last updated: {new Date().toLocaleDateString('en-US')}</p>
           </section>
         </div>
       </div>

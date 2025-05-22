@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&display=swap');
+
 :root {
   --dl-size-size-large: 144px;
   --dl-size-size-small: 48px;
@@ -23,18 +25,20 @@
   --dl-color-theme-secondary1: #FFFFFF;
   --dl-color-theme-secondary2: #FBF1EB;
   --dl-space-space-threeunits: 48px;
-  --dl-color-theme-neutral-dark: #191818;
+  --dl-color-theme-neutral-dark: #333333;
   --dl-radius-radius-cardradius: 8px;
-  --dl-color-theme-neutral-light: #FBFAF9;
+  --dl-color-theme-neutral-light: #ffffff;
   --dl-radius-radius-imageradius: 8px;
-  --dl-radius-radius-inputradius: 24px;
-  --dl-radius-radius-buttonradius: 24px;
+  --dl-radius-radius-inputradius: 25px;
+  --dl-radius-radius-buttonradius: 25px;
   --dl-space-space-oneandhalfunits: 24px;
   --dl-font-size-small: 0.8rem; 
   --dl-font-size-medium: 1.1rem; 
   --dl-font-size-large: 1.4rem;       
   --dl-border-width-thin: 0.5px;
   --dl-border-width-normal: 1px;
+  --dl-color-theme-gray-light: #e0e0e0;
+  --dl-color-theme-gray-dark: #bdbdbd;
 }
  
 .button {
@@ -237,7 +241,7 @@
   border: var(--dl-border-width-thin) solid var(--dl-color-theme-primary1);
   color: var(--dl-color-theme-primary1);
   border-radius: 25px;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .navbar-register1.button:hover {
@@ -265,7 +269,7 @@
   border: var(--dl-border-width-thin) solid var(--dl-color-theme-primary1);
   color: var(--dl-color-theme-primary1);
   border-radius: 25px;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .navbar-login1.button:hover {
@@ -287,12 +291,40 @@
   color: var(--dl-color-theme-accent1);
 }
 
+/* Stiluri pentru butonul de logout */
+.navbar-logout1.button {
+  background-color: transparent;
+  border: var(--dl-border-width-thin) solid var(--dl-color-theme-primary1);
+  color: var(--dl-color-theme-primary1);
+  border-radius: 25px;
+  transition: all 0.15s ease;
+}
+
+.navbar-logout1.button:hover {
+  background-color: var(--dl-color-theme-primary1);
+  color: var(--dl-color-theme-accent1);
+}
+
+.navbar-logout1.button .navbar-navlink3 {
+  color: inherit;
+  text-decoration: none;
+}
+
+.navbar-logout1.button .navbar-text36 {
+  color: var(--dl-color-theme-primary1);
+  font-weight: 500;
+}
+
+.navbar-logout1.button:hover .navbar-text36 {
+  color: var(--dl-color-theme-accent1);
+}
+
 /* Stiluri pentru butonul de Subscribe */
 .footer-button.thq-button-outline {
   background-color: transparent;
   border: var(--dl-border-width-thin) solid var(--dl-color-theme-primary1);
   border-radius: 25px;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .footer-button.thq-button-outline:hover {
@@ -315,16 +347,16 @@
 /* Stiluri pentru input-ul de email din footer */
 .footer-text-input.thq-input {
   background-color: transparent;
-  border: var(--dl-border-width-thin) solid var(--dl-color-theme-primary1);
+  border: var(--dl-border-width-thin) solid var(--dl-color-theme-gray-light);
   border-radius: 25px;
   padding: 8px 16px;
-  color: var(--dl-color-theme-neutral-dark);
-  transition: all 0.2s ease;
+  color: var(--dl-color-theme-gray-light);
+  transition: all 0.15s ease;
 }
 
 .footer-text-input.thq-input:focus {
   outline: none;
-  border-color: var(--dl-color-theme-primary1);
+  border-color: var(--dl-color-theme-gray-dark);
   box-shadow: 0 0 0 2px rgba(255, 107, 0, 0.1); /* Umbră subtilă portocalie la focus */
 }
 
@@ -334,7 +366,7 @@
 }
 
 .footer-text-input.thq-input:hover {
-  border-color: var(--dl-color-theme-primary2);
+  border-color: var(--dl-color-theme-gray-dark);
 }
 
 /* Stiluri pentru link-urile din navbar */
@@ -372,7 +404,7 @@
   background-color: transparent;
   border: var(--dl-border-width-thin) solid var(--dl-color-theme-primary1);
   border-radius: 25px;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .hero-landing-page-button2.thq-button-outline:hover {
@@ -382,7 +414,7 @@
 .hero-landing-page-button2.thq-button-outline .thq-body-small {
   color: var(--dl-color-theme-primary1);
   font-weight: 700;
-  transition: color 0.2s ease; /* Tranziție mai rapidă pentru text */
+  transition: color 0.15s ease; /* Tranziție mai rapidă pentru text */
 }
 
 .hero-landing-page-button2.thq-button-outline:hover .thq-body-small {
@@ -391,5 +423,98 @@
 
 .hero-landing-page-button2.thq-button-outline .landing-text26 {
   color: inherit;
+}
+
+/* Stiluri pentru butoanele de acțiune */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  justify-content: flex-end;
+  margin-top: 10px;
+  height: 100%;
+}
+
+.edit-button,
+.delete-button {
+  background-color: transparent;
+  border: var(--dl-border-width-thin) solid var(--dl-color-theme-primary1);
+  color: var(--dl-color-theme-primary1);
+  border-radius: var(--dl-radius-radius-buttonradius);
+  padding: 8px 16px;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  font-weight: 500;
+  min-width: 100px;
+  text-align: center;
+  flex: 1;
+  max-width: 120px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+}
+
+.edit-button {
+  font-family: inherit;
+  line-height: 1.15;
+  margin: 0;
+  align-self: stretch;
+}
+
+.edit-button:hover,
+.delete-button:hover {
+  background-color: var(--dl-color-theme-primary1);
+  color: var(--dl-color-theme-accent1);
+}
+
+.delete-button {
+  border-color: #dc3545;
+  color: #dc3545;
+}
+
+.delete-button:hover {
+  background-color: #dc3545;
+  color: var(--dl-color-theme-accent1);
+}
+
+/* Actualizăm și celelalte butoane pentru consistență */
+.navbar-register1.button,
+.navbar-login1.button,
+.navbar-logout1.button,
+.footer-button.thq-button-outline,
+.hero-landing-page-button2.thq-button-outline {
+  transition: all 0.15s ease;
+}
+
+/* Stiluri pentru butonul Add University */
+.add-button {
+  background-color: var(--dl-color-theme-primary1);
+  color: var(--dl-color-theme-accent1);
+  border: none;
+  border-radius: var(--dl-radius-radius-buttonradius);
+  padding: 8px 16px;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: var(--dl-font-size-small);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 2px 4px rgba(191, 68, 8, 0.2);
+  min-width: 140px;
+}
+
+.add-button:hover {
+  background-color: var(--dl-color-theme-primary2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(191, 68, 8, 0.3);
+}
+
+.add-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(191, 68, 8, 0.2);
 }
 

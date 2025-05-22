@@ -1,16 +1,15 @@
 .faq-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0.5rem 0.3rem;
+  padding: 2rem 1rem;
   min-height: calc(100vh - 200px);
-  margin-top: 50px;
 }
 
 .faq-content {
-  background-color: #ffffff;
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: var(--dl-color-theme-neutral-light);
+  border-radius: var(--dl-radius-radius-cardradius);
+  padding: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   width: 100%;
   max-width: 1100px;
   margin: 0 auto;
@@ -117,6 +116,94 @@
   font-size: var(--dl-font-size-small);
 }
 
+.faq-hero {
+  width: 100%;
+  padding: 2rem 0;
+  background-color: var(--dl-color-theme-secondary2);
+}
+
+.faq-hero-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: repeat(2, 250px);
+  gap: 1rem;
+}
+
+.faq-hero-image {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--dl-radius-radius-cardradius);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.faq-hero-image.main {
+  grid-row: span 2;
+}
+
+.faq-hero-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.faq-hero-image:hover img {
+  transform: scale(1.05);
+}
+
+/* Stiluri pentru secțiunile de imagini */
+.faq-image-section {
+  margin: 2rem 0;
+  padding: 1rem 0;
+}
+
+.faq-image-main {
+  width: 100%;
+  height: 400px;
+  border-radius: var(--dl-radius-radius-cardradius);
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.faq-image-main img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.faq-image-main:hover img {
+  transform: scale(1.05);
+}
+
+.faq-image-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.faq-image-secondary {
+  height: 250px;
+  border-radius: var(--dl-radius-radius-cardradius);
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.faq-image-secondary img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.faq-image-secondary:hover img {
+  transform: scale(1.05);
+}
+
 @media (max-width: 768px) {
   .faq-container {
     padding: 0.4rem 0.2rem;
@@ -142,5 +229,17 @@
   .faq-answer p,
   .faq-answer li {
     font-size: var(--dl-font-size-small);
+  }
+
+  .faq-image-main {
+    height: 300px;
+  }
+
+  .faq-image-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .faq-image-secondary {
+    height: 200px;
   }
 } 

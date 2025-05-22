@@ -9,50 +9,50 @@ const Cookies = () => {
       <Navbar />
       <div className="cookies-container">
         <div className="cookies-content">
-          <h1>Politica de Cookie-uri</h1>
+          <h1>Cookie Policy</h1>
 
           <section>
-            <h2>Ce sunt cookie-urile?</h2>
-            <p>Cookie-urile sunt fișiere text de mici dimensiuni care sunt stocate pe dispozitivul dumneavoastră atunci când vizitați un site web. Acestea sunt utilizate pe scară largă pentru a face site-urile funcționale sau mai eficiente, precum și pentru a furniza informații proprietarilor site-ului.</p>
+            <h2>What are cookies?</h2>
+            <p>Cookies are small text files that are stored on your device when you visit a website. They are widely used to make websites functional or more efficient, as well as to provide information to website owners.</p>
           </section>
 
           <section>
-            <h2>Tipuri de cookie-uri pe care le utilizăm</h2>
-            <h3>Cookie-uri esențiale</h3>
-            <p>Acestea sunt necesare pentru funcționarea site-ului și nu pot fi dezactivate în sistemele noastre. De obicei, sunt setate doar ca răspuns la acțiunile pe care le faceți care constituie o cerere de servicii, cum ar fi setarea preferințelor de confidențialitate, conectarea sau completarea formularelor.</p>
+            <h2>Types of cookies we use</h2>
+            <h3>Essential cookies</h3>
+            <p>These are necessary for the website to function and cannot be disabled in our systems. They are usually only set in response to actions you take that constitute a request for services, such as setting privacy preferences, logging in, or filling out forms.</p>
 
-            <h3>Cookie-uri de performanță</h3>
-            <p>Acestea ne permit să numărăm vizitele și sursele de trafic, astfel încât să putem măsura și îmbunătăți performanța site-ului nostru. Ne ajută să știm care pagini sunt cele mai populare și mai puțin populare și să vedem cum vizitatorii navighează pe site.</p>
+            <h3>Performance cookies</h3>
+            <p>These allow us to count visits and traffic sources so we can measure and improve the performance of our site. They help us know which pages are the most and least popular and see how visitors move around the site.</p>
 
-            <h3>Cookie-uri de funcționalitate</h3>
-            <p>Acestea permit site-ului să ofere o funcționalitate și personalizare îmbunătățită. Ele pot fi setate de noi sau de furnizorii terți ai serviciilor pe care le-am adăugat paginilor noastre.</p>
+            <h3>Functionality cookies</h3>
+            <p>These enable the website to provide enhanced functionality and personalization. They may be set by us or by third-party providers whose services we have added to our pages.</p>
 
-            <h3>Cookie-uri de publicitate</h3>
-            <p>Acestea pot fi setate prin site-ul nostru de către partenerii noștri de publicitate. Aceste companii le pot folosi pentru a construi un profil al intereselor dumneavoastră și pentru a vă arăta reclame relevante pe alte site-uri.</p>
+            <h3>Advertising cookies</h3>
+            <p>These may be set through our site by our advertising partners. These companies may use them to build a profile of your interests and show you relevant advertisements on other sites.</p>
           </section>
 
           <section>
-            <h2>Cum puteți controla cookie-urile</h2>
-            <p>Puteți seta browserul dumneavoastră să refuze cookie-urile sau să vă avertizeze când un site încearcă să plaseze un cookie pe dispozitivul dumneavoastră. Totuși, dacă alegeți să refuzați cookie-urile, este posibil să nu puteți utiliza toate funcționalitățile interactive ale site-ului nostru.</p>
-            <p>Pentru a gestiona preferințele dumneavoastră privind cookie-urile, vă rugăm să consultați setările browserului dumneavoastră.</p>
+            <h2>How you can control cookies</h2>
+            <p>You can set your browser to refuse cookies or to alert you when a site attempts to place a cookie on your device. However, if you choose to refuse cookies, you may not be able to use all the interactive features of our website.</p>
+            <p>To manage your cookie preferences, please refer to your browser settings.</p>
           </section>
 
           <section>
-            <h2>Actualizări ale politicii de cookie-uri</h2>
-            <p>Ne rezervăm dreptul de a face modificări la această politică de cookie-uri în orice moment. Orice modificări vor fi publicate pe această pagină și, dacă modificările sunt semnificative, vă vom oferi un aviz mai vizibil.</p>
+            <h2>Cookie policy updates</h2>
+            <p>We reserve the right to make changes to this cookie policy at any time. Any changes will be posted on this page, and if the changes are significant, we will provide you with a more prominent notice.</p>
           </section>
 
           <section>
             <h2>Contact</h2>
-            <p>Dacă aveți întrebări despre utilizarea cookie-urilor pe site-ul nostru, vă rugăm să ne contactați la:</p>
+            <p>If you have questions about the use of cookies on our website, please contact us at:</p>
             <ul>
               <li>Email: contact@studyinmoldova.md</li>
-              <li>Telefon: +373 22 123 456</li>
+              <li>Phone: +373 22 123 456</li>
             </ul>
           </section>
 
           <div className="last-updated">
-            Ultima actualizare: 21.05.2025
+            Last updated: 05/21/2025
           </div>
         </div>
       </div>

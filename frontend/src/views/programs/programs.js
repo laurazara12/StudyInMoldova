@@ -15,6 +15,7 @@ const Programs = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [degreeFilter, setDegreeFilter] = useState('');
   const [languageFilter, setLanguageFilter] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const fetchData = async () => {
     try {
@@ -52,35 +53,35 @@ const Programs = () => {
   }, []);
 
   useEffect(() => {
-    console.log('Componenta Programs montată');
+    console.log('Programs component mounted');
     fetchData();
   }, [isAuthenticated]);
 
   const fetchPrograms = async () => {
     try {
-      console.log('Începe încărcarea programelor...');
+      console.log('Starting program fetch...');
       const response = await axios.get(`${API_BASE_URL}/api/programs`);
-      console.log('Răspuns de la server:', response.data);
+      console.log('Server response:', response.data);
       
       if (Array.isArray(response.data)) {
-        console.log('Programe găsite (array direct):', response.data);
+        console.log('Programs found (direct array):', response.data);
         setPrograms(response.data);
       } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
-        console.log('Programe găsite (în data.data):', response.data.data);
+        console.log('Programs found (in data.data):', response.data.data);
         setPrograms(response.data.data);
       } else {
-        console.error('Format invalid al răspunsului:', response.data);
-        setError('Eroare la încărcarea programelor: Format invalid al datelor');
+        console.error('Invalid response format:', response.data);
+        setError('Error loading programs: Invalid data format');
         setPrograms([]);
       }
     } catch (error) {
-      console.error('Eroare detaliată la obținerea programelor:', {
+      console.error('Detailed error fetching programs:', {
         message: error.message,
         response: error.response?.data,
         status: error.response?.status
       });
       setPrograms([]);
-      setError('Eroare la încărcarea programelor: ' + (error.response?.data?.message || error.message));
+      setError('Error loading programs: ' + (error.response?.data?.message || error.message));
     }
   };
 
@@ -96,7 +97,7 @@ const Programs = () => {
         }
       });
 
-      console.log('Răspuns programe salvate:', response.data);
+      console.log('Saved programs response:', response.data);
       
       if (response.data?.data) {
         const savedProgramsData = response.data.data;
@@ -104,7 +105,7 @@ const Programs = () => {
         setSavedPrograms(savedProgramsData);
       }
     } catch (error) {
-      console.error('Eroare la obținerea programelor salvate:', error);
+      console.error('Error fetching saved programs:', error);
       if (error.response?.status === 401) {
         localStorage.removeItem('token');
         setIsAuthenticated(false);
@@ -118,7 +119,7 @@ const Programs = () => {
       const savedId = sp.id || sp.program_id || sp.program?.id;
       return savedId === programIdInt;
     });
-    console.log(`Verificare program ${programIdInt}:`, isSaved, 'Lista programe salvate:', savedPrograms);
+    console.log(`Program check ${programIdInt}:`, isSaved, 'Saved programs list:', savedPrograms);
     return isSaved;
   };
 
@@ -126,12 +127,12 @@ const Programs = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        throw new Error('Trebuie să fiți autentificat pentru a salva programe');
+        throw new Error('You must be authenticated to save programs');
       }
 
       const user = JSON.parse(localStorage.getItem('user'));
       if (!user?.id) {
-        throw new Error('Informațiile utilizatorului nu sunt disponibile');
+        throw new Error('User information is not available');
       }
 
       const programIdInt = parseInt(programId);
@@ -140,7 +141,7 @@ const Programs = () => {
       if (isProgramSaved(programIdInt)) {
         const successMessage = document.createElement('div');
         successMessage.className = 'success-message';
-        successMessage.textContent = 'Programul este deja salvat!';
+        successMessage.textContent = 'Program already saved!';
         document.body.appendChild(successMessage);
         setTimeout(() => successMessage.remove(), 3000);
         return;
@@ -157,7 +158,7 @@ const Programs = () => {
         }
       );
 
-      console.log('Răspuns salvare program:', response.data);
+      console.log('Save program response:', response.data);
 
       if (response.data?.data) {
         // Adăugăm noul program salvat la lista existentă
@@ -165,12 +166,12 @@ const Programs = () => {
         
         const successMessage = document.createElement('div');
         successMessage.className = 'success-message';
-        successMessage.textContent = 'Program salvat cu succes!';
+        successMessage.textContent = 'Program saved successfully!';
         document.body.appendChild(successMessage);
         setTimeout(() => successMessage.remove(), 3000);
       }
     } catch (error) {
-      console.error('Eroare la salvarea programului:', error);
+      console.error('Error saving program:', error);
       
       // Verificăm dacă eroarea este deja salvat
       if (error.response?.data?.message?.includes('deja salvat')) {
@@ -182,7 +183,7 @@ const Programs = () => {
         return;
       }
       
-      const errorMessage = error.response?.data?.message || error.message || 'Eroare la salvarea programului';
+      const errorMessage = error.response?.data?.message || error.message || 'Error saving program';
       const errorElement = document.createElement('div');
       errorElement.className = 'error-message';
       errorElement.textContent = errorMessage;
@@ -205,15 +206,15 @@ const Programs = () => {
       
       const successMessage = document.createElement('div');
       successMessage.className = 'success-message';
-      successMessage.textContent = 'Program eliminat din lista salvată!';
+      successMessage.textContent = 'Program removed from saved list!';
       document.body.appendChild(successMessage);
       setTimeout(() => successMessage.remove(), 3000);
     } catch (error) {
-      console.error('Eroare la eliminarea programului:', error);
+      console.error('Error removing program:', error);
       
       const errorElement = document.createElement('div');
       errorElement.className = 'error-message';
-      errorElement.textContent = 'Eroare la eliminarea programului din lista salvată';
+      errorElement.textContent = 'Error removing program from saved list';
       document.body.appendChild(errorElement);
       setTimeout(() => errorElement.remove(), 3000);
     }
@@ -227,17 +228,26 @@ const Programs = () => {
     }
   }, [isAuthenticated]);
 
+  const handleClearFilters = () => {
+    setDegreeFilter('');
+    setLanguageFilter('');
+    setSearchTerm('');
+  };
+
   const filteredPrograms = programs.filter(program => {
+    const matchesSearch = searchTerm === '' || 
+      program.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      program.description?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesDegree = !degreeFilter || program.degree_type === degreeFilter;
     const matchesLanguage = !languageFilter || program.language === languageFilter;
-    return matchesDegree && matchesLanguage;
+    return matchesSearch && matchesDegree && matchesLanguage;
   });
 
   if (loading) {
     return (
       <div className="loading-container">
         <div className="loading-spinner"></div>
-        <p>Se încarcă...</p>
+        <p>Loading...</p>
       </div>
     );
   }
@@ -246,7 +256,7 @@ const Programs = () => {
     return (
       <div className="error-container">
         <p>{error}</p>
-        <button onClick={() => window.location.reload()}>Reîncarcă pagina</button>
+        <button onClick={() => window.location.reload()}>Reload page</button>
       </div>
     );
   }
@@ -254,55 +264,76 @@ const Programs = () => {
   return (
     <div className="programs-page">
       <Helmet>
-        <title>Programe de studiu - Study in Moldova</title>
+        <title>Study in Moldova - Available Programs</title>
       </Helmet>
       <Navbar />
       
       <main className="programs-content">
-        <h1>Programe de studiu disponibile</h1>
+        <h1>Available study programs</h1>
         
         <div className="filters">
-          <select 
-            value={degreeFilter} 
-            onChange={(e) => setDegreeFilter(e.target.value)}
-            className="filter-select"
-          >
-            <option value="">Toate gradele</option>
-            <option value="Bachelor">Licență</option>
-            <option value="Master">Master</option>
-            <option value="PhD">Doctorat</option>
-          </select>
+          <div className="filter-group">
+            <input
+              type="text"
+              placeholder="Search programs..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+          </div>
           
-          <select 
-            value={languageFilter} 
-            onChange={(e) => setLanguageFilter(e.target.value)}
-            className="filter-select"
+          <div className="filter-group">
+            <select 
+              value={degreeFilter} 
+              onChange={(e) => setDegreeFilter(e.target.value)}
+              className="filter-select"
+            >
+              <option value="">All degrees</option>
+              <option value="Bachelor">Bachelor</option>
+              <option value="Master">Master</option>
+              <option value="PhD">PhD</option>
+            </select>
+          </div>
+          
+          <div className="filter-group">
+            <select 
+              value={languageFilter} 
+              onChange={(e) => setLanguageFilter(e.target.value)}
+              className="filter-select"
+            >
+              <option value="">All languages</option>
+              <option value="Romanian">Romanian</option>
+              <option value="Russian">Russian</option>
+              <option value="English">English</option>
+            </select>
+          </div>
+
+          <button 
+            className="clear-filters-button"
+            onClick={handleClearFilters}
           >
-            <option value="">Toate limbile</option>
-            <option value="Romanian">Română</option>
-            <option value="Russian">Rusă</option>
-            <option value="English">Engleză</option>
-          </select>
+            Curăță filtrele
+          </button>
         </div>
 
         <div className="programs-table-container">
           {filteredPrograms.length === 0 ? (
             <div className="no-programs-message">
-              <p>Nu există programe de studiu disponibile în acest moment.</p>
+              <p>No study programs available at this moment.</p>
             </div>
           ) : (
             <table className="programs-table">
               <thead>
                 <tr>
-                  <th>Nume program</th>
-                  <th>Universitate</th>
-                  <th>Facultate</th>
-                  <th>Grad</th>
-                  <th>Credite</th>
-                  <th>Limbi</th>
-                  <th>Durată</th>
-                  <th>Taxă de școlarizare</th>
-                  <th>Acțiuni</th>
+                  <th>Program name</th>
+                  <th>University</th>
+                  <th>Faculty</th>
+                  <th>Degree</th>
+                  <th>Credits</th>
+                  <th>Languages</th>
+                  <th>Duration</th>
+                  <th>Tuition fees</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -320,17 +351,17 @@ const Programs = () => {
                     <td>{program.faculty || 'N/A'}</td>
                     <td>
                       <span className={`degree-badge ${program.degree_type?.toLowerCase()}`}>
-                        {program.degree_type === 'Bachelor' ? 'Licență' : 
+                        {program.degree_type === 'Bachelor' ? 'Bachelor' : 
                          program.degree_type === 'Master' ? 'Master' : 
-                         program.degree_type === 'PhD' ? 'Doctorat' : program.degree_type}
+                         program.degree_type === 'PhD' ? 'PhD' : program.degree_type}
                       </span>
                     </td>
                     <td>{program.credits || 'N/A'}</td>
                     <td>
                       <span className={`language-badge ${program.language?.toLowerCase()}`}>
-                        {program.language === 'Romanian' ? 'Română' :
-                         program.language === 'Russian' ? 'Rusă' :
-                         program.language === 'English' ? 'Engleză' : program.language}
+                        {program.language === 'Romanian' ? 'Romanian' :
+                         program.language === 'Russian' ? 'Russian' :
+                         program.language === 'English' ? 'English' : program.language}
                       </span>
                     </td>
                     <td>{program.duration} ani</td>
@@ -341,17 +372,17 @@ const Programs = () => {
                           <button 
                             className="remove-save-button"
                             onClick={() => handleRemoveSavedProgram(program.id)}
-                            title="Elimină din programele salvate"
+                            title="Remove from saved programs"
                           >
-                            Elimină
+                            Remove
                           </button>
                         ) : (
                           <button 
                             className="save-button"
                             onClick={() => handleSaveProgram(program.id)}
-                            title="Salvează programul"
+                            title="Save program"
                           >
-                            Salvează
+                            Save
                           </button>
                         )
                       ) : null}

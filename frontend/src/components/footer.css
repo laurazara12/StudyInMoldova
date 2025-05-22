@@ -40,7 +40,7 @@
 .social-link {
   color: #ffffff;
   font-size: 1.5rem;
-  transition: color 0.3s ease;
+  transition: color 0.1s ease;
 }
 
 .social-link:hover {
@@ -65,12 +65,12 @@
   color: #a0a0a0;
   text-decoration: none;
   margin-bottom: 0.6rem;
-  transition: color 0.3s ease;
+  transition: color 0.1s ease;
   font-size: var(--dl-font-size-small);
 }
 
 .footer-link:hover {
-  color: #4a90e2;
+  color: var(--dl-color-theme-gray-dark);
 }
 
 .footer-newsletter {
@@ -109,7 +109,7 @@
   font-size: var(--dl-font-size-small);
   color: #666666;
   background-color: #ffffff;
-  transition: border-color 0.3s ease;
+  transition: border-color 0.1s ease;
 }
 
 .footer-text-input::placeholder {
@@ -129,7 +129,7 @@
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.1s ease;
   font-size: var(--dl-font-size-small);
   white-space: nowrap;
   min-width: 120px;

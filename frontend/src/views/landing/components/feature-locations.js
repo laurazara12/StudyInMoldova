@@ -63,7 +63,7 @@ const FeatureLocations = (props) => {
                 rel="noreferrer noopener"
                 className="feature-locations-link1 thq-button-flat thq-body-small"
               >
-                Get directions
+                <span>Get directions</span>
               </a>
             </div>
           </div>
@@ -97,15 +97,7 @@ const FeatureLocations = (props) => {
                 rel="noreferrer noopener"
                 className="feature-locations-link2 thq-button-flat thq-body-small"
               >
-                <span>
-                  Get
-                  <span
-                    dangerouslySetInnerHTML={{
-                      __html: ' ',
-                    }}
-                  />
-                </span>
-                <span className="feature-locations-text17">directions</span>
+                <span>Get directions</span>
               </a>
             </div>
           </div>

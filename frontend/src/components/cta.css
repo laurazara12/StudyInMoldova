@@ -35,7 +35,7 @@
   border-radius: var(--dl-radius-radius-cardradius);
   padding: var(--dl-space-space-twounits);
   transform: translateZ(0) scaleX(1) rotateX(0deg) rotateY(0deg) rotate(1deg) skew(0deg,0deg);
-  transition: .3s;
+  transition: .15s;
 }
  
 .cta-container2:hover {

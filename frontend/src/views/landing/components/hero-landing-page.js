@@ -1,5 +1,5 @@
 import React, { Fragment, useState, useRef, useEffect, useMemo } from 'react'
-
+import { useNavigate } from 'react-router-dom'
 import Script from 'dangerous-html/react'
 import PropTypes from 'prop-types'
 import { getCloudinaryImageUrl } from '../../../config/cloudinary'
@@ -7,18 +7,19 @@ import { getCloudinaryImageUrl } from '../../../config/cloudinary'
 import './hero-landing-page.css'
 
 const rotativeImages = [
-  'https://res.cloudinary.com/dlbu43xwt/image/upload/f_auto,q_60,w_300,h_300,c_fill/v1747599094/calin-stan-0Jxgsidj3aA-unsplash_wmvper.jpg',
-  'https://res.cloudinary.com/dlbu43xwt/image/upload/f_auto,q_60,w_300,h_300,c_fill/v1747599094/a4f9df0e701eaba63ae56f77f19cf6d1_xzvloq.jpg',
-  'https://res.cloudinary.com/dlbu43xwt/image/upload/f_auto,q_60,w_300,h_300,c_fill/v1747599094/dorin-seremet-Qhy0SX5vv8w-unsplash_s2g5nh.jpg',
-  'https://res.cloudinary.com/dlbu43xwt/image/upload/f_auto,q_60,w_300,h_300,c_fill/v1747599095/alex-kalinin-8bs-Kz8ACdM-unsplash_thbirt.jpg',
-  'https://res.cloudinary.com/dlbu43xwt/image/upload/f_auto,q_60,w_300,h_300,c_fill/v1747599108/sasha-pleshco-JUekx3CODgM-unsplash_uglgqx.jpg',
-  'https://res.cloudinary.com/dlbu43xwt/image/upload/f_auto,q_60,w_300,h_300,c_fill/v1747599108/sasha-pleshco-LI5MSjGm6sQ-unsplash_qquwmh.jpg',
-  'https://res.cloudinary.com/dlbu43xwt/image/upload/f_auto,q_60,w_300,h_300,c_fill/v1747599108/sasha-pleshco-0iVvzptzjBA-unsplash_a80uzk.jpg',
-  'https://res.cloudinary.com/dlbu43xwt/image/upload/f_auto,q_60,w_300,h_300,c_fill/v1747599108/pexels-vadim-burdujan-207144379-18877978_akmeg5.jpg',
-  'https://res.cloudinary.com/dlbu43xwt/image/upload/f_auto,q_60,w_300,h_300,c_fill/v1747599107/pexels-roman-muntean-369190311-17067159_bmxk67.jpg'
+  getCloudinaryImageUrl('calin-stan-0Jxgsidj3aA-unsplash_wmvper', { width: 300, height: 300, crop: 'fill', quality: 'auto:good' }),
+  getCloudinaryImageUrl('a4f9df0e701eaba63ae56f77f19cf6d1_xzvloq', { width: 300, height: 300, crop: 'fill', quality: 'auto:good' }),
+  getCloudinaryImageUrl('dorin-seremet-Qhy0SX5vv8w-unsplash_s2g5nh', { width: 300, height: 300, crop: 'fill', quality: 'auto:good' }),
+  getCloudinaryImageUrl('alex-kalinin-8bs-Kz8ACdM-unsplash_thbirt', { width: 300, height: 300, crop: 'fill', quality: 'auto:good' }),
+  getCloudinaryImageUrl('sasha-pleshco-JUekx3CODgM-unsplash_uglgqx', { width: 300, height: 300, crop: 'fill', quality: 'auto:good' }),
+  getCloudinaryImageUrl('sasha-pleshco-LI5MSjGm6sQ-unsplash_qquwmh', { width: 300, height: 300, crop: 'fill', quality: 'auto:good' }),
+  getCloudinaryImageUrl('sasha-pleshco-0iVvzptzjBA-unsplash_a80uzk', { width: 300, height: 300, crop: 'fill', quality: 'auto:good' }),
+  getCloudinaryImageUrl('pexels-vadim-burdujan-207144379-18877978_akmeg5', { width: 300, height: 300, crop: 'fill', quality: 'auto:good' }),
+  getCloudinaryImageUrl('pexels-roman-muntean-369190311-17067159_bmxk67', { width: 300, height: 300, crop: 'fill', quality: 'auto:good' })
 ];
 
 const HeroLandingPage = (props) => {
+  const navigate = useNavigate();
   const [loaded, setLoaded] = useState(Array(rotativeImages.length).fill(false));
   const [containerWidth, setContainerWidth] = useState(0);
   const containerRef = useRef(null);
@@ -94,7 +95,10 @@ const HeroLandingPage = (props) => {
               )}
             </span>
           </button>
-          <button className="thq-button-outline hero-landing-page-button2">
+          <button 
+            className="thq-button-outline hero-landing-page-button2"
+            onClick={() => navigate('/contact')}
+          >
             <span className="thq-body-small">
               {props.action2 ?? (
                 <Fragment>
@@ -110,64 +114,76 @@ const HeroLandingPage = (props) => {
           <div className="thq-animated-group-horizontal">
             <img
               alt="Students studying in Moldova"
-              src="https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599121/pexels-anaghan-km-177642992-11351622-1400w_cwfhbp.jpg"
+              src={getCloudinaryImageUrl('pexels-anaghan-km-177642992-11351622-1400w_cwfhbp', { width: 300, height: 300, crop: 'fill', quality: 'auto:good' })}
+              loading="lazy"
               className="hero-landing-page-placeholder-image10 thq-img-scale thq-img-ratio-1-1"
             />
             <img
               alt="Moldovan university campus"
-              src="https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599121/moldavskaya-ekonomicheskaya-akademiya-asem_thumb-1400w_q98ahh.jpg"
+              src={getCloudinaryImageUrl('moldavskaya-ekonomicheskaya-akademiya-asem_thumb-1400w_q98ahh', { width: 300, height: 300, crop: 'fill', quality: 'auto:good' })}
+              loading="lazy"
               className="hero-landing-page-placeholder-image11 thq-img-scale thq-img-ratio-1-1"
             />
             <img
               alt="University library"
-              src="https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599121/dsc_5137-1000w_bmf680.jpg"
+              src={getCloudinaryImageUrl('dsc_5137-1000w_bmf680', { width: 300, height: 300, crop: 'fill', quality: 'auto:good' })}
+              loading="lazy"
               className="hero-landing-page-placeholder-image12 thq-img-scale thq-img-ratio-1-1"
             />
             <img
               alt="Student life in Moldova"
-              src="https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599121/dorin-seremet-_atwwma7pyw-unsplash-1400w_w6dekv.jpg"
+              src={getCloudinaryImageUrl('dorin-seremet-_atwwma7pyw-unsplash-1400w_w6dekv', { width: 300, height: 300, crop: 'fill', quality: 'auto:good' })}
+              loading="lazy"
               className="hero-landing-page-placeholder-image13 thq-img-scale thq-img-ratio-1-1"
             />
             <img
               alt="Cultural activities"
-              src="https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599120/young-people-dancing-folk-low-angle_p9pe0a.jpg"
+              src={getCloudinaryImageUrl('young-people-dancing-folk-low-angle_p9pe0a', { width: 300, height: 300, crop: 'fill', quality: 'auto:good' })}
+              loading="lazy"
               className="hero-landing-page-placeholder-image14 thq-img-scale thq-img-ratio-1-1"
             />
             <img
               alt="Student events"
-              src="https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599120/WhatsApp_Image_2024-11-15_at_14.33.02_3_rthlii.jpg"
+              src={getCloudinaryImageUrl('WhatsApp_Image_2024-11-15_at_14.33.02_3_rthlii', { width: 300, height: 300, crop: 'fill', quality: 'auto:good' })}
+              loading="lazy"
               className="hero-landing-page-placeholder-image15 thq-img-scale thq-img-ratio-1-1"
             />
           </div>
           <div className="thq-animated-group-horizontal">
             <img
               alt="Campus activities"
-              src="https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599120/WhatsApp_Image_2024-11-15_at_14.32.59_10_nvuklt.jpg"
+              src={getCloudinaryImageUrl('WhatsApp_Image_2024-11-15_at_14.32.59_10_nvuklt', { width: 300, height: 300, crop: 'fill', quality: 'auto:good' })}
+              loading="lazy"
               className="hero-landing-page-placeholder-image16 thq-img-scale thq-img-ratio-1-1"
             />
             <img
               alt="Student life"
-              src="https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599119/WhatsApp_Image_2024-11-15_at_14.32.59_4_eyimc2.jpg"
+              src={getCloudinaryImageUrl('WhatsApp_Image_2024-11-15_at_14.32.59_4_eyimc2', { width: 300, height: 300, crop: 'fill', quality: 'auto:good' })}
+              loading="lazy"
               className="hero-landing-page-placeholder-image17 thq-img-scale thq-img-ratio-1-1"
             />
             <img
               alt="University events"
-              src="https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599119/WhatsApp_Image_2024-11-15_at_14.32.59_8_kj92qd.jpg"
+              src={getCloudinaryImageUrl('WhatsApp_Image_2024-11-15_at_14.32.59_8_kj92qd', { width: 300, height: 300, crop: 'fill', quality: 'auto:good' })}
+              loading="lazy"
               className="hero-landing-page-placeholder-image18 thq-img-scale thq-img-ratio-1-1"
             />
             <img
               alt="City life"
-              src="https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599108/Prima%CC%86ria_Ba%CC%86lt%CC%A6i_2_wh1rul.jpg"
+              src={getCloudinaryImageUrl('Prima%CC%86ria_Ba%CC%86lt%CC%A6i_2_wh1rul', { width: 300, height: 300, crop: 'fill', quality: 'auto:good' })}
+              loading="lazy"
               className="hero-landing-page-placeholder-image19 thq-img-scale thq-img-ratio-1-1"
             />
             <img
               alt="Moldovan architecture"
-              src="https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599107/pexels-nicolae-casir-56591-205076_1_utlpjy.jpg"
+              src={getCloudinaryImageUrl('pexels-nicolae-casir-56591-205076_1_utlpjy', { width: 300, height: 300, crop: 'fill', quality: 'auto:good' })}
+              loading="lazy"
               className="hero-landing-page-placeholder-image20 thq-img-scale thq-img-ratio-1-1"
             />
             <img
               alt="City view"
-              src="https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599108/pexels-vadim-burdujan-207144379-18404492_jejema.jpg"
+              src={getCloudinaryImageUrl('pexels-vadim-burdujan-207144379-18404492_jejema', { width: 300, height: 300, crop: 'fill', quality: 'auto:good' })}
+              loading="lazy"
               className="hero-landing-page-placeholder-image21 thq-img-scale thq-img-ratio-1-1"
             />
           </div>

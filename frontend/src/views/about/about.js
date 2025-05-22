@@ -10,106 +10,133 @@ const About = () => {
       <Navbar />
       <div className="about-hero">
         <div className="about-hero-content">
-          <h1>Despre StudyInMoldova</h1>
-          <p>Platforma ta de încredere pentru studii în Republica Moldova</p>
+          <h1>About StudyInMoldova</h1>
+          <p>Your trusted platform for international students in the Republic of Moldova</p>
         </div>
       </div>
 
       <div className="about-container">
-        <section className="about-section mission-section">
-          <div className="section-icon">🎯</div>
-          <h2>Misiunea Noastră</h2>
-          <p>
-            StudyInMoldova este platforma ta de încredere pentru descoperirea oportunităților de studiu în Republica Moldova. 
-            Ne dedicăm să oferim studenților internaționali toate informațiile necesare pentru a lua cea mai bună decizie 
-            privind educația lor în Moldova.
-          </p>
-        </section>
-
-        <section className="about-section services-section">
-          <div className="section-icon">✨</div>
-          <h2>Ce Oferim</h2>
-          <div className="services-grid">
-            <div className="service-card">
-              <div className="service-icon">🏛️</div>
-              <h3>Universități</h3>
-              <p>Informații complete despre universitățile din Moldova, programele lor și facilitățile oferite.</p>
-            </div>
-            <div className="service-card">
-              <div className="service-icon">📚</div>
-              <h3>Programe de Studiu</h3>
-              <p>Detalii despre programele de studiu disponibile, specializări și oportunități de dezvoltare.</p>
-            </div>
-            <div className="service-card">
-              <div className="service-icon">🏠</div>
-              <h3>Viața Studențească</h3>
-              <p>Ghiduri pentru cazare, transport, activități culturale și adaptare în Moldova.</p>
-            </div>
-            <div className="service-card">
-              <div className="service-icon">📝</div>
-              <h3>Asistență</h3>
-              <p>Suport în procesul de înscriere și obținere a documentelor necesare.</p>
+        <section className="about-section why-moldova-section">
+          <div className="why-moldova-content">
+            <div className="why-moldova-grid">
+              <div className="why-moldova-card">
+                <div className="card-icon"><i className="fas fa-graduation-cap"></i></div>
+                <h3>Quality Education</h3>
+                <p>Modern programs and experienced professors, internationally recognized.</p>
+              </div>
+              <div className="why-moldova-card">
+                <div className="card-icon"><i className="fas fa-coins"></i></div>
+                <h3>Affordable Costs</h3>
+                <p>Competitive tuition fees and living costs compared to other European countries.</p>
+              </div>
+              <div className="why-moldova-card">
+                <div className="card-icon"><i className="fas fa-landmark"></i></div>
+                <h3>Rich Culture</h3>
+                <p>A country with fascinating history and vibrant culture, perfect for international students.</p>
+              </div>
             </div>
           </div>
         </section>
 
-        <section className="about-section why-moldova-section">
-          <div className="section-icon">🇲🇩</div>
-          <h2>De Ce Moldova?</h2>
-          <div className="why-moldova-grid">
-            <div className="why-moldova-card">
-              <h3>Educație de Calitate</h3>
-              <p>Universități recunoscute internațional cu programe moderne și profesori experimentați.</p>
+        <section className="about-section services-section">
+          <div className="section-header">
+            <h2>What We Offer</h2>
+            <p>Complete services for international students</p>
+          </div>
+          <div className="services-grid">
+            <div className="service-card">
+              <div className="service-icon"><i className="fas fa-university"></i></div>
+              <h3>Universities</h3>
+              <p>Complete information about universities in Moldova, their programs and facilities.</p>
             </div>
-            <div className="why-moldova-card">
-              <h3>Costuri Accesibile</h3>
-              <p>Taxe de școlarizare și costuri de trai competitive în comparație cu alte țări europene.</p>
+            <div className="service-card">
+              <div className="service-icon"><i className="fas fa-book"></i></div>
+              <h3>Study Programs</h3>
+              <p>Detailed information about available study programs, specializations and development opportunities.</p>
             </div>
-            <div className="why-moldova-card">
-              <h3>Cultură Bogată</h3>
-              <p>O țară cu o istorie fascinantă și o cultură vibrantă, perfectă pentru studenți internaționali.</p>
+            <div className="service-card">
+              <div className="service-icon"><i className="fas fa-home"></i></div>
+              <h3>Student Life</h3>
+              <p>Guides for accommodation, transportation, cultural activities and adaptation in Moldova.</p>
             </div>
-            <div className="why-moldova-card">
-              <h3>Locație Strategică</h3>
-              <p>Poziționată în inima Europei, cu acces ușor la alte țări europene.</p>
+          </div>
+        </section>
+
+        <section className="about-section stats-section">
+          <div className="section-header">
+            <h2>Statistics</h2>
+            <p>Our impact in international education</p>
+          </div>
+          <div className="stats-grid">
+            <div className="stat-card">
+              <div className="stat-number">5000+</div>
+              <h3>International Students</h3>
+              <p>Students from over 50 countries who chose Moldova</p>
+            </div>
+            <div className="stat-card">
+              <div className="stat-number">15+</div>
+              <h3>Partner Universities</h3>
+              <p>Higher education institutions in Moldova</p>
+            </div>
+            <div className="stat-card">
+              <div className="stat-number">95%</div>
+              <h3>Satisfaction Rate</h3>
+              <p>Students satisfied with our services</p>
+            </div>
+          </div>
+        </section>
+        <section className="about-section cta-section">
+          <div className="cta-content">
+            <h2>Ready to start your adventure in Moldova?</h2>
+            <p>Let's explore together the study opportunities and build your future in the Republic of Moldova!</p>
+            <div className="cta-buttons">
+              <Link to="/universities" className="cta-button primary">Explore Universities</Link>
+              <Link to="/contact" className="cta-button secondary">Contact Us</Link>
             </div>
           </div>
         </section>
 
         <section className="about-section team-section">
-          <div className="section-icon">👥</div>
-          <h2>Echipa Noastră</h2>
-          <p className="team-intro">
-            Suntem o echipă dedicată de profesioniști cu experiență în educație internațională și asistență studențească. 
-            Ne străduim să oferim suport personalizat fiecărui student interesat de studii în Moldova.
-          </p>
+          <div className="section-header">
+            <h2>Our Team</h2>
+            <p>Professionals dedicated to international education</p>
+          </div>
           <div className="team-grid">
             <div className="team-member">
-              <div className="member-avatar">👨‍🎓</div>
-              <h3>Consultanți Educaționali</h3>
-              <p>Specialiști în ghidarea studenților spre programele potrivite.</p>
+              <div className="member-avatar"><i className="fas fa-user-graduate"></i></div>
+              <h3>Educational Consultants</h3>
+              <p>Specialists in guiding students to suitable programs.</p>
+              <ul className="member-expertise">
+                <li>Academic assessment</li>
+                <li>Career counseling</li>
+                <li>Application support</li>
+              </ul>
+            </div>
+            
+            <div className="team-member">
+              <div className="member-avatar"><i className="fas fa-user-tie"></i></div>
+              <h3>Student Support Specialists</h3>
+              <p>Professionals dedicated to assisting students in the enrollment process.</p>
+              <ul className="member-expertise">
+                <li>Visa assistance</li>
+                <li>Housing and transportation</li>
+                <li>Cultural orientation</li>
+              </ul>
             </div>
             <div className="team-member">
-              <div className="member-avatar">👩‍💼</div>
-              <h3>Asistenți Studenți</h3>
-              <p>Profesioniști dedicați suportului în procesul de înscriere.</p>
-            </div>
-            <div className="team-member">
-              <div className="member-avatar">👨‍🏫</div>
-              <h3>Experți Academici</h3>
-              <p>Profesori și cercetători cu experiență în educație internațională.</p>
+              <div className="member-avatar"><i className="fas fa-chalkboard-teacher"></i></div>
+              <h3>Academic Experts</h3>
+              <p>Professors and researchers with experience in international education.</p>
+              <ul className="member-expertise">
+                <li>Curriculum development</li>
+                <li>Academic research</li>
+                <li>Student mentoring</li>
+              </ul>
             </div>
           </div>
         </section>
 
-        <section className="about-section cta-section">
-          <h2>Pregătit să începi aventura ta în Moldova?</h2>
-          <p>Hai să explorăm împreună oportunitățile de studiu și să-ți construim viitorul în Republica Moldova!</p>
-          <div className="cta-buttons">
-            <Link to="/universities" className="cta-button primary">Explorează Universitățile</Link>
-            <Link to="/contact" className="cta-button secondary">Contactează-ne</Link>
-          </div>
-        </section>
+      
       </div>
       <Footer />
     </div>

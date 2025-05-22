@@ -7,9 +7,9 @@ import HeroLandingPage from './components/hero-landing-page'
 import FeaturesWhyStudyInMoldova1 from './components/features-why-study-in-moldova1'
 import CTA from '../../components/cta'
 import FeaturesWhyStudyInMoldova2 from './components/features-why-study-in-moldova2'
-import FeatureLocations from '../../components/feature-locations'
-import FeatureSteps from '../../components/feature-steps'
-import Testimonial from '../../components/testimonial'
+import FeatureLocations from './components/feature-locations'
+import FeatureSteps from './components/feature-steps'
+import Testimonial from './components/testimonial'
 import Footer from '../../components/footer'
 import './landing.css'
 
@@ -239,50 +239,6 @@ const Home = (props) => {
         }
         activeTab={0}
       ></FeaturesWhyStudyInMoldova2>
-      <FeatureLocations
-        content1={
-          <Fragment>
-            <span className="landing-text44">
-              Moldova is not a big country, and while there are universities in
-              other cities, most opportunities for higher education can be found
-              in the capital city, Chișinău.
-            </span>
-          </Fragment>
-        }
-        heading1={
-          <Fragment>
-            <span className="landing-text45">
-              In which cities can you study ?
-            </span>
-          </Fragment>
-        }
-        location1={
-          <Fragment>
-            <span className="landing-text46">Chișinău</span>
-          </Fragment>
-        }
-        location2={
-          <Fragment>
-            <span className="landing-text47">Other Cities ...</span>
-          </Fragment>
-        }
-        location1Description={
-          <Fragment>
-            <span className="landing-text48">
-              Chișinău - Moldova&apos;s capital city, the place where you can
-              find most and the best universities in the country 
-            </span>
-          </Fragment>
-        }
-        location2Description={
-          <Fragment>
-            <span className="landing-text49">
-              If Chișinău is not your cup of tea, for sure there are a couple
-              other options that you might find interesting. 
-            </span>
-          </Fragment>
-        }
-      ></FeatureLocations>
       <FeatureSteps
         step1Title={
           <Fragment>
@@ -426,6 +382,50 @@ const Home = (props) => {
           </Fragment>
         }
       ></Testimonial>
+      <FeatureLocations
+        content1={
+          <Fragment>
+            <span className="landing-text44">
+              Moldova is not a big country, and while there are universities in
+              other cities, most opportunities for higher education can be found
+              in the capital city, Chișinău.
+            </span>
+          </Fragment>
+        }
+        heading1={
+          <Fragment>
+            <span className="landing-text45">
+              In which cities can you study ?
+            </span>
+          </Fragment>
+        }
+        location1={
+          <Fragment>
+            <span className="landing-text46">Chișinău</span>
+          </Fragment>
+        }
+        location2={
+          <Fragment>
+            <span className="landing-text47">Other Cities ...</span>
+          </Fragment>
+        }
+        location1Description={
+          <Fragment>
+            <span className="landing-text48">
+              Chișinău - Moldova&apos;s capital city, the place where you can
+              find most and the best universities in the country 
+            </span>
+          </Fragment>
+        }
+        location2Description={
+          <Fragment>
+            <span className="landing-text49">
+              If Chișinău is not your cup of tea, for sure there are a couple
+              other options that you might find interesting. 
+            </span>
+          </Fragment>
+        }
+      ></FeatureLocations>
       <Footer
         link5={
           <Fragment>

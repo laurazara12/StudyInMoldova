@@ -1,11 +1,10 @@
 .sign-up-container1 {
   width: 100%;
-  height: 900px;
   display: flex;
-  position: relative;
+  overflow: auto;
+  min-height: 100vh;
   align-items: center;
-  flex-direction: row;
-  justify-content: center;
+  flex-direction: column;
   background-color: var(--dl-color-theme-neutral-light);
 }
  
@@ -40,8 +39,8 @@
   align-items: center;
   background-size: cover;
   justify-content: center;
-  background-image: url('https://raw.githubusercontent.com/laurazara12/Study-in-Moldova/refs/heads/main/images/pexels-radubradu-395822838-15252123.jpg');
   background-position: center;
+  border: none;
 }
  
 .sign-up-form {
@@ -50,10 +49,12 @@
   display: flex;
   max-width: 500px;
   align-items: center;
-  border-radius: var(--dl-radius-radius-radius4);
+  border-radius: 25px;
   flex-direction: column;
   justify-content: flex-end;
   background-color: var(--dl-color-theme-neutral-light);
+  padding: var(--dl-space-space-threeunits);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
  
 .sign-up-title-root {
@@ -65,6 +66,7 @@
  
 .sign-up-text10 {
   text-align: center;
+  font-size: var(--dl-font-size-large);
 }
  
 .sign-up-container2 {
@@ -82,10 +84,10 @@
   width: 100%;
   padding: var(--dl-space-space-halfunit);
   margin-bottom: var(--dl-space-space-unit);
-  border-radius: var(--dl-radius-radius-radius4);
-  font-size: 16px;
+  border-radius: 25px;
+  font-size: var(--dl-font-size-small);
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .sign-up-button1 {
@@ -96,6 +98,7 @@
 
 .sign-up-button1:hover {
   background-color: var(--dl-color-theme-primary2);
+  transform: translateY(-2px);
 }
 
 .sign-up-button2 {
@@ -110,6 +113,7 @@
 .sign-up-button2:hover {
   background-color: var(--dl-color-theme-primary2);
   color: #fff;
+  transform: translateY(-2px);
 }
  
 .sign-up-text12 {
@@ -126,19 +130,26 @@
 }
  
 .sign-up-text14 {
-  font-size: 16px;
+  font-size: var(--dl-font-size-small);
   text-align: center;
 }
  
 .sign-up-text15 {
-  font-size: 12px;
+  font-size: var(--dl-font-size-small);
 }
  
 .sign-up-text18 {
-  font-size: 12px;
+  font-size: var(--dl-font-size-small);
 }
  
 .sign-up-navlink {
+  text-decoration: none;
+  color: var(--dl-color-theme-primary1);
+  transition: color 0.3s ease;
+}
+
+.sign-up-navlink:hover {
+  color: var(--dl-color-theme-primary2);
   text-decoration: underline;
 }
  
@@ -157,6 +168,26 @@
  
 .sign-up-text23 {
   display: inline-block;
+}
+ 
+.sign-up-text28 {
+  display: inline-block;
+  font-size: var(--dl-font-size-large);
+}
+
+.sign-up-text27 {
+  display: inline-block;
+  font-size: var(--dl-font-size-small);
+}
+
+.sign-up-text25 {
+  display: inline-block;
+  font-size: var(--dl-font-size-small);
+}
+
+.sign-up-text26 {
+  display: inline-block;
+  font-size: var(--dl-font-size-small);
 }
  
 @media(max-width: 991px) {
@@ -193,10 +224,10 @@
 .sign-up-form input {
   width: 100%;
   padding: var(--dl-space-space-halfunit);
-  border: 1px solid var(--dl-color-theme-primary1);
-  border-radius: var(--dl-radius-radius-radius4);
+  border: var(--dl-border-width-thin) solid var(--dl-color-theme-primary1);
+  border-radius: 25px;
   background-color: transparent;
-  font-size: 16px;
+  font-size: var(--dl-font-size-small);
   margin-bottom: var(--dl-space-space-unit);
 }
 

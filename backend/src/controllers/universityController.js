@@ -40,7 +40,30 @@ exports.createUniversity = async (req, res) => {
 
 exports.updateUniversity = async (req, res) => {
   try {
-    const [updated] = await University.update(req.body, {
+    // Pregătim datele pentru actualizare
+    const updateData = {
+      name: req.body.name,
+      type: req.body.type,
+      description: req.body.description,
+      location: req.body.location,
+      image_url: req.body.image_url,
+      website: req.body.website,
+      ranking: req.body.ranking,
+      tuition_fees: req.body.tuition_fees ? {
+        bachelor: req.body.tuition_fees.bachelor || null,
+        master: req.body.tuition_fees.master || null,
+        phd: req.body.tuition_fees.phd || null
+      } : null,
+      contact_info: req.body.contact_info ? {
+        email: req.body.contact_info.email || null,
+        phone: req.body.contact_info.phone || null,
+        address: req.body.contact_info.address || null
+      } : null
+    };
+
+    console.log('Data prepared for update:', JSON.stringify(updateData, null, 2));
+
+    const [updated] = await University.update(updateData, {
       where: { id: req.params.id }
     });
     

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { getCloudinaryImageUrl } from '../config/cloudinary';
 import '../views/universities/universities.css';
 
 const UniversityPresentation = ({ university }) => {
@@ -10,7 +11,8 @@ const UniversityPresentation = ({ university }) => {
   }
 
   const handleImageError = (e) => {
-    e.target.src = 'http://localhost:3000/images/placeholder.jpg';
+    // Folosim o imagine de placeholder din Unsplash
+    e.target.src = 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80';
     e.target.onerror = null;
   };
 
@@ -124,28 +126,51 @@ const UniversityPresentation = ({ university }) => {
       'uap': 'uap'
     };
 
-    // Convertim la lowercase și eliminăm diacriticele
-    const normalizedName = name
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-
-    // Verificăm dacă numele normalizat există în mapare
-    if (nameMappings[normalizedName]) {
-      return nameMappings[normalizedName];
-    }
-
-    // Dacă nu există în mapare, generăm un slug standard
-    return normalizedName
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
+    return nameMappings[name] || name.replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   };
 
   const getUniversityPath = (university) => {
-    if (!university) return '/universities';
-    // Folosim slug-ul dacă există, altfel generăm unul folosind funcția generateSlug
-    const slug = university.slug || generateSlug(university.name);
+    if (!university || !university.name) return null;
+    
+    const slug = generateSlug(university.name.toLowerCase());
     return `/universities/${slug}`;
+  };
+
+  // Funcție pentru a obține URL-ul imaginii
+  const getImageUrl = () => {
+    if (!university.imageUrl) {
+      // Verificăm dacă este ASEM folosind toate variantele posibile
+      const asemNames = [
+        'asem',
+        'academia de studii economice',
+        'academy of economic studies',
+        'moldavskaya ekonomicheskaya akademiya',
+        'academy of economic studies of moldova',
+        'academy of economic studies'  // Adăugăm varianta exactă din baza de date
+      ];
+      
+      const isASEM = asemNames.some(name => 
+        university.name.toLowerCase().includes(name.toLowerCase())
+      );
+
+      if (isASEM) {
+        return 'https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599121/moldavskaya-ekonomicheskaya-akademiya-asem_thumb-1400w_q98ahh.jpg';
+      }
+      return 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80';
+    }
+
+    // Verificăm dacă URL-ul este deja un URL Cloudinary
+    if (university.imageUrl.includes('cloudinary.com')) {
+      return university.imageUrl;
+    }
+
+    // Dacă nu este un URL Cloudinary, încercăm să-l tratăm ca un public ID
+    return getCloudinaryImageUrl(university.imageUrl, {
+      width: 370,
+      height: 270,
+      crop: 'fill',
+      quality: 'auto:good'
+    });
   };
 
   const handleViewDetails = () => {
@@ -160,7 +185,7 @@ const UniversityPresentation = ({ university }) => {
   return (
     <div className="university-card university-card-small-font">
       <img 
-        src={university.imageUrl} 
+        src={getImageUrl()}
         alt={university.name} 
         className="university-image"
         onError={handleImageError}
@@ -183,17 +208,28 @@ const UniversityPresentation = ({ university }) => {
         <div className="university-details-row">
           <div className="university-details-col">
             <h3 className="university-details-title-small">Clasament universitate</h3>
-            <div className="university-ranking-small">{university.ranking || 'N/A'}</div>
+            <div className="university-ranking-small">
+              {university.name.toLowerCase().includes('asem') ? (
+                <>
+                  <div>Top 1000 Business Schools worldwide (2019)</div>
+                  <div>1 Palme of Excellence</div>
+                </>
+              ) : (
+                university.ranking || 'N/A'
+              )}
+            </div>
           </div>
           <div className="university-details-col">
             <h3 className="university-details-title-small">Taxe de studii (2023)</h3>
             <ul className="tuition-fees tuition-fees-small">
-              {university.tuitionFees && (
+              {university.tuitionFees && Object.keys(university.tuitionFees).length > 0 ? (
                 <>
-                  <li>Licență: {university.tuitionFees.bachelor}</li>
-                  <li>Master: {university.tuitionFees.master}</li>
-                  <li>Doctorat: {university.tuitionFees.phd}</li>
+                  {university.tuitionFees.bachelor && <li>Licență: {university.tuitionFees.bachelor} MDL/an</li>}
+                  {university.tuitionFees.master && <li>Master: {university.tuitionFees.master} MDL/an</li>}
+                  {university.tuitionFees.phd && <li>Doctorat: {university.tuitionFees.phd} MDL/an</li>}
                 </>
+              ) : (
+                <li>Pentru informații actualizate despre taxele de studii, vă rugăm să contactați universitatea la adresa: {university.contactEmail || 'contact@ase.md'}</li>
               )}
             </ul>
           </div>

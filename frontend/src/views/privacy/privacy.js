@@ -9,89 +9,89 @@ const Privacy = () => {
       <Navbar />
       <div className="privacy-container">
         <div className="privacy-content">
-          <h1>Politica de Confidențialitate</h1>
+          <h1>Privacy Policy</h1>
           
           <section>
-            <h2>1. Informații Generale</h2>
+            <h2>1. General Information</h2>
             <p>
-              StudyInMoldova ("noi", "nostru" sau "noi") se angajează să protejeze confidențialitatea utilizatorilor platformei noastre. 
-              Această politică de confidențialitate explică cum colectăm, utilizăm și protejăm informațiile personale pe care ni le furnizați.
+              StudyInMoldova ("we", "our", or "us") is committed to protecting the privacy of our platform users. 
+              This privacy policy explains how we collect, use, and protect the personal information you provide to us.
             </p>
           </section>
 
           <section>
-            <h2>2. Informațiile pe care le Colectăm</h2>
-            <p>Colectăm următoarele tipuri de informații:</p>
+            <h2>2. Information We Collect</h2>
+            <p>We collect the following types of information:</p>
             <ul>
-              <li>Informații de identificare personală (nume, adresă de email, număr de telefon)</li>
-              <li>Informații despre educație și studii</li>
-              <li>Preferințe și interese academice</li>
-              <li>Date de utilizare a platformei</li>
+              <li>Personal identification information (name, email address, phone number)</li>
+              <li>Education and study information</li>
+              <li>Academic preferences and interests</li>
+              <li>Platform usage data</li>
             </ul>
           </section>
 
           <section>
-            <h2>3. Cum Utilizăm Informațiile</h2>
-            <p>Utilizăm informațiile colectate pentru:</p>
+            <h2>3. How We Use Information</h2>
+            <p>We use the collected information for:</p>
             <ul>
-              <li>Furnizarea serviciilor noastre educaționale</li>
-              <li>Personalizarea experienței utilizatorului</li>
-              <li>Comunicarea despre oportunități educaționale relevante</li>
-              <li>Îmbunătățirea platformei noastre</li>
-              <li>Respectarea obligațiilor legale</li>
+              <li>Providing our educational services</li>
+              <li>Personalizing user experience</li>
+              <li>Communicating about relevant educational opportunities</li>
+              <li>Improving our platform</li>
+              <li>Complying with legal obligations</li>
             </ul>
           </section>
 
           <section>
-            <h2>4. Protecția Datelor</h2>
+            <h2>4. Data Protection</h2>
             <p>
-              Implementăm măsuri de securitate tehnice și organizaționale pentru a proteja informațiile dumneavoastră personale împotriva 
-              accesului neautorizat, modificării, divulgării sau distrugerii.
+              We implement technical and organizational security measures to protect your personal information against 
+              unauthorized access, modification, disclosure, or destruction.
             </p>
           </section>
 
           <section>
-            <h2>5. Drepturile Dumneavoastră</h2>
-            <p>Aveți dreptul la:</p>
+            <h2>5. Your Rights</h2>
+            <p>You have the right to:</p>
             <ul>
-              <li>Accesul la datele personale</li>
-              <li>Corectarea datelor inexacte</li>
-              <li>Ștergerea datelor personale</li>
-              <li>Restricționarea procesării</li>
-              <li>Portabilitatea datelor</li>
-              <li>Opoziția față de procesare</li>
+              <li>Access your personal data</li>
+              <li>Correct inaccurate data</li>
+              <li>Delete personal data</li>
+              <li>Restrict processing</li>
+              <li>Data portability</li>
+              <li>Object to processing</li>
             </ul>
           </section>
 
           <section>
-            <h2>6. Cookie-uri și Tehnologii Similar</h2>
+            <h2>6. Cookies and Similar Technologies</h2>
             <p>
-              Utilizăm cookie-uri și tehnologii similare pentru a îmbunătăți experiența dumneavoastră pe platforma noastră. 
-              Puteți controla preferințele cookie-urilor prin setările browserului dumneavoastră.
+              We use cookies and similar technologies to enhance your experience on our platform. 
+              You can control cookie preferences through your browser settings.
             </p>
           </section>
 
           <section>
-            <h2>7. Modificări ale Politicii de Confidențialitate</h2>
+            <h2>7. Privacy Policy Changes</h2>
             <p>
-              Ne rezervăm dreptul de a actualiza această politică de confidențialitate periodic. Vă vom notifica despre orice modificări 
-              semnificative prin intermediul platformei sau prin email.
+              We reserve the right to update this privacy policy periodically. We will notify you of any significant changes 
+              through the platform or via email.
             </p>
           </section>
 
           <section>
             <h2>8. Contact</h2>
             <p>
-              Pentru întrebări sau solicitări legate de această politică de confidențialitate, vă rugăm să ne contactați la:
+              For questions or requests regarding this privacy policy, please contact us at:
               <br />
               Email: privacy@studyinmoldova.md
               <br />
-              Telefon: +373 XX XXX XXX
+              Phone: +373 XX XXX XXX
             </p>
           </section>
 
           <section className="last-updated">
-            <p>Ultima actualizare: 21.05.2025</p>
+            <p>Last updated: 05/21/2025</p>
           </section>
         </div>
       </div>

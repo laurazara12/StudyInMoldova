@@ -173,38 +173,38 @@ const StudyPlan = ({ userData, onUpdate }) => {
 
           <div className="form-section">
             <h3>
-              <FaLanguage /> Competențe lingvistice
+              <FaLanguage /> Language Skills
             </h3>
-            {renderField('Nivel de engleză', 'english_level', 'select', [
-              { value: 'A1', label: 'A1 - Începător' },
-              { value: 'A2', label: 'A2 - Elementar' },
-              { value: 'B1', label: 'B1 - Intermediar' },
-              { value: 'B2', label: 'B2 - Intermediar superior' },
-              { value: 'C1', label: 'C1 - Avansat' },
+            {renderField('English Level', 'english_level', 'select', [
+              { value: 'A1', label: 'A1 - Beginner' },
+              { value: 'A2', label: 'A2 - Elementary' },
+              { value: 'B1', label: 'B1 - Intermediate' },
+              { value: 'B2', label: 'B2 - Upper Intermediate' },
+              { value: 'C1', label: 'C1 - Advanced' },
               { value: 'C2', label: 'C2 - Expert' }
             ])}
-            {renderField('Alte limbi cunoscute', 'additional_languages')}
-            {renderField('Limba de studiu preferată', 'preferred_study_language', 'select', [
-              { value: 'romanian', label: 'Română' },
-              { value: 'english', label: 'Engleză' },
-              { value: 'russian', label: 'Rusă' }
+            {renderField('Other Languages', 'additional_languages')}
+            {renderField('Preferred Study Language', 'preferred_study_language', 'select', [
+              { value: 'romanian', label: 'Romanian' },
+              { value: 'english', label: 'English' },
+              { value: 'russian', label: 'Russian' }
             ])}
           </div>
 
           <div className="form-section">
             <h3>
-              <FaMoneyBillWave /> Detalii financiare
+              <FaMoneyBillWave /> Financial Details
             </h3>
-            {renderField('Buget estimat (EUR)', 'estimated_budget', 'number')}
+            {renderField('Estimated Budget (EUR)', 'estimated_budget', 'number')}
           </div>
 
           <div className="form-section">
             <h3>
-              <FaHome /> Cazare
+              <FaHome /> Accommodation
             </h3>
-            {renderField('Preferințe cazare', 'accommodation_preferences', 'select', [
-              { value: 'dormitory', label: 'Cămin studențesc' },
-              { value: 'apartment', label: 'Apartament' },
+            {renderField('Accommodation Preferences', 'accommodation_preferences', 'select', [
+              { value: 'dormitory', label: 'Student Dormitory' },
+              { value: 'apartment', label: 'Apartment' },
               { value: 'hostel', label: 'Hostel' }
             ])}
           </div>
@@ -215,14 +215,14 @@ const StudyPlan = ({ userData, onUpdate }) => {
               className="cancel-button"
               onClick={() => setIsEditing(false)}
             >
-              Anulează
+              Cancel
             </button>
             <button 
               type="submit" 
               className="save-button"
               disabled={loading}
             >
-              {loading ? 'Se salvează...' : 'Salvează planul'}
+              {loading ? 'Saving...' : 'Save Plan'}
             </button>
           </div>
         </form>
@@ -240,25 +240,25 @@ const StudyPlan = ({ userData, onUpdate }) => {
 
           <div className="info-section">
             <h3>
-              <FaLanguage /> Competențe lingvistice
+              <FaLanguage /> Language Skills
             </h3>
-            {renderField('Nivel de engleză', 'english_level')}
-            {renderField('Alte limbi cunoscute', 'additional_languages')}
-            {renderField('Limba de studiu preferată', 'preferred_study_language')}
+            {renderField('English Level', 'english_level')}
+            {renderField('Other Languages', 'additional_languages')}
+            {renderField('Preferred Study Language', 'preferred_study_language')}
           </div>
 
           <div className="info-section">
             <h3>
-              <FaMoneyBillWave /> Detalii financiare
+              <FaMoneyBillWave /> Financial Details
             </h3>
-            {renderField('Buget estimat', 'estimated_budget')}
+            {renderField('Estimated Budget', 'estimated_budget')}
           </div>
 
           <div className="info-section">
             <h3>
-              <FaHome /> Cazare
+              <FaHome /> Accommodation
             </h3>
-            {renderField('Preferințe cazare', 'accommodation_preferences')}
+            {renderField('Accommodation Preferences', 'accommodation_preferences')}
           </div>
         </div>
       )}

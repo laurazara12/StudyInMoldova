@@ -32,16 +32,26 @@ module.exports = (sequelize) => {
       allowNull: true
     },
     ranking: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: true
     },
     tuition_fees: {
       type: DataTypes.JSON,
-      allowNull: true
+      allowNull: true,
+      defaultValue: {
+        bachelor: null,
+        master: null,
+        phd: null
+      }
     },
     contact_info: {
       type: DataTypes.JSON,
-      allowNull: true
+      allowNull: true,
+      defaultValue: {
+        email: null,
+        phone: null,
+        address: null
+      }
     },
     slug: {
       type: DataTypes.STRING,

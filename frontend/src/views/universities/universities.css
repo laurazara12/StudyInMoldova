@@ -83,9 +83,11 @@
   width: 370px;
   height: 270px;
   object-fit: cover;
+  object-position: 50% 30%;
   border-radius: 12px;
   margin: 1.5rem 2rem 1.5rem 1.5rem;
   flex-shrink: 0;
+  transform: scale(1.1);
 }
 
 .university-content {
@@ -247,7 +249,7 @@
 }
 
 .university-actions {
-  margin-top: 2rem;
+  margin-top: 0.5rem;
   display: flex;
   gap: 1.5rem;
   justify-content: flex-start;
@@ -256,33 +258,26 @@
 }
 
 .btn-secondary, .btn-primary {
-  border-radius: 24px;
+  border-radius: var(--dl-radius-radius-buttonradius);
   padding: 0.7rem 2.2rem;
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: var(--dl-font-size-small);
+  color: var(--dl-color-theme-primary1);
   box-shadow: none;
-  border: 2px solid #e65103 !important;
-  background: #fff !important;
-  color: #e65103 !important;
+  border: var(--dl-border-width-thin) solid var(--dl-color-theme-primary1);
+  background: #fff;
+  color: var(--dl-color-theme-primary1);
   transition: background 0.2s, color 0.2s;
 }
 
 .btn-secondary {
-  background: #e65103 !important;
-  color: #fff !important;
-  border: 2px solid #e65103 !important;
-}
-
-.btn-secondary:hover {
-  background: #bf4408 !important;
-  color: #fff !important;
-  border-color: #bf4408 !important;
+  background: var(--dl-color-theme-primary1);
+  border: var(--dl-border-width-thin) solid var(--dl-color-theme-primary1);
 }
 
 .btn-primary:hover {
-  background: #fbf1eb !important;
-  color: #e65103 !important;
-  border-color: #e65103 !important;
+  background: #fbf1eb;
+  color: var(--dl-color-theme-primary1);
+  border-color: var(--dl-color-theme-primary1);
 }
 
 .admin-controls {
@@ -296,8 +291,8 @@
   padding: 0.8rem 1.5rem;
   background: #4CAF50;
   color: white;
-  border: none;
-  border-radius: 4px;
+  border: var(--dl-border-width-thin) solid transparent;
+  border-radius: var(--dl-radius-radius-cardradius);
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s;
@@ -326,8 +321,8 @@
   width: 100%;
   padding: 0.8rem;
   margin-bottom: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: var(--dl-border-width-thin) solid var(--dl-color-theme-gray-light);
+  border-radius: var(--dl-radius-radius-cardradius);
   font-size: 1rem;
   transition: border-color 0.3s;
 }
@@ -335,7 +330,7 @@
 .add-university-form input:focus,
 .add-university-form textarea:focus,
 .add-university-form select:focus {
-  border-color: #2196F3;
+  border-color: var(--dl-color-theme-primary1);
   outline: none;
 }
 
@@ -357,8 +352,8 @@
   padding: 1rem;
   background: #2196F3;
   color: white;
-  border: none;
-  border-radius: 4px;
+  border: var(--dl-border-width-thin) solid transparent;
+  border-radius: var(--dl-radius-radius-cardradius);
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s;
@@ -378,7 +373,8 @@
   font-size: 1.1rem;
   color: #666;
   background: white;
-  border-radius: 8px;
+  border-radius: var(--dl-radius-radius-cardradius);
+  border: var(--dl-border-width-thin) solid var(--dl-color-theme-gray-light);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin: 2rem auto;
   max-width: 600px;

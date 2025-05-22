@@ -181,7 +181,7 @@ const Notifications = () => {
       >
         <div className="notifications-title">
           <FaBell />
-          <h3>Notificări {unreadCount > 0 ? `(${unreadCount})` : ''}</h3>
+          <h3>Notifications {unreadCount > 0 ? `(${unreadCount})` : ''}</h3>
         </div>
         <div className="notifications-actions">
           <FaChevronDown className="expand-icon" />
@@ -195,24 +195,24 @@ const Notifications = () => {
               className={`filter-button ${filter === 'all' ? 'active' : ''}`}
               onClick={() => setFilter('all')}
             >
-              Toate
+              All
             </button>
             <button 
               className={`filter-button ${filter === 'unread' ? 'active' : ''}`}
               onClick={() => setFilter('unread')}
             >
-              Necitite
+              Unread
             </button>
             <button 
               className={`filter-button ${filter === 'important' ? 'active' : ''}`}
               onClick={() => setFilter('important')}
             >
-              Importante
+              Important
             </button>
           </div>
 
           {loading ? (
-            <div className="notifications-loading">Se încarcă...</div>
+            <div className="notifications-loading">Loading...</div>
           ) : error ? (
             <div className="notifications-error">{error}</div>
           ) : filterNotifications(notifications).length > 0 ? (
@@ -222,7 +222,7 @@ const Notifications = () => {
                   className="mark-all-read"
                   onClick={handleMarkAllRead}
                 >
-                  <FaCheck /> Marchează toate ca citite
+                  <FaCheck /> Mark all as read
                 </button>
               )}
               {filterNotifications(notifications).map(notification => (
@@ -235,7 +235,7 @@ const Notifications = () => {
                     {getPriorityIcon(notification.priority)}
                     <p>{notification.message}</p>
                     <span className="notification-date">
-                      {new Date(notification.createdAt).toLocaleDateString('ro-RO', {
+                      {new Date(notification.createdAt).toLocaleDateString('en-US', {
                         day: 'numeric',
                         month: 'long',
                         hour: '2-digit',
@@ -243,7 +243,7 @@ const Notifications = () => {
                       })}
                     </span>
                     {new Date(notification.expiresAt) < new Date() && (
-                      <span className="expired-badge">Expirat</span>
+                      <span className="expired-badge">Expired</span>
                     )}
                   </div>
                   {!notification.is_read && <div className="unread-indicator" />}
@@ -251,7 +251,7 @@ const Notifications = () => {
               ))}
             </>
           ) : (
-            <div className="no-notifications">Nu există notificări</div>
+            <div className="no-notifications">No notifications</div>
           )}
         </div>
       )}

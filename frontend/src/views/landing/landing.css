@@ -378,7 +378,7 @@
   color: var(--dl-color-theme-secondary1);
   cursor: pointer;
   display: flex;
-  transition: 0.3s;
+  transition: 0.1s;
   align-items: center;
   font-weight: bold;
   padding-top: var(--dl-space-space-halfunit);
@@ -597,6 +597,7 @@
 }
  
 .thq-grid-2 {
+  padding: 1rem;
   width: 100%;
   display: grid;
   grid-gap: var(--dl-space-space-twounits);

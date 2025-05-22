@@ -238,13 +238,12 @@
 
 .university-header {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 1rem;
 }
 
 .university-header h1 {
   font-size: var(--dl-font-size-extralarge);
   color: var(--dl-color-theme-neutral-dark);
-  margin-bottom: var(--dl-space-space-halfunit);
 }
 
 .university-header h2 {
@@ -255,7 +254,7 @@
 
 .university-content {
   display: grid;
-  gap: 2rem;
+  gap: 0.5rem;
 }
 
 .university-section {

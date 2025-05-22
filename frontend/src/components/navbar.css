@@ -86,7 +86,7 @@
  
 .navbar-text12 {
   color: rgba(0, 0, 0, 1);
-  width: 127px;
+  width: 60px;
   height: auto;
   font-style: Medium;
   text-align: left;
@@ -425,6 +425,7 @@
   .navbar-text17 {
     margin-left: 0;
     margin-bottom: var(--dl-space-space-unit);
+    width: auto;
   }
   .navbar-text18 {
     margin-left: 0;
@@ -572,7 +573,6 @@
 .navbar-text25 {
   color: var(--dl-color-theme-neutral-dark);
   font-size: var(--dl-font-size-small);
-  font-weight: 500;
   font-family: Roboto;
 }
 

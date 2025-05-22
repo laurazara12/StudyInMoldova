@@ -42,8 +42,8 @@ const Navbar = (props) => {
             <Link to="/living-in-moldova" className={`navbar-text11 ${location.pathname === '/living-in-moldova' ? 'active' : ''}`}>
               <span className="navbar-text35">Living In Moldova</span>
             </Link>
-            <Link to="/plan-your-studies" className={`navbar-text12 ${location.pathname === '/plan-your-studies' ? 'active' : ''}`}>
-              <span className="navbar-text23">Plan Your Studies</span>
+            <Link to="/blog" className={`navbar-text12 ${location.pathname === '/blog' ? 'active' : ''}`}>
+              <span className="navbar-text23">Blog</span>
             </Link>
             <Link to="/universities" className={`navbar-text13 ${location.pathname === '/universities' ? 'active' : ''}`}>
               <span className="navbar-text32">Universities</span>
@@ -113,8 +113,8 @@ const Navbar = (props) => {
             <Link to="/living-in-moldova" className="navbar-text16" onClick={toggleMenu}>
               <span className="navbar-text36">Living In Moldova</span>
             </Link>
-            <Link to="/plan-your-studies" className="navbar-text17" onClick={toggleMenu}>
-              <span className="navbar-text24">Plan Your Studies</span>
+            <Link to="/blog" className="navbar-text17" onClick={toggleMenu}>
+              <span className="navbar-text24">Blog</span>
             </Link>
             <Link to="/universities" className="navbar-text18" onClick={toggleMenu}>
               <span className="navbar-text31">Universities</span>

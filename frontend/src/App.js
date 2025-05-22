@@ -15,6 +15,8 @@ import Universities from './views/universities/universities';
 import Programs from './views/programs/programs';
 import LivingInMoldova from './views/living/overview';
 import PlanYourStudies from './views/planning/plan';
+import Blog from './views/blog/blog';
+import BlogPost from './views/blog/BlogPost';
 import NotFound from './views/error/not-found';
 import PrivateRoute from './components/PrivateRoute';
 import Dashboard from './views/admin/dashboard';
@@ -89,6 +91,8 @@ const App = () => {
             <Route path="/programs" element={<Programs />} />
             <Route path="/living-in-moldova" element={<LivingInMoldova />} />
             <Route path="/plan-your-studies" element={<PlanYourStudies />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:id" element={<BlogPost />} />
             <Route path="/help-you-choose-AI" element={<HelpYouChoose />} />
             <Route path="/universities/:slug" element={<UniversityIndividualPage />} />
             <Route path="/profile" element={

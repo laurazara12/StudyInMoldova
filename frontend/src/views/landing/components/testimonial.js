@@ -7,6 +7,7 @@ import './testimonial.css'
 const Testimonial = (props) => {
   return (
     <div className="thq-section-padding">
+      <div className="testimonial-background">
       <div className="testimonial-max-width thq-section-max-width">
         <div className="testimonial-container10">
           <h2 className="thq-heading-2">
@@ -198,6 +199,7 @@ const Testimonial = (props) => {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   )

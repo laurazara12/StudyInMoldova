@@ -12,7 +12,7 @@ const Footer = () => {
             <div className="footer-logo">
               <h2 className="footer-title">StudyInMoldova</h2>
               <p className="footer-description">
-                Platforma ta pentru studii universitare în Republica Moldova
+                Your platform for university studies in the Republic of Moldova
               </p>
             </div>
             <div className="footer-social">
@@ -30,46 +30,46 @@ const Footer = () => {
 
           <div className="footer-links-section">
             <div className="footer-links-column">
-              <h3>Universitatea</h3>
-              <Link to="/universities" className="footer-link">Universități</Link>
-              <Link to="/programs" className="footer-link">Programe de studii</Link>
+              <h3>University</h3>
+              <Link to="/universities" className="footer-link">Universities</Link>
+              <Link to="/programs" className="footer-link">Study Programs</Link>
             </div>
 
             <div className="footer-links-column">
-              <h3>Resurse</h3>
+              <h3>Resources</h3>
               <Link to="/blog" className="footer-link">Blog</Link>
-              <Link to="/faq" className="footer-link">Întrebări frecvente</Link>
-              <Link to="/documents" className="footer-link">Documente necesare</Link>
+              <Link to="/faq" className="footer-link">FAQ</Link>
+              <Link to="/documents" className="footer-link">Required Documents</Link>
               <Link to="/contact" className="footer-link">Contact</Link>
+              <Link to="/about" className="footer-link">About Us</Link>
             </div>
           </div>
 
           <div className="footer-newsletter">
-            <h3>Abonează-te la newsletter</h3>
-            <p>Primește ultimele noutăți despre programele de studii și oportunități</p>
+            <h3>Subscribe to our newsletter</h3>
+            <p>Get the latest news about study programs and opportunities</p>
             <div className="footer-form">
               <input
                 type="email"
-                placeholder="Adresa ta de email"
+                placeholder="Your email address"
                 className="footer-text-input thq-input"
               />
               <button className="thq-button-filled footer-button">
-                Abonează-te
+                Subscribe
               </button>
             </div>
           </div>
         </div>
 
         <div className="footer-credits">
-          <div className="thq-divider-horizontal"></div>
           <div className="footer-row">
             <div className="footer-footer-links">
-              <Link to="/privacy" className="footer-link">Politica de confidențialitate</Link>
-              <Link to="/terms" className="footer-link">Termeni și condiții</Link>
-              <Link to="/cookies" className="footer-link">Politica de cookie-uri</Link>
+              <Link to="/privacy" className="footer-link">Privacy Policy</Link>
+              <Link to="/terms" className="footer-link">Terms and Conditions</Link>
+              <Link to="/cookies" className="footer-link">Cookie Policy</Link>
             </div>
             <span className="copyright">
-              © {new Date().getFullYear()} StudyInMoldova. Toate drepturile rezervate.
+              © {new Date().getFullYear()} StudyInMoldova. All rights reserved.
             </span>
           </div>
         </div>

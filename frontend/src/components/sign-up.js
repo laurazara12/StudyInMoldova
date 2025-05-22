@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import PropTypes from 'prop-types'
 
 import './sign-up.css'
+import { getCloudinaryImageUrl } from '../config/cloudinary'
 
 const SignUp = (props) => {
   const [errorMessage, setErrorMessage] = useState('');
@@ -58,7 +59,16 @@ const SignUp = (props) => {
   return (
     <div className="sign-up-container1">
       <div className="sign-up-max-width">
-        <div className="sign-up-sign-up-image thq-img-ratio-16-9"></div>
+        <div className="sign-up-sign-up-image thq-img-ratio-16-9" style={{
+          backgroundImage: `url(${getCloudinaryImageUrl('pexels-radubradu-395822838-15252123_ckp83y', { 
+            width: 1200, 
+            height: 675, 
+            crop: 'fill',
+            quality: 'auto'
+          })})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}></div>
         <div className="sign-up-form thq-section-padding">
           <div className="sign-up-title-root">
             <h2 className="sign-up-text10 thq-heading-2">
@@ -131,22 +141,10 @@ const SignUp = (props) => {
           </form>
           <p className="sign-up-text14 thq-body-large">
             <span className="sign-up-text15">
-              By creating an account, you agree to the Terms of use and Privacy
-              Policy.
-            </span>
-            <span>
-              <span
-                dangerouslySetInnerHTML={{
-                  __html: ' ',
-                }}
-              />
-            </span>
-            <span>
-              <span
-                dangerouslySetInnerHTML={{
-                  __html: ' ',
-                }}
-              />
+              By creating an account, you agree to the{' '}
+              <Link to="/terms" className="sign-up-navlink">Terms of use</Link>
+              {' '}and{' '}
+              <Link to="/privacy" className="sign-up-navlink">Privacy Policy</Link>.
             </span>
           </p>
           <span className="sign-up-text18 thq-body-small">

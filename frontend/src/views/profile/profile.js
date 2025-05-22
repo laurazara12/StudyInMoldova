@@ -835,7 +835,7 @@ const Profile = () => {
                         name="country_of_origin"
                         value={formData.country_of_origin}
                         onChange={handleChange}
-                        placeholder="Introduceți țara de origine"
+                        placeholder="Enter your country of origin"
                       />
                     </div>
                     <div className="form-group">
@@ -845,11 +845,11 @@ const Profile = () => {
                         name="nationality"
                         value={formData.nationality}
                         onChange={handleChange}
-                        placeholder="Introduceți naționalitatea"
+                        placeholder="Enter your nationality"
                       />
                     </div>
                     <div className="form-actions">
-                      <button type="submit" className="save-button">Salvează modificările</button>
+                      <button type="submit" className="save-button">Save Changes</button>
                     </div>
                   </form>
                 )}

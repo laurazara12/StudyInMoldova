@@ -106,24 +106,39 @@ const FeaturesWhyStudyInMoldova2 = (props) => {
           {activeTab === 0 && (
             <img
               alt={props.feature1ImgAlt}
-              src="https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599121/dorin-seremet-_atwwma7pyw-unsplash-1400w_w6dekv.jpg"
-              loading="eager"
+              src={getCloudinaryImageUrl('dorin-seremet-_atwwma7pyw-unsplash-1400w_w6dekv', { 
+                width: 800, 
+                height: 450, 
+                crop: 'fill', 
+                quality: 'auto:good',
+                lazy: false
+              })}
               className="features-why-study-in-moldova2-image1 thq-img-ratio-16-9"
             />
           )}
           {activeTab === 1 && (
             <img
               alt={props.feature2ImgAlt}
-              src="https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599120/young-people-dancing-folk-low-angle_p9pe0a.jpg"
-              loading="eager"
+              src={getCloudinaryImageUrl('young-people-dancing-folk-low-angle_p9pe0a', { 
+                width: 800, 
+                height: 450, 
+                crop: 'fill', 
+                quality: 'auto:good',
+                lazy: false
+              })}
               className="features-why-study-in-moldova2-image2 thq-img-ratio-16-9"
             />
           )}
           {activeTab === 2 && (
             <img
               alt={props.feature3ImgAlt}
-              loading="eager"
-              src="https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599120/WhatsApp_Image_2024-11-15_at_14.33.02_3_rthlii.jpg"
+              src={getCloudinaryImageUrl('WhatsApp_Image_2024-11-15_at_14.33.02_3_rthlii', { 
+                width: 800, 
+                height: 450, 
+                crop: 'fill', 
+                quality: 'auto:good',
+                lazy: false
+              })}
               className="features-why-study-in-moldova2-image3 thq-img-ratio-16-9"
             />
           )}

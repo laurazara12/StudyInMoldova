@@ -5,6 +5,7 @@ import PropTypes from 'prop-types'
 import './sign-in.css'
 import { API_BASE_URL, handleApiError } from '../config/api.config'
 import { useAuth } from '../context/AuthContext'
+import { getCloudinaryImageUrl } from '../config/cloudinary'
 
 const SignIn = (props) => {
   const [email, setEmail] = useState('');
@@ -126,7 +127,13 @@ const SignIn = (props) => {
         <div className="sign-in-container2">
           <img
             alt={props.image1Alt}
-            src="https://raw.githubusercontent.com/laurazara12/Study-in-Moldova/refs/heads/main/images/pexels-vadim-burdujan-207144379-18877978.jpg"
+            src={getCloudinaryImageUrl('pexels-vadim-burdujan-207144379-18877978_akmeg5', { 
+              width: 800, 
+              height: 600, 
+              crop: 'fill', 
+              quality: 'auto:good',
+              lazy: false // Această imagine este vizibilă imediat
+            })}
             className="sign-in-sign-up-image thq-img-ratio-4-6"
           />
         </div>
