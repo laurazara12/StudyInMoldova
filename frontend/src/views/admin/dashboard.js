@@ -982,19 +982,30 @@ const Dashboard = () => {
 
   const handleEditUniversity = (university) => {
     console.log('Universitate pentru editare:', university);
-    setEditingUniversity({
-      ...university,
+    
+    // Asigurăm-ne că avem toate câmpurile necesare cu valori implicite
+    const formattedUniversity = {
+      id: university.id,
+      name: university.name || '',
+      type: university.type || '',
+      description: university.description || '',
+      location: university.location || '',
+      image_url: university.image_url || '',
+      website: university.website || '',
+      ranking: university.ranking || '',
       tuition_fees: {
-        bachelor: university.tuitionFees?.bachelor || '',
-        master: university.tuitionFees?.master || '',
-        phd: university.tuitionFees?.phd || ''
+        bachelor: university.tuitionFees?.bachelor || university.tuition_fees?.bachelor || '',
+        master: university.tuitionFees?.master || university.tuition_fees?.master || '',
+        phd: university.tuitionFees?.phd || university.tuition_fees?.phd || ''
       },
       contact_info: {
-        email: university.contactInfo?.email || '',
-        phone: university.contactInfo?.phone || '',
-        address: university.contactInfo?.address || ''
+        email: university.contactInfo?.email || university.contact_info?.email || '',
+        phone: university.contactInfo?.phone || university.contact_info?.phone || '',
+        address: university.contactInfo?.address || university.contact_info?.address || ''
       }
-    });
+    };
+
+    setEditingUniversity(formattedUniversity);
     setIsModalOpen(true);
   };
 
@@ -1514,18 +1525,21 @@ const Dashboard = () => {
                       <tbody>
                         {filteredUniversities.map(university => (
                           <tr key={university.id}>
-                            <td>{university.name}</td>
-                            <td>{university.type}</td>
-                            <td>{university.location}</td>
-                            <td>{university.ranking}</td>
+                            <td>{university.name || 'N/A'}</td>
+                            <td>{university.type || 'N/A'}</td>
+                            <td>{university.location || 'N/A'}</td>
+                            <td>{university.ranking || 'N/A'}</td>
                             <td>
-                              {university.tuitionFees && (
-                                <div>
-                                  <div>Bachelor: {university.tuitionFees.bachelor} EUR</div>
-                                  <div>Master: {university.tuitionFees.master} EUR</div>
-                                  <div>PhD: {university.tuitionFees.phd} EUR</div>
-                                </div>
-                              )}
+                              {(() => {
+                                const fees = university.tuitionFees || university.tuition_fees || {};
+                                return (
+                                  <div>
+                                    <div>Bachelor: {fees.bachelor ? `${fees.bachelor} EUR` : 'N/A'}</div>
+                                    <div>Master: {fees.master ? `${fees.master} EUR` : 'N/A'}</div>
+                                    <div>PhD: {fees.phd ? `${fees.phd} EUR` : 'N/A'}</div>
+                                  </div>
+                                );
+                              })()}
                             </td>
                             <td>
                               <div className="action-buttons">
@@ -1739,7 +1753,9 @@ const Dashboard = () => {
                                   name="name"
                                   value={editingUniversity.name || ''}
                                   onChange={handleEditUniversityChange}
+                                  placeholder="Introduceți numele universității"
                                   required
+                                  className="form-input"
                                 />
                               </div>
                               <div className="form-group">
@@ -1749,7 +1765,9 @@ const Dashboard = () => {
                                   value={editingUniversity.type || ''}
                                   onChange={handleEditUniversityChange}
                                   required
+                                  className="form-select"
                                 >
+                                  <option value="">Selectați tipul</option>
                                   <option value="Public">Public</option>
                                   <option value="Private">Privat</option>
                                 </select>
@@ -1760,18 +1778,26 @@ const Dashboard = () => {
                                   name="description"
                                   value={editingUniversity.description || ''}
                                   onChange={handleEditUniversityChange}
+                                  placeholder="Introduceți descrierea universității"
                                   required
+                                  className="form-textarea"
                                 />
                               </div>
                               <div className="form-group">
                                 <label>Locație:</label>
-                                <input
-                                  type="text"
+                                <select
                                   name="location"
                                   value={editingUniversity.location || ''}
                                   onChange={handleEditUniversityChange}
                                   required
-                                />
+                                  className="form-select"
+                                >
+                                  <option value="">Selectați locația</option>
+                                  <option value="Chișinău">Chișinău</option>
+                                  <option value="Bălți">Bălți</option>
+                                  <option value="Cahul">Cahul</option>
+                                  <option value="Comrat">Comrat</option>
+                                </select>
                               </div>
                               <div className="form-group">
                                 <label>URL Imagine:</label>
@@ -1780,6 +1806,8 @@ const Dashboard = () => {
                                   name="image_url"
                                   value={editingUniversity.image_url || ''}
                                   onChange={handleEditUniversityChange}
+                                  placeholder="Introduceți URL-ul imaginii"
+                                  className="form-input"
                                 />
                               </div>
                               <div className="form-group">
@@ -1789,7 +1817,9 @@ const Dashboard = () => {
                                   name="website"
                                   value={editingUniversity.website || ''}
                                   onChange={handleEditUniversityChange}
+                                  placeholder="Introduceți adresa website-ului"
                                   required
+                                  className="form-input"
                                 />
                               </div>
                               <div className="form-group">
@@ -1800,6 +1830,7 @@ const Dashboard = () => {
                                   value={editingUniversity.ranking || ''}
                                   onChange={handleEditUniversityChange}
                                   placeholder="Introduceți clasamentul"
+                                  className="form-input"
                                 />
                               </div>
                               <div className="form-group">
@@ -1813,6 +1844,7 @@ const Dashboard = () => {
                                       value={editingUniversity.tuition_fees?.bachelor || ''}
                                       onChange={handleEditUniversityChange}
                                       placeholder="Introduceți taxa de studii pentru licență"
+                                      className="form-input"
                                     />
                                   </div>
                                   <div className="form-group">
@@ -1823,6 +1855,7 @@ const Dashboard = () => {
                                       value={editingUniversity.tuition_fees?.master || ''}
                                       onChange={handleEditUniversityChange}
                                       placeholder="Introduceți taxa de studii pentru master"
+                                      className="form-input"
                                     />
                                   </div>
                                   <div className="form-group">
@@ -1833,6 +1866,7 @@ const Dashboard = () => {
                                       value={editingUniversity.tuition_fees?.phd || ''}
                                       onChange={handleEditUniversityChange}
                                       placeholder="Introduceți taxa de studii pentru doctorat"
+                                      className="form-input"
                                     />
                                   </div>
                                 </div>
@@ -1847,6 +1881,8 @@ const Dashboard = () => {
                                       name="contact_info.email"
                                       value={editingUniversity.contact_info?.email || ''}
                                       onChange={handleEditUniversityChange}
+                                      placeholder="Introduceți adresa de email"
+                                      className="form-input"
                                     />
                                   </div>
                                   <div className="form-group">
@@ -1856,6 +1892,8 @@ const Dashboard = () => {
                                       name="contact_info.phone"
                                       value={editingUniversity.contact_info?.phone || ''}
                                       onChange={handleEditUniversityChange}
+                                      placeholder="Introduceți numărul de telefon"
+                                      className="form-input"
                                     />
                                   </div>
                                   <div className="form-group">
@@ -1865,6 +1903,8 @@ const Dashboard = () => {
                                       name="contact_info.address"
                                       value={editingUniversity.contact_info?.address || ''}
                                       onChange={handleEditUniversityChange}
+                                      placeholder="Introduceți adresa"
+                                      className="form-input"
                                     />
                                   </div>
                                 </div>
