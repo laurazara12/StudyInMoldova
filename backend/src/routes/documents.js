@@ -5,7 +5,7 @@ const path = require('path');
 const { authMiddleware, adminMiddleware } = require('../middleware/auth');
 const { User, Document } = require('../models');
 const { Op } = require('sequelize');
-const { createNotification } = require('../controllers/notificationController');
+const { createNotification, NOTIFICATION_TYPES } = require('../controllers/notificationController');
 const winston = require('winston');
 const rateLimit = require('express-rate-limit');
 const NodeCache = require('node-cache');
@@ -424,23 +424,12 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
     await document.update(updateData);
 
     // Creăm notificare pentru utilizator
-    try {
-      const notificationMessage = status === 'approved' 
-        ? 'Documentul tău a fost aprobat'
-        : status === 'rejected'
-        ? 'Documentul tău a fost respins'
-        : 'Statusul documentului tău a fost actualizat';
-
-      await createNotification(
-        document.user_id,
-        'document_update',
-        notificationMessage,
-        document.id
-      );
-    } catch (notificationError) {
-      console.error('Eroare la crearea notificării:', notificationError);
-      // Continuăm execuția chiar dacă notificarea eșuează
-    }
+    await createNotification(
+      document.user_id,
+      NOTIFICATION_TYPES.DOCUMENT_UPDATED,
+      `Documentul dumneavoastră ${document.document_type} a fost actualizat`,
+      document.id
+    );
 
     console.log('Document actualizat cu succes:', {
       documentId: document.id,
@@ -793,7 +782,7 @@ router.delete('/:id', authMiddleware, checkPermissions, async (req, res, next) =
       const adminMessage = req.body.admin_message || 'Documentul a fost șters de către administrator';
       await createNotification(
         req.document.user_id,
-        'document_deleted',
+        NOTIFICATION_TYPES.DOCUMENT_DELETED,
         `Documentul tău de tip ${req.document.document_type} a fost șters de către administrator`,
         req.document.id,
         adminMessage
@@ -884,20 +873,12 @@ router.delete('/admin/:id', authMiddleware, adminMiddleware, async (req, res) =>
     console.log('Document marcat ca șters în baza de date');
 
     // Creează notificare pentru utilizator
-    try {
-      const adminMessage = req.body.admin_message || 'Documentul a fost șters de către administrator';
-      await createNotification(
-        document.user_id,
-        'document_deleted',
-        `Documentul tău de tip ${document.document_type} a fost șters de către administrator`,
-        document.id,
-        adminMessage
-      );
-      console.log('Notificare creată pentru utilizator:', document.user_id);
-    } catch (notificationError) {
-      console.error('Eroare la crearea notificării:', notificationError);
-      // Continuăm chiar dacă crearea notificării a eșuat
-    }
+    await createNotification(
+      document.user_id,
+      NOTIFICATION_TYPES.DOCUMENT_DELETED,
+      `Documentul tău de tip ${document.document_type} a fost șters de către administrator`,
+      document.id
+    );
 
     res.json({ 
       success: true,

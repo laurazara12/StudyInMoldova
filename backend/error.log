@@ -148,3 +148,99 @@
 {"error":"Invalid notification type: document_update","level":"error","message":"Error creating notification","timestamp":"2025-05-22T21:52:21.434Z","type":"document_update","userId":2}
 {"error":"Invalid notification type: document_update","level":"error","message":"Error creating notification","timestamp":"2025-05-22T21:52:23.194Z","type":"document_update","userId":2}
 {"error":"Invalid notification type: document_update","level":"error","message":"Error creating notification","timestamp":"2025-05-22T21:52:25.110Z","type":"document_update","userId":2}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T21:52:13.050Z","type":"document_deleted","userId":2}
+{"error":"Invalid notification type: document_update","level":"error","message":"Error creating notification","timestamp":"2025-05-23T21:54:04.879Z","type":"document_update","userId":2}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T21:54:09.908Z","type":"document_deleted","userId":2}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T21:56:04.561Z","type":"document_deleted","userId":2}
+{"error":"Invalid notification type: document_update","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:10:13.441Z","type":"document_update","userId":2}
+{"error":"Invalid notification type: document_update","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:10:14.374Z","type":"document_update","userId":2}
+{"error":"Invalid notification type: document_update","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:10:16.417Z","type":"document_update","userId":2}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:18:29.788Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:18:29.841Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:18:29.928Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:18:59.818Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:19:38.269Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:19:38.271Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:19:38.319Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:20:08.539Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:20:31.989Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:20:41.863Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:10.401Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:10.432Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:10.463Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:14.288Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:14.298Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:14.370Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:15.665Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:15.680Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:15.723Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:17.785Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:17.794Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:17.822Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:48.827Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:49.063Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:49.068Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:22:14.875Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:22:14.877Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:22:14.924Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:22:16.160Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:22:16.231Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:22:16.434Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:22:18.924Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:22:18.935Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:22:18.970Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:22:49.470Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:23:04.993Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:23:05.005Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:23:05.039Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:24:47.371Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:24:47.426Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:24:47.444Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:25:39.921Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:25:39.975Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:25:39.977Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:25:48.733Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:25:48.743Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:25:48.765Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:25:56.145Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:25:56.153Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:25:56.175Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:26:00.670Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:26:00.684Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:26:00.710Z","userId":1}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:26:05.398Z","type":"document_deleted","userId":2}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:26:15.276Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:26:15.288Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:26:15.333Z","userId":1}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:26:18.972Z","type":"document_deleted","userId":2}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:26:30.342Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:26:30.351Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:26:30.385Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:26:59.275Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:26:59.277Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:26:59.353Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:27:04.516Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:27:04.520Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:27:04.577Z","userId":1}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:27:07.704Z","type":"document_deleted","userId":2}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:27:10.142Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:27:10.145Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:27:10.183Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:27:26.624Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:27:26.626Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:27:26.673Z","userId":1}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:27:29.513Z","type":"document_deleted","userId":2}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:27:32.216Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:27:32.225Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:27:32.254Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:28:02.472Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:28:40.882Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:28:40.934Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:28:40.936Z","userId":1}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:28:44.361Z","type":"document_deleted","userId":2}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:28:47.859Z","type":"document_deleted","userId":2}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:28:49.518Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:28:49.521Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:28:49.589Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:29:19.482Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:29:19.654Z","userId":1}

@@ -7,47 +7,77 @@ const cloudinary = require('../config/cloudinary');
 
 const deleteDocument = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { admin_message } = req.body;
-    const document = await Document.findByPk(id);
+    const documentId = req.params.id;
+    const document = await Document.findByPk(documentId);
 
     if (!document) {
       return res.status(404).json({ 
         success: false,
-        message: 'Documentul nu a fost găsit',
-        data: null
+        message: 'Documentul nu a fost găsit' 
       });
     }
 
-    // Ștergere din Cloudinary
-    if (document.filename) {
-      await cloudinary.uploader.destroy(document.filename);
+    // Verificăm permisiunile
+    if (req.user.role !== 'admin' && document.user_id !== req.user.id) {
+      return res.status(403).json({ 
+        success: false,
+        message: 'Nu aveți permisiunea de a șterge acest document' 
+      });
     }
 
-    // Create notification for the user before deleting the document
-    await createNotification(
-      document.user_id,
-      'document_deleted',
-      `Documentul de tip ${document.document_type} a fost șters de administrator`,
-      document.id,
-      admin_message
-    );
+    // Verificăm dacă documentul există în Cloudinary
+    if (document.filename) {
+      try {
+        const result = await cloudinary.uploader.destroy(document.filename);
+        console.log('Rezultat ștergere din Cloudinary:', result);
+        
+        if (result.result === 'not found') {
+          console.log('Document negăsit în Cloudinary:', document.filename);
+          // Continuăm cu ștergerea din baza de date chiar dacă nu există în Cloudinary
+        } else {
+          console.log('Fișier șters cu succes din Cloudinary:', document.filename);
+        }
+      } catch (cloudinaryError) {
+        console.error('Eroare la ștergerea fișierului din Cloudinary:', cloudinaryError);
+        // Continuăm cu ștergerea din baza de date chiar dacă ștergerea din Cloudinary eșuează
+      }
+    }
 
-    // Delete document from database
+    // Creăm notificare pentru utilizator înainte de ștergerea documentului
+    try {
+      await createNotification(
+        document.user_id,
+        'document_deleted',
+        `Documentul de tip ${document.document_type} (${document.status}) a fost șters${req.user.role === 'admin' ? ' de administrator' : ''}`,
+        document.id,
+        req.body.admin_message
+      );
+    } catch (notificationError) {
+      console.error('Eroare la crearea notificării:', notificationError);
+      // Continuăm cu ștergerea documentului chiar dacă crearea notificării eșuează
+    }
+
+    // Ștergem documentul complet din baza de date
     await document.destroy();
+    
+    console.log('Document șters din baza de date:', documentId);
 
     res.json({ 
       success: true,
       message: 'Documentul a fost șters cu succes',
-      data: null
+      details: {
+        documentId: documentId,
+        documentType: document.document_type,
+        status: document.status,
+        deletedAt: new Date().toISOString()
+      }
     });
   } catch (error) {
     console.error('Error deleting document:', error);
     res.status(500).json({ 
       success: false,
       message: 'Eroare la ștergerea documentului',
-      error: error.message,
-      data: null
+      error: error.message 
     });
   }
 };
@@ -60,7 +90,7 @@ exports.getAllDocuments = async (req, res) => {
           [Op.not]: 'deleted'
         }
       },
-      attributes: ['id', 'document_type', 'file_path', 'createdAt', 'status', 'filename', 'originalName', 'user_id'],
+      attributes: ['id', 'document_type', 'file_path', 'createdAt', 'status', 'filename', 'originalName', 'user_id', 'uploadDate'],
       order: [['createdAt', 'DESC']]
     });
 
@@ -71,6 +101,7 @@ exports.getAllDocuments = async (req, res) => {
       document_type: doc.document_type,
       file_path: doc.file_path,
       createdAt: doc.createdAt,
+      uploadDate: doc.uploadDate || doc.createdAt,
       status: doc.status || 'pending',
       filename: doc.filename,
       originalName: doc.originalName,
@@ -223,6 +254,24 @@ exports.createDocument = async (req, res) => {
 
     const document = await Document.create(documentData);
 
+    // Creăm notificare pentru utilizator
+    await createNotification(
+      user_id,
+      'new_document',
+      `Documentul ${document.originalName} a fost încărcat cu succes`,
+      document.id
+    );
+
+    // Creăm notificare pentru administratori
+    await createNotification(
+      null,
+      'new_document',
+      `Un nou document (${document.originalName}) a fost încărcat de utilizatorul ${user_id}`,
+      document.id,
+      null,
+      true // Este o notificare administrativă
+    );
+
     // Formatăm documentul pentru răspuns
     const formattedDocument = {
       id: document.id,
@@ -345,31 +394,28 @@ exports.deleteDocument = deleteDocument;
 
 exports.getUserDocuments = async (req, res) => {
   try {
-    console.log('Începe preluarea documentelor pentru utilizatorul:', req.user.id);
-    
+    const userId = req.user.id;
     const documents = await Document.findAll({
-      where: { 
-        user_id: req.user.id,
+      where: {
+        user_id: userId,
         status: {
-          [Op.not]: 'deleted'
+          [Op.ne]: 'deleted' // Exclude documentele șterse
         }
       },
-      attributes: ['id', 'document_type', 'file_path', 'createdAt', 'status', 'filename', 'originalName'],
+      attributes: ['id', 'document_type', 'file_path', 'createdAt', 'status', 'filename', 'originalName', 'uploadDate'],
       order: [['createdAt', 'DESC']]
     });
-
-    console.log('Documente găsite în baza de date:', documents.length);
 
     const formattedDocuments = documents.map(doc => ({
       id: doc.id,
       document_type: doc.document_type,
       file_path: doc.file_path,
       createdAt: doc.createdAt,
+      uploadDate: doc.uploadDate || doc.createdAt,
       status: doc.status || 'pending',
       filename: doc.filename,
       originalName: doc.originalName,
-      uploaded: true,
-      uploadDate: doc.createdAt
+      uploaded: true
     }));
 
     const statusCounts = {
@@ -378,27 +424,22 @@ exports.getUserDocuments = async (req, res) => {
       rejected: 0
     };
 
-    if (documents.length > 0) {
-      documents.forEach(doc => {
-        const status = doc.status || 'pending';
-        if (statusCounts.hasOwnProperty(status)) {
-          statusCounts[status]++;
-        }
-      });
-    }
+    documents.forEach(doc => {
+      const status = doc.status || 'pending';
+      if (statusCounts.hasOwnProperty(status)) {
+        statusCounts[status]++;
+      }
+    });
 
-    const response = {
+    res.json({
       success: true,
-      message: documents.length === 0 ? 'La moment nu există documente încărcate în profilul dumneavoastră' : 'Documentele au fost preluate cu succes',
+      message: documents.length === 0 ? 'Nu există documente încărcate' : 'Documentele au fost preluate cu succes',
       data: formattedDocuments,
       total: documents.length,
       status: statusCounts
-    };
-
-    console.log('Se trimite răspuns:', JSON.stringify(response, null, 2));
-    res.json(response);
+    });
   } catch (error) {
-    console.error('Eroare la preluarea documentelor:', error);
+    console.error('Error getting user documents:', error);
     res.status(500).json({ 
       success: false,
       message: 'Eroare la preluarea documentelor',

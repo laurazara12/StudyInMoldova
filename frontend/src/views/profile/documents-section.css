@@ -111,6 +111,22 @@
   margin-top: 0.25rem;
 }
 
+.download-button.active,
+.delete-button.active {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.download-button.active:hover,
+.delete-button.active:hover {
+  background-color: #45a049;
+}
+
 @media (max-width: 768px) {
   .documents-grid {
     grid-template-columns: 1fr;

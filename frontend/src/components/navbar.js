@@ -3,13 +3,39 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import './navbar.css'
 import { useAuth } from '../context/AuthContext'
+import { FaBell } from 'react-icons/fa'
+import { API_BASE_URL, getAuthHeaders } from '../config/api.config'
 
 const Navbar = (props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, user, logout } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated && user && user.role === 'admin') {
+      const fetchNotifications = async () => {
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/notifications`, {
+            headers: getAuthHeaders()
+          });
+          if (response.ok) {
+            const data = await response.json();
+            const unread = data.filter(n => !n.is_read && n.is_admin_notification).length;
+            setUnreadNotifications(unread);
+          }
+        } catch (error) {
+          console.error('Eroare la încărcarea notificărilor:', error);
+        }
+      };
+
+      fetchNotifications();
+      const interval = setInterval(fetchNotifications, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated, user]);
 
   const handleLogout = () => {
     setShowLogoutConfirm(true);
@@ -28,6 +54,8 @@ const Navbar = (props) => {
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
+
+  const isAdmin = user && user.role === 'admin';
 
   return (
     <div className={`navbar-container1 ${props.rootClassName} `}>
@@ -56,9 +84,9 @@ const Navbar = (props) => {
             </Link>
           </nav>
           <div className="navbar-buttons1">
-            {isAuthenticated && user ? (
+            {isAuthenticated && user && (
               <>
-                {user.role === 'admin' && (
+                {isAdmin && (
                   <>
                     <button className="navbar-login1 button">
                       <Link to="/dashboard" className={`navbar-navlink1 ${location.pathname === '/dashboard' ? 'active' : ''}`}>
@@ -72,7 +100,7 @@ const Navbar = (props) => {
                     </button>
                   </>
                 )}
-                {user.role !== 'admin' && (
+                {!isAdmin && (
                   <Link to="/profile" className={`navbar-navlink1 ${location.pathname === '/profile' ? 'active' : ''}`}>
                     <button className="navbar-login1 button">
                       <span className="navbar-text37">Profile</span>
@@ -83,7 +111,8 @@ const Navbar = (props) => {
                   <span className="navbar-text33">Logout</span>
                 </button>
               </>
-            ) : (
+            )}
+            {(!isAuthenticated || !user) && (
               <>
                 <button className="navbar-login1 button">
                   <Link to="/sign-in" className={`navbar-navlink1 ${location.pathname === '/sign-in' ? 'active' : ''}`}>
@@ -125,11 +154,24 @@ const Navbar = (props) => {
             <Link to="/help-you-choose-AI" className="navbar-text20" onClick={toggleMenu}>
               <span className="navbar-text27">Help You Choose AI</span>
             </Link>
+            {isAuthenticated && isAdmin && (
+              <>
+                <Link to="/admin/users" className="navbar-text21" onClick={toggleMenu}>Utilizatori</Link>
+                <Link to="/admin/documents" className="navbar-text22" onClick={toggleMenu}>Documente</Link>
+                <Link to="/admin/applications" className="navbar-text23" onClick={toggleMenu}>Aplicații</Link>
+                <Link to="/admin/notifications" className="navbar-text24" onClick={toggleMenu}>
+                  <FaBell />
+                  {unreadNotifications > 0 && (
+                    <span className="notification-badge">{unreadNotifications}</span>
+                  )}
+                </Link>
+              </>
+            )}
           </nav>
           <div className="navbar-buttons2">
-            {isAuthenticated && user ? (
+            {isAuthenticated && user && (
               <>
-                {user.role === 'admin' && (
+                {isAdmin && (
                   <>
                     <button className="navbar-login2 button">
                       <Link to="/dashboard" className="navbar-navlink3" onClick={toggleMenu}>
@@ -143,7 +185,7 @@ const Navbar = (props) => {
                     </button>
                   </>
                 )}
-                {user.role !== 'admin' && (
+                {!isAdmin && (
                   <Link to="/profile" className={`navbar-navlink3 ${location.pathname === '/profile' ? 'active' : ''}`}>
                     <button className="navbar-login2 button">
                       <span className="navbar-text38">Profile</span>
@@ -157,7 +199,8 @@ const Navbar = (props) => {
                   <span className="navbar-text33">Logout</span>
                 </button>
               </>
-            ) : (
+            )}
+            {(!isAuthenticated || !user) && (
               <>
                 <button className="navbar-login2 button">
                   <Link to="/sign-in" className="navbar-navlink3" onClick={toggleMenu}>

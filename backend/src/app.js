@@ -8,6 +8,7 @@ const programRoutes = require('./routes/programRoutes');
 const savedProgramRoutes = require('./routes/savedProgramRoutes');
 const documentRoutes = require('./routes/documents');
 const applicationRoutes = require('./routes/applications');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use('/api/programs', programRoutes);
 app.use('/api/saved-programs', savedProgramRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/applications', applicationRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Servire fișiere statice pentru frontend
 app.use(express.static(path.join(__dirname, '../frontend/build')));

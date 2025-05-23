@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../../components/navbar';
 import Footer from '../../components/footer';
+import Notifications from '../../components/notifications';
 import universityService from '../../services/universityService';
 
 import './dashboard.css';
@@ -10,6 +11,7 @@ import '../../style.css';
 
 import { API_BASE_URL, getAuthHeaders, handleApiError } from '../../config/api.config';
 import DeleteDocumentModal from '../../components/DeleteDocumentModal';
+import { FaCheckCircle, FaTimesCircle, FaTrash, FaEdit, FaClock, FaUsers, FaUserPlus, FaFileUpload, FaFileAlt, FaShieldAlt } from 'react-icons/fa';
 
 const Dashboard = () => {
   const [users, setUsers] = useState([]);
@@ -33,7 +35,10 @@ const Dashboard = () => {
   });
   const [error, setError] = useState(null);
   const [docStatus, setDocStatus] = useState({});
-  const [activeTab, setActiveTab] = useState('users');
+  const [activeTab, setActiveTab] = useState(() => {
+    // Încărcăm tab-ul activ din localStorage sau folosim 'users' ca valoare implicită
+    return localStorage.getItem('dashboardActiveTab') || 'users';
+  });
   const [deleteConfirmation, setDeleteConfirmation] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showUserDetails, setShowUserDetails] = useState(false);
@@ -115,6 +120,10 @@ const Dashboard = () => {
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [filteredUniversities, setFilteredUniversities] = useState([]);
   const [filteredApplications, setFilteredApplications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [loadingNotifications, setLoadingNotifications] = useState(true);
+  const [errorNotifications, setErrorNotifications] = useState(null);
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -761,13 +770,13 @@ const Dashboard = () => {
     try {
       console.log('Încercare ștergere document:', { documentType, userId });
       
-    const doc = documents.find(doc => doc.document_type === documentType && doc.user_id === userId);
+      const doc = documents.find(doc => doc.document_type === documentType && doc.user_id === userId);
       if (!doc) {
         throw new Error('Documentul nu a fost găsit în lista locală');
       }
 
       const response = await axios.delete(
-        `${API_BASE_URL}/api/documents/admin/${doc.id}`,
+        `${API_BASE_URL}/api/documents/${doc.id}`,
         { 
           headers: {
             ...getAuthHeaders(),
@@ -801,7 +810,7 @@ const Dashboard = () => {
         status: error.response?.status,
         documentType,
         userId,
-        url: `${API_BASE_URL}/api/documents/admin/${doc?.id}`,
+        url: `${API_BASE_URL}/api/documents/${doc?.id}`,
         headers: getAuthHeaders()
       });
 
@@ -905,7 +914,7 @@ const Dashboard = () => {
                        doc.status}
                     </span>
                   </td>
-                  <td>{formatDate(doc.created_at)}</td>
+                  <td>{formatDate(doc.uploadDate || doc.createdAt)}</td>
                   <td>
                     <div className="action-buttons">
               <button
@@ -1397,9 +1406,38 @@ const Dashboard = () => {
     }));
   };
 
+  const loadNotifications = async () => {
+    try {
+      setLoadingNotifications(true);
+      const response = await axios.get(`${API_BASE_URL}/api/notifications`, {
+        headers: getAuthHeaders()
+      });
+      
+      if (response.data && response.data.data) {
+        setNotifications(response.data.data);
+      }
+      setLoadingNotifications(false);
+    } catch (error) {
+      console.error('Eroare la încărcarea notificărilor:', error);
+      setErrorNotifications('A apărut o eroare la încărcarea notificărilor');
+      setLoadingNotifications(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'notifications') {
+      loadNotifications();
+    }
+  }, [activeTab]);
+
+  // Funcție pentru a actualiza tab-ul activ și a-l salva în localStorage
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    localStorage.setItem('dashboardActiveTab', tab);
+  };
+
   return (
     <div className="dashboard-page">
-      
       <Navbar />
       <div className="dashboard-container">
         <div className="dashboard-content">
@@ -1409,33 +1447,39 @@ const Dashboard = () => {
               <nav className="dashboard-nav">
                 <button 
                   className={`tab-button ${activeTab === 'documents' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('documents')}
+                  onClick={() => handleTabChange('documents')}
                 >
                   Documents
                 </button>
                 <button 
                   className={`tab-button ${activeTab === 'users' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('users')}
+                  onClick={() => handleTabChange('users')}
                 >
                   Users
                 </button>
                 <button 
                   className={`tab-button ${activeTab === 'universities' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('universities')}
+                  onClick={() => handleTabChange('universities')}
                 >
                   Universities
                 </button>
                 <button 
                   className={`tab-button ${activeTab === 'programs' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('programs')}
+                  onClick={() => handleTabChange('programs')}
                 >
                   Programs
                 </button>
                 <button 
                   className={`tab-button ${activeTab === 'applications' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('applications')}
+                  onClick={() => handleTabChange('applications')}
                 >
                   Applications
+                </button>
+                <button 
+                  className={`tab-button ${activeTab === 'notifications' ? 'active' : ''}`}
+                  onClick={() => handleTabChange('notifications')}
+                >
+                  Notifications
                 </button>
               </nav>
             </div>
@@ -2779,7 +2823,7 @@ const Dashboard = () => {
                               {doc.status}
                                   </span>
                               </td>
-                          <td>{formatDate(doc.created_at)}</td>
+                          <td>{formatDate(doc.uploadDate || doc.createdAt)}</td>
                               <td>
                                 <div className="action-buttons">
                                   <button 
@@ -2900,6 +2944,63 @@ const Dashboard = () => {
                         })}
                       </tbody>
                     </table>
+                  )}
+                </div>
+              ) : activeTab === 'notifications' ? (
+                <div className="notifications-container">
+                  {loadingNotifications ? (
+                    <div className="loading-container">
+                      <div className="loading-spinner"></div>
+                      <p>Se încarcă notificările...</p>
+                    </div>
+                  ) : errorNotifications ? (
+                    <div className="error-message">
+                      <i className="fas fa-exclamation-circle"></i>
+                      <p>{errorNotifications}</p>
+                      <button 
+                        className="retry-button"
+                        onClick={loadNotifications}
+                      >
+                        Reîncearcă
+                      </button>
+                    </div>
+                  ) : notifications.length === 0 ? (
+                    <div className="no-notifications">
+                      <p>Nu există notificări</p>
+                    </div>
+                  ) : (
+                    <div className="notifications-list">
+                      {notifications.map(notification => (
+                        <div 
+                          key={notification.id} 
+                          className={`notification-item ${notification.is_read ? 'read' : 'unread'} ${notification.is_admin_notification ? 'admin' : ''}`}
+                        >
+                          <div className="notification-icon">
+                            {notification.type === 'document_approved' && <FaCheckCircle />}
+                            {notification.type === 'document_rejected' && <FaTimesCircle />}
+                            {notification.type === 'document_deleted' && <FaTrash />}
+                            {notification.type === 'document_updated' && <FaEdit />}
+                            {notification.type === 'document_expired' && <FaClock />}
+                            {notification.type === 'team' && <FaUsers />}
+                            {notification.type === 'new_user' && <FaUserPlus />}
+                            {notification.type === 'new_document' && <FaFileUpload />}
+                            {notification.type === 'new_application' && <FaFileAlt />}
+                          </div>
+                          <div className="notification-content">
+                            <div className="notification-header">
+                              <span className="notification-title">{notification.title}</span>
+                              <span className="notification-date">{formatDate(notification.created_at)}</span>
+                            </div>
+                            <p className="notification-message">{notification.message}</p>
+                            {notification.is_admin_notification && (
+                              <div className="admin-message">
+                                <FaShieldAlt /> Notificare administrativă
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
               ) : null}

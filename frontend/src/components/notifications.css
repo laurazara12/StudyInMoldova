@@ -37,6 +37,11 @@
   border-left: 4px solid #ffc107;
 }
 
+.notification-item.admin {
+  border-left: 4px solid #6f42c1;
+  background-color: #f8f5ff;
+}
+
 .priority-icon {
   margin-right: 8px;
   font-size: 16px;
@@ -58,6 +63,16 @@
   border-radius: 4px;
   font-size: 12px;
   margin-left: 8px;
+}
+
+.admin-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  background: #6f42c1;
+  color: white;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-bottom: 4px;
 }
 
 .notifications-container {
@@ -401,6 +416,11 @@
   border-left: 4px solid #ffc107;
 }
 
+.notification-item.admin {
+  border-left: 4px solid #6f42c1;
+  background-color: #f8f5ff;
+}
+
 .notification-content {
   display: flex;
   flex-direction: column;
@@ -520,4 +540,153 @@
   .mark-all-read {
     font-size: 0.85rem;
   }
+}
+
+.tab-button {
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #666;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.tab-button:hover {
+  background-color: #f0f0f0;
+}
+
+.tab-button.active {
+  background-color: #e9ecef;
+  color: #333;
+  font-weight: 500;
+}
+
+.notification-icon {
+  margin-right: 8px;
+  font-size: 16px;
+  color: var(--dl-color-theme-neutral-dark);
+}
+
+.notification-icon.new-user {
+  color: #28a745;
+}
+
+.notification-icon.new-document {
+  color: #17a2b8;
+}
+
+.notification-icon.new-application {
+  color: #dc3545;
+}
+
+.notification-icon.document-deleted {
+  color: #dc3545;
+}
+
+.notification-icon.document-approved {
+  color: #28a745;
+}
+
+.notification-icon.document-rejected {
+  color: #dc3545;
+}
+
+.notification-icon.document-updated {
+  color: #17a2b8;
+}
+
+.notification-icon.document-expired {
+  color: #ffc107;
+}
+
+.notification-icon.deadline {
+  color: #dc3545;
+}
+
+.notification-icon.team {
+  color: #6f42c1;
+}
+
+.notification-item.new-user {
+  border-left: 4px solid #28a745;
+}
+
+.notification-item.new-document {
+  border-left: 4px solid #17a2b8;
+}
+
+.notification-item.new-application {
+  border-left: 4px solid #dc3545;
+}
+
+.notification-item.document-deleted {
+  border-left: 4px solid #dc3545;
+}
+
+.notification-item.document-approved {
+  border-left: 4px solid #28a745;
+}
+
+.notification-item.document-rejected {
+  border-left: 4px solid #dc3545;
+}
+
+.notification-item.document-updated {
+  border-left: 4px solid #17a2b8;
+}
+
+.notification-item.document-expired {
+  border-left: 4px solid #ffc107;
+}
+
+.notification-item.deadline {
+  border-left: 4px solid #dc3545;
+}
+
+.notification-item.team {
+  border-left: 4px solid #6f42c1;
+}
+
+.notification-content .document-deleted {
+  color: #dc3545;
+}
+
+.notification-content .document-approved {
+  color: #28a745;
+}
+
+.notification-content .document-rejected {
+  color: #dc3545;
+}
+
+.notification-content .document-updated {
+  color: #17a2b8;
+}
+
+.notification-content .document-expired {
+  color: #ffc107;
+}
+
+.notification-content .deadline {
+  color: #dc3545;
+}
+
+.notification-content .team {
+  color: #6f42c1;
+}
+
+.admin-message {
+  font-size: 0.9rem;
+  color: #6f42c1;
+  background-color: #f8f5ff;
+  padding: 0.5rem;
+  border-radius: 4px;
+  margin-top: 0.5rem;
+  border-left: 3px solid #6f42c1;
+}
+
+.notification-item.admin .admin-message {
+  background-color: #f0f0f0;
+  border-left-color: #6f42c1;
 } 

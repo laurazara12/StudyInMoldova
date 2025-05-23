@@ -1037,3 +1037,236 @@
 {"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T14:46:38.003Z","userId":1}
 {"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T14:54:58.342Z","userId":1}
 {"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T14:54:58.376Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T21:51:15.083Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T21:51:15.136Z","userId":1}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T21:52:13.050Z","type":"document_deleted","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T21:52:19.674Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T21:52:19.700Z","userId":1}
+{"documentType":"passport","file":{"mimetype":"image/png","originalname":"Captura___de_ecran_din_2025-05-23_la_14.48.06.png","size":3347628},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-23T21:53:52.032Z","userId":2}
+{"documentId":6,"documentType":"passport","filePath":"/Users/Laura/Desktop/StudyInMoldova/uploads/2/passport_1748037232035.png","level":"info","message":"Document încărcat cu succes","timestamp":"2025-05-23T21:53:52.043Z","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T21:53:58.826Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T21:53:58.871Z","userId":1}
+{"error":"Invalid notification type: document_update","level":"error","message":"Error creating notification","timestamp":"2025-05-23T21:54:04.879Z","type":"document_update","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T21:54:04.890Z","userId":1}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T21:54:09.908Z","type":"document_deleted","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T21:55:29.754Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T21:55:29.780Z","userId":1}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T21:56:04.561Z","type":"document_deleted","userId":2}
+{"documentType":"transcript","file":{"mimetype":"image/png","originalname":"Captura___de_ecran_din_2025-05-23_la_14.48.06.png","size":3347628},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-23T22:03:17.960Z","userId":2}
+{"documentId":7,"documentType":"transcript","filePath":"/Users/Laura/Desktop/StudyInMoldova/uploads/2/transcript_1748037797962.png","level":"info","message":"Document încărcat cu succes","timestamp":"2025-05-23T22:03:17.966Z","userId":2}
+{"documentType":"passport","file":{"mimetype":"application/pdf","originalname":"designpatternscard.pdf","size":84665},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-23T22:03:25.647Z","userId":2}
+{"documentId":8,"documentType":"passport","filePath":"/Users/Laura/Desktop/StudyInMoldova/uploads/2/passport_1748037805649.pdf","level":"info","message":"Document încărcat cu succes","timestamp":"2025-05-23T22:03:25.652Z","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:03:31.514Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:03:31.545Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:04:12.588Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:04:12.590Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:04:20.256Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:04:20.261Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:04:28.767Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:04:28.771Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:05:12.780Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:05:12.785Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:05:13.479Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:05:13.504Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:05:14.252Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:05:14.253Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:05:14.832Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:05:14.850Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:05:15.214Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:05:15.219Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:05:15.923Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:05:16.048Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:05:20.315Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:05:20.324Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:05:22.781Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:05:22.808Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:06:38.258Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:06:38.265Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:06:58.004Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:06:58.007Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:08:12.003Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:08:12.051Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:08:14.863Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:08:14.864Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:08:22.722Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:08:22.743Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:08:37.776Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:08:37.778Z","userId":1}
+{"documentType":"cv","file":{"mimetype":"image/png","originalname":"Captura___de_ecran_din_2025-05-22_la_13.59.25.png","size":146245},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-23T22:08:56.524Z","userId":2}
+{"documentId":9,"documentType":"cv","filePath":"/Users/Laura/Desktop/StudyInMoldova/uploads/2/cv_1748038136526.png","level":"info","message":"Document încărcat cu succes","timestamp":"2025-05-23T22:08:56.531Z","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:09:04.003Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:09:04.033Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:10:08.470Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:10:08.485Z","userId":1}
+{"error":"Invalid notification type: document_update","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:10:13.441Z","type":"document_update","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:10:13.454Z","userId":1}
+{"error":"Invalid notification type: document_update","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:10:14.374Z","type":"document_update","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:10:14.386Z","userId":1}
+{"error":"Invalid notification type: document_update","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:10:16.417Z","type":"document_update","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:10:16.427Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:10:24.403Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:10:24.403Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:11:02.641Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:11:02.671Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:12:02.223Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:12:02.228Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:12:03.589Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:12:03.591Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:12:06.821Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:12:06.881Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:12:35.402Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:12:35.419Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:12:39.298Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:12:39.299Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:12:41.344Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:12:41.347Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:12:50.860Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:12:50.861Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:14:02.508Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:14:02.511Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:15:02.499Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:15:02.501Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:15:41.184Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:15:41.240Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:16:19.360Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:16:19.362Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:18:29.788Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:18:29.833Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:18:29.841Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:18:29.923Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:18:29.928Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:18:59.818Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:19:38.259Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:19:38.261Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:19:38.269Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:19:38.271Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:19:38.319Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:20:08.539Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:20:31.989Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:20:41.863Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:20:54.521Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:21:10.391Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:21:10.395Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:10.401Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:10.432Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:10.463Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:21:14.276Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:14.288Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:21:14.293Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:14.298Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:14.370Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:21:15.659Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:21:15.661Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:15.665Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:15.680Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:15.723Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:21:17.778Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:21:17.779Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:17.785Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:17.794Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:17.822Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:21:48.775Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:48.827Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:21:48.844Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:49.063Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:21:49.068Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:22:14.868Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:22:14.870Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:22:14.875Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:22:14.877Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:22:14.924Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:22:16.130Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:22:16.134Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:22:16.160Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:22:16.231Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:22:16.434Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:22:18.915Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:22:18.921Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:22:18.924Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:22:18.935Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:22:18.970Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:22:49.470Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:23:04.986Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:23:04.988Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:23:04.993Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:23:05.005Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:23:05.039Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:24:47.295Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:24:47.371Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:24:47.410Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:24:47.426Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:24:47.444Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:25:39.907Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:25:39.913Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:25:39.921Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:25:39.975Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:25:39.977Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:25:48.713Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:25:48.714Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:25:48.733Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:25:48.743Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:25:48.765Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:25:56.127Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:25:56.129Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:25:56.145Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:25:56.153Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:25:56.175Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:26:00.660Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:26:00.661Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:26:00.670Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:26:00.684Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:26:00.710Z","userId":1}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:26:05.398Z","type":"document_deleted","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:26:15.270Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:26:15.272Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:26:15.276Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:26:15.288Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:26:15.333Z","userId":1}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:26:18.972Z","type":"document_deleted","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:26:30.313Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:26:30.342Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:26:30.351Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:26:30.367Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:26:30.385Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:26:59.261Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:26:59.275Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:26:59.277Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:26:59.302Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:26:59.353Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:27:04.492Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:27:04.513Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:27:04.516Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:27:04.520Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:27:04.577Z","userId":1}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:27:07.704Z","type":"document_deleted","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:27:10.120Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:27:10.128Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:27:10.142Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:27:10.145Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:27:10.183Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:27:26.612Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:27:26.618Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:27:26.624Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:27:26.626Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:27:26.673Z","userId":1}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:27:29.513Z","type":"document_deleted","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:27:32.203Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:27:32.205Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:27:32.216Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:27:32.225Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:27:32.254Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:28:02.472Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:28:40.784Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:28:40.792Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:28:40.882Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:28:40.934Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:28:40.936Z","userId":1}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:28:44.361Z","type":"document_deleted","userId":2}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:28:47.859Z","type":"document_deleted","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:28:49.504Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:28:49.518Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:28:49.521Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:28:49.529Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:28:49.589Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:29:19.482Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:29:19.654Z","userId":1}

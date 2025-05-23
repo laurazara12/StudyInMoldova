@@ -13,12 +13,12 @@ import Testimonial from './components/testimonial'
 import Footer from '../../components/footer'
 import './landing.css'
 
-const Home = (props) => {
+function Home() {
   return (
     <div className="landing-container">
       <Helmet>
-        <title>exported project</title>
-        <meta property="og:title" content="exported project" />
+        <title>Study In Moldova</title>
+        <meta property="og:title" content="Study In Moldova" />
       </Helmet>
       <Navbar
         text={

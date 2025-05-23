@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Route, Routes, Navigate, useNavigate } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from './context/AuthContext';
@@ -42,7 +42,7 @@ const getAuthHeaders = () => {
   };
 };
 
-const App = () => {
+function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -124,6 +124,6 @@ const App = () => {
       </AuthProvider>
     </HelmetProvider>
   );
-};
+}
 
 export default App;

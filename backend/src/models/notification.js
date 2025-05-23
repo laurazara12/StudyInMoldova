@@ -19,7 +19,18 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        isIn: [['document_deleted', 'document_approved', 'document_rejected']]
+        isIn: [
+          'document_deleted',
+          'document_approved',
+          'document_rejected',
+          'document_updated',
+          'document_expired',
+          'deadline',
+          'team',
+          'new_user',
+          'new_document',
+          'new_application'
+        ]
       }
     },
     message: {
@@ -55,6 +66,11 @@ module.exports = (sequelize) => {
       validate: {
         isIn: [['low', 'medium', 'high']]
       }
+    },
+    is_admin_notification: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     }
   }, {
     tableName: 'notifications',

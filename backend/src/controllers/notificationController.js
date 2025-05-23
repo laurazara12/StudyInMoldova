@@ -10,7 +10,10 @@ const NOTIFICATION_TYPES = {
   DOCUMENT_UPDATED: 'document_updated',
   DOCUMENT_EXPIRED: 'document_expired',
   DEADLINE: 'deadline',
-  TEAM: 'team'
+  TEAM: 'team',
+  NEW_USER: 'new_user',
+  NEW_DOCUMENT: 'new_document',
+  NEW_APPLICATION: 'new_application'
 };
 
 // Mesaje implicite pentru fiecare tip de notificare
@@ -21,11 +24,14 @@ const DEFAULT_MESSAGES = {
   [NOTIFICATION_TYPES.DOCUMENT_UPDATED]: 'Your document has been updated',
   [NOTIFICATION_TYPES.DOCUMENT_EXPIRED]: 'Your document has expired',
   [NOTIFICATION_TYPES.DEADLINE]: 'You have a deadline approaching',
-  [NOTIFICATION_TYPES.TEAM]: 'You have a new activity in your team'
+  [NOTIFICATION_TYPES.TEAM]: 'You have a new activity in your team',
+  [NOTIFICATION_TYPES.NEW_USER]: 'A new user has registered',
+  [NOTIFICATION_TYPES.NEW_DOCUMENT]: 'A new document has been uploaded',
+  [NOTIFICATION_TYPES.NEW_APPLICATION]: 'A new application has been submitted'
 };
 
 // Creează o notificare
-const createNotification = async (userId, type, message, documentId = null, adminMessage = null) => {
+const createNotification = async (userId, type, message, documentId = null, adminMessage = null, isAdminNotification = false) => {
   try {
     if (!NOTIFICATION_TYPES[type]) {
       throw new Error(`Invalid notification type: ${type}`);
@@ -42,6 +48,28 @@ const createNotification = async (userId, type, message, documentId = null, admi
     // Calculează data de expirare
     const expiresAt = calculateExpirationDate(type);
 
+    // Dacă este o notificare administrativă, o creăm pentru toți adminii
+    if (isAdminNotification) {
+      const admins = await User.findAll({ where: { role: 'admin' } });
+      const notifications = await Promise.all(
+        admins.map(admin => 
+          Notification.create({
+            user_id: admin.id,
+            type,
+            message: message || DEFAULT_MESSAGES[type],
+            document_id: documentId,
+            admin_message: adminMessage,
+            is_read: false,
+            expires_at: expiresAt,
+            priority: calculatePriority(type),
+            is_admin_notification: true
+          })
+        )
+      );
+      return notifications;
+    }
+
+    // Pentru notificări normale, creăm doar pentru utilizatorul specificat
     const notification = await Notification.create({
       user_id: userId,
       type,
@@ -50,7 +78,8 @@ const createNotification = async (userId, type, message, documentId = null, admi
       admin_message: adminMessage,
       is_read: false,
       expires_at: expiresAt,
-      priority: calculatePriority(type)
+      priority: calculatePriority(type),
+      is_admin_notification: false
     });
 
     logger.info('Notification created successfully', {
@@ -88,9 +117,12 @@ const calculatePriority = (type) => {
   switch (type) {
     case NOTIFICATION_TYPES.DEADLINE:
     case NOTIFICATION_TYPES.DOCUMENT_EXPIRED:
+    case NOTIFICATION_TYPES.NEW_APPLICATION:
       return 'high';
     case NOTIFICATION_TYPES.TEAM:
     case NOTIFICATION_TYPES.DOCUMENT_REJECTED:
+    case NOTIFICATION_TYPES.NEW_DOCUMENT:
+    case NOTIFICATION_TYPES.NEW_USER:
       return 'medium';
     default:
       return 'low';
@@ -98,7 +130,7 @@ const calculatePriority = (type) => {
 };
 
 // Obține notificările unui utilizator
-const getUserNotifications = async (userId, limit = 50, offset = 0) => {
+const getUserNotifications = async (userId, userRole, limit = 50, offset = 0) => {
   try {
     // Șterge notificările expirate
     await Notification.destroy({
@@ -110,13 +142,34 @@ const getUserNotifications = async (userId, limit = 50, offset = 0) => {
       }
     });
 
-    const notifications = await Notification.findAll({
-      where: { 
+    let whereClause = {
+      expires_at: {
+        [Op.gt]: new Date()
+      }
+    };
+
+    // Dacă utilizatorul este admin, returnează notificările personale și cele administrative
+    if (userRole === 'admin') {
+      whereClause = {
+        ...whereClause,
+        [Op.or]: [
+          { user_id: userId }, // Notificările personale
+          { 
+            is_admin_notification: true // Notificările pentru admini
+          }
+        ]
+      };
+    } else {
+      // Pentru utilizatori normali, returnează doar notificările personale
+      whereClause = {
+        ...whereClause,
         user_id: userId,
-        expires_at: {
-          [Op.gt]: new Date()
-        }
-      },
+        is_admin_notification: false // Exclude notificările administrative
+      };
+    }
+
+    const notifications = await Notification.findAll({
+      where: whereClause,
       include: [{
         model: Document,
         attributes: ['id', 'document_type', 'filename', 'file_path'],
@@ -366,11 +419,81 @@ exports.deleteNotification = async (req, res) => {
   }
 };
 
+// Creează o notificare pentru un utilizator
+const createUserNotification = async (userId, type, message, documentId = null) => {
+  try {
+    const notification = await createNotification(
+      userId,
+      type,
+      message,
+      documentId,
+      null,
+      false // Nu este o notificare administrativă
+    );
+
+    logger.info('User notification created successfully', {
+      notificationId: notification.id,
+      userId,
+      type
+    });
+
+    return notification;
+  } catch (error) {
+    logger.error('Error creating user notification', {
+      error: error.message,
+      userId,
+      type
+    });
+    throw error;
+  }
+};
+
+// Creează o notificare administrativă
+const createAdminNotification = async (type, message, documentId = null, adminMessage = null) => {
+  try {
+    const notifications = await createNotification(
+      null, // Nu avem nevoie de userId pentru notificări administrative
+      type,
+      message,
+      documentId,
+      adminMessage,
+      true // Este o notificare administrativă
+    );
+
+    logger.info('Admin notification created successfully', {
+      type,
+      count: notifications.length
+    });
+
+    return notifications;
+  } catch (error) {
+    logger.error('Error creating admin notification', {
+      error: error.message,
+      type
+    });
+    throw error;
+  }
+};
+
+const VALID_NOTIFICATION_TYPES = [
+  'new_document',
+  'document_approved',
+  'document_rejected',
+  'document_deleted',
+  'application_submitted',
+  'application_approved',
+  'application_rejected',
+  'application_withdrawn'
+];
+
 module.exports = {
   createNotification,
+  createUserNotification,
+  createAdminNotification,
   getUserNotifications,
   markAsRead,
   markAllAsRead,
   deleteNotification,
-  NOTIFICATION_TYPES
+  NOTIFICATION_TYPES,
+  VALID_NOTIFICATION_TYPES
 }; 

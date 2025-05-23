@@ -911,7 +911,7 @@ const Profile = () => {
                         {isDocumentValid && (
                           <>
                             <p>Status: {document.status}</p>
-                            <p>Uploaded: {new Date(document.uploadDate).toLocaleDateString()}</p>
+                            <p>Uploaded: {new Date(document.uploadDate || document.createdAt).toLocaleDateString()}</p>
                           </>
                         )}
                       </div>
