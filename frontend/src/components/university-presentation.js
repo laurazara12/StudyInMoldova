@@ -11,8 +11,8 @@ const UniversityPresentation = ({ university }) => {
   }
 
   const handleImageError = (e) => {
-    // Folosim o imagine de placeholder din Unsplash
-    e.target.src = 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80';
+    // Folosim imaginea de rezervă din Cloudinary când imaginea nu se poate încărca
+    e.target.src = 'https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599121/dorin-seremet-_atwwma7pyw-unsplash-1400w_w6dekv.jpg';
     e.target.onerror = null;
   };
 
@@ -138,34 +138,17 @@ const UniversityPresentation = ({ university }) => {
 
   // Funcție pentru a obține URL-ul imaginii
   const getImageUrl = () => {
-    if (!university.imageUrl) {
-      // Verificăm dacă este ASEM folosind toate variantele posibile
-      const asemNames = [
-        'asem',
-        'academia de studii economice',
-        'academy of economic studies',
-        'moldavskaya ekonomicheskaya akademiya',
-        'academy of economic studies of moldova',
-        'academy of economic studies'  // Adăugăm varianta exactă din baza de date
-      ];
-      
-      const isASEM = asemNames.some(name => 
-        university.name.toLowerCase().includes(name.toLowerCase())
-      );
-
-      if (isASEM) {
-        return 'https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599121/moldavskaya-ekonomicheskaya-akademiya-asem_thumb-1400w_q98ahh.jpg';
-      }
-      return 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80';
+    if (!university.image_url) {
+      return 'https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599121/dorin-seremet-_atwwma7pyw-unsplash-1400w_w6dekv.jpg';
     }
 
     // Verificăm dacă URL-ul este deja un URL Cloudinary
-    if (university.imageUrl.includes('cloudinary.com')) {
-      return university.imageUrl;
+    if (university.image_url.includes('cloudinary.com')) {
+      return university.image_url;
     }
 
     // Dacă nu este un URL Cloudinary, încercăm să-l tratăm ca un public ID
-    return getCloudinaryImageUrl(university.imageUrl, {
+    return getCloudinaryImageUrl(university.image_url, {
       width: 370,
       height: 270,
       crop: 'fill',
