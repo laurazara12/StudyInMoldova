@@ -43,7 +43,8 @@ export const getAuthHeaders = () => {
       console.log('Token valid, expiră la:', new Date(expiration).toLocaleString());
       return {
         'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
       };
     } catch (error) {
       console.error('Eroare la verificarea token-ului:', error);
@@ -75,8 +76,22 @@ export const handleApiError = (error) => {
     console.error('Token invalid sau expirat');
     localStorage.removeItem('token');
     window.location.href = '/sign-in';
+    return { message: 'Sesiunea a expirat. Vă rugăm să vă autentificați din nou.' };
   }
-  return error;
+
+  if (error.response?.status === 404) {
+    return { message: 'Resursa solicitată nu a fost găsită.' };
+  }
+
+  if (error.response?.status === 500) {
+    return { message: 'Eroare internă a serverului. Vă rugăm să încercați din nou mai târziu.' };
+  }
+
+  if (error.response?.data?.message) {
+    return { message: error.response.data.message };
+  }
+
+  return { message: 'A apărut o eroare. Vă rugăm să încercați din nou.' };
 };
 
 export { API_BASE_URL }; 

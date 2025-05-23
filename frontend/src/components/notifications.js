@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { FaBell, FaChevronDown, FaCheck, FaFilter, FaExclamationTriangle, FaInfoCircle } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaBell, FaCheck, FaFilter, FaExclamationTriangle, FaInfoCircle } from 'react-icons/fa';
 import './notifications.css';
 import { API_BASE_URL, getAuthHeaders } from '../config/api.config';
 
@@ -7,10 +7,8 @@ const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [filter, setFilter] = useState('all'); // 'all', 'unread', 'important', 'expired'
+  const [filter, setFilter] = useState('all');
   const [userRole, setUserRole] = useState(null);
-  const containerRef = useRef(null);
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -73,22 +71,20 @@ const Notifications = () => {
   }, []);
 
   const calculatePriority = (notification) => {
-    // Logica de prioritizare bazată pe tipul și conținutul notificării
     if (notification.type === 'deadline') return 'high';
     if (notification.type === 'team') return 'medium';
     return 'low';
   };
 
   const calculateExpirationDate = (notification) => {
-    // Logica pentru data de expirare bazată pe tipul notificării
     const now = new Date();
     switch (notification.type) {
       case 'deadline':
         return new Date(notification.deadline);
       case 'team':
-        return new Date(now.setDate(now.getDate() + 7)); // Expiră după 7 zile
+        return new Date(now.setDate(now.getDate() + 7));
       default:
-        return new Date(now.setDate(now.getDate() + 30)); // Expiră după 30 de zile
+        return new Date(now.setDate(now.getDate() + 30));
     }
   };
 
@@ -112,19 +108,6 @@ const Notifications = () => {
         return null;
     }
   };
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
-        setIsExpanded(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
 
   const handleNotificationClick = async (notificationId) => {
     try {
@@ -171,60 +154,48 @@ const Notifications = () => {
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
   return (
-    <div 
-      ref={containerRef}
-      className={`notifications-container ${isExpanded ? 'expanded' : ''}`}
-    >
-      <div 
-        className="notifications-header"
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
-        <div className="notifications-title">
-          <FaBell />
-          <h3>Notifications {unreadCount > 0 ? `(${unreadCount})` : ''}</h3>
-        </div>
-        <div className="notifications-actions">
-          <FaChevronDown className="expand-icon" />
-        </div>
+    <div className="notifications-section">
+      <div className="profile-header-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h2 style={{ margin: 0 }}>Notificări {unreadCount > 0 ? `(${unreadCount})` : ''}</h2>
       </div>
 
-      {isExpanded && (
-        <div className="notifications-list">
-          <div className="notifications-filters">
-            <button 
-              className={`filter-button ${filter === 'all' ? 'active' : ''}`}
-              onClick={() => setFilter('all')}
-            >
-              All
-            </button>
-            <button 
-              className={`filter-button ${filter === 'unread' ? 'active' : ''}`}
-              onClick={() => setFilter('unread')}
-            >
-              Unread
-            </button>
-            <button 
-              className={`filter-button ${filter === 'important' ? 'active' : ''}`}
-              onClick={() => setFilter('important')}
-            >
-              Important
-            </button>
-          </div>
+      <div className="notifications-content">
+        <div className="notifications-filters">
+          <button 
+            className={`tab-button ${filter === 'all' ? 'active' : ''}`}
+            onClick={() => setFilter('all')}
+          >
+            Toate
+          </button>
+          <button 
+            className={`tab-button ${filter === 'unread' ? 'active' : ''}`}
+            onClick={() => setFilter('unread')}
+          >
+            Necitite
+          </button>
+          <button 
+            className={`tab-button ${filter === 'important' ? 'active' : ''}`}
+            onClick={() => setFilter('important')}
+          >
+            Importante
+          </button>
+        </div>
 
-          {loading ? (
-            <div className="notifications-loading">Loading...</div>
-          ) : error ? (
-            <div className="notifications-error">{error}</div>
-          ) : filterNotifications(notifications).length > 0 ? (
-            <>
-              {unreadCount > 0 && (
-                <button 
-                  className="mark-all-read"
-                  onClick={handleMarkAllRead}
-                >
-                  <FaCheck /> Mark all as read
-                </button>
-              )}
+        {loading ? (
+          <div className="notifications-loading">Se încarcă...</div>
+        ) : error ? (
+          <div className="notifications-error">{error}</div>
+        ) : filterNotifications(notifications).length > 0 ? (
+          <>
+            {unreadCount > 0 && (
+              <button 
+                className="mark-all-read"
+                onClick={handleMarkAllRead}
+              >
+                <FaCheck /> Marchează toate ca citite
+              </button>
+            )}
+            <div className="notifications-list">
               {filterNotifications(notifications).map(notification => (
                 <div
                   key={notification.id}
@@ -235,7 +206,7 @@ const Notifications = () => {
                     {getPriorityIcon(notification.priority)}
                     <p>{notification.message}</p>
                     <span className="notification-date">
-                      {new Date(notification.createdAt).toLocaleDateString('en-US', {
+                      {new Date(notification.createdAt).toLocaleDateString('ro-RO', {
                         day: 'numeric',
                         month: 'long',
                         hour: '2-digit',
@@ -243,18 +214,18 @@ const Notifications = () => {
                       })}
                     </span>
                     {new Date(notification.expiresAt) < new Date() && (
-                      <span className="expired-badge">Expired</span>
+                      <span className="expired-badge">Expirată</span>
                     )}
                   </div>
                   {!notification.is_read && <div className="unread-indicator" />}
                 </div>
               ))}
-            </>
-          ) : (
-            <div className="no-notifications">No notifications</div>
-          )}
-        </div>
-      )}
+            </div>
+          </>
+        ) : (
+          <div className="no-notifications">Nu există notificări</div>
+        )}
+      </div>
     </div>
   );
 };

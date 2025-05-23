@@ -4,68 +4,122 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  font-size: var(--dl-font-size-small);
+  line-height: 1.6;
+  color: var(--dl-color-theme-neutral-dark);
+  background-color: var(--dl-color-theme-neutral-light);
 }
 
 .university-body {
-  padding: 3rem;
+  padding: var(--dl-space-space-threeunits);
+  max-width: var(--dl-size-size-maxwidth);
+  margin: 0 auto;
+  width: 100%;
 }
 
 /* Stiluri pentru informațiile de contact */
 .contact-info {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
-  padding: 1rem;
-  background-color: var(--dl-color-theme-neutral-light);
+  gap: var(--dl-space-space-unit);
+  padding: var(--dl-space-space-oneandhalfunits);
+  background-color: var(--dl-color-theme-secondary2);
   border-radius: var(--dl-radius-radius-cardradius);
-  margin-bottom: 2rem;
+  margin-bottom: var(--dl-space-space-twounits);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.contact-info:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
 }
 
 .contact-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--dl-space-space-halfunit);
+  font-size: var(--dl-font-size-small);
+  color: var(--dl-color-theme-neutral-dark);
+  padding: var(--dl-space-space-halfunit);
+  border-radius: var(--dl-radius-radius-radius4);
+  transition: background-color 0.2s ease;
+}
+
+.contact-item:hover {
+  background-color: var(--dl-color-theme-secondary2);
 }
 
 .contact-item .icon {
-  font-size: 1.2rem;
+  font-size: var(--dl-font-size-medium);
+  color: var(--dl-color-theme-primary1);
+}
+
+.university-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  object-fit: cover;
+  border-radius: var(--dl-radius-radius-cardradius);
+  height: 100%;
+  max-height: 28rem;
+  width: 100%;
+  max-width: 28rem;
+  margin: 1.5rem;
+  padding: 1.5rem;
+  box-sizing: border-box;
+  aspect-ratio: 9/16;
+  object-position: center;
 }
 
 .contact-item a {
   color: var(--dl-color-theme-primary1);
   text-decoration: none;
+  transition: all 0.2s ease;
+  font-weight: 500;
 }
 
 .contact-item a:hover {
+  color: var(--dl-color-theme-primary2);
   text-decoration: underline;
 }
 
 /* Stiluri pentru header */
 .university-header {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: var(--dl-space-space-threeunits);
+  padding: var(--dl-space-space-twounits);
+  background-color: var(--dl-color-theme-secondary2);
+  border-radius: var(--dl-radius-radius-cardradius);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 .university-header h1 {
-  font-size: 2.5rem;
+  font-size: var(--dl-font-size-large);
   color: var(--dl-color-theme-neutral-dark);
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--dl-space-space-halfunit);
+  font-weight: 700;
+  letter-spacing: -0.5px;
 }
 
 .university-header h2 {
-  font-size: 1.8rem;
+  font-size: var(--dl-font-size-medium);
   color: var(--dl-color-theme-neutral-dark);
-  font-weight: normal;
+  font-weight: 500;
+  opacity: 0.9;
 }
 
 /* Stiluri pentru anunț */
 .announcement {
-  background-color: var(--dl-color-theme-secondary2);
-  padding: 1rem;
+  background-color: var(--dl-color-theme-primary1);
+  padding: var(--dl-space-space-unit);
   border-radius: var(--dl-radius-radius-cardradius);
-  margin-bottom: 2rem;
+  margin-bottom: var(--dl-space-space-twounits);
   text-align: center;
   font-weight: 500;
+  font-size: var(--dl-font-size-small);
+  color: var(--dl-color-theme-accent1);
 }
 
 /* Stiluri pentru conținut principal */
@@ -77,52 +131,68 @@
 
 /* Stiluri pentru secțiuni */
 .university-section {
-  background-color: var(--dl-color-theme-secondary1);
-  padding: 2rem;
+  background-color: var(--dl-color-theme-secondary2);
+  padding: var(--dl-space-space-twounits);
   border-radius: var(--dl-radius-radius-cardradius);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  margin-bottom: var(--dl-space-space-twounits);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.university-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
 }
 
 .university-section h3 {
-  color: var(--dl-color-theme-neutral-dark);
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
+  color: var(--dl-color-theme-primary1);
+  font-size: var(--dl-font-size-medium);
+  margin-bottom: var(--dl-space-space-oneandhalfunits);
   border-bottom: 2px solid var(--dl-color-theme-primary1);
-  padding-bottom: 0.5rem;
+  padding-bottom: var(--dl-space-space-halfunit);
+  font-weight: 600;
 }
 
 /* Stiluri pentru statistici */
 .about-content {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 2rem;
+  gap: var(--dl-space-space-twounits);
 }
 
 .about-stats {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
+  gap: var(--dl-space-space-unit);
 }
 
 .stat-item {
   text-align: center;
-  padding: 1rem;
+  padding: var(--dl-space-space-unit);
   background-color: var(--dl-color-theme-neutral-light);
   border-radius: var(--dl-radius-radius-cardradius);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
 }
 
 .stat-number {
   display: block;
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: var(--dl-color-theme-neutral-dark);
+  font-size: var(--dl-font-size-medium);
+  font-weight: 600;
+  color: var(--dl-color-theme-primary1);
 }
 
 .stat-label {
   display: block;
   color: var(--dl-color-theme-neutral-dark);
-  margin-top: 0.5rem;
-  opacity: 0.7;
+  margin-top: var(--dl-space-space-halfunit);
+  font-size: var(--dl-font-size-small);
+  opacity: 0.8;
 }
 
 /* Stiluri pentru programe de studii */
@@ -146,20 +216,37 @@
 .error-container,
 .not-found-container {
   text-align: center;
-  padding: 2rem;
-  background-color: var(--dl-color-theme-neutral-light);
+  padding: var(--dl-space-space-twounits);
+  background-color: var(--dl-color-theme-secondary2);
   border-radius: var(--dl-radius-radius-cardradius);
-  margin: 2rem 0;
+  margin: var(--dl-space-space-twounits) 0;
+  color: var(--dl-color-theme-neutral-dark);
+}
+
+.error-container h2 {
+  color: var(--dl-color-theme-primary1);
+}
+
+.not-found-container h2 {
+  color: var(--dl-color-theme-neutral-dark);
 }
 
 /* Stiluri responsive */
 @media (max-width: 768px) {
+  .university-body {
+    padding: var(--dl-space-space-unit);
+  }
+
+  .university-header {
+    padding: var(--dl-space-space-unit);
+  }
+
   .university-header h1 {
-    font-size: 2rem;
+    font-size: var(--dl-font-size-medium);
   }
 
   .university-header h2 {
-    font-size: 1.5rem;
+    font-size: var(--dl-font-size-small);
   }
 
   .about-content {
@@ -175,7 +262,17 @@
   }
 
   .university-section {
-    padding: 1.5rem;
+    padding: var(--dl-space-space-unit);
+  }
+
+  .programs-table th,
+  .programs-table td {
+    padding: var(--dl-space-space-halfunit);
+    font-size: var(--dl-font-size-small);
+  }
+  
+  .specializations-list li {
+    font-size: var(--dl-font-size-small);
   }
 }
 
@@ -263,4 +360,117 @@
   .program-card {
     padding: 1rem;
   }
-} 
+}
+
+/* Stiluri pentru taxe de școlarizare */
+.tuition-fees {
+  padding: 1rem;
+  border-radius: var(--dl-radius-radius-cardradius);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tuition-fees:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+.tuition-fees h4 {
+  color: var(--dl-color-theme-primary1);
+  font-size: var(--dl-font-size-medium);
+  margin-bottom: var(--dl-space-space-unit);
+  font-weight: 600;
+}
+
+.tuition-fees li {
+  padding: var(--dl-space-space-halfunit) 0;
+  border-bottom: 1px solid var(--dl-color-theme-secondary2);
+  color: var(--dl-color-theme-neutral-dark);
+  font-size: var(--dl-font-size-small);
+  transition: color 0.2s ease;
+}
+
+.tuition-fees li:hover {
+  color: var(--dl-color-theme-primary1);
+}
+
+.university-location {
+  color: var(--dl-color-theme-neutral-dark);
+  font-size: 1.2rem;
+  margin-top: 0.5rem;
+  opacity: 0.8;
+}
+
+.university-location:before {
+  content: "";
+  margin-right: 0.5rem;
+}
+
+/* Stiluri pentru tabelul de programe */
+.programs-table-container {
+  background-color: var(--dl-color-theme-background);
+  font-size: var(--dl-font-size-small);
+  width: 100%;
+  overflow-x: auto;
+  margin-top: var(--dl-space-space-unit);
+  border-radius: var(--dl-radius-radius-cardradius);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.programs-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--dl-color-theme-secondary2);
+  font-size: var(--dl-font-size-small);
+}
+
+.programs-table th,
+.programs-table td {
+  padding: var(--dl-space-space-unit);
+  text-align: left;
+  border-bottom: 1px solid var(--dl-color-theme-secondary2);
+}
+
+.programs-table th {
+  background-color: var(--dl-color-theme-primary1);
+  color: var(--dl-color-theme-accent1);
+  font-weight: 600;
+  white-space: nowrap;
+  font-size: var(--dl-font-size-small);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.programs-table tr:last-child td {
+  border-bottom: none;
+}
+
+.programs-table tr:hover {
+  background-color: var(--dl-color-theme-neutral-light);
+}
+
+.specializations-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.specializations-list li {
+  padding: var(--dl-space-space-halfunit) 0;
+  font-size: var(--dl-font-size-small);
+  color: var(--dl-color-theme-neutral-dark);
+  transition: color 0.2s ease;
+}
+
+.specializations-list li:hover {
+  color: var(--dl-color-theme-primary1);
+}
+
+.specializations-list li:before {
+  content: "•";
+  color: var(--dl-color-theme-primary1);
+  font-weight: bold;
+  display: inline-block;
+  width: 1em;
+  margin-left: -1em;
+}

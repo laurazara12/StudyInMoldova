@@ -23,7 +23,7 @@ import Dashboard from './views/admin/dashboard';
 import TransportationGuide from './views/living/transportation-guide';
 import ProfileAdmin from './views/admin/profile-admin';
 import Error404Page from './views/error/error404-page';
-import UniversityIndividualPage from './views/universities/individual-universities/university-individual-page';
+import UniversityTemplate from './views/universities/university-template';
 import Contact from './views/contact/contact';
 import About from './views/about/about';
 import HelpYouChoose from './views/help-you-choose-AI/help-you-choose-AI';
@@ -94,7 +94,7 @@ const App = () => {
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:id" element={<BlogPost />} />
             <Route path="/help-you-choose-AI" element={<HelpYouChoose />} />
-            <Route path="/universities/:slug" element={<UniversityIndividualPage />} />
+            <Route path="/universities/:slug" element={<UniversityTemplate />} />
             <Route path="/profile" element={
               <PrivateRoute>
                 <Profile />

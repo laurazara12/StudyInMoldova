@@ -30,11 +30,80 @@ exports.getUniversityById = async (req, res) => {
 
 exports.createUniversity = async (req, res) => {
   try {
-    const university = await University.create(req.body);
+    console.log('=== Începere creare universitate ===');
+    console.log('Received university creation request:', JSON.stringify(req.body, null, 2));
+
+    // Validăm datele obligatorii
+    const requiredFields = ['name', 'type', 'location'];
+    const missingFields = requiredFields.filter(field => !req.body[field]);
+    
+    if (missingFields.length > 0) {
+      console.log('Missing required fields:', missingFields);
+      return res.status(400).json({ 
+        message: 'Missing required fields', 
+        fields: missingFields 
+      });
+    }
+
+    // Generăm slug-ul din numele universității
+    const slug = req.body.name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+    
+    console.log('Generated slug:', slug);
+
+    // Verificăm dacă există deja o universitate cu același slug
+    const existingUniversity = await University.findOne({ where: { slug } });
+    if (existingUniversity) {
+      console.log('University with this slug already exists:', slug);
+      return res.status(400).json({ 
+        message: 'A university with this name already exists' 
+      });
+    }
+
+    // Pregătim datele pentru creare
+    const universityData = {
+      name: req.body.name,
+      type: req.body.type,
+      description: req.body.description || '',
+      location: req.body.location,
+      image_url: req.body.imageUrl || '',
+      website: req.body.website || '',
+      ranking: req.body.ranking || '',
+      slug: slug,
+      tuition_fees: {
+        bachelor: req.body.tuitionFees?.bachelor || null,
+        master: req.body.tuitionFees?.master || null,
+        phd: req.body.tuitionFees?.phd || null
+      },
+      contact_info: {
+        email: req.body.contactInfo?.email || null,
+        phone: req.body.contactInfo?.phone || null,
+        address: req.body.contactInfo?.address || null
+      }
+    };
+
+    console.log('Prepared university data:', JSON.stringify(universityData, null, 2));
+
+    // Creăm universitatea
+    const university = await University.create(universityData);
+    console.log('University created successfully:', JSON.stringify(university, null, 2));
+    
     res.status(201).json(university);
   } catch (error) {
-    console.error('Error creating university:', error);
-    res.status(500).json({ message: 'Error creating university' });
+    console.error('Error creating university:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      errors: error.errors
+    });
+    res.status(500).json({ 
+      message: 'Error creating university',
+      error: error.message,
+      details: error.errors
+    });
   }
 };
 
@@ -107,5 +176,38 @@ exports.deleteUniversity = async (req, res) => {
   } catch (error) {
     console.error('Error deleting university:', error);
     res.status(500).json({ message: 'Error deleting university' });
+  }
+};
+
+exports.getUniversityBySlug = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    console.log('Căutăm universitatea cu slug-ul:', slug);
+    
+    const university = await University.findOne({
+      where: { slug: slug.toLowerCase() }
+    });
+
+    if (!university) {
+      console.log('Universitatea nu a fost găsită pentru slug-ul:', slug);
+      return res.status(404).json({ 
+        message: 'Universitatea nu a fost găsită',
+        slug: slug
+      });
+    }
+
+    console.log('Universitatea găsită:', {
+      id: university.id,
+      name: university.name,
+      slug: university.slug
+    });
+
+    res.json(university);
+  } catch (error) {
+    console.error('Eroare la obținerea universității:', error);
+    res.status(500).json({ 
+      message: 'Eroare la obținerea universității',
+      error: error.message
+    });
   }
 }; 

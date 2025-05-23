@@ -1,23 +1,23 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getCloudinaryImageUrl } from '../config/cloudinary';
-import '../views/universities/universities.css';
+import { getCloudinaryImageUrl } from '../../../config/cloudinary';
+import '../universities.css';
 
 const UniversityPresentation = ({ university }) => {
   const navigate = useNavigate();
 
   if (!university) {
-    return <div className="university-card">Se încarcă...</div>;
+    return <div className="university-card">Loading...</div>;
   }
 
   const handleImageError = (e) => {
-    // Folosim imaginea de rezervă din Cloudinary când imaginea nu se poate încărca
+    // Use fallback image from Cloudinary when image fails to load
     e.target.src = 'https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599121/dorin-seremet-_atwwma7pyw-unsplash-1400w_w6dekv.jpg';
     e.target.onerror = null;
   };
 
   const generateSlug = (name) => {
-    // Mapare pentru nume comune
+    // Mapping for common names
     const nameMappings = {
       // USM
       'usm': 'usm',
@@ -136,18 +136,18 @@ const UniversityPresentation = ({ university }) => {
     return `/universities/${slug}`;
   };
 
-  // Funcție pentru a obține URL-ul imaginii
+  // Function to get image URL
   const getImageUrl = () => {
     if (!university.image_url) {
       return 'https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599121/dorin-seremet-_atwwma7pyw-unsplash-1400w_w6dekv.jpg';
     }
 
-    // Verificăm dacă URL-ul este deja un URL Cloudinary
+    // Check if URL is already a Cloudinary URL
     if (university.image_url.includes('cloudinary.com')) {
       return university.image_url;
     }
 
-    // Dacă nu este un URL Cloudinary, încercăm să-l tratăm ca un public ID
+    // If not a Cloudinary URL, try to treat it as a public ID
     return getCloudinaryImageUrl(university.image_url, {
       width: 370,
       height: 270,
@@ -175,7 +175,7 @@ const UniversityPresentation = ({ university }) => {
       />
       <div className="university-content">
         <div className="university-header">
-          <span className="university-type">{university.type === 'Public' ? 'Universitate publică' : 'Universitate privată'}</span>
+          <span className="university-type">{university.type === 'Public' ? 'Public University' : 'Private University'}</span>
           <h2 className="university-title-small">
             <Link to={getUniversityPath(university) || '#'} style={{ textDecoration: 'none', color: 'inherit' }}>
               {university.name}
@@ -190,39 +190,52 @@ const UniversityPresentation = ({ university }) => {
         )}
         <div className="university-details-row">
           <div className="university-details-col">
-            <h3 className="university-details-title-small">Clasament universitate</h3>
+            <h3 className="university-details-title-small">University Ranking</h3>
             <div className="university-ranking-small">
-              {university.name.toLowerCase().includes('asem') ? (
-                <>
-                  <div>Top 1000 Business Schools worldwide (2019)</div>
-                  <div>1 Palme of Excellence</div>
-                </>
+              {console.log('University ranking for', university.name, ':', university.ranking)}
+              {university.ranking && university.ranking !== '' ? (
+                <div className="ranking-value" style={{ color: '#FF9800', fontWeight: '600' }}>
+                  {university.ranking}
+                </div>
               ) : (
-                university.ranking || 'N/A'
+                <div className="no-ranking-info">
+                  <i className="fas fa-info-circle"></i>
+                  <span>Ranking information is currently unavailable</span>
+                </div>
               )}
             </div>
           </div>
           <div className="university-details-col">
-            <h3 className="university-details-title-small">Taxe de studii (2023)</h3>
+            <h3 className="university-details-title-small">Tuition Fees (2023)</h3>
             <ul className="tuition-fees tuition-fees-small">
-              {university.tuition_fees && Object.keys(university.tuition_fees).length > 0 ? (
+              {university.tuition_fees && (
                 <>
-                  {university.tuition_fees.bachelor && <li>Licență: {university.tuition_fees.bachelor}</li>}
-                  {university.tuition_fees.master && <li>Master: {university.tuition_fees.master}</li>}
-                  {university.tuition_fees.phd && <li>Doctorat: {university.tuition_fees.phd}</li>}
+                  {university.tuition_fees.bachelor ? (
+                    <li>Bachelor's: {university.tuition_fees.bachelor}</li>
+                  ) : (
+                    <li>Bachelor's: Information being updated</li>
+                  )}
+                  {university.tuition_fees.master ? (
+                    <li>Master's: {university.tuition_fees.master}</li>
+                  ) : (
+                    <li>Master's: Information being updated</li>
+                  )}
+                  {university.tuition_fees.phd ? (
+                    <li>PhD: {university.tuition_fees.phd}</li>
+                  ) : (
+                    <li>PhD: Information being updated</li>
+                  )}
                 </>
-              ) : (
-                <li>Pentru informații actualizate despre taxele de studii, vă rugăm să contactați universitatea la adresa: {university.contact_info?.email || 'contact@ase.md'}</li>
               )}
             </ul>
           </div>
         </div>
         <div className="university-actions">
           <button onClick={handleViewDetails} className="btn btn-secondary btn-small">
-            Vezi detalii
+            View Details
           </button>
           <a href={`mailto:${university.contactEmail || ''}`} className="btn btn-primary btn-small">
-            Contactează universitatea
+            Contact University
           </a>
         </div>
       </div>

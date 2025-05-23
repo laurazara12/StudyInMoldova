@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Footer from './footer';
+import Footer from '../../../components/footer';
 import './profile-component.css';
-import { API_BASE_URL, getAuthHeaders, handleApiError } from '../config/api.config';
-import PlanYourStudies from './plan-your-studies';
-import DocumentCounter from './document-counter';
-import Notifications from './notifications';
+import { API_BASE_URL, getAuthHeaders, handleApiError } from '../../../config/api.config';
+import PlanYourStudies from '../../../components/plan-your-studies';
+import DocumentCounter from '../../../components/document-counter';
+import Notifications from '../../../components/notifications';
 
 const initialDocuments = {
   diploma: { uploading: false, progress: 0, uploaded: false, file: null },
@@ -59,17 +59,17 @@ const ProfileComponent = () => {
   const fileInputRef = useRef(null);
   const [activeTab, setActiveTab] = useState(() => localStorage.getItem('activeProfileTab') || 'profile');
 
-  // Salvăm tab-ul activ în localStorage
+  // Save active tab in localStorage
   useEffect(() => {
     localStorage.setItem('activeProfileTab', activeTab);
   }, [activeTab]);
 
-  // Salvăm documentele în localStorage
+  // Save documents in localStorage
   useEffect(() => {
     localStorage.setItem('uploadedDocuments', JSON.stringify(uploadStatus));
   }, [uploadStatus]);
 
-  // Verificăm autentificarea și încărcăm datele utilizatorului
+  // Check authentication and load user data
   useEffect(() => {
     let isMounted = true;
     const token = localStorage.getItem('token');
@@ -89,7 +89,7 @@ const ProfileComponent = () => {
         });
 
         if (!response.data?.success || !response.data?.user) {
-          throw new Error('Datele utilizatorului lipsesc sau sunt invalide');
+          throw new Error('User data is missing or invalid');
         }
 
         const userData = response.data.user;
@@ -119,14 +119,14 @@ const ProfileComponent = () => {
       } catch (error) {
         if (isMounted) {
           const apiError = handleApiError(error);
-          console.error('Eroare la preluarea datelor utilizatorului:', apiError);
+          console.error('Error fetching user data:', apiError);
           
           if (apiError.status === 401) {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             navigate('/sign-in');
           } else {
-            setError(apiError.message || 'A apărut o eroare la încărcarea datelor');
+            setError(apiError.message || 'An error occurred while loading data');
           }
         }
       } finally {
@@ -151,22 +151,22 @@ const ProfileComponent = () => {
       });
 
       if (!response.data || !Array.isArray(response.data)) {
-        throw new Error('Format invalid pentru documente');
+        throw new Error('Invalid document format');
       }
 
       const validDocuments = response.data.filter(doc => {
         if (!doc.id || !doc.document_type || !doc.file_path) {
-          console.warn('Document invalid - lipsesc câmpuri necesare:', doc);
+          console.warn('Invalid document - missing required fields:', doc);
           return false;
         }
 
         if (doc.status === 'deleted') {
-          console.warn('Document șters:', doc);
+          console.warn('Deleted document:', doc);
           return false;
         }
 
         if (!doc.uploaded) {
-          console.warn('Document neîncărcat:', doc);
+          console.warn('Document not uploaded:', doc);
           return false;
         }
 
@@ -175,7 +175,7 @@ const ProfileComponent = () => {
 
       setDocuments(validDocuments);
       
-      // Actualizăm statusul documentelor încărcate
+      // Update uploaded documents status
       const newUploadStatus = { ...uploadStatus };
       validDocuments.forEach(doc => {
         if (newUploadStatus[doc.document_type]) {
@@ -188,8 +188,8 @@ const ProfileComponent = () => {
       setUploadStatus(newUploadStatus);
     } catch (error) {
       const apiError = handleApiError(error);
-      console.error('Eroare la preluarea documentelor:', apiError);
-      setError(apiError.message || 'A apărut o eroare la încărcarea documentelor');
+      console.error('Error fetching documents:', apiError);
+      setError(apiError.message || 'An error occurred while loading documents');
       setDocuments([]);
     }
   };
@@ -221,7 +221,11 @@ const ProfileComponent = () => {
   if (loading) {
     return (
       <div className="profile-container">
-        <div className="profile-main">Loading...</div>
+          <div className="profile-main-content">
+            <div className="profile-main-content-header">
+              <h1>Profile</h1>
+            </div>
+        </div>
         <Footer />
       </div>
     );
@@ -235,14 +239,14 @@ const ProfileComponent = () => {
     const file = event.target.files[0];
     if (!file) return;
 
-    // Verifică dimensiunea fișierului (5MB)
+    // Check file size (5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert('Fișierul este prea mare. Dimensiunea maximă permisă este de 5MB.');
+      alert('File is too large. Maximum allowed size is 5MB.');
       event.target.value = '';
       return;
     }
 
-    // Verifică tipul fișierului
+    // Check file type
     const allowedTypes = [
       'application/pdf',
       'image/jpeg',
@@ -254,12 +258,12 @@ const ProfileComponent = () => {
     ];
 
     if (!allowedTypes.includes(file.type)) {
-      alert('Tip de fișier neacceptat. Folosiți doar PDF, JPG, PNG, DOC, DOCX, XLS sau XLSX.');
+      alert('File type not accepted. Please use only PDF, JPG, PNG, DOC, DOCX, XLS or XLSX.');
       event.target.value = '';
       return;
     }
 
-    // Actualizează starea cu fișierul selectat, dar nu începe upload-ul
+    // Update state with selected file, but don't start upload
     setUploadStatus(prev => ({
       ...prev,
       [type]: { 
@@ -276,17 +280,17 @@ const ProfileComponent = () => {
     try {
       const uploadStatusForType = uploadStatus[documentType];
       if (!uploadStatusForType?.file) {
-        console.error('Nu există fișier selectat pentru upload');
+        console.error('No file selected for upload');
         return;
       }
 
-      // Verifică dimensiunea fișierului
+      // Check file size
       if (uploadStatusForType.file.size > 10 * 1024 * 1024) {
-        setError('Fișierul este prea mare. Dimensiunea maximă permisă este de 10MB.');
+        setError('File is too large. Maximum allowed size is 10MB.');
         return;
       }
 
-      // Verifică tipul fișierului
+      // Check file type
       const allowedTypes = [
         'application/pdf',
         'image/jpeg',
@@ -298,7 +302,7 @@ const ProfileComponent = () => {
       ];
 
       if (!allowedTypes.includes(uploadStatusForType.file.type)) {
-        setError('Tip de fișier neacceptat. Folosiți doar PDF, JPG, PNG, DOC, DOCX, XLS sau XLSX.');
+        setError('File type not accepted. Please use only PDF, JPG, PNG, DOC, DOCX, XLS or XLSX.');
         return;
       }
 
@@ -311,7 +315,7 @@ const ProfileComponent = () => {
       formData.append('file', uploadStatusForType.file);
       formData.append('document_type', documentType);
 
-      console.log('Încărcare document:', {
+      console.log('Uploading document:', {
         documentType,
         fileName: uploadStatusForType.file.name,
         fileSize: uploadStatusForType.file.size,
@@ -336,7 +340,7 @@ const ProfileComponent = () => {
         }
       );
 
-      console.log('Răspuns upload:', response.data);
+      console.log('Upload response:', response.data);
 
       if (response.data.success) {
         setUploadStatus(prev => ({
@@ -352,7 +356,7 @@ const ProfileComponent = () => {
         await fetchDocuments();
         setError(null);
       } else {
-        throw new Error(response.data.message || 'Eroare la încărcarea documentului');
+        throw new Error(response.data.message || 'Error uploading document');
       }
     } catch (error) {
       console.error('Upload error:', error);
@@ -361,10 +365,10 @@ const ProfileComponent = () => {
         [documentType]: { 
           ...prev[documentType], 
           uploading: false, 
-          error: error.message || 'Eroare la încărcarea documentului'
+          error: error.message || 'Error uploading document'
         }
       }));
-      setError(error.response?.data?.message || error.message || 'Eroare la încărcarea documentului. Vă rugăm să încercați din nou.');
+      setError(error.response?.data?.message || error.message || 'Error uploading document. Please try again.');
     }
   };
 
@@ -372,11 +376,11 @@ const ProfileComponent = () => {
     try {
       const document = documents.find(doc => doc.document_type === documentType);
       if (!document) {
-        alert('Documentul nu a fost găsit');
+        alert('Document not found');
         return;
       }
 
-      if (!window.confirm('Sunteți sigur că doriți să ștergeți acest document?')) {
+      if (!window.confirm('Are you sure you want to delete this document?')) {
         return;
       }
 
@@ -384,8 +388,8 @@ const ProfileComponent = () => {
         headers: getAuthHeaders()
       });
 
-      if (response.data.message === 'Document șters cu succes') {
-        // Ștergem documentul din localStorage
+      if (response.data.message === 'Document deleted successfully') {
+        // Remove document from localStorage
         const updatedStatus = {
           ...uploadStatus,
           [documentType]: { ...uploadStatus[documentType], file: null, uploaded: false, filePath: null, fileName: null, uploadDate: null }
@@ -394,12 +398,12 @@ const ProfileComponent = () => {
         localStorage.setItem('uploadedDocuments', JSON.stringify(updatedStatus));
         
         setDocuments(prev => prev.filter(doc => doc.id !== document.id));
-        alert('Document șters cu succes');
+        alert('Document deleted successfully');
       }
     } catch (error) {
       const apiError = handleApiError(error);
-      console.error('Eroare la ștergerea documentului:', apiError);
-      alert(apiError.message || 'Eroare la ștergerea documentului');
+      console.error('Error deleting document:', apiError);
+      alert(apiError.message || 'Error deleting document');
     }
   };
 
@@ -407,21 +411,21 @@ const ProfileComponent = () => {
     try {
       const doc = documents.find(doc => doc.document_type === documentType);
       if (!doc) {
-        alert('Documentul nu a fost găsit');
+        alert('Document not found');
         return;
       }
 
-      console.log('Încercare descărcare:', documentType);
+      console.log('Attempting download:', documentType);
 
-      // Obținem token-ul din localStorage
+      // Get token from localStorage
       const token = localStorage.getItem('token');
       if (!token) {
-        alert('Nu sunteți autentificat. Vă rugăm să vă autentificați din nou.');
+        alert('You are not authenticated. Please sign in again.');
         navigate('/sign-in');
         return;
       }
 
-      // Folosim axios pentru a descărca fișierul cu header-ul de autorizare
+      // Use axios to download file with authorization header
       const response = await axios({
         url: `${API_BASE_URL}/documents/download/${doc.id}`,
         method: 'GET',
@@ -431,38 +435,38 @@ const ProfileComponent = () => {
         }
       });
 
-      // Creăm un URL pentru blob-ul descărcat
+      // Create URL for downloaded blob
       const blob = new Blob([response.data], { type: response.headers['content-type'] });
       const url = window.URL.createObjectURL(blob);
       
-      // Creăm un element temporar pentru descărcare
+      // Create temporary download element
       const downloadLink = window.document.createElement('a');
       downloadLink.href = url;
       downloadLink.setAttribute('download', doc.file_path ? doc.file_path.split('/').pop() : `${documentType}.pdf`);
       window.document.body.appendChild(downloadLink);
       downloadLink.click();
       
-      // Curățăm
+      // Cleanup
       window.document.body.removeChild(downloadLink);
       window.URL.revokeObjectURL(url);
       
-      console.log('Descărcare inițiată pentru:', documentType);
+      console.log('Download initiated for:', documentType);
     } catch (error) {
-      console.error('Eroare detaliată la descărcare:', error);
+      console.error('Detailed download error:', error);
       
       if (error.response) {
         if (error.response.status === 404) {
-          alert('Documentul nu a fost găsit pe server');
+          alert('Document not found on server');
         } else if (error.response.status === 401) {
-          alert('Nu sunteți autentificat. Vă rugăm să vă autentificați din nou.');
+          alert('You are not authenticated. Please sign in again.');
           navigate('/sign-in');
         } else {
-          alert(`Eroare la descărcarea documentului: ${error.response.data?.message || 'Eroare necunoscută'}`);
+          alert(`Error downloading document: ${error.response.data?.message || 'Unknown error'}`);
         }
       } else if (error.request) {
-        alert('Nu s-a putut conecta la server. Verificați conexiunea la internet.');
+        alert('Could not connect to server. Please check your internet connection.');
       } else {
-        alert(`Eroare la descărcarea documentului: ${error.message}`);
+        alert(`Error downloading document: ${error.message}`);
       }
     }
   };
@@ -471,9 +475,9 @@ const ProfileComponent = () => {
     event.preventDefault();
     
     try {
-      console.log('Salvare date profil:', formData);
+      console.log('Saving profile data:', formData);
       
-      // Trimite doar câmpurile care au fost modificate
+      // Send only modified fields
       const updatedFields = {};
       Object.keys(formData).forEach(key => {
         if (formData[key] !== userData[key]) {
@@ -481,9 +485,9 @@ const ProfileComponent = () => {
         }
       });
       
-      // Dacă nu există câmpuri modificate, închide modalul
+      // If no fields were modified, close modal
       if (Object.keys(updatedFields).length === 0) {
-        alert('Nu s-au făcut modificări');
+        alert('No changes made');
         setIsEditing(false);
         return;
       }
@@ -493,21 +497,21 @@ const ProfileComponent = () => {
       });
       
       if (response.data.success) {
-        // Actualizează datele utilizatorului în interfață
+        // Update user data in interface
         setUserData(prev => ({
           ...prev,
           ...updatedFields
         }));
         
-        alert('Profilul a fost actualizat cu succes!');
+        alert('Profile updated successfully!');
         setIsEditing(false);
       } else {
-        alert(response.data.message || 'Eroare la actualizarea profilului');
+        alert(response.data.message || 'Error updating profile');
       }
     } catch (error) {
       const apiError = handleApiError(error);
-      console.error('Eroare la actualizarea profilului:', apiError);
-      alert(apiError.message || 'Eroare la actualizarea profilului');
+      console.error('Error updating profile:', apiError);
+      alert(apiError.message || 'Error updating profile');
     }
   };
 
@@ -544,7 +548,7 @@ const ProfileComponent = () => {
 
   async function cleanupDocuments() {
     try {
-      if (!window.confirm('Sunteți sigur că doriți să curățați documentele invalide? Această acțiune nu poate fi anulată.')) {
+      if (!window.confirm('Are you sure you want to clean up invalid documents? This action cannot be undone.')) {
         return;
       }
       
@@ -556,11 +560,11 @@ const ProfileComponent = () => {
         alert(response.data.message);
         await fetchDocuments();
       } else {
-        alert('A apărut o eroare la curățarea documentelor: ' + (response.data.error || 'Eroare necunoscută'));
+        alert('An error occurred while cleaning up documents: ' + (response.data.error || 'Unknown error'));
       }
     } catch (error) {
-      console.error('Eroare la curățarea documentelor:', error);
-      alert('A apărut o eroare la curățarea documentelor. Vă rugăm să încercați din nou.');
+      console.error('Error cleaning up documents:', error);
+      alert('An error occurred while cleaning up documents. Please try again.');
     }
   }
 
@@ -591,7 +595,7 @@ const ProfileComponent = () => {
         </div>
         <div className="edit-button-container">
           <button 
-            className="edit-button" 
+            className="btn btn-primary"
             onClick={() => {
               setFormData({
                 full_name: userData?.name || '',
@@ -610,19 +614,20 @@ const ProfileComponent = () => {
               setIsEditing(true);
             }}
           >
-            Edit Profile
+            <i className="fas fa-edit"></i>
+            Editează Profilul
           </button>
           <Notifications />
         </div>
       </div>
 
       {loading ? (
-        <div className="loading">Se încarcă...</div>
+        <div className="loading">Loading...</div>
       ) : error ? (
         <div className="error">{error}</div>
       ) : (
         <div className="profile-content">
-          {/* Secțiunea Profilul meu */}
+          {/* Profile Section */}
           {activeTab === 'profile' && (
             <div className="profile-section">
               <h2>My Profile</h2>
@@ -655,7 +660,7 @@ const ProfileComponent = () => {
             </div>
           )}
 
-          {/* Secțiunea Plan Your Studies */}
+          {/* Plan Your Studies Section */}
           {activeTab === 'studies' && (
             <PlanYourStudies 
               userData={userData}
@@ -665,7 +670,7 @@ const ProfileComponent = () => {
             />
           )}
 
-          {/* Secțiunea Încarcă documente */}
+          {/* Upload Documents Section */}
           {activeTab === 'documents' && (
             <div className="profile-section">
               <h2>Upload Documents</h2>
@@ -697,38 +702,41 @@ const ProfileComponent = () => {
                         {isDocumentValid ? (
                           <>
                             <button 
-                              className="download-button"
+                              className="action-button download-button"
                               onClick={() => handleDownload(docType.id)}
                             >
-                              Download
+                              <i className="fas fa-download"></i>
+                              Descarcă
                             </button>
                             <button 
-                              className="delete-button"
+                              className="action-button delete-button"
                               onClick={() => handleDelete(docType.id)}
                             >
-                              Delete
+                              <i className="fas fa-trash"></i>
+                              Șterge
                             </button>
                           </>
                         ) : (
                           <>
                             {uploadStatusForType?.file && !uploadStatusForType?.uploaded && (
                               <button 
-                                className="upload-button"
+                                className="action-button upload-button"
                                 onClick={() => handleUpload(docType.id)}
                                 disabled={uploadStatusForType.uploading}
                               >
-                                {uploadStatusForType.uploading ? 'Uploading...' : 'Upload'}
+                                {uploadStatusForType.uploading ? 'Se încarcă...' : 'Încarcă'}
                               </button>
                             )}
                             {(!uploadStatusForType?.file || uploadStatusForType?.uploaded) && (
                               <button 
-                                className="choose-button"
+                                className="action-button choose-button"
                                 onClick={() => {
                                   fileInputRef.current.click();
                                   fileInputRef.current.dataset.documentType = docType.id;
                                 }}
                               >
-                                Choose File
+                                <i className="fas fa-file"></i>
+                                Alege Fișier
                               </button>
                             )}
                           </>
@@ -750,8 +758,9 @@ const ProfileComponent = () => {
               />
 
               <div className="documents-header">
-                <h3>Documentele mele</h3>
-                <button onClick={cleanupDocuments} className="cleanup-button">
+                <h3>My Documents</h3>
+                <button onClick={cleanupDocuments} className="btn btn-secondary">
+                  <i className="fas fa-broom"></i>
                   Curăță documente invalide
                 </button>
               </div>
@@ -760,15 +769,16 @@ const ProfileComponent = () => {
         </div>
       )}
 
-      {/* Modal de editare */}
+      {/* Edit Modal */}
       {isEditing && (
         <div className="edit-modal">
           <div className="edit-modal-content">
             <button 
-              className="close-modal-button"
+              className="btn btn-secondary"
               onClick={() => setIsEditing(false)}
             >
-              ×
+              <i className="fas fa-times"></i>
+              Anulează
             </button>
             <h2>Edit Profile</h2>
             <form onSubmit={handleSubmit}>
@@ -886,9 +896,9 @@ const ProfileComponent = () => {
                 </select>
               </div>
               <div className="form-actions">
-                <button type="submit" className="save-button">Save</button>
-                <button type="button" className="cancel-button" onClick={() => setIsEditing(false)}>
-                  Cancel
+                <button type="submit" className="btn btn-primary">
+                  <i className="fas fa-save"></i>
+                  Salvează
                 </button>
               </div>
             </form>

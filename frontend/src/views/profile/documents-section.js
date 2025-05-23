@@ -13,7 +13,7 @@ const DocumentsSection = ({
 }) => {
   return (
     <div className="documents-section">
-      <h2>Documente</h2>
+      <h2>Documents</h2>
       
       <DocumentCounter 
         documents={documents}
@@ -34,7 +34,7 @@ const DocumentsSection = ({
                 {isDocumentValid && (
                   <>
                     <p>Status: {document.status}</p>
-                    <p>Încărcat: {new Date(document.uploadDate).toLocaleDateString()}</p>
+                    <p>Uploaded: {new Date(document.uploadDate).toLocaleDateString()}</p>
                   </>
                 )}
               </div>
@@ -45,13 +45,13 @@ const DocumentsSection = ({
                       className="download-button"
                       onClick={() => handleDownload(docType.id)}
                     >
-                      Descarcă
+                      Download
                     </button>
                     <button 
                       className="delete-button"
                       onClick={() => handleDelete(docType.id)}
                     >
-                      Șterge
+                      Delete
                     </button>
                   </>
                 ) : (
@@ -62,7 +62,7 @@ const DocumentsSection = ({
                         onClick={() => handleUpload(docType.id)}
                         disabled={uploadStatusForType.uploading}
                       >
-                        {uploadStatusForType.uploading ? 'Se încarcă...' : 'Încarcă'}
+                        {uploadStatusForType.uploading ? 'Uploading...' : 'Upload'}
                       </button>
                     )}
                     {!uploadStatusForType?.file && (
@@ -72,7 +72,7 @@ const DocumentsSection = ({
                           handleFileSelect(docType.id);
                         }}
                       >
-                        Alege fișier
+                        Choose File
                       </button>
                     )}
                   </>

@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import './profile-component.css';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
-import { useAuth } from '../context/AuthContext';
-import { API_BASE_URL, getAuthHeaders } from '../config/api.config';
+import { useAuth } from '../../../context/AuthContext';
+import { API_BASE_URL, getAuthHeaders } from '../../../config/api.config';
 
 const PlanYourStudies = ({ userData, documents, documentTypes, calculateProfileProgress }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -32,10 +32,21 @@ const PlanYourStudies = ({ userData, documents, documentTypes, calculateProfileP
       });
 
       if (response.data.success) {
-        setUserData(response.data.user);
+        const updatedUserData = response.data.user;
         setIsEditing(false);
-        setFormData(response.data.user);
-        updateProfile(response.data.user);
+        setFormData({
+          desired_study_level: updatedUserData.desired_study_level || '',
+          preferred_study_field: updatedUserData.preferred_study_field || '',
+          desired_academic_year: updatedUserData.desired_academic_year || '',
+          preferred_study_language: updatedUserData.preferred_study_language || '',
+          estimated_budget: updatedUserData.estimated_budget || '',
+          accommodation_preferences: updatedUserData.accommodation_preferences || ''
+        });
+        
+        if (updateProfile) {
+          updateProfile(updatedUserData);
+        }
+        
         toast.success('Planul de studii a fost actualizat cu succes!');
       }
     } catch (error) {
@@ -48,16 +59,16 @@ const PlanYourStudies = ({ userData, documents, documentTypes, calculateProfileP
     const recommendations = [];
     
     const fields = [
-      { name: 'phone', text: 'Adăugați numărul de telefon' },
-      { name: 'date_of_birth', text: 'Adăugați data nașterii' },
-      { name: 'country_of_origin', text: 'Adăugați țara de origine' },
-      { name: 'nationality', text: 'Adăugați naționalitatea' },
-      { name: 'desired_study_level', text: 'Selectați nivelul de studii dorit' },
-      { name: 'preferred_study_field', text: 'Adăugați domeniul de studiu preferat' },
-      { name: 'desired_academic_year', text: 'Selectați anul academic dorit' },
-      { name: 'preferred_study_language', text: 'Selectați limba de studiu preferată' },
-      { name: 'estimated_budget', text: 'Adăugați bugetul estimat' },
-      { name: 'accommodation_preferences', text: 'Adăugați preferințele pentru cazare' }
+      { name: 'phone', text: 'Add phone number' },
+      { name: 'date_of_birth', text: 'Add date of birth' },
+      { name: 'country_of_origin', text: 'Add country of origin' },
+      { name: 'nationality', text: 'Add nationality' },
+      { name: 'desired_study_level', text: 'Select desired study level' },
+      { name: 'preferred_study_field', text: 'Add preferred field of study' },
+      { name: 'desired_academic_year', text: 'Select desired academic year' },
+      { name: 'preferred_study_language', text: 'Select preferred study language' },
+      { name: 'estimated_budget', text: 'Add estimated budget' },
+      { name: 'accommodation_preferences', text: 'Add accommodation preferences' }
     ];
 
     fields.forEach(field => {
@@ -90,7 +101,7 @@ const PlanYourStudies = ({ userData, documents, documentTypes, calculateProfileP
           
           {calculateProfileProgress() < 100 && (
             <div className="profile-recommendations">
-              <h3>Recomandări pentru completarea profilului</h3>
+              <h3>Recommendations for completing your profile</h3>
               <ul>
                 {getProfileRecommendations().map((recommendation, index) => (
                   <li key={index} className={recommendation.completed ? 'completed' : ''}>

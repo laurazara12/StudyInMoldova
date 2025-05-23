@@ -60,7 +60,6 @@
 .stat-item {
   text-align: center;
   padding: var(--dl-space-space-unit);
-  background-color: var(--dl-color-theme-secondary2);
   border-radius: var(--dl-radius-radius-cardradius);
 }
 
@@ -71,11 +70,6 @@
   color: var(--dl-color-theme-neutral-dark);
 }
 
-.stat-label {
-  display: block;
-  color: var(--dl-color-theme-neutral-light);
-  margin-top: var(--dl-space-space-halfunit);
-}
 
 /* Stiluri pentru grilă de facultăți */
 .faculties-grid {

@@ -3,8 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../../components/navbar';
 import Footer from '../../components/footer';
+import universityService from '../../services/universityService';
 
 import './dashboard.css';
+import '../../style.css';
+
 import { API_BASE_URL, getAuthHeaders, handleApiError } from '../../config/api.config';
 import DeleteDocumentModal from '../../components/DeleteDocumentModal';
 
@@ -1123,6 +1126,277 @@ const Dashboard = () => {
     }
   };
 
+  const handleDeleteUniversity = async (id) => {
+    if (!window.confirm('Sigur doriți să ștergeți această universitate?')) {
+      return;
+    }
+
+    try {
+      await universityService.deleteUniversity(id);
+      
+      // Actualizăm lista de universități
+      const updatedUniversities = universities.filter(uni => uni.id !== id);
+      setUniversities(updatedUniversities);
+      
+      setSuccessMessage('Universitatea a fost ștearsă cu succes!');
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (error) {
+      console.error('Eroare la ștergerea universității:', error);
+      setError('A apărut o eroare la ștergerea universității. Vă rugăm să încercați din nou.');
+      setTimeout(() => setError(null), 5000);
+    }
+  };
+
+  const handleUniversityInputChange = (e) => {
+    const { name, value } = e.target;
+    
+    if (name.includes('.')) {
+      const [parent, child] = name.split('.');
+      setNewUniversity(prev => ({
+        ...prev,
+        [parent]: {
+          ...prev[parent],
+          [child]: value
+        }
+      }));
+    } else {
+      setNewUniversity(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+  };
+
+  const handleAddUniversity = async (e) => {
+    e.preventDefault();
+    
+    try {
+      const universityData = {
+        name: newUniversity.name,
+        type: newUniversity.type,
+        description: newUniversity.description,
+        location: newUniversity.location,
+        image_url: newUniversity.imageUrl,
+        website: newUniversity.website,
+        ranking: newUniversity.ranking || '',
+        tuition_fees: {
+          bachelor: newUniversity.tuitionFees.bachelor || '',
+          master: newUniversity.tuitionFees.master || '',
+          phd: newUniversity.tuitionFees.phd || ''
+        },
+        contact_info: {
+          email: newUniversity.contactInfo.email || '',
+          phone: newUniversity.contactInfo.phone || '',
+          address: newUniversity.contactInfo.address || ''
+        }
+      };
+
+      const response = await axios.post(
+        `${API_BASE_URL}/api/universities`,
+        universityData,
+        { 
+          headers: getAuthHeaders(),
+          validateStatus: function (status) {
+            return status < 500;
+          }
+        }
+      );
+
+      if (response.status === 201) {
+        // Adăugăm noua universitate la lista existentă
+        setUniversities(prev => [...prev, response.data]);
+        setShowAddUniversityForm(false);
+        setSuccessMessage('Universitatea a fost adăugată cu succes!');
+        setTimeout(() => setSuccessMessage(''), 3000);
+        
+        // Resetăm formularul
+        setNewUniversity({
+          name: '',
+          type: 'Public',
+          description: '',
+          location: '',
+          imageUrl: '',
+          website: '',
+          ranking: '',
+          tuitionFees: {
+            bachelor: '',
+            master: '',
+            phd: ''
+          },
+          contactInfo: {
+            email: '',
+            phone: '',
+            address: ''
+          }
+        });
+      } else {
+        throw new Error(`Error adding university: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('Eroare la adăugarea universității:', error);
+      setError('A apărut o eroare la adăugarea universității. Vă rugăm să încercați din nou.');
+      setTimeout(() => setError(null), 5000);
+    }
+  };
+
+  const handleAddProgram = async (e) => {
+    e.preventDefault();
+    try {
+      // Formatăm datele programului înainte de trimitere
+      const formattedProgram = {
+        ...newProgram,
+        tuition_fees: newProgram.tuition_fees.toString(),
+        duration: parseInt(newProgram.duration),
+        credits: parseInt(newProgram.credits) || null
+      };
+
+      const response = await axios.post(
+        `${API_BASE_URL}/api/programs`,
+        formattedProgram,
+        { 
+          headers: getAuthHeaders(),
+          validateStatus: function (status) {
+            return status < 500;
+          }
+        }
+      );
+
+      if (response.status === 201 || response.data.success) {
+        setSuccessMessage('Program adăugat cu succes!');
+        setShowAddProgramForm(false);
+        setNewProgram({
+          name: '',
+          description: '',
+          duration: '',
+          degree_type: '',
+          language: '',
+          tuition_fees: '',
+          university_id: '',
+          faculty: '',
+          credits: ''
+        });
+        
+        // Reîncărcăm lista de programe
+        const programsResponse = await axios.get(`${API_BASE_URL}/api/programs`, {
+          headers: getAuthHeaders()
+        });
+        
+        if (programsResponse.data && programsResponse.data.data) {
+          setPrograms(programsResponse.data.data);
+        }
+      } else {
+        throw new Error(response.data.message || 'Eroare la adăugarea programului');
+      }
+    } catch (error) {
+      console.error('Eroare la adăugarea programului:', error);
+      let errorMessage = 'A apărut o eroare la adăugarea programului. ';
+      
+      if (error.response?.status === 401) {
+        errorMessage += 'Nu aveți permisiunea de a adăuga programe.';
+      } else if (error.response?.data?.message) {
+        errorMessage += error.response.data.message;
+      } else {
+        errorMessage += 'Vă rugăm să încercați din nou.';
+      }
+      
+      setError(errorMessage);
+      setTimeout(() => setError(null), 5000);
+    }
+  };
+
+  const handleEditProgram = (program) => {
+    // Formatăm datele programului pentru editare
+    const formattedProgram = {
+      ...program,
+      duration: program.duration.toString(),
+      credits: program.credits?.toString() || '',
+      tuition_fees: program.tuition_fees?.toString() || ''
+    };
+    setEditingProgram(formattedProgram);
+    setShowEditProgramForm(true);
+  };
+
+  const handleDeleteProgram = async (programId) => {
+    if (!window.confirm('Sigur doriți să ștergeți acest program?')) {
+      return;
+    }
+
+    try {
+      const response = await axios.delete(
+        `${API_BASE_URL}/api/programs/${programId}`,
+        { 
+          headers: getAuthHeaders(),
+          validateStatus: function (status) {
+            return status < 500;
+          }
+        }
+      );
+
+      if (response.status === 200 || response.data.success) {
+        setSuccessMessage('Program șters cu succes!');
+        setPrograms(programs.filter(program => program.id !== programId));
+      } else {
+        throw new Error(response.data.message || 'Eroare la ștergerea programului');
+      }
+    } catch (error) {
+      console.error('Eroare la ștergerea programului:', error);
+      setError('A apărut o eroare la ștergerea programului. Vă rugăm să încercați din nou.');
+      setTimeout(() => setError(null), 5000);
+    }
+  };
+
+  const handleUpdateProgram = async (e) => {
+    e.preventDefault();
+    try {
+      // Formatăm datele programului înainte de trimitere
+      const formattedProgram = {
+        ...editingProgram,
+        duration: parseInt(editingProgram.duration),
+        credits: parseInt(editingProgram.credits) || null
+      };
+
+      const response = await axios.put(
+        `${API_BASE_URL}/api/programs/${editingProgram.id}`,
+        formattedProgram,
+        { 
+          headers: getAuthHeaders(),
+          validateStatus: function (status) {
+            return status < 500;
+          }
+        }
+      );
+
+      if (response.status === 200 || response.data.success) {
+        setSuccessMessage('Program actualizat cu succes!');
+        setShowEditProgramForm(false);
+        setEditingProgram(null);
+        
+        // Reîncărcăm lista de programe
+        const programsResponse = await axios.get(`${API_BASE_URL}/api/programs`, {
+          headers: getAuthHeaders()
+        });
+        
+        if (programsResponse.data && programsResponse.data.data) {
+          setPrograms(programsResponse.data.data);
+        }
+      } else {
+        throw new Error(response.data.message || 'Eroare la actualizarea programului');
+      }
+    } catch (error) {
+      console.error('Eroare la actualizarea programului:', error);
+      setError('A apărut o eroare la actualizarea programului. Vă rugăm să încercați din nou.');
+      setTimeout(() => setError(null), 5000);
+    }
+  };
+
+  const handleProgramInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewProgram(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   return (
     <div className="dashboard-page">
       
@@ -1499,7 +1773,7 @@ const Dashboard = () => {
                 <>
                   <div className="dashboard-actions">
                     <button 
-                      className="add-button"
+                      className="btn1"
                       onClick={() => setShowAddUniversityForm(true)}
                     >
                       Add University
@@ -1544,13 +1818,13 @@ const Dashboard = () => {
                             <td>
                               <div className="action-buttons">
                                 <button 
-                                  className="action-button edit-button"
+                                  className="btn-grey"
                                   onClick={() => handleEditUniversity(university)}
                                 >
                                   <i className="fas fa-edit"></i> Editează
                                 </button>
                                 <button 
-                                  className="action-button delete-button"
+                                  className="btn-delete"
                                   onClick={() => handleDeleteUniversity(university.id)}
                                 >
                                   <i className="fas fa-trash"></i> Șterge
@@ -1952,7 +2226,7 @@ const Dashboard = () => {
                 <>
                   <div className="dashboard-actions">
                     <button 
-                      className="add-button"
+                      className="btn1"
                       onClick={handleOpenAddProgramForm}
                     >
                       Add Program
@@ -2146,8 +2420,7 @@ const Dashboard = () => {
 
                           <div className="modal-buttons">
                             <button 
-                              type="button" 
-                              className="cancel-button"
+                              className="btn-grey-2"
                               onClick={() => {
                                 setShowAddProgramForm(false);
                                 setNewProgram({
@@ -2165,7 +2438,10 @@ const Dashboard = () => {
                             >
                               Anulează
                             </button>
-                            <button type="submit" className="confirm-button">
+                            <button 
+                              className="btn-success"
+                              type="submit"
+                            >
                               Add Program
                             </button>
                           </div>
@@ -2453,19 +2729,19 @@ const Dashboard = () => {
                               <td>
                                 <div className="action-buttons">
                                   <button 
-                                    className="action-button view-button"
+                                    className="btn1"
                                     onClick={() => handleViewUser(user)}
                                   >
                                     <i className="fas fa-eye"></i> View User
                                   </button>
                                   <button 
-                                    className="action-button view-docs-button"
+                                    className="btn2"
                                     onClick={() => handleViewDocuments(user)}
                                   >
                                     <i className="fas fa-file"></i> Vezi Documente
                                   </button>
                                   <button 
-                                    className="action-button delete-button"
+                                    className="btn-delete"
                                     onClick={() => confirmDelete(user.id)}
                                   >
                                     <i className="fas fa-trash"></i> Delete
@@ -2507,7 +2783,7 @@ const Dashboard = () => {
                               <td>
                                 <div className="action-buttons">
                                   <button 
-                                className="view-button , download-button"
+                                className="btn1"
                                     onClick={() => handleDownloadDocument(doc.document_type, doc.user_id)}
                                   >
                                 Descarcă
@@ -2515,13 +2791,13 @@ const Dashboard = () => {
                                   {doc.status === 'pending' && (
                                     <>
                                       <button 
-                                    className="approve-button"
+                                    className="btn-success"
                                     onClick={() => handleConfirmDocument(doc)}
                                       >
                                     Aprobă
                                       </button>
                                       <button 
-                                    className="reject-button"
+                                    className="btn-delete"
                                     onClick={() => handleRejectDocument(doc)}
                                       >
                                     Respinge
@@ -2529,7 +2805,7 @@ const Dashboard = () => {
                                     </>
                                   )}
                                   <button 
-                                className="delete-button"
+                                className="btn-delete"
                                 onClick={() => setDocumentToDelete(doc)}
                                   >
                                 Șterge
@@ -2606,13 +2882,13 @@ const Dashboard = () => {
                               <td>
                                 <div className="action-buttons">
                                   <button 
-                                    className="action-button view-button"
+                                    className="btn1"
                                     onClick={() => handleViewApplication(app)}
                                   >
                                     <i className="fas fa-eye"></i> View
                                   </button>
                                   <button 
-                                    className="action-button edit-button"
+                                    className="btn-grey"
                                     onClick={() => handleEditApplication(app)}
                                   >
                                     <i className="fas fa-edit"></i> Edit

@@ -6,8 +6,9 @@ import Footer from '../../components/footer';
 import { API_BASE_URL, getAuthHeaders, handleApiError } from '../../config/api.config';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
-import './styles.css';
-import PlanYourStudies from '../../components/plan-your-studies';
+import './profile.css';
+
+import PlanYourStudies from './components/plan-your-studies';
 import DocumentCounter from '../../components/document-counter';
 import Notifications from '../../components/notifications';
 import ApplicationsSection from './applications-section';
@@ -170,19 +171,19 @@ const Profile = () => {
         headers: getAuthHeaders()
       });
       
-      console.log('Răspuns programe salvate:', response.data);
+      console.log('Saved programs response:', response.data);
       
       if (response.data?.data) {
         const savedProgramsData = response.data.data;
-        console.log('Programe salvate procesate:', savedProgramsData);
+        console.log('Processed saved programs:', savedProgramsData);
         setSavedPrograms(savedProgramsData);
       } else {
-        console.error('Format răspuns neașteptat:', response.data);
-        setError('Format răspuns neașteptat de la server');
+        console.error('Unexpected response format:', response.data);
+        setError('Unexpected server response format');
         setSavedPrograms([]);
       }
     } catch (error) {
-      console.error('Eroare la obținerea programelor salvate:', error);
+      console.error('Error fetching saved programs:', error);
       
       if (error.response?.status === 401) {
         navigate('/sign-in');
@@ -198,44 +199,44 @@ const Profile = () => {
   const fetchDocuments = async () => {
     try {
       setError(null);
-      console.log('Începere preluare documente...');
+      console.log('Starting document fetch...');
       
       const response = await axios.get(`${API_BASE_URL}/api/documents/user-documents`, {
         headers: getAuthHeaders()
       });
 
-      console.log('Răspuns server documente:', response.data);
+      console.log('Server document response:', response.data);
 
       if (!response.data) {
-        throw new Error('Nu s-au primit date de la server');
+        throw new Error('No data received from server');
       }
 
       if (!response.data.success) {
-        throw new Error(response.data.message || 'Eroare la preluarea documentelor');
+        throw new Error(response.data.message || 'Error fetching documents');
       }
 
       const documentsArray = response.data.data || [];
       
       if (!Array.isArray(documentsArray)) {
-        console.error('Format răspuns neașteptat:', response.data);
-        throw new Error('Format invalid al datelor primite de la server');
+        console.error('Unexpected response format:', response.data);
+        throw new Error('Invalid data format received from server');
       }
 
       const validDocuments = documentsArray.filter(doc => {
         if (!doc.id || !doc.document_type || !doc.file_path) {
-          console.warn('Document invalid - lipsesc câmpuri obligatorii:', doc);
+          console.warn('Invalid document - missing required fields:', doc);
           return false;
         }
 
         if (doc.status === 'deleted') {
-          console.warn('Document șters:', doc);
+          console.warn('Deleted document:', doc);
           return false;
         }
 
         return true;
       });
 
-      console.log('Documente valide găsite:', validDocuments.length);
+      console.log('Valid documents found:', validDocuments.length);
       setDocuments(validDocuments);
       
       const newUploadStatus = { ...initialDocuments };
@@ -251,26 +252,26 @@ const Profile = () => {
       });
       setUploadStatus(newUploadStatus);
     } catch (error) {
-      console.error('Detalii eroare la preluarea documentelor:', {
+      console.error('Document fetch error details:', {
         message: error.message,
         response: error.response?.data,
         status: error.response?.status,
         headers: error.response?.headers
       });
 
-      let errorMessage = 'A apărut o eroare la încărcarea documentelor. ';
+      let errorMessage = 'An error occurred while loading documents. ';
       
       if (error.response) {
         if (error.response.status === 401) {
-          errorMessage = 'Sesiunea a expirat. Vă rugăm să vă autentificați din nou.';
+          errorMessage = 'Session expired. Please sign in again.';
           navigate('/sign-in');
         } else if (error.response.status === 403) {
-          errorMessage = 'Nu aveți permisiunea de a accesa aceste documente.';
+          errorMessage = 'You do not have permission to access these documents.';
         } else {
-          errorMessage += error.response.data?.message || 'Eroare de server.';
+          errorMessage += error.response.data?.message || 'Server error.';
         }
       } else if (error.request) {
-        errorMessage += 'Nu s-a putut conecta la server. Verificați conexiunea la internet.';
+        errorMessage += 'Could not connect to server. Please check your internet connection.';
       } else {
         errorMessage += error.message;
       }
@@ -325,7 +326,7 @@ const Profile = () => {
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      alert('Fișierul este prea mare. Dimensiunea maximă permisă este de 5MB.');
+      alert('File is too large. Maximum allowed size is 5MB.');
       event.target.value = '';
       return;
     }
@@ -341,7 +342,7 @@ const Profile = () => {
     ];
 
     if (!allowedTypes.includes(file.type)) {
-      alert('Tip de fișier neacceptat. Folosiți doar PDF, JPG, PNG, DOC, DOCX, XLS sau XLSX.');
+      alert('File type not accepted. Please use only PDF, JPG, PNG, DOC, DOCX, XLS or XLSX.');
       event.target.value = '';
       return;
     }
@@ -364,12 +365,12 @@ const Profile = () => {
     
     try {
       if (!uploadStatusForType?.file) {
-        console.error('Nu există fișier selectat pentru upload');
+        console.error('No file selected for upload');
         return;
       }
 
       if (!documentType) {
-        console.error('Tipul documentului este lipsă');
+        console.error('Document type is missing');
         return;
       }
 
@@ -384,12 +385,12 @@ const Profile = () => {
       ];
 
       if (uploadStatusForType.file.size > 10 * 1024 * 1024) {
-        setError('Fișierul este prea mare. Dimensiunea maximă permisă este de 10MB.');
+        setError('File is too large. Maximum allowed size is 10MB.');
         return;
       }
 
       if (!allowedTypes.includes(uploadStatusForType.file.type)) {
-        setError('Tip de fișier neacceptat. Folosiți doar PDF, JPG, PNG, DOC, DOCX, XLS sau XLSX.');
+        setError('File type not accepted. Please use only PDF, JPG, PNG, DOC, DOCX, XLS or XLSX.');
         return;
       }
 
@@ -402,7 +403,7 @@ const Profile = () => {
       formData.append('file', uploadStatusForType.file);
       formData.append('document_type', documentType);
 
-      console.log('Conținut FormData:', {
+      console.log('FormData content:', {
         documentType: documentType,
         fileName: uploadStatusForType.file.name,
         fileSize: uploadStatusForType.file.size,
@@ -416,7 +417,7 @@ const Profile = () => {
       console.log('FormData entries:', formDataEntries);
 
       if (!formDataEntries.document_type) {
-        throw new Error('Tipul documentului nu a fost inclus în FormData');
+        throw new Error('Document type was not included in FormData');
       }
 
       const response = await axios.post(
@@ -437,7 +438,7 @@ const Profile = () => {
         }
       );
 
-      console.log('Răspuns server:', response.data);
+      console.log('Server response:', response.data);
 
       if (response.data.success) {
         setUploadStatus(prev => ({
@@ -453,7 +454,7 @@ const Profile = () => {
         await fetchDocuments();
         setError(null);
       } else {
-        throw new Error(response.data.message || 'Eroare la încărcarea documentului');
+        throw new Error(response.data.message || 'Error uploading document');
       }
     } catch (error) {
       console.error('Upload error:', {
@@ -468,21 +469,21 @@ const Profile = () => {
         } : null
       });
 
-      let errorMessage = 'Eroare la încărcarea documentului. ';
+      let errorMessage = 'Error uploading document. ';
       
       if (error.response) {
         if (error.response.status === 413) {
-          errorMessage += 'Fișierul este prea mare.';
+          errorMessage += 'File is too large.';
         } else if (error.response.status === 415) {
-          errorMessage += 'Tip de fișier neacceptat.';
+          errorMessage += 'File type not accepted.';
         } else if (error.response.status === 401) {
-          errorMessage += 'Sesiunea a expirat. Vă rugăm să vă autentificați din nou.';
+          errorMessage += 'Session expired. Please sign in again.';
           navigate('/sign-in');
         } else {
           errorMessage += error.response.data?.message || error.message;
         }
       } else if (error.request) {
-        errorMessage += 'Nu s-a putut conecta la server. Verificați conexiunea la internet.';
+        errorMessage += 'Could not connect to server. Please check your internet connection.';
       } else {
         errorMessage += error.message;
       }
@@ -503,11 +504,11 @@ const Profile = () => {
     try {
       const document = documents.find(doc => doc.document_type === documentType);
       if (!document) {
-        alert('Documentul nu a fost găsit');
+        alert('Document not found');
         return;
       }
 
-      if (!window.confirm('Sunteți sigur că doriți să ștergeți acest document?')) {
+      if (!window.confirm('Are you sure you want to delete this document?')) {
         return;
       }
 
@@ -515,7 +516,7 @@ const Profile = () => {
         headers: getAuthHeaders()
       });
 
-      if (response.data.message === 'Document șters cu succes') {
+      if (response.data.message === 'Document deleted successfully') {
         const updatedStatus = {
           ...uploadStatus,
           [documentType]: { ...uploadStatus[documentType], file: null, uploaded: false, filePath: null, fileName: null, uploadDate: null }
@@ -524,12 +525,12 @@ const Profile = () => {
         localStorage.setItem('uploadedDocuments', JSON.stringify(updatedStatus));
         
         setDocuments(prev => prev.filter(doc => doc.id !== document.id));
-        alert('Document șters cu succes');
+        alert('Document deleted successfully');
       }
     } catch (error) {
       const apiError = handleApiError(error);
-      console.error('Eroare la ștergerea documentului:', apiError);
-      alert(apiError.message || 'Eroare la ștergerea documentului');
+      console.error('Error deleting document:', apiError);
+      alert(apiError.message || 'Error deleting document');
     }
   };
 
@@ -537,15 +538,15 @@ const Profile = () => {
     try {
       const doc = documents.find(doc => doc.document_type === documentType);
       if (!doc) {
-        alert('Documentul nu a fost găsit');
+        alert('Document not found');
         return;
       }
 
-      console.log('Încercare descărcare:', documentType);
+      console.log('Attempting download:', documentType);
 
       const token = localStorage.getItem('token');
       if (!token) {
-        alert('Nu sunteți autentificat. Vă rugăm să vă autentificați din nou.');
+        alert('You are not authenticated. Please sign in again.');
         navigate('/sign-in');
         return;
       }
@@ -571,23 +572,23 @@ const Profile = () => {
       window.document.body.removeChild(downloadLink);
       window.URL.revokeObjectURL(url);
       
-      console.log('Descărcare inițiată pentru:', documentType);
+      console.log('Download initiated for:', documentType);
     } catch (error) {
-      console.error('Eroare detaliată la descărcare:', error);
+      console.error('Detailed download error:', error);
       
       if (error.response) {
         if (error.response.status === 404) {
-          alert('Documentul nu a fost găsit pe server');
+          alert('Document not found on server');
         } else if (error.response.status === 401) {
-          alert('Nu sunteți autentificat. Vă rugăm să vă autentificați din nou.');
+          alert('You are not authenticated. Please sign in again.');
           navigate('/sign-in');
         } else {
-          alert(`Eroare la descărcarea documentului: ${error.response.data?.message || 'Eroare necunoscută'}`);
+          alert(`Error downloading document: ${error.response.data?.message || 'Unknown error'}`);
         }
       } else if (error.request) {
-        alert('Nu s-a putut conecta la server. Verificați conexiunea la internet.');
+        alert('Could not connect to server. Please check your internet connection.');
       } else {
-        alert(`Eroare la descărcarea documentului: ${error.message}`);
+        alert(`Error downloading document: ${error.message}`);
       }
     }
   };
@@ -612,8 +613,8 @@ const Profile = () => {
       setShowDeleteConfirmation(false);
       setProgramToDelete(null);
     } catch (error) {
-      console.error('Eroare la eliminarea programului:', error);
-      setError('A apărut o eroare la eliminarea programului. Vă rugăm să încercați din nou.');
+      console.error('Error removing program:', error);
+      setError('An error occurred while removing the program. Please try again.');
     }
   };
 
@@ -626,40 +627,67 @@ const Profile = () => {
     event.preventDefault();
     
     try {
-      console.log('Salvare date profil:', formData);
+      console.log('Saving profile data:', formData);
       
       const updatedFields = {};
       Object.keys(formData).forEach(key => {
-        if (formData[key] !== userData[key]) {
+        const oldValue = String(userData[key] || '');
+        const newValue = String(formData[key] || '');
+        
+        if (oldValue !== newValue) {
           updatedFields[key] = formData[key];
         }
       });
       
       if (Object.keys(updatedFields).length === 0) {
-        alert('Nu s-au făcut modificări');
+        alert('Nu au fost făcute modificări');
         setIsEditing(false);
         return;
       }
       
+      console.log('Fields to update:', updatedFields);
+      
       const response = await axios.put(`${API_BASE_URL}/api/auth/update-profile`, updatedFields, {
-        headers: getAuthHeaders()
+        headers: {
+          ...getAuthHeaders(),
+          'Content-Type': 'application/json'
+        }
       });
       
       if (response.data.success) {
-        setUserData(prev => ({
-          ...prev,
-          ...updatedFields
-        }));
+        const userResponse = await axios.get(`${API_BASE_URL}/api/auth/me`, {
+          headers: getAuthHeaders()
+        });
+        
+        if (userResponse.data?.success && userResponse.data?.user) {
+          const updatedUserData = userResponse.data.user;
+          setUserData(updatedUserData);
+          setUser(updatedUserData);
+          setFormData({
+            full_name: updatedUserData.full_name || '',
+            email: updatedUserData.email || '',
+            phone: updatedUserData.phone || '',
+            date_of_birth: updatedUserData.date_of_birth || '',
+            country_of_origin: updatedUserData.country_of_origin || '',
+            nationality: updatedUserData.nationality || '',
+            desired_study_level: updatedUserData.desired_study_level || '',
+            preferred_study_field: updatedUserData.preferred_study_field || '',
+            desired_academic_year: updatedUserData.desired_academic_year || '',
+            preferred_study_language: updatedUserData.preferred_study_language || '',
+            estimated_budget: updatedUserData.estimated_budget || '',
+            accommodation_preferences: updatedUserData.accommodation_preferences || ''
+          });
+        }
         
         alert('Profilul a fost actualizat cu succes!');
         setIsEditing(false);
       } else {
-        alert(response.data.message || 'Eroare la actualizarea profilului');
+        throw new Error(response.data.message || 'Eroare la actualizarea profilului');
       }
     } catch (error) {
-      const apiError = handleApiError(error);
-      console.error('Eroare la actualizarea profilului:', apiError);
-      alert(apiError.message || 'Eroare la actualizarea profilului');
+      console.error('Eroare la actualizarea profilului:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Eroare la actualizarea profilului';
+      alert(errorMessage);
     }
   };
 
@@ -696,7 +724,7 @@ const Profile = () => {
 
   async function cleanupDocuments() {
     try {
-      if (!window.confirm('Sunteți sigur că doriți să curățați documentele invalide? Această acțiune nu poate fi anulată.')) {
+      if (!window.confirm('Are you sure you want to clean up invalid documents? This action cannot be undone.')) {
         return;
       }
       
@@ -708,24 +736,24 @@ const Profile = () => {
         alert(response.data.message);
         await fetchDocuments();
       } else {
-        alert('A apărut o eroare la curățarea documentelor: ' + (response.data.error || 'Eroare necunoscută'));
+        alert('An error occurred while cleaning up documents: ' + (response.data.error || 'Unknown error'));
       }
     } catch (error) {
-      console.error('Eroare la curățarea documentelor:', error);
-      alert('A apărut o eroare la curățarea documentelor. Vă rugăm să încercați din nou.');
+      console.error('Error cleaning up documents:', error);
+      alert('An error occurred while cleaning up documents. Please try again.');
     }
   }
 
   return (
     <div className="profile-container">
       <Helmet>
-        <title>Profil - Study In Moldova</title>
-        <meta property="og:title" content="Profil - Study In Moldova" />
+        <title>Profile - Study In Moldova</title>
+        <meta property="og:title" content="Profile - Study In Moldova" />
       </Helmet>
       <Navbar />
       <div className="profile-content">
         <div className="profile-header">
-          <h1>Profilul meu</h1>
+          <h1>My Profile</h1>
           <div className="profile-progress">
             <div className="progress-bar">
               <div 
@@ -742,37 +770,37 @@ const Profile = () => {
             className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`}
             onClick={() => setActiveTab('profile')}
           >
-            Profil
+            Profile
           </button>
           <button 
             className={`tab-button ${activeTab === 'documents' ? 'active' : ''}`}
             onClick={() => setActiveTab('documents')}
           >
-            Documente
+            Documents
           </button>
           <button 
             className={`tab-button ${activeTab === 'applications' ? 'active' : ''}`}
             onClick={() => setActiveTab('applications')}
           >
-            Aplicații
+            Applications
           </button>
           <button 
             className={`tab-button ${activeTab === 'study-plan' ? 'active' : ''}`}
             onClick={() => setActiveTab('study-plan')}
           >
-            Plan de studii
+            Study Plan
           </button>
           <button 
             className={`tab-button ${activeTab === 'saved-programs' ? 'active' : ''}`}
             onClick={() => setActiveTab('saved-programs')}
           >
-            Programe salvate
+            Saved Programs
           </button>
           <button 
             className={`tab-button ${activeTab === 'notifications' ? 'active' : ''}`}
             onClick={() => setActiveTab('notifications')}
           >
-            Notificări
+            Notifications
           </button>
         </div>
 
@@ -780,47 +808,50 @@ const Profile = () => {
           {activeTab === 'profile' && (
             <div className="profile-section">
               <div className="user-info">
-                <div className="profile-header-actions">
-                  <h2>Informații personale</h2>
+                <div className="profile-header-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h2 style={{ margin: 0 }}>Personal Information</h2>
                   <button 
-                    className={`edit-profile-button ${isEditing ? 'active' : ''}`}
+                    className={`btn ${isEditing ? 'btn-secondary' : 'btn-primary'}`}
                     onClick={() => setIsEditing(!isEditing)}
                   >
-                    {isEditing ? 'Anulează' : 'Editează profil'}
+                    {isEditing ? 'Anulează' : 'Editează Profilul'}
                   </button>
                 </div>
                 {!isEditing ? (
                   <>
-                    <p><strong>Nume:</strong> {authUser.name}</p>
-                    <p><strong>Email:</strong> {authUser.email}</p>
-                    {authUser.phone && <p><strong>Telefon:</strong> {authUser.phone}</p>}
-                    {authUser.country_of_origin && <p><strong>Țara de origine:</strong> {authUser.country_of_origin}</p>}
-                    {authUser.nationality && <p><strong>Naționalitate:</strong> {authUser.nationality}</p>}
+                    <div className="profile-info-text">
+                      <p><strong>Nume:</strong> {authUser.name}</p>
+                      <p><strong>Email:</strong> {authUser.email}</p>
+                      <p><strong>Data nașterii:</strong> {userData?.date_of_birth ? new Date(userData.date_of_birth).toLocaleDateString('ro-RO') : 'Nespecificată'}</p>
+                      {userData?.phone && <p><strong>Telefon:</strong> {userData.phone}</p>}
+                      {userData?.country_of_origin && <p><strong>Țara de origine:</strong> {userData.country_of_origin}</p>}
+                      {userData?.nationality && <p><strong>Naționalitate:</strong> {userData.nationality}</p>}
+                    </div>
                   </>
                 ) : (
                   <form onSubmit={handleSubmit} className="edit-profile-form">
                     <div className="form-group">
-                      <label>Nume complet:</label>
+                      <label>Full Name:</label>
                       <input
                         type="text"
                         name="full_name"
                         value={formData.full_name}
                         onChange={handleChange}
-                        placeholder="Introduceți numele complet"
+                        placeholder="Enter your full name"
                       />
                     </div>
                     <div className="form-group">
-                      <label>Telefon:</label>
+                      <label>Phone:</label>
                       <input
                         type="tel"
                         name="phone"
                         value={formData.phone}
                         onChange={handleChange}
-                        placeholder="Introduceți numărul de telefon"
+                        placeholder="Enter your phone number"
                       />
                     </div>
                     <div className="form-group">
-                      <label>Data nașterii:</label>
+                      <label>Date of Birth:</label>
                       <input
                         type="date"
                         name="date_of_birth"
@@ -829,7 +860,7 @@ const Profile = () => {
                       />
                     </div>
                     <div className="form-group">
-                      <label>Țara de origine:</label>
+                      <label>Country of Origin:</label>
                       <input
                         type="text"
                         name="country_of_origin"
@@ -839,7 +870,7 @@ const Profile = () => {
                       />
                     </div>
                     <div className="form-group">
-                      <label>Naționalitate:</label>
+                      <label>Nationality:</label>
                       <input
                         type="text"
                         name="nationality"
@@ -849,7 +880,7 @@ const Profile = () => {
                       />
                     </div>
                     <div className="form-actions">
-                      <button type="submit" className="save-button">Save Changes</button>
+                      <button type="submit" className="btn btn-primary">Salvează Modificările</button>
                     </div>
                   </form>
                 )}
@@ -859,7 +890,7 @@ const Profile = () => {
 
           {activeTab === 'documents' && (
             <div className="profile-section">
-              <h2>Documente</h2>
+              <h2>Documents</h2>
               
               <DocumentCounter 
                 documents={documents}
@@ -880,7 +911,7 @@ const Profile = () => {
                         {isDocumentValid && (
                           <>
                             <p>Status: {document.status}</p>
-                            <p>Încărcat: {new Date(document.uploadDate).toLocaleDateString()}</p>
+                            <p>Uploaded: {new Date(document.uploadDate).toLocaleDateString()}</p>
                           </>
                         )}
                       </div>
@@ -888,15 +919,17 @@ const Profile = () => {
                         {isDocumentValid ? (
                           <>
                             <button 
-                              className="download-button"
+                              className="action-button download-button"
                               onClick={() => handleDownload(docType.id)}
                             >
+                              <i className="fas fa-download"></i>
                               Descarcă
                             </button>
                             <button 
-                              className="delete-button"
+                              className="action-button delete-button"
                               onClick={() => handleDelete(docType.id)}
                             >
+                              <i className="fas fa-trash"></i>
                               Șterge
                             </button>
                           </>
@@ -904,7 +937,7 @@ const Profile = () => {
                           <>
                             {uploadStatusForType?.file && !uploadStatusForType?.uploaded && (
                               <button 
-                                className="upload-button"
+                                className="action-button upload-button"
                                 onClick={() => handleUpload(docType.id)}
                                 disabled={uploadStatusForType.uploading}
                               >
@@ -913,13 +946,14 @@ const Profile = () => {
                             )}
                             {!uploadStatusForType?.file && (
                               <button 
-                                className="choose-button"
+                                className="action-button choose-button"
                                 onClick={() => {
                                   fileInputRef.current.click();
                                   fileInputRef.current.dataset.documentType = docType.id;
                                 }}
                               >
-                                Alege fișier
+                                <i className="fas fa-file"></i>
+                                Alege Fișier
                               </button>
                             )}
                           </>
@@ -970,11 +1004,11 @@ const Profile = () => {
 
           {activeTab === 'saved-programs' && (
             <div className="saved-programs-section">
-              <h2>Programe salvate</h2>
+              <h2>Saved Programs</h2>
               {loading ? (
                 <div className="loading-spinner">
                   <div className="spinner"></div>
-                  <p>Se încarcă programele salvate...</p>
+                  <p>Loading saved programs...</p>
                 </div>
               ) : error ? (
                 <p className="error-message">{error}</p>
@@ -988,39 +1022,40 @@ const Profile = () => {
                         <div className="program-header">
                           <h3>{program.name}</h3>
                           <button
-                            className="remove-button"
+                            className="action-button delete-button"
                             onClick={() => handleRemoveSavedProgram(program.id)}
                           >
+                            <i className="fas fa-trash"></i>
                             Elimină
                           </button>
                         </div>
                         <div className="program-details">
-                          <p><strong>Universitate:</strong> {university?.name || 'N/A'}</p>
-                          <p><strong>Facultate:</strong> {program.faculty}</p>
-                          <p><strong>Grad:</strong> {program.degree}</p>
-                          <p><strong>Credite:</strong> {program.credits}</p>
-                          <p><strong>Limbi:</strong> {Array.isArray(program.languages) ? program.languages.join(', ') : program.languages}</p>
-                          <p><strong>Durată:</strong> {program.duration}</p>
-                          <p><strong>Taxă de școlarizare:</strong> {program.tuitionFee}</p>
+                          <p><strong>University:</strong> {university?.name || 'N/A'}</p>
+                          <p><strong>Faculty:</strong> {program.faculty}</p>
+                          <p><strong>Degree:</strong> {program.degree}</p>
+                          <p><strong>Credits:</strong> {program.credits}</p>
+                          <p><strong>Languages:</strong> {Array.isArray(program.languages) ? program.languages.join(', ') : program.languages}</p>
+                          <p><strong>Duration:</strong> {program.duration}</p>
+                          <p><strong>Tuition Fee:</strong> {program.tuitionFee}</p>
                         </div>
                       </div>
                     );
                   })}
                 </div>
               ) : (
-                <p className="no-programs-message">Nu aveți programe salvate.</p>
+                <p className="no-programs-message">You have no saved programs.</p>
               )}
 
               {showDeleteConfirmation && (
                 <div className="confirmation-modal">
                   <div className="confirmation-content">
-                    <h3>Confirmare ștergere</h3>
-                    <p>Sunteți sigur că doriți să eliminați acest program din lista de programe salvate?</p>
+                    <h3>Confirm Deletion</h3>
+                    <p>Are you sure you want to remove this program from your saved programs list?</p>
                     <div className="confirmation-buttons">
-                      <button className="cancel-button" onClick={cancelDeleteProgram}>
+                      <button className="btn btn-secondary" onClick={cancelDeleteProgram}>
                         Anulează
                       </button>
-                      <button className="confirm-delete-button" onClick={confirmDeleteProgram}>
+                      <button className="btn btn-primary" onClick={confirmDeleteProgram}>
                         Elimină
                       </button>
                     </div>

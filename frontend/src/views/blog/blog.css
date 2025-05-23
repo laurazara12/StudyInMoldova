@@ -12,7 +12,6 @@
 }
 
 .blog-header h1 {
-  font-family: 'Montserrat', sans-serif;
   font-size: 2.5rem;
   color: #333;
   margin-bottom: 1rem;
@@ -126,29 +125,6 @@
   font-size: var(--dl-font-size-small);
   color: var(--dl-color-theme-neutral-dark);
   white-space: nowrap;
-}
-
-.clear-filters-button {
-  padding: 0.4rem 1.2rem;
-  font-size: var(--dl-font-size-small);
-  border: var(--dl-border-width-thin) solid var(--dl-color-theme-gray-light);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background-color: white;
-  color: var(--dl-color-theme-neutral-dark);
-  height: 36px;
-  align-self: flex-end;
-  margin-left: 1rem;
-  margin-bottom: 0;
-  width: auto;
-  flex-shrink: 0;
-  z-index: 1;
-}
-
-.clear-filters-button:hover {
-  background-color: #f8f9fa;
-  border-color: var(--dl-color-theme-gray-dark);
 }
 
 .category-tags {
@@ -285,12 +261,6 @@
     flex: 1 1 100%;
     min-width: 0;
   }
-  .clear-filters-button {
-    margin-left: 0;
-    margin-top: 0.5rem;
-    width: 100%;
-    align-self: stretch;
-  }
 }
 
 @media (max-width: 768px) {
@@ -304,12 +274,6 @@
   .filter-group {
     width: 100%;
     min-width: unset;
-  }
-  .clear-filters-button {
-    width: 100%;
-    margin-left: 0;
-    margin-top: 0.5rem;
-    align-self: stretch;
   }
   .filter-group.search-group {
     flex: 1 1 100%;
@@ -391,41 +355,6 @@
 .blog-post-content p {
   margin-bottom: 1.5rem;
   white-space: pre-line;
-}
-
-.btn {
-  padding: 0.75rem 1.5rem;
-  border-radius: var(--dl-radius-radius-buttonradius);
-  font-weight: 500;
-  transition: all 0.1s ease;
-  cursor: pointer;
-}
-
-.btn-primary {
-  background: var(--dl-color-theme-primary1);
-  color: var(--dl-color-theme-accent1);
-}
-
-.btn-primary:hover {
-  background: var(--dl-color-theme-primary2);
-}
-
-.btn-secondary {
-  padding: 0.5rem 1rem;
-  border: var(--dl-border-width-thin) solid var(--dl-color-theme-gray-light);
-  border-radius: var(--dl-radius-radius-buttonradius);
-  transition: all 0.15s ease;
-  cursor: pointer;
-  background-color: var(--dl-color-theme-gray-light);
-  color: var(--dl-color-theme-neutral-dark);
-  font-size: var(--dl-font-size-small);
-  font-family: 'Open Sans', sans-serif;
-}
-
-.btn-secondary:hover {
-  background-color: var(--dl-color-theme-gray-dark);
-  color: white;
-  border-color: var(--dl-color-theme-gray-dark);
 }
 
 @media (max-width: 768px) {

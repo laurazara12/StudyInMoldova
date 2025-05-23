@@ -39,6 +39,7 @@
   --dl-border-width-normal: 1px;
   --dl-color-theme-gray-light: #e0e0e0;
   --dl-color-theme-gray-dark: #bdbdbd;
+  --dl-color-theme-background: #f8f9fa;
 }
  
 .button {
@@ -425,96 +426,523 @@
   color: inherit;
 }
 
-/* Stiluri pentru butoanele de acțiune */
+/* Stiluri pentru butoane de acțiune */
 .action-buttons {
   display: flex;
-  gap: 10px;
-  align-items: stretch;
-  justify-content: flex-end;
-  margin-top: 10px;
-  height: 100%;
+  gap: 8px;
+  justify-content: center;
 }
 
-.edit-button,
-.delete-button {
-  background-color: transparent;
-  border: var(--dl-border-width-thin) solid var(--dl-color-theme-primary1);
-  color: var(--dl-color-theme-primary1);
-  border-radius: var(--dl-radius-radius-buttonradius);
-  padding: 8px 16px;
-  transition: all 0.15s ease;
-  cursor: pointer;
-  font-weight: 500;
-  min-width: 100px;
-  text-align: center;
-  flex: 1;
-  max-width: 120px;
-  height: 100%;
-  display: flex;
+.action-button {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  margin: 0;
+  gap: 5px;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.action-button i {
+  font-size: 14px;
 }
 
 .edit-button {
-  font-family: inherit;
-  line-height: 1.15;
-  margin: 0;
-  align-self: stretch;
+  background-color: var(--dl-color-theme-gray-light);
+  color: var(--dl-color-theme-neutral-dark);
 }
 
-.edit-button:hover,
-.delete-button:hover {
-  background-color: var(--dl-color-theme-primary1);
-  color: var(--dl-color-theme-accent1);
+.edit-button:hover {
+  background-color: var(--dl-color-theme-gray-dark);
+  color: var(--dl-color-theme-neutral-dark);
 }
 
 .delete-button {
-  border-color: #dc3545;
-  color: #dc3545;
+  background-color: var(--dl-color-theme-danger1);
+  color: var(--dl-color-theme-neutral-light);
 }
 
 .delete-button:hover {
-  background-color: #dc3545;
-  color: var(--dl-color-theme-accent1);
+  background-color: #ff6b35;
 }
 
-/* Actualizăm și celelalte butoane pentru consistență */
-.navbar-register1.button,
-.navbar-login1.button,
-.navbar-logout1.button,
-.footer-button.thq-button-outline,
-.hero-landing-page-button2.thq-button-outline {
-  transition: all 0.15s ease;
+.download-button {
+  color: var(--dl-color-theme-neutral-light);
+  border-radius: 25px;
+  cursor: pointer;
 }
 
-/* Stiluri pentru butonul Add University */
-.add-button {
+.download-button:hover {
+  transition: all 0.1s ease;
   background-color: var(--dl-color-theme-primary1);
-  color: var(--dl-color-theme-accent1);
+  border-radius: 25px;
+  cursor: pointer;
+}
+
+.action-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Stiluri pentru butoane de profil admin */
+.profile-admin-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.profile-admin-button {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
   border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.profile-admin-button.edit {
+  background-color: var(--dl-color-theme-gray-light);
+  color: var(--dl-color-theme-neutral-dark);
+}
+
+.profile-admin-button.edit:hover {
+  background-color: var(--dl-color-theme-gray-dark);
+  color: var(--dl-color-theme-neutral-dark);
+}
+
+.profile-admin-button.delete {
+  background-color: #dc3545;
+  color: white;
+}
+
+.profile-admin-button:hover {
+  opacity: 0.9;
+}
+
+/* Stiluri pentru butoane de blog */
+.btn {
+  padding: 0.75rem 1rem;
   border-radius: var(--dl-radius-radius-buttonradius);
-  padding: 8px 16px;
+  font-weight: 500;
+  transition: all 0.1s ease;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--dl-color-theme-primary1);
+  color: var(--dl-color-theme-accent1);
+}
+
+.btn-primary:hover {
+  background: var(--dl-color-theme-primary2);
+}
+
+.btn-secondary {
+  padding: 0.5rem 1rem;
+  border: var(--dl-border-width-thin) solid var(--dl-color-theme-gray-light);
+  border-radius: var(--dl-radius-radius-buttonradius);
   transition: all 0.15s ease;
   cursor: pointer;
-  font-weight: 500;
+  background-color: var(--dl-color-theme-gray-light);
+  color: var(--dl-color-theme-neutral-dark);
   font-size: var(--dl-font-size-small);
+  font-family: 'Open Sans', sans-serif;
+}
+
+.btn-secondary:hover {
+  background-color: var(--dl-color-theme-gray-dark);
+  color: white;
+  border-color: var(--dl-color-theme-gray-dark);
+}
+
+/* Stiluri pentru butoane de documente */
+.document-actions button {
+  flex: 1;
+  min-width: 120px;
+  padding: 8px 16px;
+  border-radius: var(--dl-radius-radius-buttonradius);
+  font-size: var(--dl-font-size-small);
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  color: white;
+  text-align: center;
+  height: 36px;
+  line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  box-shadow: 0 2px 4px rgba(191, 68, 8, 0.2);
-  min-width: 140px;
 }
 
-.add-button:hover {
+.download-button {
+  background-color: #ff6b35 !important;
+}
+
+.download-button:hover {
+  background-color: #ff914d !important;
+}
+
+.upload-button {
+  background-color: #ff6b35;
+}
+
+.upload-button:hover {
+  background-color: #ff914d;
+}
+
+.choose-button {
+  background-color: #4CAF50;
+}
+
+.choose-button:hover {
+  background-color: #45a049;
+}
+
+.choose-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.delete-button {
+  background-color: #e74c3c;
+}
+
+.delete-button:hover {
+  background-color: #c0392b;
+}
+
+/* Media queries pentru butoane */
+@media (max-width: 768px) {
+  .action-buttons {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .action-button {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .profile-admin-actions {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .profile-admin-button {
+    width: 100%;
+  }
+  
+  .document-actions button {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Stiluri pentru butoane personalizate */
+.btn1 {
+  background-color: var(--dl-color-theme-primary1); /* portocaliu deschis */
+  color: white;
+  padding: 0.75rem 1.1rem;
+  border: none;
+  border-radius: var(--dl-radius-radius-buttonradius);
+  font-size: var(--dl-font-size-small);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn1:hover {
+  background-color: var(--dl-color-theme-primary2); /* portocaliu închis */
+}
+
+.btn2 {
+  background-color: white;
+  color: var(--dl-color-theme-primary1); /* portocaliu pentru text */
+  padding: 0.75rem 1.5rem;
+  border: var(--dl-border-width-thin) solid var(--dl-color-theme-primary1);
+  border-radius: var(--dl-radius-radius-buttonradius);
+  font-size: var(--dl-font-size-small);
+  transition: all 0.1s ease;
+  cursor: pointer;
+}
+
+.btn2:hover {
+  background-color: var(--dl-color-theme-primary1);
+  color: white;
+}
+
+/* Stiluri pentru butoane cu fundal gri */
+.btn-grey {
+  background-color: var(--dl-color-theme-gray-light);
+  color: var(--dl-color-theme-neutral-dark);
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--dl-radius-radius-buttonradius);
+  font-size: var(--dl-font-size-small);
+  transition: all 0.1s ease;
+  cursor: pointer;
+}
+
+.btn-grey:hover {
+  background-color: var(--dl-color-theme-gray-dark);
+  color: white;
+}
+
+/* Stiluri pentru buton de succes */
+.btn-success {
+  background-color: #4CAF50; /* verde deschis */
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--dl-radius-radius-buttonradius);
+  font-weight: 500;
+  font-size: var(--dl-font-size-small);
+  transition: all 0.1s ease;
+  cursor: pointer;
+}
+
+.btn-success:hover {
+  background-color: #45a049; /* verde închis */
+}
+
+/* Stiluri pentru buton de ștergere */
+.btn-delete {
+  background-color: #dc3545; /* roșu deschis */
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--dl-radius-radius-buttonradius);
+  font-size: var(--dl-font-size-small);
+  transition: all 0.1s ease;
+  cursor: pointer;
+}
+
+.btn-delete:hover {
+  background-color: #c82333; /* roșu închis */
+}
+
+/* Stiluri pentru buton gri varianta 2 */
+.btn-grey-2 {
+  background-color: white;
+  color: var(--dl-color-theme-neutral-dark);
+  padding: 0.75rem 1.1rem;
+  border: var(--dl-border-width-thin) solid var(--dl-color-theme-gray-light);
+  border-radius: var(--dl-radius-radius-buttonradius);
+  font-size: var(--dl-font-size-small);
+  transition: all 0.1s ease;
+  cursor: pointer;
+}
+
+.btn-grey-2:hover {
+  background-color: var(--dl-color-theme-gray-light);
+  color: var(--dl-color-theme-neutral-dark);
+}
+
+.tab-button {
+  padding: 0.5rem 1rem;
+  border-radius: 25px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all var(--dl-transition-fast);
+  white-space: nowrap;
+  font-size: var(--dl-font-size-small);
+}
+
+.tab-button:hover {
+  background-color: #e5e7eb;
+}
+
+.tab-button.active {
+  background-color: var(--dl-color-theme-gray-light);
+}
+
+.tab-button.active:hover {
+  background-color: var(--dl-color-theme-gray-light);
+}
+
+.clear-filters-button {
+  padding: 0.4rem 1.2rem;
+  font-size: var(--dl-font-size-small);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: var(--dl-color-theme-gray-light);
+  color: var(--dl-color-theme-neutral-dark);
+  height: 36px;
+  align-self: flex-end;
+  margin-left: 1rem;
+  margin-bottom: 0;
+  width: auto;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.clear-filters-button:hover {
+  background-color: var(--dl-color-theme-gray-dark);
+  color: var(--dl-color-theme-neutral-dark);
+}
+
+.action-button.reject-button {
+  background-color: #dc3545;
+  color: white;
+}
+
+.action-button.reject-button:hover {
+  background-color: #c82333;
+} 
+
+.add-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--dl-color-theme-primary1);
+  color: var(--dl-color-theme-neutral-light);
+  border-radius: 8px;
+}
+
+.delete-confirmation button {
+  padding: 0.5rem 1rem;
+  margin: 0 0.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.delete-confirmation button:first-child {
+  background-color: #dc3545;
+  color: white;
+}
+
+.delete-confirmation button:last-child {
+  background-color: #6c757d;
+  color: white;
+}
+
+@media (max-width: 768px){
+  .action-buttons {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .action-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (min-width: 768px) {
+  .clear-filters-button {
+    padding: 0.4rem 1.2rem;
+    font-size: var(--dl-font-size-small);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: var(--dl-color-theme-gray-light);
+    color: var(--dl-color-theme-neutral-dark);
+    height: 36px;
+    align-self: flex-end;
+    margin-left: 1rem;
+    margin-bottom: 0;
+    width: auto;
+    flex-shrink: 0;
+    z-index: 1;
+  }
+
+  .clear-filters-button:hover {
+    background-color: var(--dl-color-theme-gray-dark);
+    color: var(--dl-color-theme-neutral-dark);
+  }
+}
+
+@media (max-width: 1100px){
+  .clear-filters-button {
+    margin-left: 0;
+    margin-top: 0.5rem;
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .clear-filters-button {
+    width: 100%;
+    margin: 0.5rem 0 0 0;
+  }
+  .close-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+    padding: 0.5rem;
+    transition: color 0.2s;
+  }
+  
+  .close-button:hover {
+    color: #333;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .action-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .profile-admin-button {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .profile-admin-button.edit {
+    background-color: var(--dl-color-theme-gray-light);
+    color: var(--dl-color-theme-neutral-dark);
+  }
+
+  .profile-admin-button.edit:hover {
+    background-color: var(--dl-color-theme-gray-dark);
+    color: var(--dl-color-theme-neutral-dark);
+  }
+
+  .profile-admin-button.delete {
+    background-color: #dc3545;
+    color: white;
+  }
+
+  .profile-admin-button:hover {
+    opacity: 0.9;
+  }
+}
+
+@media (max-width: 768px) {
+}
+
+.confirm-button {
+  background-color: var(--dl-color-theme-primary1);
+  color: var(--dl-color-theme-accent1);
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--dl-radius-radius-buttonradius);
+  font-size: var(--dl-font-size-small);
+  transition: all 0.1s ease;
+  cursor: pointer;
+}
+
+.confirm-button:hover {
   background-color: var(--dl-color-theme-primary2);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(191, 68, 8, 0.3);
 }
 
-.add-button:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(191, 68, 8, 0.2);
-}
+
+
+
 

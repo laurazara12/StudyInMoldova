@@ -372,7 +372,102 @@ router.get('/user-documents', authMiddleware, async (req, res) => {
 
 router.get('/:id', authMiddleware, getDocumentById);
 router.post('/', authMiddleware, createDocument);
-router.put('/:id', authMiddleware, updateDocument);
+router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    console.log('Încercare actualizare document:', {
+      documentId: req.params.id,
+      requestBody: req.body,
+      userId: req.user.id
+    });
+
+    // Verificăm dacă documentul există
+    const document = await Document.findOne({
+      where: { 
+        id: req.params.id,
+        status: {
+          [Op.not]: 'deleted'
+        }
+      }
+    });
+
+    if (!document) {
+      console.log('Document negăsit pentru ID:', req.params.id);
+      return res.status(404).json({
+        success: false,
+        message: 'Documentul nu a fost găsit',
+        data: null
+      });
+    }
+
+    const { status, document_type, file_path, filename, originalName, user_id } = req.body;
+
+    // Validăm statusul
+    const validStatuses = ['pending', 'approved', 'rejected'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Status invalid. Statusurile valide sunt: pending, approved, rejected',
+        data: null
+      });
+    }
+
+    // Actualizăm documentul
+    const updateData = {
+      status,
+      document_type: document_type || document.document_type,
+      file_path: file_path || document.file_path,
+      filename: filename || document.filename,
+      originalName: originalName || document.originalName,
+      user_id: user_id || document.user_id
+    };
+
+    await document.update(updateData);
+
+    // Creăm notificare pentru utilizator
+    try {
+      const notificationMessage = status === 'approved' 
+        ? 'Documentul tău a fost aprobat'
+        : status === 'rejected'
+        ? 'Documentul tău a fost respins'
+        : 'Statusul documentului tău a fost actualizat';
+
+      await createNotification(
+        document.user_id,
+        'document_update',
+        notificationMessage,
+        document.id
+      );
+    } catch (notificationError) {
+      console.error('Eroare la crearea notificării:', notificationError);
+      // Continuăm execuția chiar dacă notificarea eșuează
+    }
+
+    console.log('Document actualizat cu succes:', {
+      documentId: document.id,
+      newStatus: status
+    });
+
+    res.json({
+      success: true,
+      message: 'Document actualizat cu succes',
+      data: document
+    });
+
+  } catch (error) {
+    console.error('Eroare la actualizarea documentului:', {
+      error: error.message,
+      stack: error.stack,
+      documentId: req.params.id
+    });
+
+    res.status(500).json({
+      success: false,
+      message: 'Eroare la actualizarea documentului',
+      error: error.message,
+      data: null
+    });
+  }
+});
 router.delete('/:id', authMiddleware, deleteDocument);
 
 // Get all documents (admin only)
@@ -726,7 +821,12 @@ router.delete('/admin/:id', authMiddleware, adminMiddleware, async (req, res) =>
     console.log('Încercare ștergere document (admin):', req.params.id);
     
     const document = await Document.findOne({
-      where: { id: req.params.id },
+      where: { 
+        id: req.params.id,
+        status: {
+          [Op.not]: 'deleted'
+        }
+      },
       include: [{
         model: User,
         attributes: ['name', 'email'],
@@ -757,20 +857,6 @@ router.delete('/admin/:id', authMiddleware, adminMiddleware, async (req, res) =>
       exists: fs.existsSync(userDir)
     });
 
-    if (!fs.existsSync(userDir)) {
-      console.log('Directorul utilizatorului nu există:', userDir);
-      // Ștergem documentul din baza de date chiar dacă directorul nu există
-      await document.destroy();
-      return res.json({ 
-        success: true,
-        message: 'Document șters din baza de date (directorul nu exista)' 
-      });
-    }
-
-    // Listăm toate fișierele din directorul utilizatorului pentru debugging
-    const files = fs.readdirSync(userDir);
-    console.log('Fișiere disponibile în directorul utilizatorului:', files);
-
     // Construiește calea corectă pentru fișier
     const absolutePath = path.join(userDir, path.basename(document.file_path));
     
@@ -782,7 +868,7 @@ router.delete('/admin/:id', authMiddleware, adminMiddleware, async (req, res) =>
       basename: path.basename(document.file_path)
     });
 
-    // Șterge fișierul
+    // Șterge fișierul dacă există
     if (fs.existsSync(absolutePath)) {
       try {
         fs.unlinkSync(absolutePath);
@@ -791,25 +877,27 @@ router.delete('/admin/:id', authMiddleware, adminMiddleware, async (req, res) =>
         console.error('Eroare la ștergerea fișierului:', error);
         // Continuăm cu ștergerea din baza de date chiar dacă ștergerea fișierului a eșuat
       }
-    } else {
-      console.log('Fișierul nu există la calea:', absolutePath);
-      // Continuăm cu ștergerea din baza de date chiar dacă fișierul nu există
     }
 
     // Șterge documentul din baza de date
-    await document.destroy();
-    console.log('Document șters din baza de date');
+    await document.update({ status: 'deleted' });
+    console.log('Document marcat ca șters în baza de date');
 
-    // Creează notificare pentru utilizator înainte de ștergere
-    const adminMessage = req.body.admin_message || 'Documentul a fost șters de către administrator';
-    await createNotification(
-      document.user_id,
-      'document_deleted',
-      `Documentul tău de tip ${document.document_type} a fost șters de către administrator`,
-      document.id,
-      adminMessage
-    );
-    console.log('Notificare creată pentru utilizator:', document.user_id);
+    // Creează notificare pentru utilizator
+    try {
+      const adminMessage = req.body.admin_message || 'Documentul a fost șters de către administrator';
+      await createNotification(
+        document.user_id,
+        'document_deleted',
+        `Documentul tău de tip ${document.document_type} a fost șters de către administrator`,
+        document.id,
+        adminMessage
+      );
+      console.log('Notificare creată pentru utilizator:', document.user_id);
+    } catch (notificationError) {
+      console.error('Eroare la crearea notificării:', notificationError);
+      // Continuăm chiar dacă crearea notificării a eșuat
+    }
 
     res.json({ 
       success: true,

@@ -57,4 +57,26 @@ p {
 
 small {
   font-size: var(--font-size-sm);
+}
+
+/* Stiluri globale pentru layout */
+html, body {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1 0 auto;
 } 

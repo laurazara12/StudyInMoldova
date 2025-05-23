@@ -9,9 +9,9 @@ const SavedProgramsSection = ({
 }) => {
   return (
     <div className="saved-programs-section">
-      <h2>Programe salvate</h2>
+      <h2>Saved Programs</h2>
       {loading ? (
-        <p>Se încarcă programele salvate...</p>
+        <p>Loading saved programs...</p>
       ) : error ? (
         <p className="error-message">{error}</p>
       ) : savedPrograms.length > 0 ? (
@@ -28,24 +28,24 @@ const SavedProgramsSection = ({
                     className="remove-button"
                     onClick={() => handleRemoveSavedProgram(savedProgram.id)}
                   >
-                    Elimină
+                    Remove
                   </button>
                 </div>
                 <div className="program-details">
-                  <p><strong>Universitate:</strong> {university?.name || 'N/A'}</p>
-                  <p><strong>Facultate:</strong> {program.faculty}</p>
-                  <p><strong>Grad:</strong> {program.degree}</p>
-                  <p><strong>Credite:</strong> {program.credits}</p>
-                  <p><strong>Limbi:</strong> {Array.isArray(program.languages) ? program.languages.join(', ') : program.languages}</p>
-                  <p><strong>Durată:</strong> {program.duration}</p>
-                  <p><strong>Taxă de școlarizare:</strong> {program.tuitionFee}</p>
+                  <p><strong>University:</strong> {university?.name || 'N/A'}</p>
+                  <p><strong>Faculty:</strong> {program.faculty}</p>
+                  <p><strong>Degree:</strong> {program.degree}</p>
+                  <p><strong>Credits:</strong> {program.credits}</p>
+                  <p><strong>Languages:</strong> {Array.isArray(program.languages) ? program.languages.join(', ') : program.languages}</p>
+                  <p><strong>Duration:</strong> {program.duration}</p>
+                  <p><strong>Tuition Fee:</strong> {program.tuitionFee}</p>
                 </div>
               </div>
             );
           })}
         </div>
       ) : (
-        <p>Nu aveți programe salvate.</p>
+        <p>You have no saved programs.</p>
       )}
     </div>
   );

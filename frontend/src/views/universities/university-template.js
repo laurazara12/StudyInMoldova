@@ -103,11 +103,15 @@ const UniversityTemplate = ({
   if (error) {
     return (
       <div className="university-template">
+        <Navbar />
         <div className="university-body">
           <div className="error-container">
             <h2>Eroare</h2>
             <p>{error}</p>
-            <button onClick={() => navigate('/universities')}>
+            <button 
+              onClick={() => navigate('/universities')}
+              className="back-button"
+            >
               Înapoi la lista de universități
             </button>
           </div>
@@ -143,20 +147,20 @@ const UniversityTemplate = ({
         <div className="contact-info">
           <div className="contact-item">
             <span className="icon">📍</span>
-            <p>{university.contactInfo?.address || 'Adresa nu este disponibilă'}</p>
+            <p>{university.contact_info?.address || 'Adresa nu este disponibilă'}</p>
           </div>
           <div className="contact-item">
             <span className="icon">📞</span>
-            <p>{university.contactInfo?.phone || 'Telefonul nu este disponibil'}</p>
+            <p>{university.contact_info?.phone || 'Telefonul nu este disponibil'}</p>
           </div>
           <div className="contact-item">
             <span className="icon">✉️</span>
-            <a href={`mailto:${university.contactInfo?.email}`}>{university.contactInfo?.email || 'Email-ul nu este disponibil'}</a>
+            <a href={`mailto:${university.contact_info?.email}`}>{university.contact_info?.email || 'Email-ul nu este disponibil'}</a>
           </div>
           <div className="contact-item">
             <span className="icon">🌐</span>
-            <a href={university.contactInfo?.website} target="_blank" rel="noopener noreferrer">
-              {university.contactInfo?.website || 'Website-ul nu este disponibil'}
+            <a href={university.contact_info?.website} target="_blank" rel="noopener noreferrer">
+              {university.contact_info?.website || 'Website-ul nu este disponibil'}
             </a>
           </div>
         </div>
@@ -164,7 +168,8 @@ const UniversityTemplate = ({
         {/* Header */}
         <div className="university-header">
           <h1>{university.name}</h1>
-          {university.acronym && <h2>{university.acronym}</h2>}
+          <h2>{university.type === 'public' ? 'Universitate publică' : 'Universitate privată'}</h2>
+          {university.location && <p className="university-location">{university.location}</p>}
         </div>
 
         {/* Conținut personalizat înainte de hero */}
@@ -186,23 +191,39 @@ const UniversityTemplate = ({
             <div className="about-content">
               <div className="about-text">
                 <p>{university.description || 'Nu există descriere disponibilă.'}</p>
+                {university.tuition_fees && (
+                  <div className="tuition-fees">
+                    <h4>Taxe de școlarizare (MDL/an):</h4>
+                    <ul>
+                      {university.tuition_fees.bachelor && (
+                        <li>Licență: {university.tuition_fees.bachelor} MDL</li>
+                      )}
+                      {university.tuition_fees.master && (
+                        <li>Masterat: {university.tuition_fees.master} MDL</li>
+                      )}
+                      {university.tuition_fees.phd && (
+                        <li>Doctorat: {university.tuition_fees.phd} MDL</li>
+                      )}
+                    </ul>
+                  </div>
+                )}
               </div>
               <div className="about-stats">
-                <div className="stat-item">
-                  <span className="stat-number">{university.stats?.students || 'N/A'}</span>
-                  <span className="stat-label">Studenți</span>
-                </div>
                 <div className="stat-item">
                   <span className="stat-number">{programs.length || 'N/A'}</span>
                   <span className="stat-label">Programe de studii</span>
                 </div>
                 <div className="stat-item">
-                  <span className="stat-number">{university.stats?.faculties || 'N/A'}</span>
-                  <span className="stat-label">Facultăți</span>
+                  <span className="stat-number">{university.type === 'public' ? 'Publică' : 'Privată'}</span>
+                  <span className="stat-label">Tip</span>
                 </div>
                 <div className="stat-item">
-                  <span className="stat-number">{university.stats?.doctoralSchools || 'N/A'}</span>
-                  <span className="stat-label">Școli doctorale</span>
+                  <span className="stat-number">{university.location || 'N/A'}</span>
+                  <span className="stat-label">Locație</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-number">{university.contact_info?.email ? 'Disponibil' : 'N/A'}</span>
+                  <span className="stat-label">Contact</span>
                 </div>
               </div>
             </div>
@@ -214,40 +235,48 @@ const UniversityTemplate = ({
           {/* Conținut personalizat înainte de programe */}
           {beforePrograms}
 
-          {/* Secțiunea Programe de Studii */}
-          {programs.length > 0 && (
-            <section className="university-section">
-              <h3>Programe de Studii</h3>
-              <div className="programs-grid">
-                {programs.map((program) => {
-                  const details = programDetails[program.id];
-                  return (
-                    <div key={program.id} className="program-card">
-                      <h4>{program.name}</h4>
-                      <div className="program-details">
-                        <p><strong>Nivel:</strong> {program.level}</p>
-                        <p><strong>Durata:</strong> {program.duration} ani</p>
-                        <p><strong>Limba de studiu:</strong> {program.language}</p>
-                        {details?.tuitionFees && (
-                          <p><strong>Taxă de școlarizare:</strong> {details.tuitionFees.amount} MDL/an</p>
-                        )}
-                        {details?.specializations && details.specializations.length > 0 && (
-                          <div className="specializations">
-                            <h5>Specializări:</h5>
-                            <ul>
-                              {details.specializations.map((spec, index) => (
-                                <li key={index}>{spec.name}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-          )}
+          {/* Programe de studii */}
+          <section className="university-section">
+            <h3>Programe de Studii</h3>
+            <div className="programs-table-container">
+              <table className="programs-table">
+                <thead>
+                  <tr>
+                    <th>Program de studii</th>
+                    <th>Nivel</th>
+                    <th>Durata</th>
+                    <th>Limba de studiu</th>
+                    <th>Taxă de școlarizare</th>
+                    <th>Specializări</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {programs.map(program => {
+                    const details = programDetails[program.id] || {};
+                    const tuitionFees = details.tuition_fees || '';
+                    const specializations = details.specializations || [];
+                    
+                    return (
+                      <tr key={program.id}>
+                        <td>{program.name || 'N/A'}</td>
+                        <td>{program.degree_type || 'N/A'}</td>
+                        <td>{program.duration ? `${program.duration} ani` : 'N/A'}</td>
+                        <td>{program.language || 'N/A'}</td>
+                        <td>
+                          {tuitionFees ? tuitionFees : 'N/A'}
+                        </td>
+                        <td>
+                          {specializations.length > 0 ? 
+                            specializations.map(spec => spec.name).join(', ') : 
+                            'N/A'}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </section>
 
           {/* Conținut personalizat după programe */}
           {afterPrograms}
