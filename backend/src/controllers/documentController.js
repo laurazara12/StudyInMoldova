@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const { Op } = require('sequelize');
 const cloudinary = require('../config/cloudinary');
+const { User } = require('../models');
 
 const deleteDocument = async (req, res) => {
   try {
@@ -215,10 +216,12 @@ exports.createDocument = async (req, res) => {
     const { document_type } = req.body;
     const user_id = req.user.id;
 
-    console.log('Încărcare document nou:', {
+    console.log('Începe încărcarea documentului:', {
       originalName: req.file?.originalname,
       document_type,
-      user_id
+      user_id,
+      tempPath: req.file?.path,
+      fileExists: req.file ? fs.existsSync(req.file.path) : false
     });
 
     if (!req.file) {
@@ -229,81 +232,126 @@ exports.createDocument = async (req, res) => {
       });
     }
 
-    // Încărcare pe Cloudinary
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: `documents/${user_id}`,
-      resource_type: "auto"
-    });
+    // Verificăm dacă fișierul temporar există
+    if (!fs.existsSync(req.file.path)) {
+      console.error('Fișierul temporar nu există la calea:', req.file.path);
+      return res.status(400).json({
+        success: false,
+        message: 'Fișierul temporar nu a fost găsit',
+        data: null
+      });
+    }
 
-    console.log('Rezultat încărcare Cloudinary:', {
-      public_id: result.public_id,
-      secure_url: result.secure_url
-    });
+    try {
+      // Creăm directorul pentru utilizator dacă nu există
+      const userDir = path.join(__dirname, '../../../uploads', user_id.toString());
+      if (!fs.existsSync(userDir)) {
+        fs.mkdirSync(userDir, { recursive: true });
+      }
 
-    // Creăm documentul cu toate proprietățile necesare
-    const documentData = {
-      user_id,
-      document_type,
-      file_path: result.secure_url,
-      filename: result.public_id,
-      originalName: req.file.originalname,
-      status: 'pending',
-      uploaded: true,
-      uploadDate: new Date()
-    };
+      // Generăm numele fișierului final
+      const timestamp = Date.now();
+      const uniqueSuffix = Math.round(Math.random() * 1E9);
+      const ext = path.extname(req.file.originalname);
+      const filename = `${req.file.originalname}-${timestamp}-${uniqueSuffix}${ext}`;
+      const finalPath = path.join(userDir, filename);
 
-    const document = await Document.create(documentData);
+      // Mutăm fișierul din directorul temporar în directorul final
+      fs.copyFileSync(req.file.path, finalPath);
+      
+      // Ștergem fișierul temporar
+      fs.unlinkSync(req.file.path);
 
-    // Creăm notificare pentru utilizator
-    await createNotification(
-      user_id,
-      'new_document',
-      `Documentul ${document.originalName} a fost încărcat cu succes`,
-      document.id
-    );
+      // Creăm documentul în baza de date
+      const documentData = {
+        user_id,
+        document_type,
+        file_path: finalPath,
+        filename: filename,
+        originalName: req.file.originalname,
+        status: 'pending',
+        uploaded: true,
+        uploadDate: new Date()
+      };
 
-    // Creăm notificare pentru administratori
-    await createNotification(
-      null,
-      'new_document',
-      `Un nou document (${document.originalName}) a fost încărcat de utilizatorul ${user_id}`,
-      document.id,
-      null,
-      true // Este o notificare administrativă
-    );
+      console.log('Creare document în baza de date:', documentData);
 
-    // Formatăm documentul pentru răspuns
-    const formattedDocument = {
-      id: document.id,
-      document_type: document.document_type,
-      file_path: document.file_path,
-      createdAt: document.createdAt,
-      status: document.status || 'pending',
-      filename: document.filename,
-      originalName: document.originalName,
-      uploaded: document.uploaded,
-      uploadDate: document.uploadDate
-    };
+      const document = await Document.create(documentData);
 
-    console.log('Document creat în baza de date:', {
-      id: document.id,
-      originalName: document.originalName,
-      filename: document.filename,
-      status: document.status
-    });
+      // Creăm notificare pentru utilizator
+      await createNotification(
+        user_id,
+        'new_document',
+        `Documentul ${document.originalName} a fost încărcat cu succes`,
+        document.id,
+        null,
+        false
+      );
 
-    res.status(201).json({
-      success: true,
-      message: 'Documentul a fost creat cu succes',
-      data: formattedDocument
-    });
+      // Creăm notificare pentru administratori
+      const admins = await User.findAll({ where: { role: 'admin' } });
+      await Promise.all(admins.map(admin => 
+        createNotification(
+          admin.id,
+          'new_document',
+          `Un nou document (${document.originalName}) a fost încărcat de utilizatorul ${user_id}`,
+          document.id,
+          null,
+          true
+        )
+      ));
+
+      console.log('Document creat cu succes:', {
+        id: document.id,
+        document_type: document.document_type,
+        status: document.status
+      });
+
+      res.json({
+        success: true,
+        message: 'Document încărcat cu succes',
+        document: {
+          id: document.id,
+          document_type: document.document_type,
+          status: document.status,
+          uploaded: document.uploaded,
+          uploadDate: document.uploadDate
+        }
+      });
+    } catch (error) {
+      // Încercăm să ștergem fișierul temporar în caz de eroare
+      if (req.file && fs.existsSync(req.file.path)) {
+        try {
+          fs.unlinkSync(req.file.path);
+          console.log('Fișier temporar șters după eroare:', req.file.path);
+        } catch (unlinkError) {
+          console.error('Eroare la ștergerea fișierului temporar:', unlinkError);
+        }
+      }
+
+      return res.status(400).json({
+        success: false,
+        message: 'Eroare la încărcarea documentului',
+        details: error.message
+      });
+    }
   } catch (error) {
-    console.error('Eroare la crearea documentului:', error);
-    res.status(500).json({ 
+    console.error('Eroare la încărcarea documentului:', error);
+
+    // Încercăm să ștergem fișierul temporar în caz de eroare
+    if (req.file && fs.existsSync(req.file.path)) {
+      try {
+        fs.unlinkSync(req.file.path);
+        console.log('Fișier temporar șters după eroare:', req.file.path);
+      } catch (unlinkError) {
+        console.error('Eroare la ștergerea fișierului temporar:', unlinkError);
+      }
+    }
+
+    res.status(500).json({
       success: false,
-      message: 'Eroare la crearea documentului',
-      error: error.message,
-      data: null
+      message: 'Eroare la încărcarea documentului',
+      error: error.message
     });
   }
 };
@@ -367,10 +415,12 @@ exports.updateDocument = async (req, res) => {
       await createNotification(
         document.user_id,
         notificationType,
-        `Documentul de tip ${document.document_type} a fost ${status === 'approved' ? 'aprobat' : 
+        `Documentul dumneavoastră de tip ${document.document_type} a fost ${status === 'approved' ? 'aprobat' : 
                                                            status === 'rejected' ? 'respins' : 
-                                                           'actualizat'}`,
-        document.id
+                                                           'actualizat'}${req.user.role === 'admin' ? ' de administrator' : ''}`,
+        document.id,
+        req.body.admin_message || null,
+        false
       );
     }
 
@@ -439,10 +489,10 @@ exports.getUserDocuments = async (req, res) => {
       status: statusCounts
     });
   } catch (error) {
-    console.error('Error getting user documents:', error);
-    res.status(500).json({ 
+    console.error('Eroare la obținerea documentelor utilizatorului:', error);
+    res.status(500).json({
       success: false,
-      message: 'Eroare la preluarea documentelor',
+      message: 'Eroare la obținerea documentelor',
       error: error.message,
       data: [],
       total: 0,

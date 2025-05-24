@@ -47,6 +47,12 @@ module.exports = (sequelize) => {
       foreignKey: 'program_id',
       as: 'Program'
     });
+    Application.belongsToMany(models.Document, {
+      through: 'application_documents',
+      foreignKey: 'application_id',
+      otherKey: 'document_id',
+      as: 'documents'
+    });
   };
 
   return Application;

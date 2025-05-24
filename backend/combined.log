@@ -1270,3 +1270,303 @@
 {"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:28:49.589Z","userId":1}
 {"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:29:19.482Z","userId":1}
 {"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:29:19.654Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:30:04.405Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:04.429Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:04.436Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:04.438Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:30:04.458Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:04.490Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:04.510Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:30:17.181Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:30:17.184Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:17.198Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:17.222Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:17.267Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:17.270Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:30:24.751Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:30:24.756Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:24.775Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:24.793Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:24.857Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:24.864Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:24.866Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:30:25.784Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:25.791Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:25.804Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:25.807Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:30:25.821Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:25.841Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:25.843Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:30:38.432Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:38.447Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:38.478Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:30:38.492Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:38.532Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:38.536Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:38.536Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:30:59.841Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:30:59.844Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:59.857Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:59.867Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:59.916Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:59.917Z","userId":1}
+{"error":"SQLITE_ERROR: no such column: Notification.is_admin_notification","level":"error","message":"Error getting notifications","timestamp":"2025-05-23T22:30:59.919Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:31:15.306Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:31:15.374Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:31:40.938Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:31:41.002Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:32:05.144Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:32:05.151Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:32:15.905Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:32:15.908Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:32:37.695Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:32:37.720Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:32:55.134Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:32:55.215Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:33:18.852Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:33:18.888Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:33:26.387Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:33:26.389Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:33:46.659Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:33:46.699Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:34:00.072Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:34:00.122Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:34:08.973Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:34:09.046Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:34:16.863Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:34:16.866Z","userId":1}
+{"documentType":"diploma","file":{"mimetype":"image/png","originalname":"Captura___de_ecran_din_2025-05-23_la_14.48.06.png","size":3347628},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-23T22:34:41.634Z","userId":2}
+{"documentId":10,"documentType":"diploma","filePath":"/Users/Laura/Desktop/StudyInMoldova/uploads/2/diploma_1748039681636.png","level":"info","message":"Document încărcat cu succes","timestamp":"2025-05-23T22:34:41.644Z","userId":2}
+{"documentType":"passport","file":{"mimetype":"application/vnd.openxmlformats-officedocument.wordprocessingml.document","originalname":"Universitatea_de_Stat_din_Moldova.docx","size":24838},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-23T22:34:53.197Z","userId":2}
+{"documentId":11,"documentType":"passport","filePath":"/Users/Laura/Desktop/StudyInMoldova/uploads/2/passport_1748039693199.docx","level":"info","message":"Document încărcat cu succes","timestamp":"2025-05-23T22:34:53.202Z","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:34:59.164Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:34:59.198Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:35:34.591Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:35:34.593Z","userId":1}
+{"error":"Invalid notification type: document_updated","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:35:55.737Z","type":"document_updated","userId":2}
+{"error":"Invalid notification type: document_updated","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:35:56.878Z","type":"document_updated","userId":2}
+{"error":"Invalid notification type: document_updated","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:35:57.867Z","type":"document_updated","userId":2}
+{"error":"Invalid notification type: document_updated","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:35:58.086Z","type":"document_updated","userId":2}
+{"error":"Invalid notification type: document_updated","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:35:58.942Z","type":"document_updated","userId":2}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:36:02.587Z","type":"document_deleted","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:36:19.727Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:36:19.798Z","userId":1}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:36:52.920Z","type":"document_deleted","userId":2}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:36:58.116Z","type":"document_deleted","userId":2}
+{"documentType":"transcript","file":{"mimetype":"image/png","originalname":"Captura___de_ecran_din_2025-05-23_la_14.48.06.png","size":3347628},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-23T22:37:06.739Z","userId":2}
+{"documentId":12,"documentType":"transcript","filePath":"/Users/Laura/Desktop/StudyInMoldova/uploads/2/transcript_1748039826742.png","level":"info","message":"Document încărcat cu succes","timestamp":"2025-05-23T22:37:06.747Z","userId":2}
+{"documentType":"diploma","file":{"mimetype":"application/vnd.openxmlformats-officedocument.wordprocessingml.document","originalname":"Licenta_tehnologii.docx","size":14523},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-23T22:37:18.418Z","userId":2}
+{"documentId":13,"documentType":"diploma","filePath":"/Users/Laura/Desktop/StudyInMoldova/uploads/2/diploma_1748039838420.docx","level":"info","message":"Document încărcat cu succes","timestamp":"2025-05-23T22:37:18.423Z","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:37:23.716Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:37:23.743Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:37:45.313Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:37:45.314Z","userId":1}
+{"error":"Invalid notification type: document_updated","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:37:48.033Z","type":"document_updated","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:37:54.900Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:37:54.902Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:38:19.392Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:38:19.395Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:38:34.828Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:38:35.802Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:38:35.939Z","userId":1}
+{"error":"Invalid notification type: document_updated","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:38:36.845Z","type":"document_updated","userId":2}
+{"error":"Invalid notification type: document_updated","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:38:42.442Z","type":"document_updated","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:38:43.154Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:38:43.155Z","userId":1}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:38:48.379Z","type":"document_deleted","userId":2}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:38:50.530Z","type":"document_deleted","userId":2}
+{"documentType":"transcript","file":{"mimetype":"image/png","originalname":"Captura___de_ecran_din_2025-05-23_la_14.48.06.png","size":3347628},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-23T22:39:04.252Z","userId":2}
+{"documentId":14,"documentType":"transcript","filePath":"/Users/Laura/Desktop/StudyInMoldova/uploads/2/transcript_1748039944254.png","level":"info","message":"Document încărcat cu succes","timestamp":"2025-05-23T22:39:04.259Z","userId":2}
+{"documentType":"diploma","file":{"mimetype":"application/vnd.openxmlformats-officedocument.wordprocessingml.document","originalname":"Licenta_tehnologii.docx","size":14523},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-23T22:39:07.745Z","userId":2}
+{"documentId":15,"documentType":"diploma","filePath":"/Users/Laura/Desktop/StudyInMoldova/uploads/2/diploma_1748039947747.docx","level":"info","message":"Document încărcat cu succes","timestamp":"2025-05-23T22:39:07.751Z","userId":2}
+{"documentType":"photo","file":{"mimetype":"application/pdf","originalname":"Motivation_Letter_.pdf","size":89378},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-23T22:39:13.781Z","userId":2}
+{"documentId":16,"documentType":"photo","filePath":"/Users/Laura/Desktop/StudyInMoldova/uploads/2/photo_1748039953783.pdf","level":"info","message":"Document încărcat cu succes","timestamp":"2025-05-23T22:39:13.788Z","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:39:24.372Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:39:24.419Z","userId":1}
+{"error":"Invalid notification type: document_updated","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:39:26.080Z","type":"document_updated","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:39:31.208Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:39:31.214Z","userId":1}
+{"error":"Invalid notification type: document_updated","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:39:33.399Z","type":"document_updated","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:39:35.229Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:39:35.257Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:39:38.996Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:39:39.002Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:39:42.330Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:39:42.407Z","userId":1}
+{"error":"Invalid notification type: document_updated","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:39:43.131Z","type":"document_updated","userId":2}
+{"documentType":"insurance","file":{"mimetype":"image/png","originalname":"Captura___de_ecran_din_2025-05-23_la_14.48.06.png","size":3347628},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-23T22:40:24.688Z","userId":2}
+{"documentId":17,"documentType":"insurance","filePath":"/Users/Laura/Desktop/StudyInMoldova/uploads/2/insurance_1748040024706.png","level":"info","message":"Document încărcat cu succes","timestamp":"2025-05-23T22:40:24.724Z","userId":2}
+{"documentType":"medical","file":{"mimetype":"application/vnd.openxmlformats-officedocument.wordprocessingml.document","originalname":"Licenta_tehnologii.docx","size":14523},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-23T22:40:24.816Z","userId":2}
+{"documentId":18,"documentType":"medical","filePath":"/Users/Laura/Desktop/StudyInMoldova/uploads/2/medical_1748040024825.docx","level":"info","message":"Document încărcat cu succes","timestamp":"2025-05-23T22:40:24.831Z","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:40:29.670Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:40:29.701Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:41:00.630Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:41:02.349Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:41:02.354Z","userId":1}
+{"error":"Invalid notification type: document_updated","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:41:03.592Z","type":"document_updated","userId":2}
+{"error":"Invalid notification type: document_updated","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:41:10.232Z","type":"document_updated","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:41:21.987Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:41:21.991Z","userId":1}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:41:29.289Z","type":"document_deleted","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:41:41.842Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:41:43.280Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:41:43.281Z","userId":1}
+{"error":"Invalid notification type: document_updated","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:41:44.488Z","type":"document_updated","userId":2}
+{"error":"Invalid notification type: document_updated","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:41:49.476Z","type":"document_updated","userId":2}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:41:52.059Z","type":"document_deleted","userId":2}
+{"documentType":"photo","file":{"mimetype":"image/png","originalname":"Captura___de_ecran_din_2025-04-17_la_19.15.44.png","size":189342},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-23T22:42:18.191Z","userId":2}
+{"documentId":19,"documentType":"photo","filePath":"/Users/Laura/Desktop/StudyInMoldova/uploads/2/photo_1748040138193.png","level":"info","message":"Document încărcat cu succes","timestamp":"2025-05-23T22:42:18.196Z","userId":2}
+{"level":"error","message":"Eroare: this.sendCommand is not a function","method":"GET","path":"/user-documents","stack":"TypeError: this.sendCommand is not a function\n    at RedisStore.loadIncrementScript (/Users/Laura/Desktop/StudyInMoldova/backend/node_modules/rate-limit-redis/dist/index.cjs:80:31)\n    at RedisStore.retryableIncrement (/Users/Laura/Desktop/StudyInMoldova/backend/node_modules/rate-limit-redis/dist/index.cjs:112:38)\n    at async RedisStore.increment (/Users/Laura/Desktop/StudyInMoldova/backend/node_modules/rate-limit-redis/dist/index.cjs:158:21)\n    at async /Users/Laura/Desktop/StudyInMoldova/backend/node_modules/express-rate-limit/dist/index.cjs:728:33\n    at async /Users/Laura/Desktop/StudyInMoldova/backend/node_modules/express-rate-limit/dist/index.cjs:704:5","timestamp":"2025-05-23T22:53:06.037Z","user":2}
+{"level":"error","message":"Eroare: this.sendCommand is not a function","method":"GET","path":"/user-documents","stack":"TypeError: this.sendCommand is not a function\n    at RedisStore.loadIncrementScript (/Users/Laura/Desktop/StudyInMoldova/backend/node_modules/rate-limit-redis/dist/index.cjs:80:31)\n    at RedisStore.retryableIncrement (/Users/Laura/Desktop/StudyInMoldova/backend/node_modules/rate-limit-redis/dist/index.cjs:112:38)\n    at async RedisStore.increment (/Users/Laura/Desktop/StudyInMoldova/backend/node_modules/rate-limit-redis/dist/index.cjs:158:21)\n    at async /Users/Laura/Desktop/StudyInMoldova/backend/node_modules/express-rate-limit/dist/index.cjs:728:33\n    at async /Users/Laura/Desktop/StudyInMoldova/backend/node_modules/express-rate-limit/dist/index.cjs:704:5","timestamp":"2025-05-23T22:55:21.395Z","user":2}
+{"level":"error","message":"Eroare: this.sendCommand is not a function","method":"GET","path":"/user-documents","stack":"TypeError: this.sendCommand is not a function\n    at RedisStore.loadIncrementScript (/Users/Laura/Desktop/StudyInMoldova/backend/node_modules/rate-limit-redis/dist/index.cjs:80:31)\n    at RedisStore.retryableIncrement (/Users/Laura/Desktop/StudyInMoldova/backend/node_modules/rate-limit-redis/dist/index.cjs:112:38)\n    at async RedisStore.increment (/Users/Laura/Desktop/StudyInMoldova/backend/node_modules/rate-limit-redis/dist/index.cjs:158:21)\n    at async /Users/Laura/Desktop/StudyInMoldova/backend/node_modules/express-rate-limit/dist/index.cjs:728:33\n    at async /Users/Laura/Desktop/StudyInMoldova/backend/node_modules/express-rate-limit/dist/index.cjs:704:5","timestamp":"2025-05-23T22:56:24.729Z","user":2}
+{"level":"error","message":"Eroare: this.sendCommand is not a function","method":"GET","path":"/user-documents","stack":"TypeError: this.sendCommand is not a function\n    at RedisStore.loadIncrementScript (/Users/Laura/Desktop/StudyInMoldova/backend/node_modules/rate-limit-redis/dist/index.cjs:80:31)\n    at RedisStore.retryableIncrement (/Users/Laura/Desktop/StudyInMoldova/backend/node_modules/rate-limit-redis/dist/index.cjs:112:38)\n    at async RedisStore.increment (/Users/Laura/Desktop/StudyInMoldova/backend/node_modules/rate-limit-redis/dist/index.cjs:158:21)\n    at async /Users/Laura/Desktop/StudyInMoldova/backend/node_modules/express-rate-limit/dist/index.cjs:728:33\n    at async /Users/Laura/Desktop/StudyInMoldova/backend/node_modules/express-rate-limit/dist/index.cjs:704:5","timestamp":"2025-05-23T22:57:25.670Z","user":2}
+{"level":"error","message":"Eroare: this.sendCommand is not a function","method":"GET","path":"/user-documents","stack":"TypeError: this.sendCommand is not a function\n    at RedisStore.loadIncrementScript (/Users/Laura/Desktop/StudyInMoldova/backend/node_modules/rate-limit-redis/dist/index.cjs:80:31)\n    at RedisStore.retryableIncrement (/Users/Laura/Desktop/StudyInMoldova/backend/node_modules/rate-limit-redis/dist/index.cjs:112:38)\n    at async RedisStore.increment (/Users/Laura/Desktop/StudyInMoldova/backend/node_modules/rate-limit-redis/dist/index.cjs:158:21)\n    at async /Users/Laura/Desktop/StudyInMoldova/backend/node_modules/express-rate-limit/dist/index.cjs:728:33\n    at async /Users/Laura/Desktop/StudyInMoldova/backend/node_modules/express-rate-limit/dist/index.cjs:704:5","timestamp":"2025-05-23T22:57:56.348Z","user":2}
+{"documentType":"other","file":{"mimetype":"image/png","originalname":"Captura___de_ecran_din_2025-05-22_la_13.59.25.png","size":146245},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-23T22:59:22.430Z","userId":2}
+{"documentId":20,"documentType":"other","filePath":"/Users/Laura/Desktop/StudyInMoldova/uploads/2/other_1748041162434.png","level":"info","message":"Document încărcat cu succes","timestamp":"2025-05-23T22:59:22.444Z","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:59:28.059Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T22:59:28.096Z","userId":1}
+{"error":"Invalid notification type: document_updated","level":"error","message":"Error creating notification","timestamp":"2025-05-23T22:59:29.735Z","type":"document_updated","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T23:00:03.783Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T23:00:03.798Z","userId":1}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T23:00:13.711Z","type":"document_deleted","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T23:00:42.647Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T23:00:43.975Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T23:00:44.015Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T23:00:59.728Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T23:00:59.730Z","userId":1}
+{"error":"Invalid notification type: document_updated","level":"error","message":"Error creating notification","timestamp":"2025-05-23T23:01:03.029Z","type":"document_updated","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T23:01:18.839Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T23:01:18.861Z","userId":1}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T23:01:22.033Z","type":"document_deleted","userId":2}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T23:01:24.338Z","type":"document_deleted","userId":2}
+{"error":"Invalid notification type: document_deleted","level":"error","message":"Error creating notification","timestamp":"2025-05-23T23:01:27.050Z","type":"document_deleted","userId":2}
+{"documentType":"insurance","file":{"mimetype":"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet","originalname":"Licenta_date.xlsx","size":13484},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-23T23:01:42.752Z","userId":2}
+{"documentId":21,"documentType":"insurance","filePath":"/Users/Laura/Desktop/StudyInMoldova/uploads/2/insurance_1748041302752.xlsx","level":"info","message":"Document încărcat cu succes","timestamp":"2025-05-23T23:01:42.755Z","userId":2}
+{"documentType":"passport","file":{"mimetype":"image/png","originalname":"Captura___de_ecran_din_2025-05-22_la_13.59.25.png","size":146245},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-23T23:01:49.986Z","userId":2}
+{"documentId":22,"documentType":"passport","filePath":"/Users/Laura/Desktop/StudyInMoldova/uploads/2/passport_1748041309988.png","level":"info","message":"Document încărcat cu succes","timestamp":"2025-05-23T23:01:49.991Z","userId":2}
+{"documentType":"transcript","file":{"mimetype":"image/png","originalname":"Captura___de_ecran_din_2025-05-22_la_14.57.10.png","size":93011},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-23T23:01:56.340Z","userId":2}
+{"documentId":23,"documentType":"transcript","filePath":"/Users/Laura/Desktop/StudyInMoldova/uploads/2/transcript_1748041316342.png","level":"info","message":"Document încărcat cu succes","timestamp":"2025-05-23T23:01:56.345Z","userId":2}
+{"documentType":"cv","file":{"mimetype":"application/pdf","originalname":"designpatternscard.pdf","size":84665},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-23T23:02:01.561Z","userId":2}
+{"documentId":24,"documentType":"cv","filePath":"/Users/Laura/Desktop/StudyInMoldova/uploads/2/cv_1748041321562.pdf","level":"info","message":"Document încărcat cu succes","timestamp":"2025-05-23T23:02:01.566Z","userId":2}
+{"documentType":"diploma","file":{"mimetype":"application/vnd.openxmlformats-officedocument.wordprocessingml.document","originalname":"Resurse-Licenta.docx","size":14638},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-23T23:02:07.580Z","userId":2}
+{"documentId":25,"documentType":"diploma","filePath":"/Users/Laura/Desktop/StudyInMoldova/uploads/2/diploma_1748041327582.docx","level":"info","message":"Document încărcat cu succes","timestamp":"2025-05-23T23:02:07.587Z","userId":2}
+{"documentType":"medical","file":{"mimetype":"application/vnd.openxmlformats-officedocument.wordprocessingml.document","originalname":"_____1.docx","size":26407},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-23T23:02:11.574Z","userId":2}
+{"documentId":26,"documentType":"medical","filePath":"/Users/Laura/Desktop/StudyInMoldova/uploads/2/medical_1748041331576.docx","level":"info","message":"Document încărcat cu succes","timestamp":"2025-05-23T23:02:11.580Z","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T23:02:17.930Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T23:02:17.949Z","userId":1}
+{"error":"Invalid notification type: document_updated","level":"error","message":"Error creating notification","timestamp":"2025-05-23T23:02:21.814Z","type":"document_updated","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T23:03:59.923Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T23:04:05.650Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T23:04:05.651Z","userId":1}
+{"error":"Invalid notification type: document_updated","level":"error","message":"Error creating notification","timestamp":"2025-05-23T23:04:06.845Z","type":"document_updated","userId":2}
+{"error":"Invalid notification type: document_updated","level":"error","message":"Error creating notification","timestamp":"2025-05-23T23:04:09.960Z","type":"document_updated","userId":2}
+{"error":"Invalid notification type: document_updated","level":"error","message":"Error creating notification","timestamp":"2025-05-23T23:04:11.807Z","type":"document_updated","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T23:04:20.143Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T23:04:20.144Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T23:04:57.244Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T23:05:06.359Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T23:05:06.361Z","userId":1}
+{"error":"Invalid notification type: document_updated","level":"error","message":"Error creating notification","timestamp":"2025-05-23T23:05:11.370Z","type":"document_updated","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T23:05:11.380Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T23:05:54.945Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T23:05:54.975Z","userId":1}
+{"error":"Invalid notification type: document_updated","level":"error","message":"Error creating notification","timestamp":"2025-05-23T23:05:57.722Z","type":"document_updated","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T23:05:57.732Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T23:06:05.072Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T23:06:05.075Z","userId":1}
+{"error":"Invalid notification type: document_updated","level":"error","message":"Error creating notification","timestamp":"2025-05-23T23:06:06.892Z","type":"document_updated","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T23:06:06.903Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-23T23:06:15.950Z","userId":1}
+{"documentType":"transcript","file":{"mimetype":"application/vnd.openxmlformats-officedocument.wordprocessingml.document","originalname":"Letter_of_motivation.docx","size":39699},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-24T13:02:21.195Z","userId":2}
+{"documentType":"passport","file":{"mimetype":"image/png","originalname":"Captura___de_ecran_din_2025-04-01_la_15.06.03.png","size":118126},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-24T13:02:21.987Z","userId":2}
+{"documentType":"passport","file":{"mimetype":"image/png","originalname":"Captura___de_ecran_din_2025-05-23_la_14.48.06.png","size":3347628},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-24T13:02:55.918Z","userId":2}
+{"documentType":"transcript","file":{"mimetype":"image/png","originalname":"IMG_9553.PNG","size":173756},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-24T13:05:36.359Z","userId":2}
+{"documentType":"transcript","file":{"mimetype":"image/png","originalname":"IMG_9553.PNG","size":173756},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-24T13:06:46.312Z","userId":2}
+{"documentType":"transcript","file":{"mimetype":"image/png","originalname":"IMG_9553.PNG","size":173756},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-24T13:07:27.505Z","userId":2}
+{"documentType":"transcript","file":{"mimetype":"image/png","originalname":"IMG_9553.PNG","size":173756},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-24T13:08:22.887Z","userId":2}
+{"documentType":"transcript","file":{"mimetype":"image/png","originalname":"IMG_9553.PNG","size":173756},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-24T13:08:28.441Z","userId":2}
+{"documentType":"transcript","file":{"mimetype":"image/png","originalname":"IMG_9553.PNG","size":173756},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-24T13:10:06.056Z","userId":2}
+{"documentType":"transcript","file":{"mimetype":"image/png","originalname":"IMG_9553.PNG","size":173756},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-24T13:10:07.654Z","userId":2}
+{"documentType":"transcript","file":{"mimetype":"image/png","originalname":"IMG_9553.PNG","size":173756},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-24T13:11:33.853Z","userId":2}
+{"documentType":"transcript","file":{"mimetype":"image/png","originalname":"IMG_9553.PNG","size":173756},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-24T13:18:24.267Z","userId":2}
+{"documentType":"transcript","file":{"mimetype":"image/png","originalname":"IMG_9553.PNG","size":173756},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-24T13:21:40.954Z","userId":2}
+{"documentType":"transcript","file":{"mimetype":"image/png","originalname":"IMG_9553.PNG","size":173756},"level":"info","message":"Începe încărcarea documentului","timestamp":"2025-05-24T13:22:58.512Z","userId":2}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:30:28.922Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:30:28.954Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:35:24.331Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:35:24.338Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:37:08.441Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:37:08.449Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:38:52.526Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:38:52.548Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:47:09.519Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:47:09.572Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:47:46.511Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:47:46.520Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:48:19.571Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:48:19.589Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:49:13.663Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:49:13.706Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:49:35.357Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:49:35.428Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:50:21.277Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:50:21.284Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:50:49.082Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:50:49.103Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:51:01.315Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:51:01.355Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:51:23.275Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:51:23.294Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:51:42.840Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:51:42.851Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:52:05.673Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:52:05.735Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:52:22.673Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:52:22.675Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:52:41.471Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:52:41.485Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:53:11.247Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:53:11.254Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:53:30.449Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:53:30.475Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:54:16.073Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:54:16.086Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:54:20.356Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:54:33.269Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:54:34.140Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:54:34.176Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:54:34.799Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:54:34.800Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:54:55.500Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:54:55.518Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:55:05.595Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:55:06.464Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:55:06.466Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:55:26.616Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:55:26.646Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T13:55:39.358Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T14:26:17.405Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T14:26:17.441Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T14:26:20.871Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T14:26:20.893Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T14:26:30.580Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T14:26:30.603Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T14:26:49.396Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T14:26:49.417Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T14:26:50.491Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T14:26:50.523Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T14:26:54.841Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T14:26:54.843Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T14:27:01.429Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T14:27:01.430Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T14:27:03.614Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T14:27:57.247Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T14:27:57.266Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T14:28:12.390Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T14:28:12.412Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T14:29:07.732Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T14:29:07.761Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T14:29:37.088Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T14:29:37.102Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T14:29:51.384Z","userId":1}
+{"level":"info","message":"Încărcare documente pentru admin","role":"admin","timestamp":"2025-05-24T14:29:51.393Z","userId":1}

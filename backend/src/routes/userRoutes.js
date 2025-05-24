@@ -1,18 +1,15 @@
 const express = require('express');
 const router = express.Router();
+const { authMiddleware } = require('../middleware/auth');
 const userController = require('../controllers/userController');
-const { authMiddleware, adminMiddleware } = require('../middleware/auth');
 
-// Rute protejate
-router.use(authMiddleware);
-
-// Rute pentru admin
-router.get('/', adminMiddleware, userController.getAllUsers);
-router.get('/:id', adminMiddleware, userController.getUserById);
-router.put('/:id', adminMiddleware, userController.updateUser);
-router.delete('/:id', adminMiddleware, userController.deleteUser);
-
-// Obține datele utilizatorului curent
-router.get('/me', userController.getCurrentUser);
+// Rute pentru utilizatori
+router.get('/me', authMiddleware, userController.getMe);
+router.get('/role', authMiddleware, userController.getUserRole);
+router.get('/profile', authMiddleware, userController.getUserProfile);
+router.put('/profile', authMiddleware, userController.updateUserProfile);
+router.delete('/', authMiddleware, userController.deleteUser);
+router.get('/current', authMiddleware, userController.getCurrentUser);
+router.put('/', authMiddleware, userController.updateUser);
 
 module.exports = router; 

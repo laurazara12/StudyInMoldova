@@ -244,6 +244,30 @@ const testConnection = async () => {
 
 testConnection();
 
+// Funcție pentru rularea migrărilor
+async function migrate() {
+  try {
+    console.log('Se rulează migrările...');
+    
+    // Importăm toate migrările
+    const migrationsPath = path.join(__dirname, '../migrations');
+    const migrationFiles = fs.readdirSync(migrationsPath)
+      .filter(file => file.endsWith('.js'))
+      .sort();
+
+    for (const file of migrationFiles) {
+      console.log(`Se rulează migrarea: ${file}`);
+      const migration = require(path.join(migrationsPath, file));
+      await migration.up(sequelize.getQueryInterface(), Sequelize);
+    }
+
+    console.log('Migrările au fost rulate cu succes');
+  } catch (error) {
+    console.error('Eroare la rularea migrărilor:', error);
+    throw error;
+  }
+}
+
 // Exportăm funcțiile și modelele
 module.exports = {
   sequelize,
@@ -255,5 +279,7 @@ module.exports = {
   Application,
   SavedProgram,
   createBackup,
-  safeSync
+  safeSync,
+  migrate,
+  testConnection
 };

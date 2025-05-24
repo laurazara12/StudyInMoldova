@@ -5,174 +5,83 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
 const { authMiddleware, adminMiddleware } = require('../middleware/auth');
+const { register, login, getUserProfile, getMe, getUserRole } = require('../controllers/userController');
 
 // Registration
 router.post('/register', async (req, res) => {
   try {
-    const { email, password, name } = req.body;
-    console.log('Registration attempt for:', email);
-    console.log('Received data:', { email, name, password: password ? 'present' : 'missing' });
+    const { name, email, password } = req.body;
 
-    if (!email || !password || !name) {
-      console.log('Missing data:', { email: !!email, password: !!password, name: !!name });
-      return res.status(400).json({ 
+    if (!name || !email || !password) {
+      return res.status(400).json({
         success: false,
-        message: 'All fields are required',
-        received: { email: !!email, password: !!password, name: !!name }
+        message: 'Toate câmpurile sunt obligatorii'
       });
     }
 
-    // Verifică dacă emailul există deja
-    const existingUser = await User.findOne({ where: { email } });
-    if (existingUser) {
-      return res.status(400).json({ success: false, message: 'Email is already registered' });
+    const result = await register(name, email, password);
+    
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: result.message
+      });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    console.log('Password hashed');
-
-    const user = await User.create({
-      email,
-      password: hashedPassword,
-      name,
-      role: 'user'
-    });
-
-    console.log('User created successfully');
-
-    const token = jwt.sign(
-      { id: user.id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
-
-    console.log('Token generated for new user');
-
-    res.status(201).json({
+    res.json({
       success: true,
-      message: 'User created successfully',
-      token,
-      user: { 
-        id: user.id,
-        email, 
-        name, 
-        role: user.role 
+      message: 'Înregistrare reușită',
+      data: {
+        user: result.user,
+        token: result.token
       }
     });
   } catch (error) {
-    console.error('Registration error:', error);
-    if (error.name === 'SequelizeUniqueConstraintError') {
-      return res.status(400).json({ success: false, message: 'Email is already registered' });
-    }
-    res.status(500).json({ success: false, message: error.message });
+    console.error('Eroare la înregistrare:', error);
+    res.status(500).json({
+      success: false,
+      message: 'A apărut o eroare în timpul înregistrării'
+    });
   }
 });
 
 // Login
 router.post('/login', async (req, res) => {
   try {
+    console.log('=== Începe procesul de autentificare ===');
+    console.log('Body primit:', req.body);
+
     const { email, password } = req.body;
-    console.log('=== Login Request Details ===');
-    console.log('Email:', email);
-    console.log('Password received:', password ? 'present' : 'missing');
-    console.log('Password type:', typeof password);
-    console.log('Password length:', password ? password.length : 0);
 
     if (!email || !password) {
-      console.log('Missing data:', { email: !!email, password: !!password });
+      console.error('Email sau parolă lipsă');
       return res.status(400).json({
         success: false,
-        message: 'Email și parolă sunt obligatorii',
-        error: 'MISSING_CREDENTIALS'
+        message: 'Email și parolă sunt obligatorii'
       });
     }
 
-    const user = await User.findOne({ where: { email } });
-    console.log('User found:', user ? 'Yes' : 'No');
+    const result = await login(email, password);
     
-    if (!user) {
-      console.log('User not found for email:', email);
+    if (!result.success) {
+      console.error('Autentificare eșuată:', result.message);
       return res.status(401).json({
         success: false,
-        message: 'Email sau parolă incorectă',
-        error: 'INVALID_CREDENTIALS'
+        message: result.message
       });
     }
 
-    console.log('Checking password...');
-    let isPasswordValid = false;
-    
-    try {
-      isPasswordValid = await bcrypt.compare(password, user.password);
-      console.log('Password validation result:', isPasswordValid);
-    } catch (bcryptError) {
-      console.error('Error comparing passwords:', bcryptError);
-      return res.status(500).json({
-        success: false,
-        message: 'Eroare la verificarea parolei',
-        error: 'PASSWORD_VERIFICATION_ERROR'
-      });
-    }
-
-    if (!isPasswordValid) {
-      console.log('Invalid password for user:', email);
-      return res.status(401).json({
-        success: false,
-        message: 'Email sau parolă incorectă',
-        error: 'INVALID_CREDENTIALS'
-      });
-    }
-
-    if (!process.env.JWT_SECRET) {
-      console.error('JWT_SECRET is not configured');
-      return res.status(500).json({
-        success: false,
-        message: 'Eroare de configurare a serverului',
-        error: 'SERVER_CONFIG_ERROR'
-      });
-    }
-
-    const token = jwt.sign(
-      { id: user.id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
-
-    console.log('Token generat cu succes pentru utilizatorul:', user.email);
-
-    const userData = {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-      phone: user.phone,
-      date_of_birth: user.date_of_birth,
-      country_of_origin: user.country_of_origin,
-      nationality: user.nationality,
-      desired_study_level: user.desired_study_level,
-      preferred_study_field: user.preferred_study_field,
-      desired_academic_year: user.desired_academic_year,
-      preferred_study_language: user.preferred_study_language,
-      estimated_budget: user.estimated_budget,
-      accommodation_preferences: user.accommodation_preferences
-    };
-
+    console.log('Autentificare reușită pentru:', email);
     res.json({
       success: true,
       message: 'Autentificare reușită',
-      data: {
-        user: userData,
-        token: token,
-        expiresIn: 86400 // 24 ore în secunde
-      }
+      data: result.data
     });
   } catch (error) {
     console.error('Eroare la autentificare:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Eroare la autentificare',
-      error: error.message,
-      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    res.status(500).json({
+      success: false,
+      message: 'A apărut o eroare în timpul autentificării'
     });
   }
 });
@@ -180,56 +89,54 @@ router.post('/login', async (req, res) => {
 // Get current user data
 router.get('/me', authMiddleware, async (req, res) => {
   try {
-    console.log('GET /api/auth/me - Începere procesare cerere');
-    console.log('User ID din token:', req.user.id);
+    console.log('=== Începe procesul de obținere a datelor utilizatorului ===');
+    console.log('ID utilizator din token:', req.user.id);
+
+    const result = await getMe(req.user.id);
     
-    const user = await User.findByPk(req.user.id, {
-      attributes: [
-        'id', 
-        'name', 
-        'email', 
-        'role', 
-        'phone',
-        'date_of_birth',
-        'country_of_origin',
-        'nationality',
-        'desired_study_level',
-        'preferred_study_field',
-        'desired_academic_year',
-        'preferred_study_language',
-        'estimated_budget',
-        'accommodation_preferences'
-      ]
-    });
-
-    console.log('Rezultat căutare utilizator:', user ? 'Utilizator găsit' : 'Utilizator negăsit');
-
-    if (!user) {
-      console.log('Utilizatorul nu a fost găsit pentru ID:', req.user.id);
+    if (!result.success) {
+      console.error('Eroare la obținerea datelor utilizatorului:', result.message);
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: result.message
       });
     }
 
-    console.log('Date utilizator găsite:', {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role
+    console.log('Date utilizator preluate cu succes');
+    res.json(result);
+  } catch (error) {
+    console.error('Eroare la obținerea datelor utilizatorului:', error);
+    res.status(500).json({
+      success: false,
+      message: 'A apărut o eroare în timpul preluării datelor utilizatorului'
     });
+  }
+});
+
+// Ruta pentru obținerea rolului utilizatorului
+router.get('/user/role', authMiddleware, async (req, res) => {
+  try {
+    const result = await getUserRole(req.user.id);
+    
+    if (!result.success) {
+      return res.status(404).json({
+        success: false,
+        message: result.message
+      });
+    }
 
     res.json({
       success: true,
-      user
+      message: 'Rol utilizator preluat cu succes',
+      data: {
+        role: result.role
+      }
     });
   } catch (error) {
-    console.error('Eroare detaliată la preluarea datelor utilizatorului:', error);
-    console.error('Stack trace:', error.stack);
+    console.error('Eroare la obținerea rolului utilizatorului:', error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching user data',
-      error: error.message
+      message: 'A apărut o eroare în timpul preluării rolului utilizatorului'
     });
   }
 });

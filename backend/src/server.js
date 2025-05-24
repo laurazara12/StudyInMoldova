@@ -10,6 +10,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const http = require('http');
 const { authMiddleware } = require('./middleware/auth');
 const { sequelize, safeSync } = require('./config/database');
 const universitiesRouter = require('./routes/universities');
@@ -21,29 +22,31 @@ const savedProgramRoutes = require('./routes/savedProgramRoutes');
 const applicationsRouter = require('./routes/applications');
 const helpYouChooseRoutes = require('./routes/helpYouChooseRoutes');
 const { setupRoutes } = require('./routes');
+const { wss, authenticateWebSocket } = require('./websocket/notificationSocket');
+const WebSocket = require('ws');
+const jwt = require('jsonwebtoken');
+const userRoutes = require('./routes/users');
 
 const app = express();
-const PORT = process.env.PORT || 4000;
+const server = http.createServer(app);
+const PORT = 4000; // Forțăm portul 4000
 
-// Configurare CORS mai permisivă pentru dezvoltare
+// Configurare middleware-uri de bază
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:5173'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true
 }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Middleware pentru logging
+// Middleware pentru setarea header-urilor JSON pentru toate rutele API
 app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  if (req.path.startsWith('/api/')) {
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Accept', 'application/json');
+  }
   next();
 });
-
-// Middleware pentru parsare JSON
-app.use(express.json());
-
-// Middleware pentru parsare URL-encoded
-app.use(express.urlencoded({ extended: true }));
 
 // Creăm directorul pentru încărcări dacă nu există
 const uploadsDir = path.join(__dirname, '../uploads');
@@ -51,36 +54,131 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Configurare directorul pentru fișiere statice
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+// Configurare rute API în ordinea corectă
+app.use('/api/users', userRoutes);
+app.use('/api/auth', authRouter);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/universities', universitiesRouter);
+app.use('/api/programs', programsRouter);
+app.use('/api/documents', documentsRouter);
+app.use('/api/saved-programs', savedProgramRoutes);
+app.use('/api/applications', applicationsRouter);
+app.use('/api/help-you-choose', helpYouChooseRoutes);
 
 // Ruta pentru verificarea stării serverului
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
+    timestamp: new Date().toISOString()
   });
 });
 
-// Configurare rute API
-setupRoutes(app);
-
-// Ruta pentru servirea fișierelor statice
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Ruta pentru servirea aplicației React
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// Ruta pentru verificarea token-ului
+app.get('/api/auth/verify-token', authMiddleware, (req, res) => {
+  res.json({
+    success: true,
+    message: 'Token valid',
+    user: {
+      id: req.user.id,
+      email: req.user.email,
+      role: req.user.role
+    }
+  });
 });
 
-// Middleware pentru gestionarea erorilor
+// Ruta pentru obținerea datelor utilizatorului curent
+app.get('/api/auth/me', authMiddleware, (req, res) => {
+  res.json({
+    success: true,
+    message: 'Date utilizator preluate cu succes',
+    data: {
+      id: req.user.id,
+      email: req.user.email,
+      name: req.user.name,
+      role: req.user.role
+    }
+  });
+});
+
+// Ruta pentru servirea fișierelor statice
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+// Ruta pentru servirea aplicației React (doar pentru rutele non-API)
+app.get('*', (req, res) => {
+  if (!req.path.startsWith('/api/')) {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  }
+});
+
+// Ruta pentru pagina de start (doar pentru rutele non-API)
+app.get('/', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="ro">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Study in Moldova API</title>
+    </head>
+    <body>
+        <h1>Study in Moldova API</h1>
+        <p>Bine ați venit la API-ul Study in Moldova!</p>
+    </body>
+    </html>
+  `);
+});
+
+// Handler pentru rutele neexistente
+app.use((req, res) => {
+  if (req.path.startsWith('/api/')) {
+    res.status(404).json({
+      success: false,
+      message: 'Endpoint-ul nu a fost găsit'
+    });
+  } else {
+    res.status(404).send('Pagina nu a fost găsită');
+  }
+});
+
+// Gestionare upgrade WebSocket
+server.on('upgrade', async (request, socket, head) => {
+  try {
+    // Extrage token-ul din header-ul de autorizare
+    const token = request.headers['sec-websocket-protocol']?.split(',')[0]?.trim();
+    
+    if (!token) {
+      console.error('Token lipsă pentru WebSocket');
+      socket.destroy();
+      return;
+    }
+
+    // Autentifică utilizatorul
+    const user = await authenticateWebSocket(token);
+    if (!user) {
+      console.error('Autentificare eșuată pentru WebSocket');
+      socket.destroy();
+      return;
+    }
+
+    // Adaugă utilizatorul la request pentru a fi disponibil în handler-ul de conexiune
+    request.user = user;
+
+    // Upgrade la WebSocket
+    wss.handleUpgrade(request, socket, head, (ws) => {
+      wss.emit('connection', ws, request);
+    });
+  } catch (error) {
+    console.error('Eroare la upgrade-ul WebSocket:', error);
+    socket.destroy();
+  }
+});
+
+// Gestionare erori globale
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
+  console.error('Eroare server:', err);
   res.status(500).json({
-    success: false,
-    message: 'A apărut o eroare pe server',
-    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    error: 'Eroare internă server',
+    message: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
 });
 
@@ -178,46 +276,45 @@ async function initializeDatabase() {
   }
 }
 
-// Inițializare bază de date și pornire server
+// Gestionare conexiuni WebSocket
+wss.on('connection', (ws, request) => {
+  if (!request.user) {
+    console.error('Utilizator lipsă în request');
+    ws.close(1008, 'Utilizator neautentificat');
+    return;
+  }
+
+  const userId = request.user.id;
+  console.log('Nouă conexiune WebSocket stabilită pentru utilizatorul:', userId);
+  
+  ws.on('error', (error) => {
+    console.error('Eroare WebSocket:', error);
+  });
+
+  ws.on('close', () => {
+    console.log('Conexiune WebSocket închisă pentru utilizatorul:', userId);
+  });
+
+  // Trimite un mesaj de confirmare la conectare
+  ws.send(JSON.stringify({
+    type: 'connection_established',
+    message: 'Conexiune WebSocket stabilită cu succes'
+  }));
+});
+
+// Pornim serverul
 const startServer = async () => {
   try {
     await initializeDatabase();
-    const server = app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+    console.log('Conexiunea la baza de date a fost stabilită cu succes.');
+    
+    server.listen(PORT, () => {
+      console.log(`Server rulează pe portul ${PORT}`);
       console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`CORS enabled for: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
+      console.log(`CORS enabled for: ${process.env.CORS_ORIGIN || 'http://localhost:3000'}`);
     });
-
-    // Gestionare închidere sigură
-    const gracefulShutdown = async (signal) => {
-      console.log(`Received signal: ${signal}. Shutting down server...`);
-      
-      server.close(() => {
-        console.log('HTTP server closed.');
-        
-        // Închidem conexiunea la baza de date
-        sequelize.close().then(() => {
-          console.log('Database connection closed.');
-          process.exit(0);
-        }).catch(err => {
-          console.error('Error closing database connection:', err);
-          process.exit(1);
-        });
-      });
-      
-      // Setăm un timeout pentru a forța închiderea dacă durează prea mult
-      setTimeout(() => {
-        console.error('Server did not close in time. Forcing shutdown.');
-        process.exit(1);
-      }, 10000);
-    };
-
-    // Ascultăm semnalele de închidere
-    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
-
   } catch (error) {
-    console.error('Failed to start server:', error);
+    console.error('Error starting server:', error);
     process.exit(1);
   }
 };

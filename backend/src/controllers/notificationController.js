@@ -18,16 +18,16 @@ const NOTIFICATION_TYPES = {
 
 // Mesaje implicite pentru fiecare tip de notificare
 const DEFAULT_MESSAGES = {
-  [NOTIFICATION_TYPES.DOCUMENT_DELETED]: 'Your document has been deleted by the administrator',
-  [NOTIFICATION_TYPES.DOCUMENT_REJECTED]: 'Your document has been rejected by the administrator',
-  [NOTIFICATION_TYPES.DOCUMENT_APPROVED]: 'Your document has been approved',
-  [NOTIFICATION_TYPES.DOCUMENT_UPDATED]: 'Your document has been updated',
-  [NOTIFICATION_TYPES.DOCUMENT_EXPIRED]: 'Your document has expired',
-  [NOTIFICATION_TYPES.DEADLINE]: 'You have a deadline approaching',
-  [NOTIFICATION_TYPES.TEAM]: 'You have a new activity in your team',
-  [NOTIFICATION_TYPES.NEW_USER]: 'A new user has registered',
-  [NOTIFICATION_TYPES.NEW_DOCUMENT]: 'A new document has been uploaded',
-  [NOTIFICATION_TYPES.NEW_APPLICATION]: 'A new application has been submitted'
+  [NOTIFICATION_TYPES.DOCUMENT_DELETED]: 'Documentul dumneavoastră a fost șters',
+  [NOTIFICATION_TYPES.DOCUMENT_REJECTED]: 'Documentul dumneavoastră a fost respins',
+  [NOTIFICATION_TYPES.DOCUMENT_APPROVED]: 'Documentul dumneavoastră a fost aprobat',
+  [NOTIFICATION_TYPES.DOCUMENT_UPDATED]: 'Documentul dumneavoastră a fost actualizat',
+  [NOTIFICATION_TYPES.DOCUMENT_EXPIRED]: 'Documentul dumneavoastră a expirat',
+  [NOTIFICATION_TYPES.DEADLINE]: 'Aveți un termen limită care se apropie',
+  [NOTIFICATION_TYPES.TEAM]: 'Aveți o activitate nouă în echipa dumneavoastră',
+  [NOTIFICATION_TYPES.NEW_USER]: 'Un utilizator nou s-a înregistrat',
+  [NOTIFICATION_TYPES.NEW_DOCUMENT]: 'Un document nou a fost încărcat',
+  [NOTIFICATION_TYPES.NEW_APPLICATION]: 'O aplicație nouă a fost trimisă'
 };
 
 // Creează o notificare
@@ -130,8 +130,12 @@ const calculatePriority = (type) => {
 };
 
 // Obține notificările unui utilizator
-const getUserNotifications = async (userId, userRole, limit = 50, offset = 0) => {
+const getUserNotifications = async (userId, userRole) => {
   try {
+    if (!userId) {
+      throw new Error('ID utilizator lipsă');
+    }
+
     // Șterge notificările expirate
     await Notification.destroy({
       where: {
@@ -179,15 +183,30 @@ const getUserNotifications = async (userId, userRole, limit = 50, offset = 0) =>
         ['priority', 'DESC'],
         ['createdAt', 'DESC']
       ],
-      limit,
-      offset
+      limit: 50
     });
 
-    return notifications;
+    // Transformă rezultatele în formatul așteptat de frontend
+    return notifications.map(notification => ({
+      id: notification.id,
+      type: notification.type,
+      message: notification.message,
+      isRead: notification.is_read,
+      createdAt: notification.createdAt,
+      document: notification.document ? {
+        id: notification.document.id,
+        type: notification.document.document_type,
+        filename: notification.document.filename,
+        filePath: notification.document.file_path
+      } : null,
+      isAdminNotification: notification.is_admin_notification,
+      adminMessage: notification.admin_message
+    }));
   } catch (error) {
-    logger.error('Error getting notifications', {
+    logger.error('Error getting user notifications', {
       error: error.message,
-      userId
+      userId,
+      userRole
     });
     throw error;
   }
@@ -277,7 +296,8 @@ const deleteNotification = async (notificationId, userId) => {
   }
 };
 
-exports.getAllNotifications = async (req, res) => {
+// Obține toate notificările
+const getAllNotifications = async (req, res) => {
   try {
     const notifications = await Notification.findAll({
       where: { userId: req.user.userId },
@@ -301,7 +321,8 @@ exports.getAllNotifications = async (req, res) => {
   }
 };
 
-exports.getNotificationById = async (req, res) => {
+// Obține o notificare după ID
+const getNotificationById = async (req, res) => {
   try {
     const notification = await Notification.findOne({
       where: {
@@ -495,5 +516,7 @@ module.exports = {
   markAllAsRead,
   deleteNotification,
   NOTIFICATION_TYPES,
-  VALID_NOTIFICATION_TYPES
+  VALID_NOTIFICATION_TYPES,
+  getAllNotifications,
+  getNotificationById
 }; 

@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "reset-db": "node -e \"require('./src/config/database').safeSync(true).then(() => process.exit())\""
+    "reset-db": "node -e \"require('./src/config/database').safeSync(true).then(() => process.exit())\"",
+    "migrate": "node -e \"require('./src/config/database').migrate().then(() => process.exit())\""
   },
   "keywords": [],
   "author": "",
@@ -14,18 +15,24 @@
   "dependencies": {
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.6.1",
+    "connect-redis": "^8.1.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "express-rate-limit": "^7.5.0",
+    "ioredis": "^5.6.1",
     "jsonwebtoken": "^9.0.0",
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.14.1",
     "node-cache": "^5.1.2",
     "openai": "^4.99.0",
+    "rate-limit-redis": "^4.2.0",
+    "redis": "^5.1.0",
     "sequelize": "^6.31.0",
     "sqlite3": "^5.1.6",
-    "winston": "^3.17.0"
+    "winston": "^3.17.0",
+    "ws": "^8.18.2"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"

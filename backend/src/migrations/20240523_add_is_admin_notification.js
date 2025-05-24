@@ -4,8 +4,8 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.addColumn('notifications', 'is_admin_notification', {
       type: Sequelize.BOOLEAN,
-      defaultValue: false,
-      allowNull: false
+      allowNull: false,
+      defaultValue: false
     });
   },
 

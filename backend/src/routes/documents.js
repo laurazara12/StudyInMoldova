@@ -17,6 +17,7 @@ const {
   deleteDocument,
   getUserDocuments
 } = require('../controllers/documentController');
+const MemoryStore = require('express-rate-limit').MemoryStore;
 
 const router = express.Router();
 
@@ -59,31 +60,52 @@ const errorHandler = (err, req, res, next) => {
 // Middleware pentru validarea documentelor
 const validateDocument = async (req, res, next) => {
   try {
-    console.log('Validare document - Request body:', req.body);
-    console.log('Validare document - Request file:', req.file);
+    console.log('Validare document - Request body:', JSON.stringify(req.body, null, 2));
+    console.log('Validare document - Request file:', req.file ? {
+      originalname: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size,
+      path: req.file.path
+    } : 'Nu există fișier');
     
     const { document_type } = req.body;
     
     if (!document_type) {
       console.error('Tipul documentului lipsește din request body');
-      throw new Error('Tipul documentului este obligatoriu');
+      return res.status(400).json({
+        success: false,
+        message: 'Tipul documentului este obligatoriu',
+        details: 'Specificați tipul documentului în câmpul document_type'
+      });
     }
 
     if (!req.file) {
       console.error('Fișierul lipsește din request');
-      throw new Error('Fișierul este obligatoriu');
+      return res.status(400).json({
+        success: false,
+        message: 'Fișierul este obligatoriu',
+        details: 'Este necesar să încărcați un fișier'
+      });
     }
 
     const validTypes = ['passport', 'diploma', 'transcript', 'cv', 'other', 'photo', 'medical', 'insurance'];
     if (!validTypes.includes(document_type)) {
       console.error('Tip de document invalid:', document_type);
-      throw new Error(`Tip de document invalid. Tipurile valide sunt: ${validTypes.join(', ')}`);
+      return res.status(400).json({
+        success: false,
+        message: 'Tip de document invalid',
+        details: `Tipurile valide sunt: ${validTypes.join(', ')}`
+      });
     }
 
     // Verifică dimensiunea fișierului
     if (req.file.size > 10 * 1024 * 1024) { // 10MB
       console.error('Fișier prea mare:', req.file.size);
-      throw new Error('Dimensiunea maximă permisă pentru fișier este de 10MB');
+      return res.status(400).json({
+        success: false,
+        message: 'Fișier prea mare',
+        details: 'Dimensiunea maximă permisă pentru fișier este de 10MB'
+      });
     }
 
     // Verifică tipul fișierului
@@ -99,7 +121,11 @@ const validateDocument = async (req, res, next) => {
 
     if (!allowedMimeTypes.includes(req.file.mimetype)) {
       console.error('Tip de fișier neacceptat:', req.file.mimetype);
-      throw new Error('Tip de fișier neacceptat. Folosiți doar PDF, JPG, PNG, DOC, DOCX, XLS sau XLSX.');
+      return res.status(400).json({
+        success: false,
+        message: 'Tip de fișier neacceptat',
+        details: 'Folosiți doar PDF, JPG, PNG, DOC, DOCX, XLS sau XLSX'
+      });
     }
 
     console.log('Document validat cu succes:', {
@@ -113,11 +139,21 @@ const validateDocument = async (req, res, next) => {
 
     next();
   } catch (error) {
+    console.error('Eroare la validarea documentului:', error);
     // Dacă există un fișier încărcat și apare o eroare, îl ștergem
     if (req.file && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
+      try {
+        fs.unlinkSync(req.file.path);
+        console.log('Fișier temporar șters după eroare:', req.file.path);
+      } catch (unlinkError) {
+        console.error('Eroare la ștergerea fișierului temporar:', unlinkError);
+      }
     }
-    next(error);
+    res.status(400).json({
+      success: false,
+      message: 'Eroare la validarea documentului',
+      details: error.message
+    });
   }
 };
 
@@ -134,97 +170,66 @@ if (!fs.existsSync(uploadsDir)) {
 
 // Configurare multer pentru încărcarea fișierelor
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    // Get user ID
-    const userId = req.user.id;
-    
-    // Create user directory using user ID
-    const userDir = path.join(uploadsDir, userId.toString());
-    if (!fs.existsSync(userDir)) {
-      try {
-        fs.mkdirSync(userDir, { recursive: true });
-        console.log('Created user directory:', userDir);
-      } catch (error) {
-        console.error('Error creating user directory:', error);
-        return cb(error);
-      }
-    }
-    
+  destination: (req, file, cb) => {
+    const userDir = path.join(uploadsDir, req.user.id.toString());
+    fs.mkdirSync(userDir, { recursive: true });
     cb(null, userDir);
   },
-  filename: function (req, file, cb) {
-    // Păstrăm numele original al fișierului
-    const originalFilename = file.originalname;
-    const userDir = path.join(uploadsDir, req.user.id.toString());
-    const filePath = path.join(userDir, originalFilename);
-    
-    // Verificăm dacă există deja un fișier cu același nume
-    if (fs.existsSync(filePath)) {
-      // Adăugăm un sufix unic doar dacă există deja un fișier cu același nume
-      const fileExtension = path.extname(originalFilename);
-      const fileNameWithoutExt = originalFilename.substring(0, originalFilename.length - fileExtension.length);
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      const newFilename = `${fileNameWithoutExt}-${uniqueSuffix}${fileExtension}`;
-      
-      console.log('Fișier cu același nume există, se adaugă sufix:', {
-        originalName: originalFilename,
-        newFilename: newFilename
-      });
-      
-      cb(null, newFilename);
-    } else {
-      console.log('Păstrare nume original fișier:', {
-        originalName: originalFilename
-      });
-      
-      cb(null, originalFilename);
-    }
+  filename: (req, file, cb) => {
+    const timestamp = Date.now();
+    const ext = path.extname(file.originalname);
+    const newFilename = `${req.body.document_type}_${timestamp}${ext}`;
+    cb(null, newFilename);
   }
 });
 
-// Configurare multer cu validări suplimentare
+const fileFilter = (req, file, cb) => {
+  const allowedMimeTypes = [
+    'application/pdf',
+    'image/jpeg',
+    'image/png',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  ];
+  
+  const allowedExtensions = ['.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx', '.xls', '.xlsx'];
+  const ext = path.extname(file.originalname).toLowerCase();
+  
+  if (allowedMimeTypes.includes(file.mimetype) && allowedExtensions.includes(ext)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Tip de fișier neacceptat. Sunt acceptate doar fișierele PDF, JPG, PNG, DOC, DOCX, XLS și XLSX.'));
+  }
+};
+
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
-    files: 1
+    fileSize: 10 * 1024 * 1024 // 10MB
   },
-  fileFilter: function (req, file, cb) {
-    // Verifică tipul de fișier
-    const allowedTypes = [
-      'application/pdf',
-      'image/jpeg',
-      'image/png',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    ];
+  fileFilter: fileFilter
+});
 
-    // Verifică extensia fișierului
-    const ext = path.extname(file.originalname).toLowerCase();
-    const allowedExtensions = ['.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx', '.xls', '.xlsx'];
-    
-    if (!allowedTypes.includes(file.mimetype) || !allowedExtensions.includes(ext)) {
-      return cb(new Error('Tip de fișier neacceptat. Folosiți doar PDF, JPG, PNG, DOC, DOCX, XLS sau XLSX.'), false);
+// Middleware pentru gestionarea erorilor multer
+const handleMulterError = (err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({
+        error: 'Fișierul este prea mare. Dimensiunea maximă permisă este de 10MB.'
+      });
     }
-
-    // Verifică numele fișierului pentru caractere periculoase
-    const sanitizedFilename = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
-    if (sanitizedFilename !== file.originalname) {
-      file.originalname = sanitizedFilename;
-    }
-
-    cb(null, true);
+    return res.status(400).json({
+      error: `Eroare la încărcarea fișierului: ${err.message}`
+    });
+  } else if (err) {
+    return res.status(400).json({
+      error: err.message
+    });
   }
-});
-
-// Middleware pentru rate limiting
-const uploadLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minute
-  max: 10, // limită de 10 încărcări per IP
-  message: 'Prea multe încărcări de fișiere. Vă rugăm să încercați din nou mai târziu.'
-});
+  next();
+};
 
 // Configurare pentru caching
 const cache = new NodeCache({ stdTTL: 600 }); // Cache pentru 10 minute
@@ -248,8 +253,48 @@ const cacheMiddleware = (duration) => {
   };
 };
 
+// Rate limiters cu MemoryStore
+const uploadLimiter = rateLimit({
+  store: new MemoryStore(),
+  windowMs: 15 * 60 * 1000, // 15 minute
+  max: 10, // maxim 10 încărcări per fereastră
+  message: {
+    success: false,
+    message: 'Prea multe cereri de încărcare. Vă rugăm să așteptați 15 minute.',
+    details: 'Limita de încărcări a fost depășită. Vă rugăm să încercați din nou mai târziu.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+const downloadLimiter = rateLimit({
+  store: new MemoryStore(),
+  windowMs: 15 * 60 * 1000, // 15 minute
+  max: 20, // maxim 20 descărcări per fereastră
+  message: {
+    success: false,
+    message: 'Prea multe cereri de descărcare. Vă rugăm să așteptați 15 minute.',
+    details: 'Limita de descărcări a fost depășită. Vă rugăm să încercați din nou mai târziu.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+const listLimiter = rateLimit({
+  store: new MemoryStore(),
+  windowMs: 5 * 60 * 1000, // 5 minute
+  max: 50, // maxim 50 de cereri per fereastră
+  message: {
+    success: false,
+    message: 'Prea multe cereri de listare. Vă rugăm să așteptați 5 minute.',
+    details: 'Limita de cereri de listare a fost depășită. Vă rugăm să încercați din nou mai târziu.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
 // Rute pentru documente
-router.get('/user-documents', authMiddleware, async (req, res) => {
+router.get('/user-documents', authMiddleware, listLimiter, async (req, res) => {
   try {
     console.log('Începe preluarea documentelor pentru utilizatorul:', req.user.id);
     
@@ -501,130 +546,88 @@ router.get('/', authMiddleware, adminMiddleware, async (req, res) => {
 });
 
 // Upload document
-router.post('/upload', authMiddleware, uploadLimiter, upload.single('file'), validateDocument, async (req, res, next) => {
-  try {
-    logger.info('Începe încărcarea documentului', {
-      userId: req.user.id,
-      documentType: req.body.document_type,
-      file: req.file ? {
-        originalname: req.file.originalname,
-        mimetype: req.file.mimetype,
-        size: req.file.size
-      } : null
-    });
-
-    if (!req.file) {
-      return res.status(400).json({ 
-        success: false,
-        message: 'Nu s-a încărcat niciun fișier',
-        details: 'Este necesar să încărcați un fișier'
-      });
-    }
-
-    const documentType = req.body.document_type;
-    
-    if (!documentType) {
-      if (fs.existsSync(req.file.path)) {
-        fs.unlinkSync(req.file.path);
+router.post('/upload',
+  authMiddleware,
+  upload.single('file'),
+  handleMulterError,
+  validateDocument,
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ 
+          success: false,
+          message: 'Nu s-a încărcat niciun fișier',
+          details: 'Este necesar să încărcați un fișier'
+        });
       }
-      return res.status(400).json({ 
-        success: false,
-        message: 'Tipul documentului este obligatoriu',
-        details: 'Specificați tipul documentului în câmpul document_type'
-      });
-    }
 
-    const validTypes = ['passport', 'diploma', 'transcript', 'cv', 'other', 'photo', 'medical', 'insurance'];
-    
-    if (!validTypes.includes(documentType)) {
-      if (fs.existsSync(req.file.path)) {
-        fs.unlinkSync(req.file.path);
+      const documentType = req.body.document_type;
+      
+      if (!documentType) {
+        if (fs.existsSync(req.file.path)) {
+          fs.unlinkSync(req.file.path);
+        }
+        return res.status(400).json({ 
+          success: false,
+          message: 'Tipul documentului este obligatoriu',
+          details: 'Specificați tipul documentului în câmpul document_type'
+        });
       }
-      return res.status(400).json({ 
-        success: false,
-        message: 'Tip de document invalid',
-        details: 'Tipul documentului trebuie să fie unul dintre: ' + validTypes.join(', ')
-      });
-    }
 
-    // Verifică dacă utilizatorul are deja un document de acest tip
-    const existingDocument = await Document.findOne({
-      where: {
+      // Verifică dacă utilizatorul are deja un document de acest tip
+      const existingDocument = await Document.findOne({
+        where: {
+          user_id: req.user.id,
+          document_type: documentType,
+          status: { [Op.ne]: 'deleted' }
+        }
+      });
+
+      if (existingDocument) {
+        // Șterge fișierul vechi
+        const oldFilePath = path.join(uploadsDir, existingDocument.file_path);
+        if (fs.existsSync(oldFilePath)) {
+          fs.unlinkSync(oldFilePath);
+        }
+        await existingDocument.destroy();
+      }
+
+      // Creează documentul nou
+      const document = await Document.create({
         user_id: req.user.id,
         document_type: documentType,
-        status: { [Op.ne]: 'deleted' }
-      }
-    });
+        file_path: path.join(req.user.id.toString(), req.file.filename),
+        filename: req.file.filename,
+        originalName: req.file.originalname,
+        status: 'pending',
+        uploaded: true,
+        uploadDate: new Date()
+      });
 
-    if (existingDocument) {
-      if (fs.existsSync(req.file.path)) {
+      res.status(201).json({
+        success: true,
+        message: 'Document încărcat cu succes',
+        document: {
+          id: document.id,
+          document_type: document.document_type,
+          status: document.status,
+          uploaded: document.uploaded,
+          uploadDate: document.uploadDate
+        }
+      });
+    } catch (error) {
+      console.error('Eroare la încărcarea documentului:', error);
+      if (req.file && fs.existsSync(req.file.path)) {
         fs.unlinkSync(req.file.path);
       }
-      return res.status(400).json({
+      res.status(500).json({ 
         success: false,
-        message: 'Există deja un document de acest tip',
-        details: 'Ștergeți documentul existent înainte de a încărca unul nou'
+        message: 'Eroare la încărcarea documentului',
+        error: error.message
       });
     }
-
-    // Păstrăm numele original al fișierului
-    const originalFilename = req.file.originalname;
-    const fileExtension = path.extname(originalFilename);
-    const timestamp = Date.now();
-    const newFilename = `${documentType}_${timestamp}${fileExtension}`;
-    const userDir = path.join(uploadsDir, req.user.id.toString());
-    
-    if (!fs.existsSync(userDir)) {
-      fs.mkdirSync(userDir, { recursive: true });
-    }
-
-    const filePath = path.join(userDir, newFilename);
-    fs.renameSync(req.file.path, filePath);
-
-    const document = await Document.create({
-      user_id: req.user.id,
-      document_type: documentType,
-      file_path: filePath,
-      filename: newFilename,
-      originalName: originalFilename,
-      status: 'pending',
-      uploaded: true,
-      uploadDate: new Date()
-    });
-
-    logger.info('Document încărcat cu succes', {
-      userId: req.user.id,
-      documentId: document.id,
-      documentType: document.document_type,
-      filePath: filePath
-    });
-
-    res.json({
-      success: true,
-      message: 'Document încărcat cu succes',
-      document: {
-        id: document.id,
-        document_type: document.document_type,
-        status: document.status,
-        uploaded: document.uploaded,
-        uploadDate: document.uploadDate
-      }
-    });
-  } catch (error) {
-    logger.error('Eroare la încărcarea documentului', {
-      error: error.message,
-      stack: error.stack,
-      userId: req.user.id,
-      documentType: req.body.document_type
-    });
-
-    if (req.file && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
-    }
-
-    next(error);
   }
-});
+);
 
 // Obține toate documentele unui utilizator
 router.get('/my-documents', authMiddleware, async (req, res) => {
@@ -696,7 +699,7 @@ const checkPermissions = async (req, res, next) => {
 };
 
 // Optimizare pentru descărcarea fișierelor
-router.get('/download/:id', authMiddleware, checkPermissions, async (req, res, next) => {
+router.get('/download/:id', authMiddleware, downloadLimiter, checkPermissions, async (req, res, next) => {
   try {
     const document = req.document;
     const filePath = path.resolve(document.file_path);
@@ -711,19 +714,27 @@ router.get('/download/:id', authMiddleware, checkPermissions, async (req, res, n
     res.setHeader('Content-Type', 'application/octet-stream');
     res.setHeader('Cache-Control', 'no-cache');
 
-    // Trimite fișierul în chunks pentru optimizare
-    const fileStream = fs.createReadStream(filePath, { highWaterMark: 64 * 1024 }); // 64KB chunks
+    // Trimite fișierul
+    const fileStream = fs.createReadStream(filePath);
     fileStream.pipe(res);
 
     fileStream.on('error', (error) => {
-      logger.error('Eroare la trimiterea fișierului:', {
-        error: error.message,
-        documentId: document.id
-      });
-      next(error);
+      console.error('Eroare la citirea fișierului:', error);
+      if (!res.headersSent) {
+        res.status(500).json({
+          success: false,
+          message: 'Eroare la citirea fișierului'
+        });
+      }
     });
+
   } catch (error) {
-    next(error);
+    console.error('Eroare la descărcarea documentului:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Eroare la descărcarea documentului',
+      error: error.message
+    });
   }
 });
 

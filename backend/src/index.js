@@ -8,7 +8,7 @@ const programsRoutes = require('./routes/programs');
 const applicationsRoutes = require('./routes/applications');
 
 const app = express();
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 5001;
 
 // Middleware
 app.use(cors());

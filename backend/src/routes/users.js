@@ -1,6 +1,29 @@
 const express = require('express');
 const router = express.Router();
 const { User } = require('../models');
+const { authMiddleware } = require('../middleware/auth');
+const userController = require('../controllers/userController');
+
+// Aplicăm middleware-ul de autentificare pentru toate rutele
+router.use(authMiddleware);
+
+// Ruta pentru obținerea rolului utilizatorului
+router.get('/role', userController.getUserRole);
+
+// Ruta pentru obținerea profilului utilizatorului
+router.get('/profile', userController.getUserProfile);
+
+// Ruta pentru actualizarea profilului utilizatorului
+router.put('/profile', userController.updateUserProfile);
+
+// Ruta pentru ștergerea utilizatorului
+router.delete('/profile', userController.deleteUser);
+
+// Ruta pentru obținerea datelor utilizatorului curent
+router.get('/me', userController.getCurrentUser);
+
+// Ruta pentru actualizarea utilizatorului
+router.put('/me', userController.updateUser);
 
 // GET /api/users - Get all users (admin only)
 router.get('/', async (req, res) => {

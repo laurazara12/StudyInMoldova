@@ -3,10 +3,18 @@ const { Op } = require('sequelize');
 const OpenAI = require('openai');
 
 // Inițializăm clientul OpenAI pentru DeepSeek
-const openai = new OpenAI({
-  baseURL: 'https://api.deepseek.com',
-  apiKey: process.env.DEEPSEEK_API_KEY
-});
+let openai;
+try {
+  if (!process.env.DEEPSEEK_API_KEY) {
+    console.warn('AVERTISMENT: DEEPSEEK_API_KEY nu este configurat în fișierul .env');
+  }
+  openai = new OpenAI({
+    baseURL: 'https://api.deepseek.com/v1',
+    apiKey: process.env.DEEPSEEK_API_KEY || 'dummy-key'
+  });
+} catch (error) {
+  console.error('Eroare la inițializarea clientului OpenAI:', error);
+}
 
 // Funcție pentru detectarea limbii
 const detectLanguage = (text) => {
@@ -117,6 +125,10 @@ exports.getRecommendations = async (req, res) => {
 
     let aiResponse;
     try {
+      if (!openai) {
+        throw new Error('Clientul OpenAI nu a fost inițializat corect');
+      }
+
       // Pregătim contextul pentru DeepSeek
       const systemPrompt = `Ești un asistent prietenos și util specializat în ajutarea studenților să găsească programe de studii în Moldova. 
       Ai acces la următoarele programe: ${JSON.stringify(recommendations)}.
@@ -142,6 +154,8 @@ exports.getRecommendations = async (req, res) => {
           { role: "user", content: question }
         ],
         model: "deepseek-chat",
+        temperature: 0.7,
+        max_tokens: 1000
       });
       aiResponse = completion.choices[0].message.content;
     } catch (apiError) {

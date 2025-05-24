@@ -26,7 +26,8 @@ const modelFiles = [
   'savedProgram.js',
   'application.js',
   'document.js',
-  'notification.js'
+  'notification.js',
+  'applicationDocument.js'
 ];
 
 modelFiles.forEach(file => {

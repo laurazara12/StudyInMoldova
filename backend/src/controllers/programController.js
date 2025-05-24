@@ -7,18 +7,52 @@ exports.getAllPrograms = async (req, res) => {
       include: [{
         model: University,
         as: 'University',
-        attributes: ['id', 'name']
+        attributes: ['id', 'name', 'image_url', 'location', 'website']
       }],
       attributes: [
         'id', 'name', 'description', 'duration', 'degree_type', 
         'language', 'tuition_fees', 'credits', 'faculty',
         'university_id', 'createdAt', 'updatedAt'
-      ]
+      ],
+      order: [['name', 'ASC']]
     });
-    res.json(programs);
+
+    const formattedPrograms = programs.map(program => ({
+      id: program.id,
+      name: program.name,
+      description: program.description,
+      duration: program.duration,
+      degree_type: program.degree_type,
+      language: program.language,
+      tuition_fees: program.tuition_fees,
+      credits: program.credits,
+      faculty: program.faculty,
+      university: program.University ? {
+        id: program.University.id,
+        name: program.University.name,
+        image_url: program.University.image_url,
+        location: program.University.location,
+        website: program.University.website
+      } : null,
+      createdAt: program.createdAt,
+      updatedAt: program.updatedAt
+    }));
+
+    res.json({
+      success: true,
+      message: 'Programele au fost preluate cu succes',
+      data: formattedPrograms,
+      total: programs.length
+    });
   } catch (error) {
     console.error('Eroare detaliată la obținerea programelor:', error);
-    res.status(500).json({ message: 'Eroare la obținerea programelor', error: error.message });
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la obținerea programelor', 
+      error: error.message,
+      data: [],
+      total: 0
+    });
   }
 };
 
