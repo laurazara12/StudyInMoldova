@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { FaBell, FaCheck, FaFilter, FaExclamationTriangle, FaInfoCircle, FaUserPlus, FaFileUpload, FaClipboardList, FaTrash, FaTimes, FaEdit, FaClock, FaUsers } from 'react-icons/fa';
 import './notifications.css';
 import { API_BASE_URL, getAuthHeaders } from '../config/api.config';
+import { useAuth } from '../contexts/AuthContext';
+import { toast } from 'react-toastify';
 
 function Notifications() {
   const [notifications, setNotifications] = useState([]);
@@ -9,19 +11,147 @@ function Notifications() {
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('all');
   const [userRole, setUserRole] = useState(null);
+  const [ws, setWs] = useState(null);
+  const [wsConnected, setWsConnected] = useState(false);
+  const [reconnectAttempts, setReconnectAttempts] = useState(0);
+  const MAX_RECONNECT_ATTEMPTS = 5;
+  const { token } = useAuth();
+
+  const connectWebSocket = useCallback(() => {
+    if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+      console.error('Numărul maxim de încercări de reconectare a fost atins');
+      return;
+    }
+
+    if (!token) {
+      console.error('Token lipsă pentru conexiunea WebSocket');
+      return;
+    }
+
+    try {
+      const wsUrl = `${process.env.REACT_APP_WS_URL || 'ws://localhost:4000/ws'}`;
+      const socket = new WebSocket(wsUrl, [token]);
+
+      socket.onopen = () => {
+        console.log('Conexiune WebSocket stabilită');
+        setWsConnected(true);
+        setReconnectAttempts(0);
+      };
+
+      socket.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          console.log('Mesaj primit:', data);
+          
+          if (data.type === 'connection_established') {
+            console.log('Conexiune WebSocket confirmată:', data.message);
+          } else if (data.type === 'new_notification') {
+            console.log('Notificare nouă primită:', data.notification);
+            setNotifications(prev => [data.notification, ...prev]);
+            toast.info(data.notification.message);
+          }
+        } catch (error) {
+          console.error('Eroare la procesarea mesajului:', error);
+        }
+      };
+
+      socket.onerror = (error) => {
+        console.error('Eroare WebSocket:', error);
+        setWsConnected(false);
+        toast.error('Eroare la conexiunea cu serverul de notificări');
+      };
+
+      socket.onclose = () => {
+        console.log('Conexiune WebSocket închisă');
+        setWsConnected(false);
+        
+        if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+          setTimeout(() => {
+            setReconnectAttempts(prev => prev + 1);
+            connectWebSocket();
+          }, 5000);
+        }
+      };
+
+      setWs(socket);
+
+      return () => {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          socket.close(1000, 'Componenta se deconectează');
+        }
+      };
+    } catch (error) {
+      console.error('Eroare la inițializarea WebSocket:', error);
+      setWsConnected(false);
+      toast.error('Nu s-a putut stabili conexiunea cu serverul de notificări');
+    }
+  }, [reconnectAttempts, token]);
+
+  useEffect(() => {
+    if (token) {
+      connectWebSocket();
+    }
+
+    return () => {
+      if (ws) {
+        ws.close();
+      }
+    };
+  }, [token, connectWebSocket]);
 
   useEffect(() => {
     const fetchUserRole = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/user/role`, {
-          headers: getAuthHeaders()
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setUserRole(data.role);
+        console.log('Începe încărcarea rolului utilizatorului...');
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+          console.error('Token lipsă');
+          setUserRole(null);
+          return;
         }
-      } catch (err) {
-        console.error('Eroare la încărcarea rolului:', err);
+
+        const response = await fetch(`${API_BASE_URL}/api/users/role`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include'
+        });
+
+        console.log('Răspuns primit:', response.status);
+        console.log('Headers:', response.headers);
+
+        const contentType = response.headers.get('content-type');
+        console.log('Content-Type:', contentType);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('Eroare la server:', errorData);
+          throw new Error(errorData.message || `Eroare HTTP: ${response.status}`);
+        }
+
+        if (!contentType || !contentType.includes('application/json')) {
+          const text = await response.text();
+          console.error('Răspuns invalid:', text);
+          throw new Error('Răspunsul nu este în format JSON');
+        }
+
+        const data = await response.json();
+        console.log('Date primite:', data);
+
+        if (data.success && data.data && data.data.role) {
+          console.log('Rolul utilizatorului a fost setat:', data.data.role);
+          setUserRole(data.data.role);
+        } else {
+          console.error('Structură invalidă a răspunsului:', data);
+          setUserRole(null);
+        }
+      } catch (error) {
+        console.error('Eroare la încărcarea rolului:', error);
+        setUserRole(null);
       }
     };
 
@@ -46,11 +176,11 @@ function Notifications() {
         }
         
         const data = await response.json();
-        if (!Array.isArray(data)) {
-          throw new Error('Format invalid al datelor primite');
+        if (!data.success) {
+          throw new Error(data.message || 'Eroare la încărcarea notificărilor');
         }
         
-        const processedNotifications = data.map(notification => ({
+        const processedNotifications = data.data.map(notification => ({
           ...notification,
           priority: calculatePriority(notification),
           expiresAt: calculateExpirationDate(notification),
@@ -67,7 +197,7 @@ function Notifications() {
     };
 
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 300000);
+    const interval = setInterval(fetchNotifications, 300000); // Actualizare la fiecare 5 minute
     return () => clearInterval(interval);
   }, [userRole]);
 
@@ -224,95 +354,85 @@ function Notifications() {
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
   return (
-    <div className="notifications-section">
-      <div className="profile-header-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={{ margin: 0 }}>
-          {userRole === 'admin' ? 'Notificări Administrative' : 'Notificările Mele'} 
-          {unreadCount > 0 ? `(${unreadCount})` : ''}
-        </h2>
-      </div>
-
-      <div className="notifications-content">
+    <div className="notifications-container">
+      <div className="notifications-header">
+        <h3>Notificări</h3>
         <div className="notifications-filters">
           <button 
-            className={`tab-button ${filter === 'all' ? 'active' : ''}`}
+            className={`filter-button ${filter === 'all' ? 'active' : ''}`}
             onClick={() => setFilter('all')}
           >
             Toate
           </button>
           <button 
-            className={`tab-button ${filter === 'unread' ? 'active' : ''}`}
+            className={`filter-button ${filter === 'unread' ? 'active' : ''}`}
             onClick={() => setFilter('unread')}
           >
             Necitite
           </button>
-          <button 
-            className={`tab-button ${filter === 'important' ? 'active' : ''}`}
-            onClick={() => setFilter('important')}
-          >
-            Importante
-          </button>
           {userRole === 'admin' && (
             <button 
-              className={`tab-button ${filter === 'admin' ? 'active' : ''}`}
+              className={`filter-button ${filter === 'admin' ? 'active' : ''}`}
               onClick={() => setFilter('admin')}
             >
               Administrative
             </button>
           )}
         </div>
-
-        {loading ? (
-          <div className="notifications-loading">Se încarcă...</div>
-        ) : error ? (
-          <div className="notifications-error">{error}</div>
-        ) : filterNotifications(notifications).length > 0 ? (
-          <>
-            {unreadCount > 0 && (
-              <button 
-                className="mark-all-read"
-                onClick={handleMarkAllRead}
-              >
-                <FaCheck /> Marchează toate ca citite
-              </button>
-            )}
-            <div className="notifications-list">
-              {filterNotifications(notifications).map(notification => (
-                <div
-                  key={notification.id}
-                  className={`notification-item ${getNotificationClass(notification)}`}
-                  onClick={() => handleNotificationClick(notification.id)}
-                >
-                  <div className="notification-content">
-                    {getNotificationIcon(notification.type)}
-                    {notification.is_admin_notification && (
-                      <span className="admin-badge">Administrativ</span>
-                    )}
-                    <p>{notification.message}</p>
-                    {notification.admin_message && (
-                      <p className="admin-message">{notification.admin_message}</p>
-                    )}
-                    <span className="notification-date">
-                      {new Date(notification.createdAt).toLocaleDateString('ro-RO', {
-                        day: 'numeric',
-                        month: 'long',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </span>
-                    {new Date(notification.expiresAt) < new Date() && (
-                      <span className="expired-badge">Expirată</span>
-                    )}
-                  </div>
-                  {!notification.is_read && <div className="unread-indicator" />}
-                </div>
-              ))}
-            </div>
-          </>
-        ) : (
-          <div className="no-notifications">Nu există notificări</div>
-        )}
       </div>
+
+      {loading ? (
+        <div className="notifications-loading">Se încarcă...</div>
+      ) : error ? (
+        <div className="notifications-error">{error}</div>
+      ) : filterNotifications(notifications).length > 0 ? (
+        <>
+          {unreadCount > 0 && (
+            <button 
+              className="mark-all-read"
+              onClick={handleMarkAllRead}
+            >
+              <FaCheck /> Marchează toate ca citite
+            </button>
+          )}
+          <div className="notifications-list">
+            {filterNotifications(notifications).map(notification => (
+              <div
+                key={notification.id}
+                className={`notification-item ${getNotificationClass(notification)}`}
+                onClick={() => handleNotificationClick(notification.id)}
+              >
+                <div className="notification-content">
+                  {getNotificationIcon(notification.type)}
+                  {notification.is_admin_notification && (
+                    <span className="admin-badge">Administrativ</span>
+                  )}
+                  <p>{notification.message}</p>
+                  {notification.admin_message && (
+                    <p className="admin-message">{notification.admin_message}</p>
+                  )}
+                  <span className="notification-date">
+                    {new Date(notification.createdAt).toLocaleDateString('ro-RO', {
+                      day: 'numeric',
+                      month: 'long',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </span>
+                  {new Date(notification.expiresAt) < new Date() && (
+                    <span className="expired-badge">Expirată</span>
+                  )}
+                </div>
+                {!notification.is_read && <div className="unread-indicator" />}
+              </div>
+            ))}
+          </div>
+        </>
+      ) : (
+        <div className="no-notifications">
+          Nu există notificări
+        </div>
+      )}
     </div>
   );
 }

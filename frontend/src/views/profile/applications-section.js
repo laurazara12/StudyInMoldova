@@ -42,41 +42,37 @@ const ApplicationsSection = () => {
         headers: getAuthHeaders()
       });
 
-      if (response.data && response.data.success && response.data.data) {
-        const { applications, total, status } = response.data.data;
-        setApplications(applications);
-        setTotal(total);
-        setStatus(status);
-      } else {
-        console.error('Format răspuns neașteptat:', response.data);
-        setError('Format răspuns neașteptat de la server');
-        setApplications({
-          drafts: [],
-          pending: [],
-          sent: [],
-          rejected: [],
-          withdrawn: []
-        });
-        setTotal(0);
-        setStatus({
-          drafts: 0,
-          pending: 0,
-          sent: 0,
-          rejected: 0,
-          withdrawn: 0
-        });
+      console.log('Răspuns server complet:', JSON.stringify(response.data, null, 2));
+
+      if (!response.data || typeof response.data !== 'object') {
+        throw new Error('Format invalid al răspunsului de la server');
       }
-    } catch (err) {
-      console.error('Eroare la preluarea aplicațiilor:', err);
-      if (err.response) {
-        if (err.response.status === 401) {
-          setError('Sesiunea a expirat. Vă rugăm să vă autentificați din nou.');
-        } else {
-          setError(err.response.data?.error || 'Eroare la preluarea aplicațiilor');
-        }
-      } else {
-        setError('Eroare la comunicarea cu serverul');
+
+      if (!response.data.success) {
+        throw new Error(response.data.message || 'Eroare la preluarea aplicațiilor');
       }
+
+      const { data, total, status } = response.data;
+
+      if (!data || typeof data !== 'object') {
+        throw new Error('Format invalid al datelor primite');
+      }
+
+      // Verificăm și formatăm datele
+      const formattedData = {
+        drafts: Array.isArray(data.drafts) ? data.drafts : [],
+        pending: Array.isArray(data.pending) ? data.pending : [],
+        sent: Array.isArray(data.sent) ? data.sent : [],
+        rejected: Array.isArray(data.rejected) ? data.rejected : [],
+        withdrawn: Array.isArray(data.withdrawn) ? data.withdrawn : []
+      };
+
+      setApplications(formattedData);
+      setTotal(total);
+      setStatus(status);
+    } catch (error) {
+      console.error('Eroare la încărcarea aplicațiilor:', error);
+      setError(error.message);
       setApplications({
         drafts: [],
         pending: [],
@@ -97,6 +93,43 @@ const ApplicationsSection = () => {
     }
   };
 
+  const handleError = (err) => {
+    if (err.response) {
+      console.error('Detalii eroare:', {
+        status: err.response.status,
+        data: err.response.data,
+        headers: err.response.headers
+      });
+      
+      if (err.response.status === 401) {
+        setError('Sesiunea a expirat. Vă rugăm să vă autentificați din nou.');
+      } else {
+        setError(err.response.data?.message || err.response.data?.error || 'Eroare la preluarea aplicațiilor');
+      }
+    } else {
+      setError(err.message || 'Eroare la comunicarea cu serverul');
+    }
+    resetApplicationState();
+  };
+
+  const resetApplicationState = () => {
+    setApplications({
+      drafts: [],
+      pending: [],
+      sent: [],
+      rejected: [],
+      withdrawn: []
+    });
+    setTotal(0);
+    setStatus({
+      drafts: 0,
+      pending: 0,
+      sent: 0,
+      rejected: 0,
+      withdrawn: 0
+    });
+  };
+
   const handleCreateApplication = () => {
     setSelectedApplication(null);
     setShowCreateForm(true);
@@ -111,11 +144,11 @@ const ApplicationsSection = () => {
     try {
       console.log('Încercare retragere aplicație:', {
         applicationId,
-        url: `${API_BASE_URL}/api/applications/${applicationId}/withdraw`
+        url: `${API_BASE_URL}/api/applications/${applicationId}/cancel`
       });
 
-      const response = await axios.put(
-        `${API_BASE_URL}/api/applications/${applicationId}/withdraw`,
+      const response = await axios.post(
+        `${API_BASE_URL}/api/applications/${applicationId}/cancel`,
         {},
         {
           headers: getAuthHeaders()
@@ -217,11 +250,15 @@ const ApplicationsSection = () => {
   const getFilteredApplications = (section) => {
     switch (section) {
       case 'drafts':
-        return applications.drafts;
+        return applications.drafts || [];
       case 'processing':
-        return applications.pending;
+        return applications.pending || [];
       case 'sent':
-        return applications.sent;
+        return applications.sent || [];
+      case 'rejected':
+        return applications.rejected || [];
+      case 'withdrawn':
+        return applications.withdrawn || [];
       default:
         return [];
     }
@@ -230,11 +267,15 @@ const ApplicationsSection = () => {
   const getApplicationsForSection = (section) => {
     switch (section) {
       case 'drafts':
-        return applications.drafts;
+        return applications.drafts || [];
       case 'processing':
-        return applications.pending;
+        return applications.pending || [];
       case 'sent':
-        return applications.sent;
+        return applications.sent || [];
+      case 'rejected':
+        return applications.rejected || [];
+      case 'withdrawn':
+        return applications.withdrawn || [];
       default:
         return [];
     }
@@ -346,7 +387,10 @@ const ApplicationsSection = () => {
       </div>
 
       {showCreateForm && (
-        <CreateApplication onClose={handleCloseModal} />
+        <CreateApplication 
+          application={selectedApplication}
+          onClose={handleCloseModal} 
+        />
       )}
 
       {showDetailsModal && selectedApplication && (

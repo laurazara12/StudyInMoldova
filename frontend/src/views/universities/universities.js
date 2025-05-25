@@ -28,30 +28,46 @@ const Universities = () => {
   const fetchUniversities = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
       const data = await getAllUniversities();
       console.log('Date primite de la serviciu:', data);
       
-      if (Array.isArray(data)) {
-        // Verificăm și procesăm datele pentru a ne asigura că taxele sunt corecte
-        const processedData = data.map(uni => ({
-          ...uni,
-          tuitionFees: {
-            bachelor: uni.tuitionFees?.bachelor ? parseFloat(uni.tuitionFees.bachelor) : 0,
-            master: uni.tuitionFees?.master ? parseFloat(uni.tuitionFees.master) : 0,
-            phd: uni.tuitionFees?.phd ? parseFloat(uni.tuitionFees.phd) : 0
-          }
-        }));
-        
-        console.log('Date procesate pentru afișare:', processedData);
-        setUniversities(processedData);
-        setFilteredUniversities(processedData);
-      } else {
+      if (!Array.isArray(data)) {
         console.error('Date invalide primite:', data);
         setError('Formatul datelor primite este invalid');
+        setUniversities([]);
+        setFilteredUniversities([]);
+        return;
       }
+      
+      // Verificăm și procesăm datele pentru a ne asigura că taxele sunt corecte
+      const processedData = data.map(uni => {
+        // Convertim taxele la numere dacă nu sunt deja
+        const tuitionFees = uni.tuition_fees || {};
+        const processedFees = {
+          bachelor: typeof tuitionFees.bachelor === 'number' ? tuitionFees.bachelor : 
+                   tuitionFees.bachelor ? parseFloat(tuitionFees.bachelor) : null,
+          master: typeof tuitionFees.master === 'number' ? tuitionFees.master :
+                 tuitionFees.master ? parseFloat(tuitionFees.master) : null,
+          phd: typeof tuitionFees.phd === 'number' ? tuitionFees.phd :
+               tuitionFees.phd ? parseFloat(tuitionFees.phd) : null
+        };
+        
+        return {
+          ...uni,
+          tuition_fees: processedFees
+        };
+      });
+      
+      console.log('Date procesate pentru afișare:', processedData);
+      setUniversities(processedData);
+      setFilteredUniversities(processedData);
     } catch (error) {
       console.error('Eroare la încărcarea universităților:', error);
-      setError('Nu s-au putut încărca universitățile');
+      setError(error.message || 'Nu s-au putut încărca universitățile');
+      setUniversities([]);
+      setFilteredUniversities([]);
     } finally {
       setLoading(false);
     }
@@ -61,60 +77,44 @@ const Universities = () => {
     fetchUniversities();
   }, []);
 
-  // Filtrare și sortare universități
   useEffect(() => {
-    if (!universities) return;
+    let filtered = [...universities];
 
-    let result = [...universities];
-    
-    // Filtrare după termen de căutare
+    // Aplicăm filtrele
     if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      result = result.filter(uni => 
-        uni.name?.toLowerCase().includes(searchLower) ||
-        uni.description?.toLowerCase().includes(searchLower)
+      filtered = filtered.filter(uni => 
+        uni.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        uni.description?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-    
-    // Filtrare după tip
+
     if (filterType) {
-      result = result.filter(uni => uni.type === filterType);
+      filtered = filtered.filter(uni => uni.type === filterType);
     }
-    
-    // Filtrare după locație
+
     if (filterLocation) {
-      result = result.filter(uni => uni.location === filterLocation);
+      filtered = filtered.filter(uni => uni.location === filterLocation);
     }
-    
-    // Sortare
-    switch (sortBy) {
-      case 'name':
-        result.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case 'name_desc':
-        result.sort((a, b) => b.name.localeCompare(a.name));
-        break;
-      case 'type':
-        result.sort((a, b) => a.type.localeCompare(b.type));
-        break;
-      case 'location':
-        result.sort((a, b) => a.location.localeCompare(b.location));
-        break;
-      case 'ranking':
-        result.sort((a, b) => (a.ranking || 0) - (b.ranking || 0));
-        break;
-      case 'ranking_desc':
-        result.sort((a, b) => (b.ranking || 0) - (a.ranking || 0));
-        break;
-      default:
-        break;
-    }
-    
-    setFilteredUniversities(result);
+
+    // Aplicăm sortarea
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return a.name.localeCompare(b.name);
+        case 'type':
+          return a.type.localeCompare(b.type);
+        case 'location':
+          return a.location.localeCompare(b.location);
+        default:
+          return 0;
+      }
+    });
+
+    setFilteredUniversities(filtered);
   }, [universities, searchTerm, filterType, filterLocation, sortBy]);
 
   const handleRetry = () => {
-    setRetryCount(0);
+    setRetryCount(prev => prev + 1);
     fetchUniversities();
   };
 
@@ -122,7 +122,9 @@ const Universities = () => {
     return (
       <div className="universities-container">
         <Navbar />
-        <div className="universities-loading">Se încarcă universitățile...</div>
+        <div className="universities-loading">
+          <p>Se încarcă universitățile...</p>
+        </div>
         <Footer />
       </div>
     );

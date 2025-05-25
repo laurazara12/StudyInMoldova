@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './profile-component.css';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../../contexts/AuthContext';
 import { API_BASE_URL, getAuthHeaders } from '../../../config/api.config';
 
 const PlanYourStudies = ({ userData, documents, documentTypes, calculateProfileProgress }) => {

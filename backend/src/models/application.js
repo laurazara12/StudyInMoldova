@@ -23,12 +23,20 @@ module.exports = (sequelize) => {
         key: 'id'
       }
     },
-    status: {
-      type: DataTypes.STRING,
+    university_id: {
+      type: DataTypes.INTEGER,
       allowNull: false,
-      defaultValue: 'pending'
+      references: {
+        model: 'universities',
+        key: 'id'
+      }
     },
-    admin_notes: {
+    status: {
+      type: DataTypes.ENUM('draft', 'pending', 'confirmed', 'rejected', 'withdrawn'),
+      allowNull: false,
+      defaultValue: 'draft'
+    },
+    notes: {
       type: DataTypes.TEXT,
       allowNull: true
     }
@@ -41,11 +49,15 @@ module.exports = (sequelize) => {
   Application.associate = (models) => {
     Application.belongsTo(models.User, {
       foreignKey: 'user_id',
-      as: 'User'
+      as: 'user'
     });
     Application.belongsTo(models.Program, {
       foreignKey: 'program_id',
-      as: 'Program'
+      as: 'program'
+    });
+    Application.belongsTo(models.University, {
+      foreignKey: 'university_id',
+      as: 'university'
     });
     Application.belongsToMany(models.Document, {
       through: 'application_documents',

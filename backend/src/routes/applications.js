@@ -12,6 +12,7 @@ const {
 // Rute pentru aplicații
 router.post('/', authMiddleware, createApplication);
 router.put('/:id', authMiddleware, updateApplication);
+router.get('/my-applications', authMiddleware, getUserApplications);
 router.get('/', authMiddleware, getUserApplications);
 router.get('/:id', authMiddleware, getApplicationById);
 router.post('/:id/cancel', authMiddleware, cancelApplication);

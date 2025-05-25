@@ -2,19 +2,10 @@ const express = require('express');
 const router = express.Router();
 const { University, Program } = require('../models');
 const { authMiddleware } = require('../middleware/auth');
+const universityController = require('../controllers/universityController');
 
 // Rute publice
-router.get('/', async (req, res) => {
-  try {
-    const universities = await University.findAll({
-      order: [['name', 'ASC']]
-    });
-    res.json(universities);
-  } catch (error) {
-    console.error('Error getting universities:', error);
-    res.status(500).json({ message: 'Error getting universities' });
-  }
-});
+router.get('/', universityController.getAllUniversities);
 
 // Ruta pentru obținerea programelor unei universități
 router.get('/:universityId/programs', async (req, res) => {

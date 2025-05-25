@@ -1,11 +1,11 @@
 import React from 'react'
 import { Navigate } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 
 const PrivateRoute = ({ children, requiredRole }) => {
-  const token = localStorage.getItem('token')
-  const user = JSON.parse(localStorage.getItem('user'))
+  const { isAuthenticated, user } = useAuth()
 
-  if (!token || !user) {
+  if (!isAuthenticated || !user) {
     return <Navigate to="/sign-in" />
   }
 

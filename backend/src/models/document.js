@@ -64,6 +64,12 @@ module.exports = (sequelize) => {
       foreignKey: 'user_id',
       as: 'user'
     });
+    Document.belongsToMany(models.Application, {
+      through: 'application_documents',
+      foreignKey: 'document_id',
+      otherKey: 'application_id',
+      as: 'applications'
+    });
   };
 
   return Document;

@@ -1,7 +1,40 @@
 .create-application-container {
-  max-width: 1200px;
-  margin: 0 auto;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.create-application-content {
+  background-color: white;
   padding: 2rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.close-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+}
+
+.close-button:hover {
+  color: #333;
 }
 
 .create-application-container h2 {
@@ -12,23 +45,21 @@
 }
 
 .error-message {
-  background-color: #ffebee;
-  color: #c62828;
-  padding: 1rem;
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  padding: 0.75rem;
   border-radius: 4px;
-  margin-bottom: 1rem;
-  text-align: center;
-  font-size: var(--dl-font-size-small);
+  margin: 1rem 0;
 }
 
 .success-message {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-  padding: 1rem;
+  color: #155724;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  padding: 0.75rem;
   border-radius: 4px;
-  margin-bottom: 1rem;
-  text-align: center;
-  font-size: var(--dl-font-size-small);
+  margin: 1rem 0;
 }
 
 .status-badges {
@@ -36,36 +67,36 @@
 }
 
 .status-badge {
-  padding: 8px 16px;
-  border-radius: 4px;
-  font-weight: 500;
   display: inline-block;
-  font-size: var(--dl-font-size-small);
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .status-draft {
-  background-color: #f3f4f6;
-  color: #4b5563;
+  background-color: #f8f9fa;
+  color: #6c757d;
 }
 
 .status-pending {
-  background-color: #fef3c7;
-  color: #92400e;
+  background-color: #fff3cd;
+  color: #856404;
 }
 
 .status-confirmed {
-  background-color: #dcfce7;
-  color: #166534;
+  background-color: #d4edda;
+  color: #155724;
 }
 
 .status-rejected {
-  background-color: #fee2e2;
-  color: #991b1b;
+  background-color: #f8d7da;
+  color: #721c24;
 }
 
 .status-withdrawn {
-  background-color: #e5e7eb;
-  color: #374151;
+  background-color: #e2e3e5;
+  color: #383d41;
 }
 
 .program-selection,
@@ -85,13 +116,13 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 1rem;
+  margin-top: 1rem;
 }
 
 .program-card,
 .document-card {
-  background-color: #fff;
   border: 1px solid #ddd;
-  border-radius: 8px;
+  border-radius: 4px;
   padding: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -99,14 +130,14 @@
 
 .program-card:hover,
 .document-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-color: #4CAF50;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .program-card.selected,
 .document-card.selected {
-  border-color: #2196f3;
-  background-color: #e3f2fd;
+  border-color: #4CAF50;
+  background-color: #f1f8e9;
 }
 
 .program-card:not(.editable),
@@ -132,31 +163,37 @@
 .button-group {
   display: flex;
   gap: 1rem;
-  justify-content: center;
   margin-top: 2rem;
-  position: relative;
+  justify-content: flex-end;
 }
 
-.submit-button,
 .save-draft-button,
+.submit-button,
 .withdraw-button {
-  padding: 1rem 2rem;
-  border: none;
+  padding: 0.75rem 1.5rem;
   border-radius: 4px;
-  font-size: var(--dl-font-size-small);
+  border: none;
   cursor: pointer;
+  font-weight: 500;
   transition: all 0.3s ease;
-  min-width: 200px;
-}
-
-.submit-button {
-  background-color: #2196f3;
-  color: white;
 }
 
 .save-draft-button {
-  background-color: #757575;
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.save-draft-button:hover {
+  background-color: #e0e0e0;
+}
+
+.submit-button {
+  background-color: #4CAF50;
   color: white;
+}
+
+.submit-button:hover {
+  background-color: #45a049;
 }
 
 .withdraw-button {
@@ -164,19 +201,16 @@
   color: white;
 }
 
-.submit-button:hover:not(:disabled),
-.save-draft-button:hover:not(:disabled),
-.withdraw-button:hover:not(:disabled) {
-  opacity: 0.9;
-  transform: translateY(-1px);
+.withdraw-button:hover {
+  background-color: #da190b;
 }
 
-.submit-button:disabled,
-.save-draft-button:disabled,
-.withdraw-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-  transform: none;
+.withdraw-button.delete {
+  background-color: #dc3545;
+}
+
+.withdraw-button.delete:hover {
+  background-color: #c82333;
 }
 
 .confirmation-modal {

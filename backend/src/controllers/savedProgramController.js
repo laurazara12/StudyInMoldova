@@ -52,10 +52,10 @@ exports.getSavedPrograms = async (req, res) => {
       where: { user_id: req.user.id },
       include: [{
         model: Program,
-        as: 'Program',
+        as: 'program',
         include: [{
           model: University,
-          as: 'University',
+          as: 'university',
           attributes: ['id', 'name', 'image_url', 'location', 'website']
         }]
       }],
@@ -65,7 +65,10 @@ exports.getSavedPrograms = async (req, res) => {
     res.json({
       success: true,
       message: 'Programele salvate au fost preluate cu succes',
-      data: savedPrograms.map(sp => sp.Program),
+      data: savedPrograms.map(sp => ({
+        ...sp.program.toJSON(),
+        university: sp.program.university
+      })),
       total: savedPrograms.length
     });
   } catch (error) {

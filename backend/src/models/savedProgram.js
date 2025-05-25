@@ -5,11 +5,11 @@ module.exports = (sequelize) => {
     static associate(models) {
       SavedProgram.belongsTo(models.User, {
         foreignKey: 'user_id',
-        as: 'User'
+        as: 'user'
       });
       SavedProgram.belongsTo(models.Program, {
         foreignKey: 'program_id',
-        as: 'Program'
+        as: 'program'
       });
     }
   }

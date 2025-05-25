@@ -4,7 +4,7 @@ import axios from 'axios'
 import PropTypes from 'prop-types'
 import './sign-in.css'
 import { API_BASE_URL, handleApiError } from '../config/api.config'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../contexts/AuthContext'
 import { getCloudinaryImageUrl } from '../config/cloudinary'
 
 const SignIn = (props) => {
@@ -29,22 +29,18 @@ const SignIn = (props) => {
       console.log('=== Frontend Login Details ===');
       console.log('Email:', email);
       console.log('Password:', password);
-      console.log('Password type:', typeof password);
-      console.log('Password length:', password.length);
       
-      // Asigurăm-ne că parola este un string
-      const cleanPassword = String(password).trim();
-      console.log('Cleaned password:', cleanPassword);
+      // Ne asigurăm că email-ul este un string
+      const emailString = typeof email === 'string' ? email : email.email;
       
       const requestData = {
-        email: email.trim(),
-        password: cleanPassword
+        email: emailString.trim(),
+        password: password.trim()
       };
-      console.log('Request data being sent:', requestData);
       
-      // Verificăm URL-ul API-ului
       const loginUrl = `${API_BASE_URL}/api/auth/login`;
       console.log('API URL:', loginUrl);
+      console.log('Request Data:', requestData);
       
       const response = await axios.post(loginUrl, requestData, {
         headers: {
@@ -55,46 +51,33 @@ const SignIn = (props) => {
       console.log('Răspuns de la server:', response.data);
 
       if (!response.data || !response.data.success || !response.data.data) {
-        console.error('Răspuns invalid de la server:', response.data);
-        setError('Autentificare eșuată. Vă rugăm să încercați din nou.');
-        return;
+        throw new Error('Răspuns invalid de la server');
       }
 
       const { user: userData, token } = response.data.data;
-      console.log('Date utilizator primite:', userData);
 
       if (!userData || !userData.id || !userData.email || !userData.role) {
-        console.error('Date utilizator incomplete:', userData);
-        setError('Autentificare eșuată. Vă rugăm să încercați din nou.');
-        return;
+        throw new Error('Date utilizator incomplete');
       }
 
-      const loginSuccess = await login(userData, token);
+      await login(userData, token);
       
-      if (loginSuccess) {
-        if (userData.role === 'admin') {
-          navigate('/dashboard', { replace: true });
-        } else {
-          navigate('/profile', { replace: true });
-        }
+      // Redirecționăm utilizatorul în funcție de rol
+      if (userData.role === 'admin') {
+        console.log('Redirecționare către dashboard pentru admin');
+        navigate('/dashboard', { replace: true });
       } else {
-        setError('Autentificare eșuată. Vă rugăm să încercați din nou.');
+        console.log('Redirecționare către profil pentru utilizator');
+        navigate('/profile', { replace: true });
       }
     } catch (error) {
       console.error('Eroare la autentificare:', error);
       
-      // Logging detaliat pentru debugging
       if (error.response) {
         console.error('Detalii eroare:', {
           status: error.response.status,
           statusText: error.response.statusText,
-          data: error.response.data,
-          headers: error.response.headers,
-          config: {
-            url: error.config?.url,
-            method: error.config?.method,
-            headers: error.config?.headers
-          }
+          data: error.response.data
         });
         
         if (error.response.status === 401) {
@@ -132,7 +115,7 @@ const SignIn = (props) => {
               height: 600, 
               crop: 'fill', 
               quality: 'auto:good',
-              lazy: false // Această imagine este vizibilă imediat
+              lazy: false
             })}
             className="sign-in-sign-up-image thq-img-ratio-4-6"
           />
@@ -140,7 +123,7 @@ const SignIn = (props) => {
         <div className="sign-in-form-root thq-section-padding">
           <Link to="/sign-up" className="sign-in-navlink">
             <p className="sign-in-text10 thq-body-large">
-              Don't have an account? Sign up
+              Nu aveți cont? Înregistrați-vă
             </p>
           </Link>
           <div className="sign-in-form1">
@@ -148,7 +131,7 @@ const SignIn = (props) => {
               {props.heading11 ?? (
                 <Fragment>
                   <span className="sign-in-text18">
-                    Sign In to Study in Moldova
+                    Autentificare în Study in Moldova
                   </span>
                 </Fragment>
               )}
@@ -170,7 +153,7 @@ const SignIn = (props) => {
                   type="email"
                   id="thq-sign-in-6-email"
                   required={true}
-                  placeholder="Email address"
+                  placeholder="Adresa de email"
                   className="sign-in-textinput1 thq-input thq-body-large"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -183,32 +166,30 @@ const SignIn = (props) => {
                       htmlFor="thq-sign-in-6-password"
                       className="thq-body-large sign-in-text13"
                     >
-                      Password
+                      Parolă
                     </label>
                     <div className="sign-in-hide-password" onClick={togglePasswordVisibility}>
                       <svg viewBox="0 0 1024 1024" className="sign-in-icon1">
                         <path d="M317.143 762.857l44.571-80.571c-66.286-48-105.714-125.143-105.714-206.857 0-45.143 12-89.714 34.857-128.571-89.143 45.714-163.429 117.714-217.714 201.714 59.429 92 143.429 169.143 244 214.286zM539.429 329.143c0-14.857-12.571-27.429-27.429-27.429-95.429 0-173.714 78.286-173.714 173.714 0 14.857 12.571 27.429 27.429 27.429s27.429-12.571 27.429-27.429c0-65.714 53.714-118.857 118.857-118.857 14.857 0 27.429-12.571 27.429-27.429zM746.857 220c0 1.143 0 4-0.571 5.143-120.571 215.429-240 432-360.571 647.429l-28 50.857c-3.429 5.714-9.714 9.143-16 9.143-10.286 0-64.571-33.143-76.571-40-5.714-3.429-9.143-9.143-9.143-16 0-9.143 19.429-40 25.143-49.714-110.857-50.286-204-136-269.714-238.857-7.429-11.429-11.429-25.143-11.429-39.429 0-13.714 4-28 11.429-39.429 113.143-173.714 289.714-289.714 500.571-289.714 34.286 0 69.143 3.429 102.857 9.714l30.857-55.429c3.429-5.714 9.143-9.143 16-9.143 10.286 0 64 33.143 76 40 5.714 3.429 9.143 9.143 9.143 15.429zM768 475.429c0 106.286-65.714 201.143-164.571 238.857l160-286.857c2.857 16 4.571 32 4.571 48zM1024 548.571c0 14.857-4 26.857-11.429 39.429-17.714 29.143-40 57.143-62.286 82.857-112 128.571-266.286 206.857-438.286 206.857l42.286-75.429c166.286-14.286 307.429-115.429 396.571-253.714-42.286-65.714-96.571-123.429-161.143-168l36-64c70.857 47.429 142.286 118.857 186.857 192.571 7.429 12.571 11.429 24.571 11.429 39.429z"></path>
                       </svg>
-                      <span className="thq-body-small">{showPassword ? 'Hide' : 'Show'}</span>
+                      <span className="thq-body-small">{showPassword ? 'Ascunde' : 'Arată'}</span>
                     </div>
                   </div>
                   <input
                     type={showPassword ? 'text' : 'password'}
                     id="thq-sign-in-6-password"
                     required={true}
-                    placeholder="Password"
+                    placeholder="Parolă"
                     className="sign-in-textinput2 thq-input thq-body-large"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
                 </div>
                 <a
-                  href="https://teleporthq.io/"
-                  target="_blank"
-                  rel="noreferrer noopener"
+                  href="/forgot-password"
                   className="sign-in-link thq-body-small"
                 >
-                  Forgot password
+                  Ați uitat parola?
                 </a>
               </div>
               <button 
@@ -219,7 +200,7 @@ const SignIn = (props) => {
                 <span className="sign-in-text15 thq-body-small">
                   {loading ? "Se încarcă..." : (props.action1 ?? (
                     <Fragment>
-                      <span className="sign-in-text19">Sign In</span>
+                      <span className="sign-in-text19">Autentificare</span>
                     </Fragment>
                   ))}
                 </span>
@@ -227,7 +208,7 @@ const SignIn = (props) => {
             </form>
             <div className="sign-in-divider1">
               <div className="sign-in-divider2"></div>
-              <p className="thq-body-large sign-in-text16">OR</p>
+              <p className="thq-body-large sign-in-text16">SAU</p>
               <div className="sign-in-divider3"></div>
             </div>
             <div className="sign-in-container4">
@@ -247,12 +228,12 @@ const SignIn = (props) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 SignIn.defaultProps = {
   rootClassName: '',
-  image1Alt: 'Sign In Image',
+  image1Alt: 'Imagine Autentificare',
   heading11: undefined,
   action1: undefined,
 }

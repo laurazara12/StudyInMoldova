@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import './navbar.css'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../contexts/AuthContext'
 import { FaBell } from 'react-icons/fa'
 import { API_BASE_URL, getAuthHeaders } from '../config/api.config'
 
@@ -23,11 +23,17 @@ const Navbar = (props) => {
           });
           if (response.ok) {
             const data = await response.json();
-            const unread = data.filter(n => !n.is_read && n.is_admin_notification).length;
-            setUnreadNotifications(unread);
+            if (Array.isArray(data)) {
+              const unread = data.filter(n => !n.is_read && n.is_admin_notification).length;
+              setUnreadNotifications(unread);
+            } else {
+              console.error('Format invalid al datelor primite:', data);
+              setUnreadNotifications(0);
+            }
           }
         } catch (error) {
           console.error('Eroare la încărcarea notificărilor:', error);
+          setUnreadNotifications(0);
         }
       };
 

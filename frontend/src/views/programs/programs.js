@@ -63,17 +63,24 @@ const Programs = () => {
       const response = await axios.get(`${API_BASE_URL}/api/programs`);
       console.log('Server response:', response.data);
       
-      if (Array.isArray(response.data)) {
-        console.log('Programs found (direct array):', response.data);
-        setPrograms(response.data);
-      } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
-        console.log('Programs found (in data.data):', response.data.data);
-        setPrograms(response.data.data);
+      let programsData = [];
+      
+      if (response.data?.data && Array.isArray(response.data.data)) {
+        programsData = response.data.data.map(program => ({
+          ...program,
+          university: program.university ? {
+            name: program.university.name
+          } : null
+        }));
       } else {
         console.error('Invalid response format:', response.data);
         setError('Error loading programs: Invalid data format');
         setPrograms([]);
+        return;
       }
+
+      console.log('Formatted programs:', programsData);
+      setPrograms(programsData);
     } catch (error) {
       console.error('Detailed error fetching programs:', {
         message: error.message,
@@ -100,7 +107,12 @@ const Programs = () => {
       console.log('Saved programs response:', response.data);
       
       if (response.data?.data) {
-        const savedProgramsData = response.data.data;
+        const savedProgramsData = response.data.data.map(program => ({
+          ...program,
+          university: program.university ? {
+            name: program.university.name
+          } : null
+        }));
         console.log('Programe salvate procesate:', savedProgramsData);
         setSavedPrograms(savedProgramsData);
       }
@@ -347,24 +359,22 @@ const Programs = () => {
                         )}
                       </div>
                     </td>
-                    <td>{program.University?.name || 'N/A'}</td>
+                    <td>
+                      {program.university?.name || 'N/A'}
+                    </td>
                     <td>{program.faculty || 'N/A'}</td>
                     <td>
                       <span className={`degree-badge ${program.degree_type?.toLowerCase()}`}>
-                        {program.degree_type === 'Bachelor' ? 'Bachelor' : 
-                         program.degree_type === 'Master' ? 'Master' : 
-                         program.degree_type === 'PhD' ? 'PhD' : program.degree_type}
+                        {program.degree_type || 'N/A'}
                       </span>
                     </td>
                     <td>{program.credits || 'N/A'}</td>
                     <td>
                       <span className={`language-badge ${program.language?.toLowerCase()}`}>
-                        {program.language === 'Romanian' ? 'Romanian' :
-                         program.language === 'Russian' ? 'Russian' :
-                         program.language === 'English' ? 'English' : program.language}
+                        {program.language || 'N/A'}
                       </span>
                     </td>
-                    <td>{program.duration} ani</td>
+                    <td>{program.duration ? `${program.duration} ani` : 'N/A'}</td>
                     <td>{program.tuition_fees ? `${program.tuition_fees} EUR` : 'N/A'}</td>
                     <td>
                       {isAuthenticated && !isAdmin ? (

@@ -223,25 +223,33 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      file_path: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        comment: 'URL-ul fișierului în Cloudinary'
+      },
       filename: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
+        comment: 'Public ID în Cloudinary'
       },
-      original_name: {
+      originalName: {
         type: Sequelize.STRING,
-        allowNull: false
-      },
-      mime_type: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      size: {
-        type: Sequelize.INTEGER,
         allowNull: false
       },
       status: {
-        type: Sequelize.ENUM('pending', 'approved', 'rejected'),
+        type: Sequelize.STRING,
+        allowNull: false,
         defaultValue: 'pending'
+      },
+      uploaded: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+      },
+      uploadDate: {
+        type: Sequelize.DATE,
+        allowNull: true
       },
       created_at: {
         allowNull: false,
@@ -294,10 +302,10 @@ module.exports = {
         onDelete: 'CASCADE'
       },
       status: {
-        type: Sequelize.ENUM('draft', 'pending', 'sent', 'rejected', 'withdrawn'),
+        type: Sequelize.ENUM('draft', 'pending', 'confirmed', 'rejected', 'withdrawn'),
         defaultValue: 'draft'
       },
-      admin_notes: {
+      notes: {
         type: Sequelize.TEXT,
         allowNull: true
       },
@@ -312,10 +320,56 @@ module.exports = {
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
     });
+
+    // 6. Application Documents table
+    await queryInterface.createTable('application_documents', {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER
+      },
+      application_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'applications',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
+      },
+      document_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'documents',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
+      },
+      created_at: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+      },
+      updated_at: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+      }
+    });
+
+    // Adăugăm un index compus pentru a preveni duplicatele
+    await queryInterface.addIndex('application_documents', ['application_id', 'document_id'], {
+      unique: true,
+      name: 'application_documents_unique'
+    });
   },
 
   down: async (queryInterface, Sequelize) => {
-    // Drop tables in reverse order to respect dependencies
+    await queryInterface.dropTable('application_documents');
     await queryInterface.dropTable('applications');
     await queryInterface.dropTable('documents');
     await queryInterface.dropTable('programs');

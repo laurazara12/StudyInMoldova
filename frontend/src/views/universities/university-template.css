@@ -1,20 +1,237 @@
 .university-template {
-  width: 100%;
-  margin: 0 auto;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  font-size: var(--dl-font-size-small);
-  line-height: 1.6;
-  color: var(--dl-color-theme-neutral-dark);
-  background-color: var(--dl-color-theme-neutral-light);
 }
 
 .university-body {
-  padding: var(--dl-space-space-threeunits);
-  max-width: var(--dl-size-size-maxwidth);
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
   margin: 0 auto;
   width: 100%;
+}
+
+.loading-container,
+.error-container {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 2rem auto;
+  max-width: 600px;
+}
+
+.error-container h2 {
+  color: #f44336;
+  margin-bottom: 1rem;
+}
+
+.back-button {
+  margin-top: 1rem;
+  padding: 0.8rem 1.5rem;
+  background: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.back-button:hover {
+  background: #1976D2;
+}
+
+.university-hero {
+  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('../../assets/images/universitate-header.jpg');
+  background-size: cover;
+  background-position: center;
+  color: white;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.hero-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.hero-content h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.hero-details {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.university-type,
+.university-location {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+.university-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.university-section {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.university-section h3 {
+  color: #333;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+}
+
+.about-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+}
+
+.about-text p {
+  line-height: 1.6;
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.tuition-fees {
+  background: #f5f5f5;
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.tuition-fees h4 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.tuition-fees ul {
+  list-style: none;
+  padding: 0;
+}
+
+.tuition-fees li {
+  margin-bottom: 0.5rem;
+  color: #666;
+}
+
+.about-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.stat-item {
+  background: #f5f5f5;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stat-number {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #2196F3;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.programs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.program-card {
+  background: #f5f5f5;
+  padding: 1.5rem;
+  border-radius: 8px;
+  transition: transform 0.3s;
+}
+
+.program-card:hover {
+  transform: translateY(-5px);
+}
+
+.program-card h4 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.program-card p {
+  color: #666;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.program-fees,
+.program-specializations {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #ddd;
+}
+
+.program-fees h5,
+.program-specializations h5 {
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.program-specializations ul {
+  list-style: none;
+  padding: 0;
+}
+
+.program-specializations li {
+  color: #666;
+  margin-bottom: 0.3rem;
+}
+
+@media (max-width: 768px) {
+  .university-hero {
+    padding: 3rem 1rem;
+  }
+
+  .hero-content h1 {
+    font-size: 2rem;
+  }
+
+  .hero-details {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .about-content {
+    grid-template-columns: 1fr;
+  }
+
+  .about-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .programs-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Stiluri pentru informațiile de contact */
@@ -212,8 +429,6 @@
 }
 
 /* Stiluri pentru stări */
-.loading-container,
-.error-container,
 .not-found-container {
   text-align: center;
   padding: var(--dl-space-space-twounits);
@@ -221,10 +436,6 @@
   border-radius: var(--dl-radius-radius-cardradius);
   margin: var(--dl-space-space-twounits) 0;
   color: var(--dl-color-theme-neutral-dark);
-}
-
-.error-container h2 {
-  color: var(--dl-color-theme-primary1);
 }
 
 .not-found-container h2 {

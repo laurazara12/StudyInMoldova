@@ -113,10 +113,15 @@ export const getUniversityBySlug = async (slug) => {
     }
     console.log('Încărcare universitate după slug:', slug);
     const response = await axiosInstance.get(`/api/universities/${slug}`);
-    return response.data;
+    
+    if (!response.data || !response.data.success) {
+      throw new Error(response.data?.message || 'Universitatea nu a fost găsită');
+    }
+    
+    return response.data.data;
   } catch (error) {
     console.error('Eroare la încărcarea universității:', error);
-    throw new Error('Universitatea nu a fost găsită');
+    throw new Error(error.response?.data?.message || 'Universitatea nu a fost găsită');
   }
 };
 
@@ -124,15 +129,16 @@ export const getUniversityBySlug = async (slug) => {
 export const getUniversityPrograms = async (universityId) => {
   try {
     const response = await axiosInstance.get(`/api/universities/${universityId}/programs`);
-    if (!response.data) {
+    
+    if (!response.data || !response.data.success) {
       console.error('Răspuns invalid:', response);
       return [];
     }
-    return Array.isArray(response.data) ? response.data : 
-           Array.isArray(response.data.data) ? response.data.data : [];
+    
+    return Array.isArray(response.data.data) ? response.data.data : [];
   } catch (error) {
     console.error('Eroare la încărcarea programelor de studiu:', error);
-    throw new Error('Nu s-au putut încărca programele de studiu');
+    throw new Error(error.response?.data?.message || 'Nu s-au putut încărca programele de studiu');
   }
 };
 
@@ -140,10 +146,12 @@ export const getUniversityPrograms = async (universityId) => {
 export const getProgramDetails = async (programId) => {
   try {
     const response = await axiosInstance.get(`/api/programs/${programId}`);
-    if (!response.data || !response.data.data) {
+    
+    if (!response.data || !response.data.success) {
       console.error('Răspuns invalid:', response);
       return {};
     }
+    
     const programData = response.data.data;
     return {
       ...programData,
@@ -192,34 +200,48 @@ export const getProgramTuitionFees = async (programId) => {
 // Funcție pentru încărcarea tuturor universităților
 export const getAllUniversities = async () => {
   try {
+    console.log('=== Începe încărcarea universităților ===');
     const response = await axiosInstance.get('/api/universities');
     console.log('Răspuns brut de la server:', response.data);
     
-    // Verificăm dacă răspunsul are formatul corect
     if (!response.data) {
-      console.error('Format invalid al datelor:', response.data);
-      return [];
+      console.error('Răspuns fără date');
+      throw new Error('Nu s-au primit date de la server');
+    }
+
+    // Verificăm dacă răspunsul are formatul corect
+    if (!response.data.success) {
+      console.error('Răspuns fără succes:', response.data);
+      throw new Error(response.data.message || 'Eroare la preluarea universităților');
     }
 
     // Extragem datele din răspuns
-    const universitiesData = Array.isArray(response.data) ? response.data : 
-                           response.data.data ? response.data.data : [];
+    const universitiesData = response.data.data;
+
+    // Verificăm dacă datele sunt un array
+    if (!Array.isArray(universitiesData)) {
+      console.error('Datele nu sunt un array:', universitiesData);
+      throw new Error('Format invalid al datelor primite');
+    }
 
     // Procesăm datele pentru a ne asigura că au formatul corect
     const processedData = universitiesData.map(uni => {
       console.log('Procesare universitate:', uni);
       
-      // Păstrăm datele în formatul original, doar adăugăm valori implicite pentru câmpurile lipsă
+      // Convertim taxele la numere
+      const tuitionFees = uni.tuition_fees || {};
+      const processedFees = {
+        bachelor: tuitionFees.bachelor ? parseFloat(tuitionFees.bachelor) : null,
+        master: tuitionFees.master ? parseFloat(tuitionFees.master) : null,
+        phd: tuitionFees.phd ? parseFloat(tuitionFees.phd) : null
+      };
+      
       return {
         ...uni,
         type: uni.type || 'Public',
         location: uni.location || 'Chișinău',
         ranking: uni.ranking || '',
-        tuition_fees: uni.tuition_fees || {
-          bachelor: null,
-          master: null,
-          phd: null
-        },
+        tuition_fees: processedFees,
         contact_info: uni.contact_info || {
           email: null,
           phone: null,
@@ -231,8 +253,8 @@ export const getAllUniversities = async () => {
     console.log('Toate universitățile procesate:', processedData);
     return processedData;
   } catch (error) {
-    console.error('Eroare la obținerea listei de universități:', error);
-    throw new Error('Nu am putut încărca lista de universități');
+    console.error('Eroare la încărcarea universităților:', error);
+    throw new Error(error.response?.data?.message || 'Eroare la încărcarea universităților');
   }
 };
 
@@ -240,40 +262,60 @@ const universityService = {
   getUniversityById: async (id) => {
     try {
       const response = await axiosInstance.get(`/api/universities/${id}`);
-      return response.data;
+      
+      if (!response.data || !response.data.success) {
+        throw new Error(response.data?.message || 'Nu am putut încărca datele universității');
+      }
+      
+      return response.data.data;
     } catch (error) {
       console.error('Eroare la obținerea universității:', error);
-      throw new Error('Nu am putut încărca datele universității');
+      throw new Error(error.response?.data?.message || 'Nu am putut încărca datele universității');
     }
   },
 
   createUniversity: async (universityData) => {
     try {
       const response = await axiosInstance.post('/api/universities', universityData);
-      return response.data;
+      
+      if (!response.data || !response.data.success) {
+        throw new Error(response.data?.message || 'Nu am putut crea universitatea');
+      }
+      
+      return response.data.data;
     } catch (error) {
       console.error('Eroare la crearea universității:', error);
-      throw new Error('Nu am putut crea universitatea');
+      throw new Error(error.response?.data?.message || 'Nu am putut crea universitatea');
     }
   },
 
   updateUniversity: async (id, universityData) => {
     try {
       const response = await axiosInstance.put(`/api/universities/${id}`, universityData);
-      return response.data;
+      
+      if (!response.data || !response.data.success) {
+        throw new Error(response.data?.message || 'Nu am putut actualiza universitatea');
+      }
+      
+      return response.data.data;
     } catch (error) {
       console.error('Eroare la actualizarea universității:', error);
-      throw new Error('Nu am putut actualiza universitatea');
+      throw new Error(error.response?.data?.message || 'Nu am putut actualiza universitatea');
     }
   },
 
   deleteUniversity: async (id) => {
     try {
       const response = await axiosInstance.delete(`/api/universities/${id}`);
-      return response.data;
+      
+      if (!response.data || !response.data.success) {
+        throw new Error(response.data?.message || 'Nu am putut șterge universitatea');
+      }
+      
+      return response.data.data;
     } catch (error) {
       console.error('Eroare la ștergerea universității:', error);
-      throw new Error('Nu am putut șterge universitatea');
+      throw new Error(error.response?.data?.message || 'Nu am putut șterge universitatea');
     }
   }
 };

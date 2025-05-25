@@ -60,7 +60,7 @@ module.exports = (sequelize) => {
   Program.associate = (models) => {
     Program.belongsTo(models.University, {
       foreignKey: 'university_id',
-      as: 'University'
+      as: 'university'
     });
   };
 

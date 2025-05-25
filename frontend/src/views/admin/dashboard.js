@@ -35,10 +35,7 @@ const Dashboard = () => {
   });
   const [error, setError] = useState(null);
   const [docStatus, setDocStatus] = useState({});
-  const [activeTab, setActiveTab] = useState(() => {
-    // Încărcăm tab-ul activ din localStorage sau folosim 'users' ca valoare implicită
-    return localStorage.getItem('dashboardActiveTab') || 'users';
-  });
+  const [activeTab, setActiveTab] = useState('overview');
   const [deleteConfirmation, setDeleteConfirmation] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showUserDetails, setShowUserDetails] = useState(false);
@@ -83,13 +80,13 @@ const Dashboard = () => {
   const [newProgram, setNewProgram] = useState({
     name: '',
     description: '',
-    duration: '',
-    degree_type: '',
-    language: '',
-    tuition_fees: '',
     university_id: '',
-    faculty: '',
-    credits: ''
+    duration: '',
+    degree: '',
+    language: '',
+    tuition_fee: '',
+    start_date: '',
+    application_deadline: ''
   });
   const [sortBy, setSortBy] = useState('name');
   const [successMessage, setSuccessMessage] = useState("");
@@ -122,8 +119,110 @@ const Dashboard = () => {
   const [filteredApplications, setFilteredApplications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
-  const [loadingNotifications, setLoadingNotifications] = useState(true);
+  const [loadingNotifications, setLoadingNotifications] = useState(false);
   const [errorNotifications, setErrorNotifications] = useState(null);
+
+  // Adăugăm funcția getDocumentStatus
+  const getDocumentStatus = (userId) => {
+    const userDocuments = documents.filter(doc => doc.user_id === userId);
+    
+    const getStatus = (type) => {
+      const doc = userDocuments.find(d => d.document_type === type);
+      if (!doc) {
+        return {
+          exists: false,
+          status: 'missing',
+          uploadDate: null
+        };
+      }
+      return {
+        exists: true,
+        status: doc.status || 'pending',
+        uploadDate: doc.createdAt || doc.uploadDate
+      };
+    };
+
+    return {
+      diploma: getStatus('diploma'),
+      transcript: getStatus('transcript'),
+      passport: getStatus('passport'),
+      photo: getStatus('photo')
+    };
+  };
+
+  // Adăugăm useEffect pentru încărcarea inițială
+  useEffect(() => {
+    const initializeDashboard = async () => {
+      try {
+        console.log('Inițializare dashboard...');
+        
+        // Verificăm accesul de admin
+        if (!checkAdminAccess()) {
+          return;
+        }
+
+        // Încărcăm datele pentru tab-ul activ
+        switch(activeTab) {
+          case 'users':
+            await loadUsers();
+            break;
+          case 'documents':
+            await loadDocuments();
+            break;
+          case 'universities':
+            await loadUniversities();
+            break;
+          case 'programs':
+            await loadPrograms();
+            break;
+          case 'applications':
+            await loadApplications();
+            break;
+          case 'notifications':
+            await loadNotifications();
+            break;
+          default:
+            // Pentru tab-ul overview, încărcăm toate datele
+            await Promise.all([
+              loadUsers(),
+              loadDocuments(),
+              loadUniversities(),
+              loadPrograms(),
+              loadApplications()
+            ]);
+            break;
+        }
+      } catch (error) {
+        console.error('Eroare la inițializarea dashboard-ului:', error);
+        setError('A apărut o eroare la încărcarea datelor. Vă rugăm să reîncercați.');
+      }
+    };
+
+    initializeDashboard();
+  }, [activeTab]); // Reîncărcăm datele când se schimbă tab-ul
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setSearchTerm('');
+    
+    // Resetăm toate filtrele când schimbăm tab-ul
+    setFilterRole('all');
+    setFilterDocumentType('all');
+    setFilterType('');
+    setFilterLocation('');
+    setFilterDegree('all');
+    setFilterFaculty('');
+    setFilterLanguage('');
+    setFilterStatus('all');
+    setFilterDateRange({ start: '', end: '' });
+    setFilterCredits({ min: '', max: '' });
+    setFilterTuitionFee({ min: '', max: '' });
+    setFilterRanking({ min: '', max: '' });
+    setFilterUserDateRange({ start: '', end: '' });
+    setFilterApplicationStatus('all');
+    setFilterApplicationDateRange({ start: '', end: '' });
+    setFilterUniversityDateRange({ start: '', end: '' });
+  };
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -145,8 +244,6 @@ const Dashboard = () => {
 
   const handleConfirmDocument = async (document) => {
     try {
-      console.log('Încercare aprobare document:', document);
-      
       const response = await axios.put(
         `${API_BASE_URL}/api/documents/${document.id}`,
         {
@@ -155,49 +252,48 @@ const Dashboard = () => {
           file_path: document.file_path,
           filename: document.filename,
           originalName: document.originalName,
-          user_id: document.user_id
+          user_id: document.user_id,
+          admin_message: 'Documentul dumneavoastră a fost aprobat de administrator.'
         },
         { headers: getAuthHeaders() }
       );
 
-      console.log('Răspuns server la aprobare:', response);
-
-      if (response.data.success) {
+      // Reîncărcăm lista completă de documente indiferent de eroarea de notificare
+      const documentsResponse = await axios.get(`${API_BASE_URL}/api/documents`, {
+        headers: getAuthHeaders()
+      });
+      
+      if (documentsResponse.data.success) {
+        const updatedDocuments = documentsResponse.data.documents || [];
+        setDocuments(updatedDocuments);
+        setFilteredDocuments(updatedDocuments);
         setSuccessMessage('Document aprobat cu succes!');
         setTimeout(() => setSuccessMessage(''), 3000);
-
-        // Actualizăm lista de documente
-        const updatedDocumentsResponse = await axios.get(`${API_BASE_URL}/api/documents`, {
-          headers: getAuthHeaders()
-        });
-        
-        if (updatedDocumentsResponse.data && updatedDocumentsResponse.data.data) {
-          setDocuments(updatedDocumentsResponse.data.data);
-        }
       }
     } catch (error) {
       console.error('Eroare la aprobarea documentului:', error);
-      let errorMessage = 'A apărut o eroare la aprobarea documentului. ';
-      
-      if (error.response?.status === 404) {
-        errorMessage += 'Documentul nu a fost găsit.';
-      } else if (error.response?.status === 401) {
-        errorMessage += 'Nu aveți permisiunea de a aproba documentul.';
-      } else if (error.response?.data?.message) {
-        errorMessage += error.response.data.message;
-      } else {
-        errorMessage += 'Vă rugăm să încercați din nou.';
+      // Încercăm să reîncărcăm documentele chiar dacă a apărut o eroare
+      try {
+        const documentsResponse = await axios.get(`${API_BASE_URL}/api/documents`, {
+          headers: getAuthHeaders()
+        });
+        
+        if (documentsResponse.data.success) {
+          const updatedDocuments = documentsResponse.data.documents || [];
+          setDocuments(updatedDocuments);
+          setFilteredDocuments(updatedDocuments);
+        }
+      } catch (reloadError) {
+        console.error('Eroare la reîncărcarea documentelor:', reloadError);
       }
       
-      setError(errorMessage);
+      setError('A apărut o eroare la aprobarea documentului. Vă rugăm să încercați din nou.');
       setTimeout(() => setError(null), 5000);
     }
   };
 
   const handleRejectDocument = async (document) => {
     try {
-      console.log('Încercare respingere document:', document);
-      
       const response = await axios.put(
         `${API_BASE_URL}/api/documents/${document.id}`,
         {
@@ -206,41 +302,42 @@ const Dashboard = () => {
           file_path: document.file_path,
           filename: document.filename,
           originalName: document.originalName,
-          user_id: document.user_id
+          user_id: document.user_id,
+          admin_message: 'Documentul dumneavoastră a fost respins de administrator.'
         },
         { headers: getAuthHeaders() }
       );
 
-      console.log('Răspuns server la respingere:', response);
-
-      if (response.data.success) {
+      // Reîncărcăm lista completă de documente indiferent de eroarea de notificare
+      const documentsResponse = await axios.get(`${API_BASE_URL}/api/documents`, {
+        headers: getAuthHeaders()
+      });
+      
+      if (documentsResponse.data.success) {
+        const updatedDocuments = documentsResponse.data.documents || [];
+        setDocuments(updatedDocuments);
+        setFilteredDocuments(updatedDocuments);
         setSuccessMessage('Document respins cu succes!');
         setTimeout(() => setSuccessMessage(''), 3000);
-
-        // Actualizăm lista de documente
-        const updatedDocumentsResponse = await axios.get(`${API_BASE_URL}/api/documents`, {
-          headers: getAuthHeaders()
-        });
-        
-        if (updatedDocumentsResponse.data && updatedDocumentsResponse.data.data) {
-          setDocuments(updatedDocumentsResponse.data.data);
-        }
       }
     } catch (error) {
       console.error('Eroare la respingerea documentului:', error);
-      let errorMessage = 'A apărut o eroare la respingerea documentului. ';
-      
-      if (error.response?.status === 404) {
-        errorMessage += 'Documentul nu a fost găsit.';
-      } else if (error.response?.status === 401) {
-        errorMessage += 'Nu aveți permisiunea de a respinge documentul.';
-      } else if (error.response?.data?.message) {
-        errorMessage += error.response.data.message;
-      } else {
-        errorMessage += 'Vă rugăm să încercați din nou.';
+      // Încercăm să reîncărcăm documentele chiar dacă a apărut o eroare
+      try {
+        const documentsResponse = await axios.get(`${API_BASE_URL}/api/documents`, {
+          headers: getAuthHeaders()
+        });
+        
+        if (documentsResponse.data.success) {
+          const updatedDocuments = documentsResponse.data.documents || [];
+          setDocuments(updatedDocuments);
+          setFilteredDocuments(updatedDocuments);
+        }
+      } catch (reloadError) {
+        console.error('Eroare la reîncărcarea documentelor:', reloadError);
       }
       
-      setError(errorMessage);
+      setError('A apărut o eroare la respingerea documentului. Vă rugăm să încercați din nou.');
       setTimeout(() => setError(null), 5000);
     }
   };
@@ -253,1187 +350,388 @@ const Dashboard = () => {
     return true;
   };
 
-  const initializeDashboard = async () => {
-    try {
-      if (!token || !checkAdminAccess()) {
-        navigate('/sign-in');
-        return;
-      }
-
-      console.log('Inițializare dashboard cu token:', token);
-      const headers = getAuthHeaders();
-      console.log('Headers for requests:', headers);
-
-      // Funcție pentru a gestiona erorile individual pentru fiecare cerere
-      const handleSectionError = (section, error) => {
-        console.error(`Eroare la încărcarea ${section}:`, error);
-        setErrors(prev => ({
-          ...prev,
-          [section]: `Error loading ${section}: ${error.message}`
-        }));
-        setLoading(prev => ({
-          ...prev,
-          [section]: false
-        }));
-      };
-
-      // Funcție pentru a actualiza datele unei secțiuni
-      const updateSectionData = (section, data) => {
-        switch(section) {
-          case 'users':
-            setUsers(data);
-            break;
-          case 'documents':
-            setDocuments(data);
-            break;
-          case 'universities':
-            setUniversities(data);
-            break;
-          case 'programs':
-            setPrograms(data);
-            break;
-          case 'applications':
-            setApplications(data);
-            break;
-        }
-        setLoading(prev => ({
-          ...prev,
-          [section]: false
-        }));
-      };
-
-      // Funcție pentru extragerea datelor din răspuns
-      const extractData = (response) => {
-        console.log('Raw response from server:', response);
-        
-        if (!response) {
-          console.error('Null or undefined response');
-          return [];
-        }
-
-        if (Array.isArray(response)) {
-          console.log('Response is an array');
-          return response;
-        }
-
-        if (response.data) {
-          console.log('Response contains data:', response.data);
-          if (Array.isArray(response.data)) {
-            return response.data;
-          }
-          if (response.data.data && Array.isArray(response.data.data)) {
-            return response.data.data;
-          }
-          if (typeof response.data === 'object') {
-            console.log('Response is an object:', response.data);
-            return response.data.data || [];
-          }
-        }
-
-        console.error('Unexpected response format:', response);
-        return [];
-      };
-
-      // Încărcăm datele pentru fiecare secțiune independent
-      const loadUsers = async () => {
-        try {
-          const response = await axios.get(`${API_BASE_URL}/api/auth/users`, { 
-            headers,
-            validateStatus: function (status) {
-              return status < 500;
-            }
-          });
-          
-          if (response.status === 200) {
-            const usersData = extractData(response);
-            updateSectionData('users', usersData);
-          } else {
-            throw new Error(`Error getting users: ${response.status}`);
-          }
-        } catch (error) {
-          handleSectionError('users', error);
-        }
-      };
-
-      const loadDocuments = async () => {
-        try {
-          const response = await axios.get(`${API_BASE_URL}/api/documents`, { 
-            headers,
-            validateStatus: function (status) {
-              return status < 500;
-            }
-          });
-          
-          if (response.status === 200) {
-            const documentsData = extractData(response);
-            updateSectionData('documents', documentsData);
-          } else {
-            throw new Error(`Error getting documents: ${response.status}`);
-          }
-        } catch (error) {
-          handleSectionError('documents', error);
-        }
-      };
-
-      const loadUniversities = async () => {
-        try {
-          const response = await axios.get(`${API_BASE_URL}/api/universities`, { 
-            headers,
-            validateStatus: function (status) {
-              return status < 500;
-            }
-          });
-          
-          if (response.status === 200) {
-            const universitiesData = extractData(response);
-            updateSectionData('universities', universitiesData);
-          } else {
-            throw new Error(`Error getting universities: ${response.status}`);
-          }
-        } catch (error) {
-          handleSectionError('universities', error);
-        }
-      };
-
-      const loadPrograms = async () => {
-        try {
-          const response = await axios.get(`${API_BASE_URL}/api/programs`, { 
-            headers,
-            validateStatus: function (status) {
-              return status < 500;
-            }
-          });
-          
-          if (response.status === 200) {
-            const programsData = extractData(response);
-            updateSectionData('programs', programsData);
-          } else {
-            throw new Error(`Error getting programs: ${response.status}`);
-          }
-        } catch (error) {
-          handleSectionError('programs', error);
-        }
-      };
-
-      const loadApplications = async () => {
-        try {
-          const response = await axios.get(`${API_BASE_URL}/api/applications`, { 
-            headers,
-            validateStatus: function (status) {
-              return status < 500;
-            }
-          });
-          
-          if (response.status === 200) {
-            const applicationsData = extractData(response);
-            updateSectionData('applications', applicationsData);
-          } else {
-            throw new Error(`Error getting applications: ${response.status}`);
-          }
-        } catch (error) {
-          handleSectionError('applications', error);
-        }
-      };
-
-      // Încărcăm toate secțiunile în paralel
-      await Promise.all([
-        loadUsers(),
-        loadDocuments(),
-        loadUniversities(),
-        loadPrograms(),
-        loadApplications()
-      ]);
-
-      // Actualizăm statisticile doar dacă avem date valide
-      setStatistics({
-        totalUsers: Array.isArray(users) ? users.length : 0,
-        totalDocuments: Array.isArray(documents) ? documents.length : 0,
-        totalUniversities: Array.isArray(universities) ? universities.length : 0,
-        totalPrograms: Array.isArray(programs) ? programs.length : 0,
-        totalApplications: Array.isArray(applications) ? applications.length : 0,
-        pendingApplications: Array.isArray(applications) ? applications.filter(app => app.status === 'pending').length : 0,
-        approvedApplications: Array.isArray(applications) ? applications.filter(app => app.status === 'approved').length : 0,
-        rejectedApplications: Array.isArray(applications) ? applications.filter(app => app.status === 'rejected').length : 0
-      });
-
-    } catch (error) {
-      console.error('Eroare generală la inițializarea dashboard-ului:', error);
-      setError(`Eroare generală: ${error.message}`);
-    }
-  };
-
-  useEffect(() => {
-    initializeDashboard();
-  }, [navigate, token, user?.role]);
-
-  useEffect(() => {
-    if (Array.isArray(documents)) {
-      let filtered = [...documents];
-
-      // Filtrare după tipul documentului
-      if (filterDocumentType !== 'all') {
-        filtered = filtered.filter(doc => doc.document_type === filterDocumentType);
-      }
-
-      // Filtrare după status
-      if (filterStatus !== 'all') {
-        filtered = filtered.filter(doc => doc.status === filterStatus);
-      }
-
-      // Filtrare după intervalul de date
-      if (filterDateRange.start) {
-        filtered = filtered.filter(doc => new Date(doc.created_at) >= new Date(filterDateRange.start));
-      }
-      if (filterDateRange.end) {
-        filtered = filtered.filter(doc => new Date(doc.created_at) <= new Date(filterDateRange.end));
-      }
-
-      // Filtrare după termenul de căutare
-      if (searchTerm) {
-        const searchLower = searchTerm.toLowerCase();
-        filtered = filtered.filter(doc => 
-          doc.document_type.toLowerCase().includes(searchLower) ||
-          doc.originalName.toLowerCase().includes(searchLower) ||
-          doc.filename.toLowerCase().includes(searchLower)
-        );
-      }
-
-      setFilteredDocuments(filtered);
-    }
-  }, [documents, filterDocumentType, filterStatus, filterDateRange, searchTerm]);
-
-  useEffect(() => {
-    if (Array.isArray(users)) {
-      let filtered = [...users];
-
-      // Filtrare după rol
-      if (filterRole !== 'all') {
-        filtered = filtered.filter(user => user.role === filterRole);
-      }
-
-      // Filtrare după status
-      if (filterStatus !== 'all') {
-        filtered = filtered.filter(user => user.is_active === (filterStatus === 'active'));
-      }
-
-      // Filtrare după intervalul de date
-      if (filterUserDateRange.start) {
-        filtered = filtered.filter(user => new Date(user.created_at) >= new Date(filterUserDateRange.start));
-      }
-      if (filterUserDateRange.end) {
-        filtered = filtered.filter(user => new Date(user.created_at) <= new Date(filterUserDateRange.end));
-      }
-
-      // Filtrare după termenul de căutare
-      if (searchTerm) {
-        const searchLower = searchTerm.toLowerCase();
-        filtered = filtered.filter(user => 
-          user.name?.toLowerCase().includes(searchLower) ||
-          user.email?.toLowerCase().includes(searchLower) ||
-          user.id?.toString().includes(searchTerm)
-        );
-      }
-
-      setFilteredUsers(filtered);
-    }
-  }, [users, filterRole, filterStatus, filterUserDateRange, searchTerm]);
-
-  useEffect(() => {
-    if (!universities) return;
-
-    let result = [...universities];
-
-    // Filtrare după tip
-    if (filterType) {
-      result = result.filter(uni => uni.type.toLowerCase() === filterType.toLowerCase());
-    }
-
-    // Filtrare după locație
-    if (filterLocation) {
-      result = result.filter(uni => uni.location === filterLocation);
-    }
-
-    // Filtrare după ranking
-    if (filterRanking.min) {
-      result = result.filter(uni => uni.ranking >= parseInt(filterRanking.min));
-    }
-    if (filterRanking.max) {
-      result = result.filter(uni => uni.ranking <= parseInt(filterRanking.max));
-    }
-
-    // Filtrare după taxă de școlarizare
-    if (filterTuitionFee.min) {
-      result = result.filter(uni => {
-        const minFee = Math.min(
-          uni.tuitionFees?.bachelor || Infinity,
-          uni.tuitionFees?.master || Infinity,
-          uni.tuitionFees?.phd || Infinity
-        );
-        return minFee >= parseInt(filterTuitionFee.min);
-      });
-    }
-    if (filterTuitionFee.max) {
-      result = result.filter(uni => {
-        const maxFee = Math.max(
-          uni.tuitionFees?.bachelor || 0,
-          uni.tuitionFees?.master || 0,
-          uni.tuitionFees?.phd || 0
-        );
-        return maxFee <= parseInt(filterTuitionFee.max);
-      });
-    }
-
-    // Filtrare după dată
-    if (filterUniversityDateRange.start) {
-      result = result.filter(uni => new Date(uni.createdAt) >= new Date(filterUniversityDateRange.start));
-    }
-    if (filterUniversityDateRange.end) {
-      result = result.filter(uni => new Date(uni.createdAt) <= new Date(filterUniversityDateRange.end));
-    }
-
-    // Căutare după nume
-    if (searchTerm) {
-      result = result.filter(uni => 
-        uni.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        uni.description?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    setFilteredUniversities(result);
-  }, [universities, filterType, filterLocation, filterRanking, filterTuitionFee, filterUniversityDateRange, searchTerm]);
-
-  useEffect(() => {
-    if (Array.isArray(applications)) {
-      let filtered = [...applications];
-
-      // Filtrare după status
-      if (filterApplicationStatus !== 'all') {
-        filtered = filtered.filter(app => app.status === filterApplicationStatus);
-      }
-
-      // Filtrare după intervalul de date
-      if (filterApplicationDateRange.start) {
-        filtered = filtered.filter(app => new Date(app.created_at) >= new Date(filterApplicationDateRange.start));
-      }
-      if (filterApplicationDateRange.end) {
-        filtered = filtered.filter(app => new Date(app.created_at) <= new Date(filterApplicationDateRange.end));
-      }
-
-      // Filtrare după termenul de căutare
-      if (searchTerm) {
-        const searchLower = searchTerm.toLowerCase();
-        filtered = filtered.filter(app => {
-          const user = users.find(u => u.id === app.user_id);
-          return (
-            (user?.name?.toLowerCase().includes(searchLower)) ||
-            (app.program?.name?.toLowerCase().includes(searchLower)) ||
-            (app.university?.name?.toLowerCase().includes(searchLower))
-          );
-        });
-      }
-
-      setFilteredApplications(filtered);
-    }
-  }, [applications, filterApplicationStatus, filterApplicationDateRange, searchTerm, users]);
-
-  const getDocumentStatus = (userId) => {
-    try {
-      // Verificăm dacă documents există și este un array
-      if (!Array.isArray(documents)) {
-        console.warn('Documents nu este un array:', documents);
-        return getDefaultDocumentStatus();
-      }
-
-      // Găsim toate documentele pentru acest utilizator
-      const userDocuments = documents.filter(doc => doc.user_id === userId);
-      
-      if (!userDocuments || userDocuments.length === 0) {
-        return getDefaultDocumentStatus();
-      }
-
-      // Creăm un obiect cu statusul pentru fiecare tip de document
-      const status = {
-        diploma: { exists: false, status: 'missing', uploadDate: null },
-        transcript: { exists: false, status: 'missing', uploadDate: null },
-        passport: { exists: false, status: 'missing', uploadDate: null },
-        photo: { exists: false, status: 'missing', uploadDate: null },
-        medical: { exists: false, status: 'missing', uploadDate: null },
-        insurance: { exists: false, status: 'missing', uploadDate: null },
-        other: { exists: false, status: 'missing', uploadDate: null }
-      };
-
-      // Actualizăm statusul pentru fiecare document încărcat
-      userDocuments.forEach(doc => {
-        if (doc && doc.document_type) {
-          const docType = doc.document_type.toLowerCase();
-          if (status[docType]) {
-            status[docType] = {
-              exists: true,
-              status: doc.status || 'pending',
-              uploadDate: doc.created_at || doc.uploadDate
-            };
-          }
-        }
-      });
-
-      return status;
-    } catch (error) {
-      console.warn(`getDocumentStatus: Eroare la procesarea documentelor pentru utilizatorul ${userId}`, error);
-      return getDefaultDocumentStatus();
-    }
-  };
-
-  const getDefaultDocumentStatus = () => {
-    return {
-      diploma: { exists: false, status: 'missing', uploadDate: null },
-      transcript: { exists: false, status: 'missing', uploadDate: null },
-      passport: { exists: false, status: 'missing', uploadDate: null },
-      photo: { exists: false, status: 'missing', uploadDate: null },
-      medical: { exists: false, status: 'missing', uploadDate: null },
-      insurance: { exists: false, status: 'missing', uploadDate: null },
-      other: { exists: false, status: 'missing', uploadDate: null }
-    };
-  };
-
-  const handleDeleteUser = async (userId) => {
-    try {
-      const response = await axios.delete(`${API_BASE_URL}/api/users/${userId}`, {
-        headers: getAuthHeaders()
-      });
-
-      if (response.status === 200) {
-        setUsers(users.filter(user => user.id !== userId));
-        setDeleteConfirmation(null);
-      }
-    } catch (err) {
-      const error = handleApiError(err);
-      console.error('Error deleting user:', error);
-      setError(error.message);
-    }
-  };
-
-  const confirmDelete = (userId) => {
-    setDeleteConfirmation(userId);
-  };
-
-  const cancelDelete = () => {
-    setDeleteConfirmation(null);
-  };
-
-  const handleDownloadDocument = async (documentType, userId) => {
-    try {
-      // Find the specific document for this user and type
-      const doc = documents.find(doc => doc.document_type === documentType && doc.user_id === userId);
-      if (!doc) {
-        console.error('Document not found for type:', documentType, 'and user:', userId);
-        return;
-      }
-
-      console.log('Attempting to download document:', {
-        documentId: doc.id,
-        documentType: documentType,
-        userId: userId
-      });
-
-      const response = await axios({
-        url: `${API_BASE_URL}/api/documents/download/${doc.id}`,
-        method: 'GET',
-        responseType: 'blob',
-        headers: getAuthHeaders()
-      });
-
-      const contentType = response.headers['content-type'];
-      const fileName = doc.originalName || doc.filename || `${documentType}.pdf`;
-
-      const blob = new Blob([response.data], { type: contentType });
-      const url = window.URL.createObjectURL(blob);
-      
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', fileName);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (err) {
-      const error = handleApiError(err);
-      console.error('Error downloading document:', {
-        error: error,
-        documentType: documentType,
-        userId: userId
-      });
-      setError(error.message);
-    }
-  };
-
-  const handleDeleteDocument = async (documentType, userId) => {
-    try {
-      console.log('Încercare ștergere document:', { documentType, userId });
-      
-      const doc = documents.find(doc => doc.document_type === documentType && doc.user_id === userId);
-      if (!doc) {
-        throw new Error('Documentul nu a fost găsit în lista locală');
-      }
-
-      const response = await axios.delete(
-        `${API_BASE_URL}/api/documents/${doc.id}`,
-        { 
-          headers: {
-            ...getAuthHeaders(),
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      console.log('Răspuns server la ștergere:', response);
-
-      if (response.data.success) {
-        // Actualizăm lista de documente
-        setDocuments(documents.filter(d => d.id !== doc.id));
-        
-        setSuccessMessage('Document șters cu succes!');
-        setTimeout(() => setSuccessMessage(''), 3000);
-
-        // Reîncărcăm lista de documente
-        const updatedDocumentsResponse = await axios.get(`${API_BASE_URL}/api/documents`, {
-          headers: getAuthHeaders()
-        });
-        
-        if (updatedDocumentsResponse.data && updatedDocumentsResponse.data.data) {
-          setDocuments(updatedDocumentsResponse.data.data);
-        }
-      }
-    } catch (error) {
-      console.error('Eroare detaliată la ștergerea documentului:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-        documentType,
-        userId,
-        url: `${API_BASE_URL}/api/documents/${doc?.id}`,
-        headers: getAuthHeaders()
-      });
-
-      let errorMessage = 'A apărut o eroare la ștergerea documentului. ';
-      
-      if (error.response?.status === 404) {
-        errorMessage += 'Documentul nu a fost găsit în baza de date.';
-      } else if (error.response?.status === 401) {
-        errorMessage += 'Nu aveți permisiunea de a șterge documentul.';
-      } else if (error.response?.data?.message) {
-        errorMessage += error.response.data.message;
-      } else {
-        errorMessage += 'Vă rugăm să încercați din nou.';
-      }
-      
-      setError(errorMessage);
-      setTimeout(() => setError(null), 5000);
-    }
-  };
-
-  const handleDocumentDeleteSuccess = () => {
-    setDocuments(documents.filter(doc => doc.id !== documentToDelete.id));
-    setDocumentToDelete(null);
-  };
-
-  const handleUpdateDocumentStatus = async (userId, documentType, newStatus) => {
-    try {
-      // Găsim documentul specific pentru acest utilizator și tip
-      const document = documents.find(doc => 
-        doc.user_id === userId && doc.document_type === documentType
-      );
-
-      if (!document) {
-        throw new Error('Documentul nu a fost găsit');
-      }
-
-      const response = await axios.put(
-        `${API_BASE_URL}/api/documents/${document.id}`,
-        { 
-          document_type: documentType,
-          status: newStatus,
-          file_path: document.file_path,
-          filename: document.filename,
-          originalName: document.originalName
-        },
-        { headers: getAuthHeaders() }
-      );
-
-      if (response.data.success) {
-        // Actualizăm starea locală
-        setDocuments(prevDocuments => 
-          prevDocuments.map(doc => 
-            doc.id === document.id 
-              ? { ...doc, status: newStatus }
-              : doc
-          )
-        );
-        
-        // Reîncărcăm documentele pentru a ne asigura că avem datele actualizate
-        await loadDocuments();
-      }
-    } catch (error) {
-      console.error('Error updating document status:', error);
-      setError('Eroare la actualizarea statusului documentului');
-    }
-  };
-
-  const renderUserDocuments = (user) => {
-    const userDocStatus = getDocumentStatus(user.id);
-    const userDocuments = documents.filter(doc => doc.user_id === user.id);
-    
-    return (
-      <div className="user-documents-content">
-        <div className="user-info">
-          <h3>Informații Utilizator</h3>
-          <p><strong>Nume:</strong> {user.name}</p>
-          <p><strong>Email:</strong> {user.email}</p>
-          <p><strong>Rol:</strong> {user.role === 'admin' ? 'Administrator' : 'Utilizator'}</p>
-        </div>
-
-        <div className="documents-list">
-          <h3>Documente Utilizator</h3>
-          <table className="documents-table">
-            <thead>
-              <tr>
-                <th>Tip Document</th>
-                <th>Status</th>
-                <th>Data Încărcării</th>
-                <th>Acțiuni</th>
-              </tr>
-            </thead>
-            <tbody>
-              {userDocuments.map(doc => (
-                <tr key={doc.id}>
-                  <td>{doc.document_type}</td>
-                  <td>
-                    <span className={`status-badge status-${doc.status}`}>
-                      {doc.status === 'pending' ? 'În așteptare' :
-                       doc.status === 'approved' ? 'Aprobat' :
-                       doc.status === 'rejected' ? 'Respins' :
-                       doc.status}
-                    </span>
-                  </td>
-                  <td>{formatDate(doc.uploadDate || doc.createdAt)}</td>
-                  <td>
-                    <div className="action-buttons">
-              <button
-                        className="view-button"
-                        onClick={() => handleDownloadDocument(doc.document_type, doc.user_id)}
-              >
-                        Descarcă
-              </button>
-                      {doc.status === 'pending' && (
-                        <>
-                          <button
-                            className="approve-button"
-                            onClick={() => handleConfirmDocument(doc)}
-                          >
-                            Aprobă
-                          </button>
-                          <button
-                            className="reject-button"
-                            onClick={() => handleRejectDocument(doc)}
-                          >
-                            Respinge
-                          </button>
-                        </>
-                      )}
-                      <button
-                        className="delete-button"
-                        onClick={() => setDocumentToDelete(doc)}
-                      >
-                        Șterge
-                      </button>
-          </div>
-                  </td>
-                </tr>
-        ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    );
-  };
-
-  const handleViewDocuments = (user) => {
-    setSelectedUser(user);
-    setShowUserDocuments(true);
-    const userDocuments = documents.filter(doc => doc.user_id === user.id);
-    setFilteredDocuments(userDocuments);
-  };
-
-  const closeModals = () => {
-    setShowUserDetails(false);
-    setShowUserDocuments(false);
-    setSelectedUser(null);
-  };
-
-  const handleViewUser = (user) => {
-    setSelectedUser(user);
-    setShowUserDetails(true);
-    // Obținem statusul documentelor pentru utilizatorul selectat
-    const docStatus = getDocumentStatus(user.id);
-    setDocStatus(docStatus);
-  };
-
-  const handleOpenAddProgramForm = () => {
-    setShowAddProgramForm(true);
-    setNewProgram({
-      name: '',
-      description: '',
-      duration: '',
-      degree_type: '',
-      language: '',
-      tuition_fees: '',
-      university_id: '',
-      faculty: '',
-      credits: ''
-    });
-  };
-
-  const handleEditUniversity = (university) => {
-    console.log('Universitate pentru editare:', university);
-    
-    // Asigurăm-ne că avem toate câmpurile necesare cu valori implicite
-    const formattedUniversity = {
-      id: university.id,
-      name: university.name || '',
-      type: university.type || '',
-      description: university.description || '',
-      location: university.location || '',
-      image_url: university.image_url || '',
-      website: university.website || '',
-      ranking: university.ranking || '',
-      tuition_fees: {
-        bachelor: university.tuitionFees?.bachelor || university.tuition_fees?.bachelor || '',
-        master: university.tuitionFees?.master || university.tuition_fees?.master || '',
-        phd: university.tuitionFees?.phd || university.tuition_fees?.phd || ''
-      },
-      contact_info: {
-        email: university.contactInfo?.email || university.contact_info?.email || '',
-        phone: university.contactInfo?.phone || university.contact_info?.phone || '',
-        address: university.contactInfo?.address || university.contact_info?.address || ''
-      }
-    };
-
-    setEditingUniversity(formattedUniversity);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setEditingUniversity(null);
-  };
-
-  const handleEditUniversityChange = (e) => {
-    const { name, value } = e.target;
-    console.log('Modificare câmp:', name, value);
-    
-    if (name.includes('.')) {
-      const [parent, child] = name.split('.');
-      setEditingUniversity(prev => ({
-        ...prev,
-        [parent]: {
-          ...prev[parent],
-          [child]: value
-        }
-      }));
-    } else {
-      setEditingUniversity(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
-  };
-
-  const handleUpdateUniversity = async (e) => {
-    e.preventDefault();
-    console.log('Încercare actualizare universitate:', editingUniversity);
-    
-    try {
-      const universityData = {
-        name: editingUniversity.name,
-        type: editingUniversity.type,
-        description: editingUniversity.description,
-        location: editingUniversity.location,
-        image_url: editingUniversity.image_url,
-        website: editingUniversity.website,
-        ranking: editingUniversity.ranking || '',
-        tuition_fees: {
-          bachelor: editingUniversity.tuition_fees?.bachelor || '',
-          master: editingUniversity.tuition_fees?.master || '',
-          phd: editingUniversity.tuition_fees?.phd || ''
-        },
-        contact_info: {
-          email: editingUniversity.contact_info?.email || '',
-          phone: editingUniversity.contact_info?.phone || '',
-          address: editingUniversity.contact_info?.address || ''
-        }
-      };
-
-      console.log('Date trimise la server:', universityData);
-
-      const response = await axios.put(
-        `${API_BASE_URL}/api/universities/${editingUniversity.id}`,
-        universityData,
-        { 
-          headers: getAuthHeaders(),
-          validateStatus: function (status) {
-            return status < 500;
-          }
-        }
-      );
-
-      console.log('Răspuns complet de la server:', {
-        status: response.status,
-        statusText: response.statusText,
-        data: response.data,
-        headers: response.headers
-      });
-
-      if (response.status === 200 || response.status === 201) {
-        // Actualizăm lista de universități
-        const updatedUniversities = universities.map(uni => 
-          uni.id === editingUniversity.id ? { 
-            ...uni, 
-            ...universityData,
-            tuitionFees: universityData.tuition_fees // Asigurăm că taxele sunt actualizate corect
-          } : uni
-        );
-        setUniversities(updatedUniversities);
-        
-        setSuccessMessage('Universitatea a fost actualizată cu succes!');
-        setTimeout(() => setSuccessMessage(''), 3000);
-
-        // Reîncărcăm lista completă
-        const refreshResponse = await axios.get(`${API_BASE_URL}/api/universities`, {
-          headers: getAuthHeaders()
-        });
-        
-        if (refreshResponse.data) {
-          const processedData = refreshResponse.data.map(uni => ({
-            ...uni,
-            ranking: uni.ranking || '',
-            tuitionFees: uni.tuition_fees || {
-              bachelor: '',
-              master: '',
-              phd: ''
-            }
-          }));
-          setUniversities(processedData);
-        }
-        
-        handleCloseModal();
-      } else {
-        throw new Error(response.data.message || 'Eroare la actualizarea universității');
-      }
-    } catch (error) {
-      console.error('Eroare la actualizarea universității:', error);
-      setError('A apărut o eroare la actualizarea universității. Vă rugăm să încercați din nou.');
-      setTimeout(() => setError(null), 5000);
-    }
-  };
-
-  const handleDeleteUniversity = async (id) => {
-    if (!window.confirm('Sigur doriți să ștergeți această universitate?')) {
-      return;
-    }
-
-    try {
-      await universityService.deleteUniversity(id);
-      
-      // Actualizăm lista de universități
-      const updatedUniversities = universities.filter(uni => uni.id !== id);
-      setUniversities(updatedUniversities);
-      
-      setSuccessMessage('Universitatea a fost ștearsă cu succes!');
-      setTimeout(() => setSuccessMessage(''), 3000);
-    } catch (error) {
-      console.error('Eroare la ștergerea universității:', error);
-      setError('A apărut o eroare la ștergerea universității. Vă rugăm să încercați din nou.');
-      setTimeout(() => setError(null), 5000);
-    }
-  };
-
-  const handleUniversityInputChange = (e) => {
-    const { name, value } = e.target;
-    
-    if (name.includes('.')) {
-      const [parent, child] = name.split('.');
-      setNewUniversity(prev => ({
-        ...prev,
-        [parent]: {
-          ...prev[parent],
-          [child]: value
-        }
-      }));
-    } else {
-      setNewUniversity(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
-  };
-
-  const handleAddUniversity = async (e) => {
-    e.preventDefault();
-    
-    try {
-      const universityData = {
-        name: newUniversity.name,
-        type: newUniversity.type,
-        description: newUniversity.description,
-        location: newUniversity.location,
-        image_url: newUniversity.imageUrl,
-        website: newUniversity.website,
-        ranking: newUniversity.ranking || '',
-        tuition_fees: {
-          bachelor: newUniversity.tuitionFees.bachelor || '',
-          master: newUniversity.tuitionFees.master || '',
-          phd: newUniversity.tuitionFees.phd || ''
-        },
-        contact_info: {
-          email: newUniversity.contactInfo.email || '',
-          phone: newUniversity.contactInfo.phone || '',
-          address: newUniversity.contactInfo.address || ''
-        }
-      };
-
-      const response = await axios.post(
-        `${API_BASE_URL}/api/universities`,
-        universityData,
-        { 
-          headers: getAuthHeaders(),
-          validateStatus: function (status) {
-            return status < 500;
-          }
-        }
-      );
-
-      if (response.status === 201) {
-        // Adăugăm noua universitate la lista existentă
-        setUniversities(prev => [...prev, response.data]);
-        setShowAddUniversityForm(false);
-        setSuccessMessage('Universitatea a fost adăugată cu succes!');
-        setTimeout(() => setSuccessMessage(''), 3000);
-        
-        // Resetăm formularul
-        setNewUniversity({
-          name: '',
-          type: 'Public',
-          description: '',
-          location: '',
-          imageUrl: '',
-          website: '',
-          ranking: '',
-          tuitionFees: {
-            bachelor: '',
-            master: '',
-            phd: ''
-          },
-          contactInfo: {
-            email: '',
-            phone: '',
-            address: ''
-          }
-        });
-      } else {
-        throw new Error(`Error adding university: ${response.status}`);
-      }
-    } catch (error) {
-      console.error('Eroare la adăugarea universității:', error);
-      setError('A apărut o eroare la adăugarea universității. Vă rugăm să încercați din nou.');
-      setTimeout(() => setError(null), 5000);
-    }
-  };
-
-  const handleAddProgram = async (e) => {
-    e.preventDefault();
-    try {
-      // Formatăm datele programului înainte de trimitere
-      const formattedProgram = {
-        ...newProgram,
-        tuition_fees: newProgram.tuition_fees.toString(),
-        duration: parseInt(newProgram.duration),
-        credits: parseInt(newProgram.credits) || null
-      };
-
-      const response = await axios.post(
-        `${API_BASE_URL}/api/programs`,
-        formattedProgram,
-        { 
-          headers: getAuthHeaders(),
-          validateStatus: function (status) {
-            return status < 500;
-          }
-        }
-      );
-
-      if (response.status === 201 || response.data.success) {
-        setSuccessMessage('Program adăugat cu succes!');
-        setShowAddProgramForm(false);
-        setNewProgram({
-          name: '',
-          description: '',
-          duration: '',
-          degree_type: '',
-          language: '',
-          tuition_fees: '',
-          university_id: '',
-          faculty: '',
-          credits: ''
-        });
-        
-        // Reîncărcăm lista de programe
-        const programsResponse = await axios.get(`${API_BASE_URL}/api/programs`, {
-          headers: getAuthHeaders()
-        });
-        
-        if (programsResponse.data && programsResponse.data.data) {
-          setPrograms(programsResponse.data.data);
-        }
-      } else {
-        throw new Error(response.data.message || 'Eroare la adăugarea programului');
-      }
-    } catch (error) {
-      console.error('Eroare la adăugarea programului:', error);
-      let errorMessage = 'A apărut o eroare la adăugarea programului. ';
-      
-      if (error.response?.status === 401) {
-        errorMessage += 'Nu aveți permisiunea de a adăuga programe.';
-      } else if (error.response?.data?.message) {
-        errorMessage += error.response.data.message;
-      } else {
-        errorMessage += 'Vă rugăm să încercați din nou.';
-      }
-      
-      setError(errorMessage);
-      setTimeout(() => setError(null), 5000);
-    }
-  };
-
-  const handleEditProgram = (program) => {
-    // Formatăm datele programului pentru editare
-    const formattedProgram = {
-      ...program,
-      duration: program.duration.toString(),
-      credits: program.credits?.toString() || '',
-      tuition_fees: program.tuition_fees?.toString() || ''
-    };
-    setEditingProgram(formattedProgram);
-    setShowEditProgramForm(true);
-  };
-
-  const handleDeleteProgram = async (programId) => {
-    if (!window.confirm('Sigur doriți să ștergeți acest program?')) {
-      return;
-    }
-
-    try {
-      const response = await axios.delete(
-        `${API_BASE_URL}/api/programs/${programId}`,
-        { 
-          headers: getAuthHeaders(),
-          validateStatus: function (status) {
-            return status < 500;
-          }
-        }
-      );
-
-      if (response.status === 200 || response.data.success) {
-        setSuccessMessage('Program șters cu succes!');
-        setPrograms(programs.filter(program => program.id !== programId));
-      } else {
-        throw new Error(response.data.message || 'Eroare la ștergerea programului');
-      }
-    } catch (error) {
-      console.error('Eroare la ștergerea programului:', error);
-      setError('A apărut o eroare la ștergerea programului. Vă rugăm să încercați din nou.');
-      setTimeout(() => setError(null), 5000);
-    }
-  };
-
-  const handleUpdateProgram = async (e) => {
-    e.preventDefault();
-    try {
-      // Formatăm datele programului înainte de trimitere
-      const formattedProgram = {
-        ...editingProgram,
-        duration: parseInt(editingProgram.duration),
-        credits: parseInt(editingProgram.credits) || null
-      };
-
-      const response = await axios.put(
-        `${API_BASE_URL}/api/programs/${editingProgram.id}`,
-        formattedProgram,
-        { 
-          headers: getAuthHeaders(),
-          validateStatus: function (status) {
-            return status < 500;
-          }
-        }
-      );
-
-      if (response.status === 200 || response.data.success) {
-        setSuccessMessage('Program actualizat cu succes!');
-        setShowEditProgramForm(false);
-        setEditingProgram(null);
-        
-        // Reîncărcăm lista de programe
-        const programsResponse = await axios.get(`${API_BASE_URL}/api/programs`, {
-          headers: getAuthHeaders()
-        });
-        
-        if (programsResponse.data && programsResponse.data.data) {
-          setPrograms(programsResponse.data.data);
-        }
-      } else {
-        throw new Error(response.data.message || 'Eroare la actualizarea programului');
-      }
-    } catch (error) {
-      console.error('Eroare la actualizarea programului:', error);
-      setError('A apărut o eroare la actualizarea programului. Vă rugăm să încercați din nou.');
-      setTimeout(() => setError(null), 5000);
-    }
-  };
-
-  const handleProgramInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewProgram(prev => ({
+  const handleSectionError = (section, error) => {
+    console.error(`Eroare la încărcarea ${section}:`, error);
+    setErrors(prev => ({
       ...prev,
-      [name]: value
+      [section]: `Eroare la încărcarea ${section}: ${error.message}`
     }));
+    setLoading(prev => ({
+      ...prev,
+      [section]: false
+    }));
+  };
+
+  const updateSectionData = (section, data) => {
+    switch(section) {
+      case 'users':
+        setUsers(data);
+        break;
+      case 'documents':
+        setDocuments(data);
+        break;
+      case 'universities':
+        setUniversities(data);
+        break;
+      case 'programs':
+        setPrograms(data);
+        break;
+      case 'applications':
+        setApplications(data);
+        break;
+      case 'total':
+        setStatistics(prev => ({
+          ...prev,
+          totalApplications: data
+        }));
+        break;
+      case 'status':
+        setStatistics(prev => ({
+          ...prev,
+          pendingApplications: data.pending || 0,
+          approvedApplications: data.sent || 0,
+          rejectedApplications: data.rejected || 0
+        }));
+        break;
+    }
+    setLoading(prev => ({
+      ...prev,
+      [section]: false
+    }));
+  };
+
+  // Actualizăm funcțiile de încărcare pentru a gestiona corect starea de loading
+  const loadUsers = async () => {
+    try {
+      setLoading(prev => ({ ...prev, users: true }));
+      console.log('Începe încărcarea utilizatorilor...');
+      const response = await axios.get(`${API_BASE_URL}/api/auth/users`, { 
+        headers: getAuthHeaders()
+      });
+      
+      console.log('Răspuns server utilizatori:', response.data);
+      
+      if (!response.data) {
+        throw new Error('Nu s-au primit date de la server');
+      }
+
+      let usersData;
+      if (Array.isArray(response.data)) {
+        usersData = response.data;
+      } else if (response.data.data && Array.isArray(response.data.data)) {
+        usersData = response.data.data;
+      } else if (response.data.users && Array.isArray(response.data.users)) {
+        usersData = response.data.users;
+      } else {
+        throw new Error('Format invalid al datelor primite');
+      }
+
+      console.log('Utilizatori procesați:', usersData);
+      setUsers(usersData);
+      setFilteredUsers(usersData);
+      updateSectionData('users', usersData);
+    } catch (error) {
+      console.error('Eroare la încărcarea utilizatorilor:', error);
+      handleSectionError('users', error);
+    } finally {
+      setLoading(prev => ({ ...prev, users: false }));
+    }
+  };
+
+  const loadDocuments = async () => {
+    try {
+      setLoading(prev => ({ ...prev, documents: true }));
+      console.log('Începe încărcarea documentelor...');
+      const response = await axios.get(`${API_BASE_URL}/api/documents`, {
+        headers: getAuthHeaders()
+      });
+      
+      console.log('Răspuns server documente:', response.data);
+      
+      if (!response.data) {
+        throw new Error('Nu s-au primit date de la server');
+      }
+
+      let documentsData;
+      if (Array.isArray(response.data)) {
+        documentsData = response.data;
+      } else if (response.data.data && Array.isArray(response.data.data)) {
+        documentsData = response.data.data;
+      } else if (response.data.documents && Array.isArray(response.data.documents)) {
+        documentsData = response.data.documents;
+      } else {
+        throw new Error('Format invalid al datelor primite');
+      }
+
+      console.log('Documente procesate:', documentsData);
+      setDocuments(documentsData);
+      setFilteredDocuments(documentsData);
+      updateSectionData('documents', documentsData);
+    } catch (error) {
+      console.error('Eroare la încărcarea documentelor:', error);
+      handleSectionError('documents', error);
+    } finally {
+      setLoading(prev => ({ ...prev, documents: false }));
+    }
+  };
+
+  const loadUniversities = async () => {
+    try {
+      setLoading(prev => ({ ...prev, universities: true }));
+      console.log('Începe încărcarea universităților...');
+      const response = await axios.get(`${API_BASE_URL}/api/universities`, {
+        headers: getAuthHeaders()
+      });
+      
+      console.log('Răspuns server universități:', response.data);
+      
+      if (!response.data) {
+        throw new Error('Nu s-au primit date de la server');
+      }
+
+      let universitiesData;
+      if (Array.isArray(response.data)) {
+        universitiesData = response.data;
+      } else if (response.data.data && Array.isArray(response.data.data)) {
+        universitiesData = response.data.data;
+      } else if (response.data.universities && Array.isArray(response.data.universities)) {
+        universitiesData = response.data.universities;
+      } else {
+        throw new Error('Format invalid al datelor primite');
+      }
+
+      console.log('Universități procesate:', universitiesData);
+      setUniversities(universitiesData);
+      setFilteredUniversities(universitiesData);
+      updateSectionData('universities', universitiesData);
+    } catch (error) {
+      console.error('Eroare la încărcarea universităților:', error);
+      handleSectionError('universities', error);
+    } finally {
+      setLoading(prev => ({ ...prev, universities: false }));
+    }
+  };
+
+  const loadPrograms = async () => {
+    try {
+      setLoading(prev => ({ ...prev, programs: true }));
+      console.log('Începe încărcarea programelor...');
+      const response = await axios.get(`${API_BASE_URL}/api/programs`, {
+        headers: getAuthHeaders()
+      });
+
+      console.log('Răspuns server programe:', JSON.stringify(response.data, null, 2));
+
+      if (!response.data || typeof response.data !== 'object') {
+        throw new Error('Format invalid al răspunsului de la server');
+      }
+
+      if (!response.data.success) {
+        throw new Error(response.data.message || 'Eroare la preluarea programelor');
+      }
+
+      const { data, total } = response.data;
+
+      if (!Array.isArray(data)) {
+        throw new Error('Format invalid al datelor primite');
+      }
+
+      // Formatăm datele
+      const formattedData = data.map(program => ({
+        id: program.id,
+        name: program.name,
+        description: program.description,
+        duration: program.duration,
+        degree_type: program.degree_type,
+        language: program.language,
+        tuition_fees: program.tuition_fees,
+        credits: program.credits,
+        faculty: program.faculty,
+        university: program.university ? {
+          id: program.university.id,
+          name: program.university.name,
+          image_url: program.university.image_url,
+          location: program.university.location,
+          website: program.university.website
+        } : null,
+        createdAt: program.createdAt,
+        updatedAt: program.updatedAt
+      }));
+
+      // Formatăm totalul
+      const formattedTotal = typeof total === 'number' ? total : formattedData.length;
+
+      // Actualizăm starea
+      updateSectionData('programs', formattedData);
+      updateSectionData('total', formattedTotal);
+
+      console.log('Programe încărcate cu succes:', {
+        total: formattedTotal,
+        count: formattedData.length
+      });
+    } catch (error) {
+      console.error('Eroare la încărcarea programelor:', error);
+      handleSectionError('programs', error);
+    } finally {
+      setLoading(prev => ({ ...prev, programs: false }));
+    }
+  };
+
+  const loadApplications = async () => {
+    try {
+      setLoading(prev => ({ ...prev, applications: true }));
+      console.log('Începe încărcarea aplicațiilor...');
+      const response = await axios.get(`${API_BASE_URL}/api/applications`, {
+        headers: getAuthHeaders()
+      });
+
+      console.log('Răspuns server aplicații:', JSON.stringify(response.data, null, 2));
+
+      if (!response.data || typeof response.data !== 'object') {
+        throw new Error('Format invalid al răspunsului de la server');
+      }
+
+      if (!response.data.success) {
+        throw new Error(response.data.message || 'Eroare la preluarea aplicațiilor');
+      }
+
+      const { data, total, status } = response.data;
+
+      if (!data || typeof data !== 'object') {
+        throw new Error('Format invalid al datelor primite');
+      }
+
+      // Verificăm și formatăm datele
+      const formattedData = {
+        drafts: Array.isArray(data.drafts) ? data.drafts : [],
+        pending: Array.isArray(data.pending) ? data.pending : [],
+        sent: Array.isArray(data.sent) ? data.sent : [],
+        rejected: Array.isArray(data.rejected) ? data.rejected : [],
+        withdrawn: Array.isArray(data.withdrawn) ? data.withdrawn : []
+      };
+
+      // Verificăm și formatăm statisticile
+      const formattedStatus = {
+        drafts: typeof status?.drafts === 'number' ? status.drafts : formattedData.drafts.length,
+        pending: typeof status?.pending === 'number' ? status.pending : formattedData.pending.length,
+        sent: typeof status?.sent === 'number' ? status.sent : formattedData.sent.length,
+        rejected: typeof status?.rejected === 'number' ? status.rejected : formattedData.rejected.length,
+        withdrawn: typeof status?.withdrawn === 'number' ? status.withdrawn : formattedData.withdrawn.length
+      };
+
+      // Verificăm totalul
+      const formattedTotal = typeof total === 'number' ? total : Object.values(formattedData).reduce((acc, arr) => acc + arr.length, 0);
+
+      // Actualizăm starea
+      updateSectionData('applications', formattedData);
+      updateSectionData('total', formattedTotal);
+      updateSectionData('status', formattedStatus);
+
+      console.log('Aplicații încărcate cu succes:', {
+        total: formattedTotal,
+        status: formattedStatus
+      });
+    } catch (error) {
+      console.error('Eroare la încărcarea aplicațiilor:', error);
+      handleSectionError('applications', error);
+    } finally {
+      setLoading(prev => ({ ...prev, applications: false }));
+    }
   };
 
   const loadNotifications = async () => {
     try {
       setLoadingNotifications(true);
-      const response = await axios.get(`${API_BASE_URL}/api/notifications`, {
+      setErrorNotifications(null);
+      
+      console.log('Începe încărcarea notificărilor...');
+      
+      const response = await fetch(`${API_BASE_URL}/api/notifications`, {
         headers: getAuthHeaders()
       });
       
-      if (response.data && response.data.data) {
-        setNotifications(response.data.data);
+      if (!response.ok) {
+        throw new Error('Eroare la încărcarea notificărilor');
       }
-      setLoadingNotifications(false);
+      
+      const data = await response.json();
+      console.log('Răspuns server notificări:', data);
+      
+      if (!data.success) {
+        throw new Error(data.message || 'Eroare la încărcarea notificărilor');
+      }
+      
+      if (!Array.isArray(data.data)) {
+        console.error('Format invalid al datelor primite:', data);
+        throw new Error('Format invalid al datelor primite');
+      }
+      
+      // Procesăm notificările pentru a asigura formatul corect
+      const processedNotifications = data.data.map(notification => ({
+        ...notification,
+        type: notification.type || 'general',
+        title: notification.title || 'Notificare nouă',
+        message: notification.message || '',
+        admin_message: notification.admin_message || null,
+        is_read: notification.is_read || false,
+        is_admin_notification: notification.is_admin_notification || false
+      }));
+      
+      console.log('Notificări procesate:', processedNotifications);
+      setNotifications(processedNotifications);
     } catch (error) {
       console.error('Eroare la încărcarea notificărilor:', error);
-      setErrorNotifications('A apărut o eroare la încărcarea notificărilor');
-      setLoadingNotifications(false);
+      console.error('Eroare generală la inițializarea dashboard-ului:', error);
+      handleSectionError('general', error);
     }
   };
 
-  useEffect(() => {
-    if (activeTab === 'notifications') {
-      loadNotifications();
-    }
-  }, [activeTab]);
+  // Adăugăm funcția handleOpenAddProgramForm
+  const handleOpenAddProgramForm = () => {
+    setShowAddProgramForm(true);
+    setNewProgram({
+      name: '',
+      description: '',
+      university_id: '',
+      duration: '',
+      degree: '',
+      language: '',
+      tuition_fee: '',
+      start_date: '',
+      application_deadline: ''
+    });
+  };
 
-  // Funcție pentru a actualiza tab-ul activ și a-l salva în localStorage
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-    localStorage.setItem('dashboardActiveTab', tab);
+  // Adăugăm funcția handleCloseAddProgramForm
+  const handleCloseAddProgramForm = () => {
+    setShowAddProgramForm(false);
+  };
+
+  // Adăugăm funcția handleAddProgram
+  const handleAddProgram = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/programs`, newProgram, {
+        headers: getAuthHeaders()
+      });
+      if (response.data.success) {
+        setPrograms([...programs, response.data.data]);
+        handleCloseAddProgramForm();
+        setSuccessMessage('Programul a fost adăugat cu succes!');
+      }
+    } catch (error) {
+      console.error('Eroare la adăugarea programului:', error);
+      setError(error.response?.data?.message || 'Eroare la adăugarea programului');
+    }
+  };
+
+  // Adăugăm funcția handleNewProgramChange
+  const handleNewProgramChange = (e) => {
+    const { name, value } = e.target;
+    setNewProgram(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   return (
@@ -2322,172 +1620,110 @@ const Dashboard = () => {
                   </div>
 
                   {showAddProgramForm && (
-                    <div className="modal-overlay">
-                      <div className="modal-content program-modal">
-                        <h2>Add New Program</h2>
-                        <form onSubmit={handleAddProgram} className="program-form">
-                          <div className="form-row">
-                            <div className="form-group">
-                              <label>Program Name:</label>
-                              <input
-                                type="text"
-                                name="name"
-                                value={newProgram.name}
-                                onChange={handleProgramInputChange}
-                                placeholder="Enter the program name"
-                                required
-                                className="form-input"
-                              />
-                            </div>
-
-                            <div className="form-group">
-                              <label>Degree:</label>
-                              <select
-                                name="degree_type"
-                                value={newProgram.degree_type}
-                                onChange={handleProgramInputChange}
-                                required
-                                className="form-select"
-                              >
-                                <option value="">Select Degree</option>
-                                <option value="Bachelor">Bachelor</option>
-                                <option value="Master">Master</option>
-                                <option value="PhD">PhD</option>
-                              </select>
-                            </div>
+                    <div className="modal">
+                      <div className="modal-content">
+                        <h2>Adaugă Program Nou</h2>
+                        <form onSubmit={handleAddProgram}>
+                          <div className="form-group">
+                            <label>Nume Program:</label>
+                            <input
+                              type="text"
+                              name="name"
+                              value={newProgram.name}
+                              onChange={handleNewProgramChange}
+                              required
+                            />
                           </div>
-
-                          <div className="form-row">
-                            <div className="form-group">
-                              <label>Faculty:</label>
-                              <input
-                                type="text"
-                                name="faculty"
-                                value={newProgram.faculty}
-                                onChange={handleProgramInputChange}
-                                placeholder="Enter the faculty name"
-                                className="form-input"
-                              />
-                            </div>
-
-                            <div className="form-group">
-                              <label>Credits:</label>
-                              <input
-                                type="number"
-                                name="credits"
-                                value={newProgram.credits}
-                                onChange={handleProgramInputChange}
-                                placeholder="Enter the number of credits"
-                                className="form-input"
-                              />
-                            </div>
-                          </div>
-
-                          <div className="form-row">
-                            <div className="form-group">
-                              <label>Duration (years):</label>
-                              <input
-                                type="number"
-                                name="duration"
-                                min="1"
-                                max="6"
-                                value={newProgram.duration}
-                                onChange={handleProgramInputChange}
-                                placeholder="Number of years"
-                                required
-                                className="form-input"
-                              />
-                            </div>
-
-                            <div className="form-group">
-                              <label>Teaching Language:</label>
-                              <select
-                                name="language"
-                                value={newProgram.language}
-                                onChange={handleProgramInputChange}
-                                required
-                                className="form-select"
-                              >
-                                <option value="">Select Language</option>
-                                <option value="Romanian">Romanian</option>
-                                <option value="English">English</option>
-                                <option value="Russian">Russian</option>
-                              </select>
-                            </div>
-                          </div>
-
                           <div className="form-group">
                             <label>Descriere:</label>
                             <textarea
                               name="description"
                               value={newProgram.description}
-                              onChange={handleProgramInputChange}
-                              placeholder="Descrieți programul de studiu"
-                              className="form-textarea"
-                              rows="4"
+                              onChange={handleNewProgramChange}
+                              required
                             />
                           </div>
-
-                          <div className="form-row">
-                            <div className="form-group">
-                              <label>Tuition Fee:</label>
-                              <input
-                                type="text"
-                                name="tuition_fees"
-                                maxLength="50"
-                                value={newProgram.tuition_fees}
-                                onChange={handleProgramInputChange}
-                                placeholder="ex: 3000-4000 EUR/year"
-                                required
-                                className="form-input"
-                              />
-                            </div>
-
-                            <div className="form-group">
-                              <label>University:</label>
-                              <select
-                                name="university_id"
-                                value={newProgram.university_id}
-                                onChange={handleProgramInputChange}
-                                required
-                                className="form-select"
-                              >
-                                <option value="">Select University</option>
-                                {Array.isArray(universities) ? universities.map(university => (
-                                  <option key={university.id} value={university.id}>
-                                    {university.name}
-                                  </option>
-                                )) : []}
-                              </select>
-                            </div>
+                          <div className="form-group">
+                            <label>Universitate:</label>
+                            <select
+                              name="university_id"
+                              value={newProgram.university_id}
+                              onChange={handleNewProgramChange}
+                              required
+                            >
+                              <option value="">Selectează universitatea</option>
+                              {universities.map(uni => (
+                                <option key={uni.id} value={uni.id}>{uni.name}</option>
+                              ))}
+                            </select>
                           </div>
-
-                          <div className="modal-buttons">
-                            <button 
-                              className="btn-grey-2"
-                              onClick={() => {
-                                setShowAddProgramForm(false);
-                                setNewProgram({
-                                  name: '',
-                                  description: '',
-                                  duration: '',
-                                  degree_type: '',
-                                  language: '',
-                                  tuition_fees: '',
-                                  university_id: '',
-                                  faculty: '',
-                                  credits: ''
-                                });
-                              }}
+                          <div className="form-group">
+                            <label>Durată (ani):</label>
+                            <input
+                              type="number"
+                              name="duration"
+                              value={newProgram.duration}
+                              onChange={handleNewProgramChange}
+                              required
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label>Grad:</label>
+                            <select
+                              name="degree"
+                              value={newProgram.degree}
+                              onChange={handleNewProgramChange}
+                              required
                             >
-                              Anulează
-                            </button>
-                            <button 
-                              className="btn-success"
-                              type="submit"
-                            >
-                              Add Program
-                            </button>
+                              <option value="">Selectează gradul</option>
+                              <option value="Bachelor">Bachelor</option>
+                              <option value="Master">Master</option>
+                              <option value="PhD">PhD</option>
+                            </select>
+                          </div>
+                          <div className="form-group">
+                            <label>Limbă:</label>
+                            <input
+                              type="text"
+                              name="language"
+                              value={newProgram.language}
+                              onChange={handleNewProgramChange}
+                              required
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label>Taxă Școlară:</label>
+                            <input
+                              type="number"
+                              name="tuition_fee"
+                              value={newProgram.tuition_fee}
+                              onChange={handleNewProgramChange}
+                              required
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label>Data de început:</label>
+                            <input
+                              type="date"
+                              name="start_date"
+                              value={newProgram.start_date}
+                              onChange={handleNewProgramChange}
+                              required
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label>Termen limită aplicare:</label>
+                            <input
+                              type="date"
+                              name="application_deadline"
+                              value={newProgram.application_deadline}
+                              onChange={handleNewProgramChange}
+                              required
+                            />
+                          </div>
+                          <div className="button-group">
+                            <button type="submit" className="save-button">Salvează</button>
+                            <button type="button" onClick={handleCloseAddProgramForm} className="cancel-button">Anulează</button>
                           </div>
                         </form>
                       </div>
@@ -2987,6 +2223,18 @@ const Dashboard = () => {
                             {notification.type === 'new_application' && <FaFileAlt />}
                           </div>
                           <div className="notification-content">
+                            <p>{notification.message}</p>
+                            {notification.admin_message && (
+                              <p className="admin-message">{notification.admin_message}</p>
+                            )}
+                            <span className="notification-date">
+                              {new Date(notification.createdAt).toLocaleDateString('ro-RO', {
+                                day: 'numeric',
+                                month: 'long',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </span>
                             <div className="notification-header">
                               <span className="notification-title">{notification.title}</span>
                               <span className="notification-date">{formatDate(notification.created_at)}</span>

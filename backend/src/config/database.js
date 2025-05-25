@@ -5,7 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
 const config = require('./config.json')[process.env.NODE_ENV || 'development'];
-const UniversityModel = require('../models/university');
+const UniversityModel = require('../models/University');
 
 // Configurare directoare
 const DB_DIR = path.join(__dirname, '../../data');
@@ -52,6 +52,7 @@ const ProgramModel = require('../models/program');
 const NotificationModel = require('../models/notification');
 const ApplicationModel = require('../models/application');
 const SavedProgramModel = require('../models/savedProgram');
+const ApplicationDocumentModel = require('../models/applicationDocument');
 
 // Initialize models
 const User = UserModel(sequelize);
@@ -61,6 +62,7 @@ const Notification = NotificationModel(sequelize);
 const Application = ApplicationModel(sequelize);
 const SavedProgram = SavedProgramModel(sequelize);
 const University = UniversityModel(sequelize);
+const ApplicationDocument = ApplicationDocumentModel(sequelize);
 
 // Define relationships
 Program.belongsTo(University, { 
@@ -137,6 +139,7 @@ async function safeSync(force = false) {
     if (!tablesExist || force) {
       // Ștergem toate tabelele în ordinea corectă
       await SavedProgram.drop();
+      await ApplicationDocument.drop();
       await Application.drop();
       await Document.drop();
       await Program.drop();
@@ -151,6 +154,7 @@ async function safeSync(force = false) {
       await Program.sync();
       await Notification.sync();
       await Application.sync();
+      await ApplicationDocument.sync();
       await SavedProgram.sync();
       
       console.log('Tabelele au fost actualizate cu succes');

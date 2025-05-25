@@ -15,14 +15,18 @@ exports.createApplication = async (req, res) => {
       });
     }
 
-    // Verificăm dacă utilizatorul are deja o aplicație pentru acest program
+    // Verificăm dacă utilizatorul are deja o aplicație activă pentru acest program
     const existingApplication = await Application.findOne({
-      where: { user_id, program_id: programId }
+      where: { 
+        user_id, 
+        program_id: programId,
+        status: ['pending', 'confirmed', 'draft'] // Verificăm doar aplicațiile active și draft-urile
+      }
     });
     if (existingApplication) {
       return res.status(400).json({ 
         success: false,
-        message: 'Aveți deja o aplicație pentru acest program',
+        message: 'Aveți deja o aplicație activă pentru acest program',
         data: null
       });
     }
@@ -45,10 +49,10 @@ exports.createApplication = async (req, res) => {
       include: [
         {
           model: Program,
-          as: 'Program',
+          as: 'program',
           include: [{
             model: University,
-            as: 'University'
+            as: 'university'
           }]
         },
         {
@@ -83,10 +87,10 @@ exports.getUserApplications = async (req, res) => {
       include: [
         { 
           model: Program,
-          as: 'Program',
+          as: 'program',
           include: [{
             model: University,
-            as: 'University',
+            as: 'university',
             attributes: ['name', 'location']
           }]
         },
@@ -99,6 +103,7 @@ exports.getUserApplications = async (req, res) => {
     });
 
     console.log('Aplicații găsite:', applications.length);
+    console.log('Prima aplicație:', JSON.stringify(applications[0], null, 2));
 
     // Inițializăm toate grupurile cu array-uri goale
     const groupedApplications = {
@@ -119,14 +124,14 @@ exports.getUserApplications = async (req, res) => {
         createdAt: app.createdAt,
         updatedAt: app.updatedAt,
         notes: app.notes || '',
-        program: app.Program ? {
-          id: app.Program.id,
-          name: app.Program.name,
-          faculty: app.Program.faculty,
-          degree: app.Program.degree,
+        program: app.program ? {
+          id: app.program.id,
+          name: app.program.name,
+          faculty: app.program.faculty,
+          degree: app.program.degree,
           university: {
-            name: app.Program.University?.name || 'N/A',
-            location: app.Program.University?.location || 'N/A'
+            name: app.program.university?.name || 'N/A',
+            location: app.program.university?.location || 'N/A'
           }
         } : null,
         documents: app.documents ? app.documents.map(doc => ({
@@ -192,8 +197,12 @@ exports.getUserApplications = async (req, res) => {
     console.log('Răspuns final:', JSON.stringify(response, null, 2));
     res.json(response);
   } catch (error) {
-    console.error('Eroare la obținerea aplicațiilor:', error);
-    res.status(500).json({
+    console.error('Eroare detaliată la obținerea aplicațiilor:', {
+      message: error.message,
+      stack: error.stack,
+      code: error.code
+    });
+    res.status(500).json({ 
       success: false,
       message: 'Eroare la obținerea aplicațiilor',
       error: error.message,
@@ -229,7 +238,7 @@ exports.getApplicationById = async (req, res) => {
           as: 'program',
           include: [{
             model: University,
-            as: 'University'
+            as: 'university'
           }]
         },
         {
@@ -303,10 +312,10 @@ exports.updateApplication = async (req, res) => {
       include: [
         {
           model: Program,
-          as: 'Program',
+          as: 'program',
           include: [{
             model: University,
-            as: 'University'
+            as: 'university'
           }]
         },
         {
@@ -341,10 +350,16 @@ exports.cancelApplication = async (req, res) => {
       include: [
         { 
           model: Program,
+          as: 'program',
           include: [{
             model: University,
+            as: 'university',
             attributes: ['name', 'location']
           }]
+        },
+        {
+          model: Document,
+          as: 'documents'
         }
       ]
     });
@@ -365,7 +380,7 @@ exports.cancelApplication = async (req, res) => {
       });
     }
 
-    application.status = 'cancelled';
+    application.status = 'withdrawn';
     await application.save();
 
     const formattedApplication = {
@@ -374,14 +389,14 @@ exports.cancelApplication = async (req, res) => {
       createdAt: application.createdAt,
       updatedAt: application.updatedAt,
       notes: application.notes || '',
-      program: application.Program ? {
-        id: application.Program.id,
-        name: application.Program.name,
-        faculty: application.Program.faculty,
-        degree: application.Program.degree,
+      program: application.program ? {
+        id: application.program.id,
+        name: application.program.name,
+        faculty: application.program.faculty,
+        degree: application.program.degree,
         university: {
-          name: application.Program.University?.name || 'N/A',
-          location: application.Program.University?.location || 'N/A'
+          name: application.program.university?.name || 'N/A',
+          location: application.program.university?.location || 'N/A'
         }
       } : null,
       documents: application.documents || []
@@ -408,12 +423,13 @@ exports.getApplications = async (req, res) => {
     const applications = await Application.findAll({
       where: { user_id: req.user.id },
       include: [
-        {
+        { 
           model: Program,
           as: 'program',
           include: [{
             model: University,
-            as: 'University'
+            as: 'University',
+            attributes: ['name', 'location']
           }]
         },
         {
@@ -437,8 +453,8 @@ exports.getApplications = async (req, res) => {
         faculty: app.program.faculty,
         degree: app.program.degree,
         university: {
-          name: app.program.University?.name || 'N/A',
-          location: app.program.University?.location || 'N/A'
+          name: app.program.university?.name || 'N/A',
+          location: app.program.university?.location || 'N/A'
         }
       } : null,
       documents: app.documents || []

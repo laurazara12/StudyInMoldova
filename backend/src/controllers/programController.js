@@ -6,11 +6,11 @@ exports.getAllPrograms = async (req, res) => {
     const programs = await Program.findAll({
       include: [{
         model: University,
-        as: 'University',
+        as: 'university',
         attributes: ['id', 'name', 'image_url', 'location', 'website']
       }],
       attributes: [
-        'id', 'name', 'description', 'duration', 'degree_type', 
+        'id', 'name', 'description', 'duration', 'degree', 'degree_type', 
         'language', 'tuition_fees', 'credits', 'faculty',
         'university_id', 'createdAt', 'updatedAt'
       ],
@@ -22,21 +22,20 @@ exports.getAllPrograms = async (req, res) => {
       name: program.name,
       description: program.description,
       duration: program.duration,
+      degree: program.degree,
       degree_type: program.degree_type,
       language: program.language,
       tuition_fees: program.tuition_fees,
       credits: program.credits,
       faculty: program.faculty,
-      university: program.University ? {
-        id: program.University.id,
-        name: program.University.name,
-        image_url: program.University.image_url,
-        location: program.University.location,
-        website: program.University.website
+      university: program.university ? {
+        name: program.university.name
       } : null,
       createdAt: program.createdAt,
       updatedAt: program.updatedAt
     }));
+
+    console.log('Programe formatate:', JSON.stringify(formattedPrograms, null, 2));
 
     res.json({
       success: true,
@@ -61,7 +60,7 @@ exports.getProgramById = async (req, res) => {
     const program = await Program.findByPk(req.params.id, {
       include: [{
         model: University,
-        as: 'University',
+        as: 'university',
         attributes: ['id', 'name', 'image_url', 'location', 'website']
       }]
     });
@@ -74,10 +73,17 @@ exports.getProgramById = async (req, res) => {
       });
     }
 
+    const formattedProgram = {
+      ...program.toJSON(),
+      university: program.university ? {
+        name: program.university.name
+      } : null
+    };
+
     res.json({
       success: true,
       message: 'Programul a fost găsit cu succes',
-      data: program
+      data: formattedProgram
     });
   } catch (error) {
     console.error('Eroare la obținerea programului:', error);
@@ -96,16 +102,23 @@ exports.getProgramsByUniversity = async (req, res) => {
       where: { university_id: req.params.universityId },
       include: [{
         model: University,
-        as: 'University',
+        as: 'university',
         attributes: ['id', 'name', 'image_url', 'location', 'website']
       }],
       order: [['name', 'ASC']]
     });
 
+    const formattedPrograms = programs.map(program => ({
+      ...program.toJSON(),
+      university: program.university ? {
+        name: program.university.name
+      } : null
+    }));
+
     res.json({
       success: true,
       message: 'Programele universității au fost preluate cu succes',
-      data: programs,
+      data: formattedPrograms,
       total: programs.length
     });
   } catch (error) {
@@ -125,7 +138,7 @@ exports.createProgram = async (req, res) => {
     console.log('Date primite pentru crearea programului:', req.body);
     
     // Verificăm câmpurile obligatorii
-    const requiredFields = ['name', 'description', 'duration', 'degree_type', 'language', 'tuition_fees', 'university_id'];
+    const requiredFields = ['name', 'university_id'];
     const missingFields = requiredFields.filter(field => !req.body[field]);
     
     if (missingFields.length > 0) {
@@ -137,11 +150,12 @@ exports.createProgram = async (req, res) => {
 
     const programData = {
       name: req.body.name,
-      description: req.body.description,
-      duration: parseInt(req.body.duration),
-      degree_type: req.body.degree_type,
-      language: req.body.language,
-      tuition_fees: req.body.tuition_fees,
+      description: req.body.description || null,
+      duration: req.body.duration || null,
+      degree: req.body.degree || null,
+      degree_type: req.body.degree_type || null,
+      language: req.body.language || null,
+      tuition_fees: req.body.tuition_fees || null,
       university_id: parseInt(req.body.university_id),
       faculty: req.body.faculty || null,
       credits: req.body.credits ? parseInt(req.body.credits) : null
@@ -152,7 +166,11 @@ exports.createProgram = async (req, res) => {
     const program = await Program.create(programData);
     console.log('Program creat cu succes:', program.toJSON());
     
-    res.status(201).json(program);
+    res.status(201).json({
+      success: true,
+      message: 'Programul a fost creat cu succes',
+      data: program
+    });
   } catch (error) {
     console.error('Eroare detaliată la crearea programului:', {
       message: error.message,
@@ -162,6 +180,7 @@ exports.createProgram = async (req, res) => {
     
     if (error.name === 'SequelizeValidationError') {
       return res.status(400).json({
+        success: false,
         message: 'Eroare de validare',
         errors: error.errors.map(e => ({
           field: e.path,
@@ -172,11 +191,13 @@ exports.createProgram = async (req, res) => {
     
     if (error.name === 'SequelizeForeignKeyConstraintError') {
       return res.status(400).json({
+        success: false,
         message: 'Universitatea specificată nu există'
       });
     }
 
     res.status(500).json({ 
+      success: false,
       message: 'Eroare la crearea programului',
       error: error.message
     });
