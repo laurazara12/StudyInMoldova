@@ -5,13 +5,25 @@ const path = require('path');
 const { Op } = require('sequelize');
 const cloudinary = require('../config/cloudinary');
 const { User } = require('../models');
+const { Application } = require('../models');
 
 const deleteDocument = async (req, res) => {
   try {
     const documentId = req.params.id;
-    const document = await Document.findByPk(documentId);
+    console.log('Încercare ștergere document:', documentId);
+
+    // Verificăm mai întâi dacă documentul există și dacă are dependențe
+    const document = await Document.findOne({
+      where: { id: documentId },
+      include: [{
+        model: User,
+        as: 'user',
+        attributes: ['id', 'name', 'email']
+      }]
+    });
 
     if (!document) {
+      console.log('Document negăsit:', documentId);
       return res.status(404).json({ 
         success: false,
         message: 'Documentul nu a fost găsit' 
@@ -20,9 +32,19 @@ const deleteDocument = async (req, res) => {
 
     // Verificăm permisiunile
     if (req.user.role !== 'admin' && document.user_id !== req.user.id) {
+      console.log('Permisiune refuzată pentru utilizator:', req.user.id);
       return res.status(403).json({ 
         success: false,
         message: 'Nu aveți permisiunea de a șterge acest document' 
+      });
+    }
+
+    // Verificăm dacă documentul este deja șters
+    if (document.status === 'deleted') {
+      console.log('Document deja șters:', documentId);
+      return res.status(400).json({
+        success: false,
+        message: 'Documentul a fost deja șters'
       });
     }
 
@@ -34,7 +56,6 @@ const deleteDocument = async (req, res) => {
         
         if (result.result === 'not found') {
           console.log('Document negăsit în Cloudinary:', document.filename);
-          // Continuăm cu ștergerea din baza de date chiar dacă nu există în Cloudinary
         } else {
           console.log('Fișier șters cu succes din Cloudinary:', document.filename);
         }
@@ -44,37 +65,41 @@ const deleteDocument = async (req, res) => {
       }
     }
 
-    // Creăm notificare pentru utilizator înainte de ștergerea documentului
+    // În loc să ștergem documentul, îl marcam ca șters
+    await document.update({ 
+      status: 'deleted',
+      deletedAt: new Date()
+    });
+
+    // Creăm notificare pentru utilizator
     try {
+      const adminMessage = req.body.admin_message || 'Documentul a fost șters';
       await createNotification(
         document.user_id,
-        'document_deleted',
-        `Documentul de tip ${document.document_type} (${document.status}) a fost șters${req.user.role === 'admin' ? ' de administrator' : ''}`,
+        'document_status_changed', // Folosim un tip de notificare valid
+        `Documentul de tip ${document.document_type || document.type} a fost șters${req.user.role === 'admin' ? ' de administrator' : ''}`,
         document.id,
-        req.body.admin_message
+        adminMessage
       );
     } catch (notificationError) {
       console.error('Eroare la crearea notificării:', notificationError);
-      // Continuăm cu ștergerea documentului chiar dacă crearea notificării eșuează
+      // Continuăm chiar dacă crearea notificării eșuează
     }
-
-    // Ștergem documentul complet din baza de date
-    await document.destroy();
     
-    console.log('Document șters din baza de date:', documentId);
+    console.log('Document marcat ca șters cu succes:', documentId);
 
     res.json({ 
       success: true,
       message: 'Documentul a fost șters cu succes',
       details: {
         documentId: documentId,
-        documentType: document.document_type,
-        status: document.status,
+        documentType: document.document_type || document.type,
+        status: 'deleted',
         deletedAt: new Date().toISOString()
       }
     });
   } catch (error) {
-    console.error('Error deleting document:', error);
+    console.error('Eroare la ștergerea documentului:', error);
     res.status(500).json({ 
       success: false,
       message: 'Eroare la ștergerea documentului',
@@ -505,11 +530,49 @@ exports.getUserDocuments = async (req, res) => {
   }
 };
 
+exports.checkDocumentDependencies = async (req, res) => {
+  try {
+    const documentId = req.params.id;
+    
+    // Verificăm dacă documentul există
+    const document = await Document.findByPk(documentId);
+    if (!document) {
+      return res.status(404).json({
+        success: false,
+        message: 'Documentul nu a fost găsit'
+      });
+    }
+
+    // Verificăm dacă documentul este asociat cu vreo aplicație
+    const application = await Application.findOne({
+      include: [{
+        model: Document,
+        as: 'documents',
+        where: { id: documentId }
+      }]
+    });
+
+    res.json({
+      success: true,
+      hasDependencies: !!application,
+      message: application ? 'Documentul este asociat cu o aplicație' : 'Documentul nu are dependențe'
+    });
+  } catch (error) {
+    console.error('Eroare la verificarea dependențelor documentului:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Eroare la verificarea dependențelor documentului',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   deleteDocument: exports.deleteDocument,
   getDocumentById: exports.getDocumentById,
   createDocument: exports.createDocument,
   updateDocument: exports.updateDocument,
   getUserDocuments: exports.getUserDocuments,
-  getAllDocuments: exports.getAllDocuments
+  getAllDocuments: exports.getAllDocuments,
+  checkDocumentDependencies: exports.checkDocumentDependencies
 }; 
