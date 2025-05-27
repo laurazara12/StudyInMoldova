@@ -154,7 +154,7 @@ const Universities = () => {
       </Helmet>
       <Navbar />
       <div className="universities-header">
-        <h1 className="universities-title">Universități din Moldova</h1>
+        <h1>Universități din Moldova</h1>
         <p className="universities-description">Descoperă universitățile de top din Moldova care oferă educație de calitate pentru studenții internaționali.</p>
       </div>
       <div className="universities-content">

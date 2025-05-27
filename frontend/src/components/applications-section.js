@@ -23,7 +23,7 @@ class ApplicationsSection {
   async fetchApplications() {
     try {
       this.isLoading = true;
-      const response = await fetch('/api/applications', {
+      const response = await fetch('/api/applications/my-applications', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }

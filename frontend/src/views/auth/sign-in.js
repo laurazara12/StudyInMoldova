@@ -1,8 +1,8 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import Navbar from '../../components/navbar';
-import SignIn from '../../components/sign-in';
-import './styles.css';
+import SignIn from './components/sign-in';
+import './sign-in.css';
 
 const SignInPage = () => {
   return (

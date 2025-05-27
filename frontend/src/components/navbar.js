@@ -68,25 +68,29 @@ const Navbar = (props) => {
       <header data-thq="thq-navbar" className="navbar-navbar-interactive">
         <div className="navbar-container2">
           <Link to="/" className="navbar-text10">
+            <img src="/LogoStudyInMoldova.png" alt="Study In Moldova Logo" className="navbar-logo" />
             <span className="navbar-text25">Study In Moldova</span>
           </Link>
         </div>
         <div data-thq="thq-navbar-nav" className="navbar-desktop-menu">
           <nav className="navbar-links1">
-            <Link to="/living-in-moldova" className={`navbar-text11 ${location.pathname === '/living-in-moldova' ? 'active' : ''}`}>
-              <span className="navbar-text35">Living In Moldova</span>
-            </Link>
-            <Link to="/blog" className={`navbar-text12 ${location.pathname === '/blog' ? 'active' : ''}`}>
-              <span className="navbar-text23">Blog</span>
-            </Link>
             <Link to="/universities" className={`navbar-text13 ${location.pathname === '/universities' ? 'active' : ''}`}>
               <span className="navbar-text32">Universities</span>
             </Link>
             <Link to="/programs" className={`navbar-text14 ${location.pathname === '/programs' ? 'active' : ''}`}>
               <span className="navbar-text29">Programmes</span>
             </Link>
+            <Link to="/living-in-moldova" className={`navbar-text11 ${location.pathname === '/living-in-moldova' ? 'active' : ''}`}>
+              <span className="navbar-text35">Living In Moldova</span>
+            </Link>
+            <Link to="/blog" className={`navbar-text12 ${location.pathname === '/blog' ? 'active' : ''}`}>
+              <span className="navbar-text23">Blog</span>
+            </Link>
+            <Link to="/about" className={`navbar-text15 ${location.pathname === '/about' ? 'active' : ''}`}>
+              <span className="navbar-text30">About Us</span>
+            </Link>
             <Link to="/help-you-choose-AI" className={`navbar-text15 ${location.pathname === '/help-you-choose-AI' ? 'active' : ''}`}>
-              <span className="navbar-text30">Help You Choose AI</span>
+              <span className="navbar-text30">Help You AI</span>
             </Link>
           </nav>
           <div className="navbar-buttons1">
@@ -145,17 +149,20 @@ const Navbar = (props) => {
       {isOpen && (
         <div className="navbar-mobile-menu">
           <nav className="navbar-links2">
+            <Link to="/universities" className="navbar-text18" onClick={toggleMenu}>
+              <span className="navbar-text31">Universities</span>
+            </Link>
+            <Link to="/programs" className="navbar-text19" onClick={toggleMenu}>
+              <span className="navbar-text28">Programmes</span>
+            </Link>
             <Link to="/living-in-moldova" className="navbar-text16" onClick={toggleMenu}>
               <span className="navbar-text36">Living In Moldova</span>
             </Link>
             <Link to="/blog" className="navbar-text17" onClick={toggleMenu}>
               <span className="navbar-text24">Blog</span>
             </Link>
-            <Link to="/universities" className="navbar-text18" onClick={toggleMenu}>
-              <span className="navbar-text31">Universities</span>
-            </Link>
-            <Link to="/programs" className="navbar-text19" onClick={toggleMenu}>
-              <span className="navbar-text28">Programmes</span>
+            <Link to="/about" className="navbar-text20" onClick={toggleMenu}>
+              <span className="navbar-text27">About Us</span>
             </Link>
             <Link to="/help-you-choose-AI" className="navbar-text20" onClick={toggleMenu}>
               <span className="navbar-text27">Help You Choose AI</span>

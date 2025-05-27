@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const savedProgramController = require('../controllers/savedProgramController');
-const { authMiddleware } = require('../middleware/auth');
+const { auth } = require('../middleware/auth');
 
 // Toate rutele necesită autentificare
-router.use(authMiddleware);
+router.use(auth);
 
 // Rute pentru programele salvate
 router.post('/', savedProgramController.saveProgram);

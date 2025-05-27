@@ -11,7 +11,7 @@
     color: var(--dl-color-theme-accent1);
     position: relative;
     overflow: hidden;
-    background-image: url('https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599107/pexels-nicolae-casir-56591-205076_acy7ay.jpg');
+    background-image: url('https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599095/ghenadie-cebanu-_kBKZeT-EQs-unsplash_kjtqno.jpg');
     background-size: cover;
     background-position: center;
     min-height: 50vh;
@@ -41,7 +41,7 @@
 
 .about-hero-content h1 {
     margin-bottom: var(--dl-space-space-unit);
-    font-family: var(--dl-font-family-heading);
+    font-family: 'STIX Two Text', serif;
     font-weight: 500px;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     letter-spacing: -0.5px;
@@ -57,56 +57,113 @@
 }
 
 .about-container {
-    max-width: var(--dl-size-size-maxwidth);
+    max-width: 1200px;
     margin: 0 auto;
-    padding: var(--dl-space-space-twounits) var(--dl-space-space-fourunits);
-    background-color: #ffffff;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.05);
-    margin-top: -50px;
-    position: relative;
-    z-index: 2;
+    padding: 2rem;
+}
+
+.about-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.about-header h1 {
+    color: var(--dl-color-theme-primary1);
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    font-family: 'STIX Two Text', serif;
+}
+
+.about-header .subtitle {
+    font-size: 1.2rem;
+    color: #666;
 }
 
 .about-section {
-    position: relative;
-    margin-bottom: var(--dl-space-space-twounits);
-
+    margin-bottom: 4rem;
 }
 
-.section-header {
+.about-section h2 {
+    color: var(--dl-color-theme-primary1);
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #eee;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.feature-card {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+}
+
+.feature-card h3 {
+    color: var(--dl-color-theme-primary1);
+    margin-bottom: 1rem;
+}
+
+.unique-points {
+    list-style: none;
+    padding: 0;
+}
+
+.unique-points li {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.unique-points strong {
+    color: var(--dl-color-theme-primary1);
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.steps-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.step {
     text-align: center;
-    margin-bottom: var(--dl-space-space-unit);
+    padding: 1.5rem;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.section-header h2 {
-    color: var(--dl-color-theme-neutral-dark);
-    font-size: var(--dl-font-size-heading2);
-    margin-bottom: var(--dl-space-space-unit);
-    font-family: var(--dl-font-family-heading);
-    font-weight: var(--dl-font-weight-semibold);
-    position: relative;
-    display: inline-block;
+.step-number {
+    width: 40px;
+    height: 40px;
+    background: var(--dl-color-theme-primary1);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-weight: bold;
 }
 
-.section-header h2::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 3px;
-    background-color: var(--dl-color-theme-primary1);
-    border-radius: 2px;
-}
-
-.section-header p {
-    color: var(--dl-color-theme-neutral-dark);
-    font-size: var(--dl-font-size-body2);
-    opacity: 0.8;
-    max-width: 600px;
-    margin: var(--dl-space-space-twounits) auto 0;
-    line-height: var(--dl-line-height-body);
+.step h3 {
+    color: var(--dl-color-theme-primary1);
+    margin-bottom: 1rem;
 }
 
 .why-moldova-content {
@@ -383,8 +440,7 @@
     }
 
     .about-container {
-        padding: var(--dl-space-space-unit) var(--dl-space-space-twounits);
-        margin-top: -30px;
+        padding: 1rem;
     }
 
     .about-section {
@@ -425,5 +481,14 @@
     .cta-button {
         width: 100%;
         text-align: center;
+    }
+
+    .features-grid,
+    .steps-container {
+        grid-template-columns: 1fr;
+    }
+
+    .about-header h1 {
+        font-size: 2rem;
     }
 }

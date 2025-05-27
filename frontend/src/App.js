@@ -1,11 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from './contexts/AuthContext';
+import { NavigationProvider } from './contexts/NavigationContext';
+import { useNavigation } from './contexts/NavigationContext';
+import { setNavigationCallback } from './config/api.config';
 import Navbar from './components/navbar';
 import ScrollToTop from './components/ScrollToTop';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ProtectedAuthRoute from './components/auth/ProtectedAuthRoute';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import PrivateRoute from './components/PrivateRoute';
 
 import './style.css';
 import Home from './views/landing/landing';
@@ -14,12 +20,11 @@ import SignUp from './views/auth/sign-up';
 import Profile from './views/profile/profile';
 import Universities from './views/universities/universities';
 import Programs from './views/programs/programs';
-import LivingInMoldova from './views/living/overview';
+import LivingInMoldova from './views/living/living-in-moldova';
 import PlanYourStudies from './views/planning/plan';
 import Blog from './views/blog/blog';
 import BlogPost from './views/blog/BlogPost';
 import NotFound from './views/error/not-found';
-import PrivateRoute from './components/PrivateRoute';
 import Dashboard from './views/admin/dashboard';
 import TransportationGuide from './views/living/transportation-guide';
 import ProfileAdmin from './views/admin/profile-admin';
@@ -37,57 +42,76 @@ function App() {
   return (
     <HelmetProvider>
       <AuthProvider>
-        <div className="App">
-          <ToastContainer
-            position="top-right"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-          />
-          <ScrollToTop />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/sign-in" element={<SignIn />} />
-            <Route path="/sign-up" element={<SignUp />} />
-            <Route path="/universities" element={<Universities />} />
-            <Route path="/programs" element={<Programs />} />
-            <Route path="/living-in-moldova" element={<LivingInMoldova />} />
-            <Route path="/plan-your-studies" element={<PlanYourStudies />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/:id" element={<BlogPost />} />
-            <Route path="/help-you-choose-AI" element={<HelpYouChoose />} />
-            <Route path="/universities/:slug" element={<UniversityTemplate />} />
-            <Route path="/profile" element={
-              <PrivateRoute>
-                <Profile />
-              </PrivateRoute>
-            } />
-            <Route path="/admin-profile" element={
-              <PrivateRoute requiredRole="admin">
-                <ProfileAdmin />
-              </PrivateRoute>
-            } />
-            <Route path="/dashboard" element={
-              <PrivateRoute requiredRole="admin">
-                <Dashboard />
-              </PrivateRoute>
-            } />
-            <Route path="/living-in-moldova/transportation-guide" element={<TransportationGuide />} />
-            <Route path="/error404-page" element={<Error404Page />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/cookies" element={<Cookies />} />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </div>
+        <NavigationProvider>
+          <div className="App">
+            <ToastContainer
+              position="top-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+            />
+            <ScrollToTop />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route 
+                path="/sign-in" 
+                element={
+                  <ProtectedAuthRoute>
+                    <SignIn />
+                  </ProtectedAuthRoute>
+                } 
+              />
+              <Route 
+                path="/sign-up" 
+                element={
+                  <ProtectedAuthRoute>
+                    <SignUp />
+                  </ProtectedAuthRoute>
+                } 
+              />
+              <Route path="/universities" element={<Universities />} />
+              <Route path="/programs" element={<Programs />} />
+              <Route path="/living-in-moldova" element={<LivingInMoldova />} />
+              <Route path="/plan-your-studies" element={<PlanYourStudies />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:id" element={<BlogPost />} />
+              <Route path="/help-you-choose-AI" element={<HelpYouChoose />} />
+              <Route path="/universities/:slug" element={<UniversityTemplate />} />
+              <Route 
+                path="/profile" 
+                element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route path="/admin-profile" element={
+                <PrivateRoute requiredRole="admin">
+                  <ProfileAdmin />
+                </PrivateRoute>
+              } />
+              <Route path="/dashboard" element={
+                <PrivateRoute requiredRole="admin">
+                  <Dashboard />
+                </PrivateRoute>
+              } />
+              <Route path="/living-in-moldova/transportation-guide" element={<TransportationGuide />} />
+              <Route path="/error404-page" element={<Error404Page />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/cookies" element={<Cookies />} />
+              <Route path="/faq" element={<FAQ />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </div>
+        </NavigationProvider>
       </AuthProvider>
     </HelmetProvider>
   );

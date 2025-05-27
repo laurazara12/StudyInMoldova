@@ -1,60 +1,48 @@
 'use strict';
 
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
+  async up(queryInterface, Sequelize) {
     await queryInterface.createTable('universities', {
       id: {
-        type: Sequelize.INTEGER,
+        allowNull: false,
+        autoIncrement: true,
         primaryKey: true,
-        autoIncrement: true
+        type: Sequelize.INTEGER
       },
       name: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      type: {
+      slug: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
+        unique: true
       },
       description: {
         type: Sequelize.TEXT
       },
       location: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      image_url: {
         type: Sequelize.STRING
       },
       website: {
         type: Sequelize.STRING
       },
-      ranking: {
-        type: Sequelize.INTEGER
+      logo: {
+        type: Sequelize.STRING
       },
-      tuition_fees: {
-        type: Sequelize.JSON
-      },
-      programs: {
-        type: Sequelize.JSON
-      },
-      contact_info: {
-        type: Sequelize.JSON
-      },
-      created_at: {
-        type: Sequelize.DATE,
+      createdAt: {
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        type: Sequelize.DATE
       },
-      updated_at: {
-        type: Sequelize.DATE,
+      updatedAt: {
         allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        type: Sequelize.DATE
       }
     });
   },
 
-  down: async (queryInterface, Sequelize) => {
+  async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('universities');
   }
 }; 

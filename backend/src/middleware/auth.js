@@ -1,25 +1,17 @@
 // /backend/src/middleware/auth.js
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
+const config = require('../config');
+const { Application } = require('../models');
 
-const authMiddleware = async (req, res, next) => {
+const auth = async (req, res, next) => {
   try {
-    console.log('=== Verificare Token ===');
+    console.log('=== Middleware Autentificare ===');
+    console.log('Headers primite:', req.headers);
     
-    // Setăm header-urile pentru răspunsurile JSON
-    res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Accept', 'application/json');
-
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      console.log('Token lipsă sau format invalid');
-      return res.status(401).json({
-        success: false,
-        message: 'Token lipsă sau format invalid'
-      });
-    }
-
-    const token = authHeader.split(' ')[1];
+    const token = req.headers.authorization?.split(' ')[1];
+    console.log('Token prezent:', !!token);
+    
     if (!token) {
       console.log('Token lipsă');
       return res.status(401).json({
@@ -28,70 +20,146 @@ const authMiddleware = async (req, res, next) => {
       });
     }
 
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      console.log('Token decodat:', decoded);
-
-      const user = await User.findByPk(decoded.id);
-      if (!user) {
-        console.log('Utilizatorul nu a fost găsit');
-        return res.status(401).json({
-          success: false,
-          message: 'Utilizatorul nu a fost găsit'
-        });
-      }
-
-      req.user = {
-        id: user.id,
-        email: user.email,
-        role: user.role
-      };
-
-      console.log('Utilizator autentificat:', req.user);
-      next();
-    } catch (error) {
-      console.error('Eroare la verificarea token-ului:', error);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('Token decodat:', decoded);
+    
+    if (!decoded || !decoded.id) {
+      console.error('Token invalid sau lipsă ID în token');
       return res.status(401).json({
         success: false,
-        message: 'Token invalid sau expirat'
+        message: 'Token invalid'
       });
     }
+    
+    const user = await User.findByPk(decoded.id);
+    console.log('Utilizator găsit:', !!user);
+    
+    if (!user) {
+      console.log('Utilizator invalid');
+      return res.status(401).json({
+        success: false,
+        message: 'Utilizator invalid'
+      });
+    }
+
+    // Setăm utilizatorul în request
+    req.user = user;
+    req.userId = user.id;
+    req.userRole = user.role;
+    
+    console.log('Autentificare reușită pentru:', {
+      id: user.id,
+      role: user.role
+    });
+    
+    next();
   } catch (error) {
-    console.error('Eroare în middleware-ul de autentificare:', error);
-    return res.status(500).json({
+    console.error('Eroare la autentificare:', error);
+    res.status(401).json({
       success: false,
-      message: 'Eroare la autentificare'
+      message: 'Token invalid',
+      error: error.message
     });
   }
 };
 
-const adminMiddleware = async (req, res, next) => {
+const adminAuth = async (req, res, next) => {
   try {
-    if (!req.user) {
-      return res.status(401).json({
+    await auth(req, res, () => {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({
+          success: false,
+          message: 'Acces interzis. Drepturi de administrator necesare.'
+        });
+      }
+      next();
+    });
+  } catch (error) {
+    console.error('Eroare la verificarea drepturilor de administrator:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Eroare la verificarea drepturilor de administrator.'
+    });
+  }
+};
+
+const applicationAuth = async (req, res, next) => {
+  try {
+    await auth(req, res, () => {
+      console.log('Verificare acces aplicații:', {
+        userId: req.user.id,
+        userRole: req.user.role
+      });
+
+      if (req.user.role !== 'admin' && req.user.role !== 'student') {
+        console.log('Acces refuzat - rol invalid:', req.user.role);
+        return res.status(403).json({
+          success: false,
+          message: 'Acces interzis. Drepturi de administrator sau student necesare.'
+        });
+      }
+
+      // Adăugăm userId în request pentru a fi folosit în controller
+      req.userId = req.user.id;
+      req.userRole = req.user.role;
+      
+      console.log('Acces permis pentru:', {
+        userId: req.userId,
+        userRole: req.userRole
+      });
+      
+      next();
+    });
+  } catch (error) {
+    console.error('Eroare la verificarea drepturilor pentru aplicații:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Eroare la verificarea drepturilor pentru aplicații.'
+    });
+  }
+};
+
+// Adăugăm un nou middleware pentru verificarea proprietății aplicației
+const applicationOwnership = async (req, res, next) => {
+  try {
+    // Adminii au acces la toate aplicațiile
+    if (req.userRole === 'admin') {
+      return next();
+    }
+
+    // Pentru studenți, verificăm dacă aplicația îi aparține
+    const applicationId = req.params.id;
+    const userId = req.userId;
+
+    const application = await Application.findByPk(applicationId);
+    
+    if (!application) {
+      return res.status(404).json({
         success: false,
-        message: 'Autentificare necesară'
+        message: 'Aplicația nu a fost găsită.'
       });
     }
 
-    if (req.user.role !== 'admin') {
+    if (application.user_id !== userId) {
       return res.status(403).json({
         success: false,
-        message: 'Acces interzis'
+        message: 'Nu aveți permisiunea de a accesa această aplicație.'
       });
     }
 
     next();
   } catch (error) {
-    console.error('Eroare în middleware-ul de admin:', error);
-    return res.status(500).json({
+    console.error('Eroare la verificarea proprietății aplicației:', error);
+    res.status(500).json({
       success: false,
-      message: 'Eroare la procesarea cererii'
+      message: 'Eroare la verificarea proprietății aplicației.'
     });
   }
 };
 
 module.exports = {
-  authMiddleware,
-  adminMiddleware
+  auth,
+  adminAuth,
+  applicationAuth,
+  applicationOwnership
 };

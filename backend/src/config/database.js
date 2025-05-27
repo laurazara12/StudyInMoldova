@@ -5,7 +5,6 @@ const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
 const config = require('./config.json')[process.env.NODE_ENV || 'development'];
-const UniversityModel = require('../models/University');
 
 // Configurare directoare
 const DB_DIR = path.join(__dirname, '../../data');
@@ -53,6 +52,7 @@ const NotificationModel = require('../models/notification');
 const ApplicationModel = require('../models/application');
 const SavedProgramModel = require('../models/savedProgram');
 const ApplicationDocumentModel = require('../models/applicationDocument');
+const UniversityModel = require('../models/university');
 
 // Initialize models
 const User = UserModel(sequelize);
@@ -65,53 +65,26 @@ const University = UniversityModel(sequelize);
 const ApplicationDocument = ApplicationDocumentModel(sequelize);
 
 // Define relationships
-Program.belongsTo(University, { 
-  foreignKey: 'universityId', 
-  as: 'University',
-  onDelete: 'CASCADE'
-});
-University.hasMany(Program, { 
-  foreignKey: 'universityId',
-  onDelete: 'CASCADE'
-});
+const models = {
+  User,
+  Document,
+  Program,
+  Notification,
+  Application,
+  SavedProgram,
+  University,
+  ApplicationDocument
+};
 
-Application.belongsTo(User, { 
-  foreignKey: 'user_id', 
-  as: 'user',
-  onDelete: 'CASCADE'
-});
-Application.belongsTo(Program, { 
-  foreignKey: 'program_id', 
-  as: 'program',
-  onDelete: 'CASCADE'
-});
-User.hasMany(Application, { 
-  foreignKey: 'user_id',
-  onDelete: 'CASCADE'
-});
-Program.hasMany(Application, { 
-  foreignKey: 'program_id',
-  onDelete: 'CASCADE'
-});
-
-SavedProgram.belongsTo(User, { 
-  foreignKey: 'userId', 
-  as: 'User',
-  onDelete: 'CASCADE'
-});
-SavedProgram.belongsTo(Program, { 
-  foreignKey: 'programId', 
-  as: 'Program',
-  onDelete: 'CASCADE'
-});
-User.hasMany(SavedProgram, { 
-  foreignKey: 'userId',
-  onDelete: 'CASCADE'
-});
-Program.hasMany(SavedProgram, { 
-  foreignKey: 'programId',
-  onDelete: 'CASCADE'
-});
+// Asociem modelele în ordinea corectă
+User.associate(models);
+Document.associate(models);
+Program.associate(models);
+Notification.associate(models);
+Application.associate(models);
+SavedProgram.associate(models);
+University.associate(models);
+ApplicationDocument.associate(models);
 
 // Funcție pentru verificarea existenței tabelelor
 const checkTablesExist = async () => {
@@ -276,12 +249,13 @@ async function migrate() {
 module.exports = {
   sequelize,
   User,
-  University,
   Document,
   Program,
   Notification,
   Application,
   SavedProgram,
+  University,
+  ApplicationDocument,
   createBackup,
   safeSync,
   migrate,

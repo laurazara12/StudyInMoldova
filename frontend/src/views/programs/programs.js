@@ -16,6 +16,8 @@ const Programs = () => {
   const [degreeFilter, setDegreeFilter] = useState('');
   const [languageFilter, setLanguageFilter] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [filteredPrograms, setFilteredPrograms] = useState([]);
+  const [notification, setNotification] = useState(null);
 
   const fetchData = async () => {
     try {
@@ -67,20 +69,30 @@ const Programs = () => {
       
       if (response.data?.data && Array.isArray(response.data.data)) {
         programsData = response.data.data.map(program => ({
-          ...program,
+          id: program.id,
+          name: program.name,
+          description: program.description,
+          faculty: program.faculty,
+          degree_type: program.degree_type,
+          credits: program.credits,
+          language: program.language,
+          duration: program.duration,
+          tuition_fees: program.tuition_fees,
           university: program.university ? {
+            id: program.university.id,
             name: program.university.name
           } : null
         }));
       } else {
         console.error('Invalid response format:', response.data);
-        setError('Error loading programs: Invalid data format');
+        setError('Eroare la încărcarea programelor: Format invalid');
         setPrograms([]);
         return;
       }
 
       console.log('Formatted programs:', programsData);
       setPrograms(programsData);
+      setFilteredPrograms(programsData);
     } catch (error) {
       console.error('Detailed error fetching programs:', {
         message: error.message,
@@ -88,7 +100,8 @@ const Programs = () => {
         status: error.response?.status
       });
       setPrograms([]);
-      setError('Error loading programs: ' + (error.response?.data?.message || error.message));
+      setFilteredPrograms([]);
+      setError('Eroare la încărcarea programelor: ' + (error.response?.data?.message || error.message));
     }
   };
 
@@ -108,8 +121,17 @@ const Programs = () => {
       
       if (response.data?.data) {
         const savedProgramsData = response.data.data.map(program => ({
-          ...program,
+          id: program.id,
+          name: program.name,
+          description: program.description,
+          faculty: program.faculty,
+          degree_type: program.degree_type,
+          credits: program.credits,
+          language: program.language,
+          duration: program.duration,
+          tuition_fees: program.tuition_fees,
           university: program.university ? {
+            id: program.university.id,
             name: program.university.name
           } : null
         }));
@@ -139,29 +161,14 @@ const Programs = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        throw new Error('You must be authenticated to save programs');
-      }
-
-      const user = JSON.parse(localStorage.getItem('user'));
-      if (!user?.id) {
-        throw new Error('User information is not available');
+        throw new Error('Trebuie să fiți autentificat pentru a salva programe');
       }
 
       const programIdInt = parseInt(programId);
       
-      // Verificăm dacă programul este deja salvat
-      if (isProgramSaved(programIdInt)) {
-        const successMessage = document.createElement('div');
-        successMessage.className = 'success-message';
-        successMessage.textContent = 'Program already saved!';
-        document.body.appendChild(successMessage);
-        setTimeout(() => successMessage.remove(), 3000);
-        return;
-      }
-
       const response = await axios.post(
         `${API_BASE_URL}/api/saved-programs`,
-        { program_id: programIdInt, user_id: user.id },
+        { program_id: programIdInt },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -170,37 +177,28 @@ const Programs = () => {
         }
       );
 
-      console.log('Save program response:', response.data);
-
       if (response.data?.data) {
-        // Adăugăm noul program salvat la lista existentă
         setSavedPrograms(prev => [...prev, response.data.data]);
-        
-        const successMessage = document.createElement('div');
-        successMessage.className = 'success-message';
-        successMessage.textContent = 'Program saved successfully!';
-        document.body.appendChild(successMessage);
-        setTimeout(() => successMessage.remove(), 3000);
+        setNotification({
+          type: 'success',
+          message: 'Programul a fost salvat cu succes!'
+        });
       }
     } catch (error) {
-      console.error('Error saving program:', error);
+      console.error('Eroare la salvarea programului:', error);
       
-      // Verificăm dacă eroarea este deja salvat
       if (error.response?.data?.message?.includes('deja salvat')) {
-        const successMessage = document.createElement('div');
-        successMessage.className = 'success-message';
-        successMessage.textContent = 'Programul este deja salvat!';
-        document.body.appendChild(successMessage);
-        setTimeout(() => successMessage.remove(), 3000);
+        setNotification({
+          type: 'info',
+          message: 'Programul este deja salvat!'
+        });
         return;
       }
       
-      const errorMessage = error.response?.data?.message || error.message || 'Error saving program';
-      const errorElement = document.createElement('div');
-      errorElement.className = 'error-message';
-      errorElement.textContent = errorMessage;
-      document.body.appendChild(errorElement);
-      setTimeout(() => errorElement.remove(), 3000);
+      setNotification({
+        type: 'error',
+        message: error.response?.data?.message || error.message || 'Eroare la salvarea programului'
+      });
     }
   };
 
@@ -240,20 +238,23 @@ const Programs = () => {
     }
   }, [isAuthenticated]);
 
+  useEffect(() => {
+    const filtered = programs.filter(program => {
+      const matchesSearch = searchTerm === '' || 
+        (program.name && program.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (program.description && program.description.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesDegree = !degreeFilter || program.degree_type === degreeFilter;
+      const matchesLanguage = !languageFilter || program.language === languageFilter;
+      return matchesSearch && matchesDegree && matchesLanguage;
+    });
+    setFilteredPrograms(filtered);
+  }, [programs, searchTerm, degreeFilter, languageFilter]);
+
   const handleClearFilters = () => {
     setDegreeFilter('');
     setLanguageFilter('');
     setSearchTerm('');
   };
-
-  const filteredPrograms = programs.filter(program => {
-    const matchesSearch = searchTerm === '' || 
-      program.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      program.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDegree = !degreeFilter || program.degree_type === degreeFilter;
-    const matchesLanguage = !languageFilter || program.language === languageFilter;
-    return matchesSearch && matchesDegree && matchesLanguage;
-  });
 
   if (loading) {
     return (
@@ -280,6 +281,18 @@ const Programs = () => {
       </Helmet>
       <Navbar />
       
+      {notification && (
+        <div className={`notification ${notification.type}`}>
+          {notification.message}
+          <button 
+            className="notification-close"
+            onClick={() => setNotification(null)}
+          >
+            ×
+          </button>
+        </div>
+      )}
+      
       <main className="programs-content">
         <h1>Available study programs</h1>
         
@@ -287,7 +300,8 @@ const Programs = () => {
           <div className="filter-group">
             <input
               type="text"
-              placeholder="Search programs..."
+              id="program-search"
+              placeholder="Caută programe..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
@@ -300,10 +314,10 @@ const Programs = () => {
               onChange={(e) => setDegreeFilter(e.target.value)}
               className="filter-select"
             >
-              <option value="">All degrees</option>
-              <option value="Bachelor">Bachelor</option>
+              <option value="">Toate gradele</option>
+              <option value="Bachelor">Licență</option>
               <option value="Master">Master</option>
-              <option value="PhD">PhD</option>
+              <option value="PhD">Doctorat</option>
             </select>
           </div>
           
@@ -313,10 +327,10 @@ const Programs = () => {
               onChange={(e) => setLanguageFilter(e.target.value)}
               className="filter-select"
             >
-              <option value="">All languages</option>
-              <option value="Romanian">Romanian</option>
-              <option value="Russian">Russian</option>
-              <option value="English">English</option>
+              <option value="">Toate limbile</option>
+              <option value="Romanian">Română</option>
+              <option value="Russian">Rusă</option>
+              <option value="English">Engleză</option>
             </select>
           </div>
 
@@ -325,6 +339,22 @@ const Programs = () => {
             onClick={handleClearFilters}
           >
             Curăță filtrele
+          </button>
+          <button 
+            className="search-button"
+            onClick={() => {
+              const filtered = programs.filter(program => {
+                const matchesSearch = searchTerm === '' || 
+                  (program.name && program.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                  (program.description && program.description.toLowerCase().includes(searchTerm.toLowerCase()));
+                const matchesDegree = !degreeFilter || program.degree_type === degreeFilter;
+                const matchesLanguage = !languageFilter || program.language === languageFilter;
+                return matchesSearch && matchesDegree && matchesLanguage;
+              });
+              setFilteredPrograms(filtered);
+            }}
+          >
+            Caută
           </button>
         </div>
 
@@ -337,15 +367,15 @@ const Programs = () => {
             <table className="programs-table">
               <thead>
                 <tr>
-                  <th>Program name</th>
-                  <th>University</th>
-                  <th>Faculty</th>
-                  <th>Degree</th>
-                  <th>Credits</th>
-                  <th>Languages</th>
-                  <th>Duration</th>
-                  <th>Tuition fees</th>
-                  <th>Actions</th>
+                  <th>Nume program</th>
+                  <th>Universitate</th>
+                  <th>Facultate</th>
+                  <th>Grad</th>
+                  <th>Credite</th>
+                  <th>Limbă</th>
+                  <th>Durată</th>
+                  <th>Taxă de școlarizare</th>
+                  <th>Acțiuni</th>
                 </tr>
               </thead>
               <tbody>
@@ -353,46 +383,46 @@ const Programs = () => {
                   <tr key={program.id}>
                     <td>
                       <div className="program-name">
-                        <strong>{program.name}</strong>
+                        <strong>{program.name || 'Nume program indisponibil'}</strong>
                         {program.description && (
                           <div className="program-description">{program.description}</div>
                         )}
                       </div>
                     </td>
                     <td>
-                      {program.university?.name || 'N/A'}
+                      {program.university?.name || 'Universitate neasignată'}
                     </td>
-                    <td>{program.faculty || 'N/A'}</td>
+                    <td>{program.faculty || 'Facultate neasignată'}</td>
                     <td>
-                      <span className={`degree-badge ${program.degree_type?.toLowerCase()}`}>
-                        {program.degree_type || 'N/A'}
+                      <span className={`degree-badge ${program.degree_type?.toLowerCase() || 'necunoscut'}`}>
+                        {program.degree_type || program.degree || 'Necunoscut'}
                       </span>
                     </td>
-                    <td>{program.credits || 'N/A'}</td>
+                    <td>{program.credits || 'Credite neasignate'}</td>
                     <td>
-                      <span className={`language-badge ${program.language?.toLowerCase()}`}>
-                        {program.language || 'N/A'}
+                      <span className={`language-badge ${program.language?.toLowerCase() || 'necunoscut'}`}>
+                        {program.language || 'Limba necunoscută'}
                       </span>
                     </td>
-                    <td>{program.duration ? `${program.duration} ani` : 'N/A'}</td>
-                    <td>{program.tuition_fees ? `${program.tuition_fees} EUR` : 'N/A'}</td>
+                    <td>{program.duration ? `${program.duration} ani` : 'Durată neasignată'}</td>
+                    <td>{program.tuition_fees ? `${program.tuition_fees} EUR` : 'Taxă neasignată'}</td>
                     <td>
                       {isAuthenticated && !isAdmin ? (
                         isProgramSaved(program.id) ? (
                           <button 
                             className="remove-save-button"
                             onClick={() => handleRemoveSavedProgram(program.id)}
-                            title="Remove from saved programs"
+                            title="Elimină din programele salvate"
                           >
-                            Remove
+                            Elimină
                           </button>
                         ) : (
                           <button 
                             className="save-button"
                             onClick={() => handleSaveProgram(program.id)}
-                            title="Save program"
+                            title="Salvează programul"
                           >
-                            Save
+                            Salvează
                           </button>
                         )
                       ) : null}

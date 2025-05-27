@@ -2,7 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
-const { authMiddleware, adminMiddleware } = require('../middleware/auth');
+const { auth, adminAuth } = require('../middleware/auth');
 const { User, Document } = require('../models');
 const { Op } = require('sequelize');
 const { createNotification, NOTIFICATION_TYPES } = require('../controllers/notificationController');
@@ -294,7 +294,7 @@ const listLimiter = rateLimit({
 });
 
 // Rute pentru documente
-router.get('/user-documents', authMiddleware, listLimiter, async (req, res) => {
+router.get('/user-documents', auth, listLimiter, async (req, res) => {
   try {
     console.log('Începe preluarea documentelor pentru utilizatorul:', req.user.id);
     
@@ -415,9 +415,9 @@ router.get('/user-documents', authMiddleware, listLimiter, async (req, res) => {
   }
 });
 
-router.get('/:id', authMiddleware, getDocumentById);
-router.post('/', authMiddleware, createDocument);
-router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
+router.get('/:id', auth, getDocumentById);
+router.post('/', auth, createDocument);
+router.put('/:id', auth, adminAuth, async (req, res) => {
   try {
     console.log('Încercare actualizare document:', {
       documentId: req.params.id,
@@ -469,10 +469,10 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
     await document.update(updateData);
 
     // Creăm notificare pentru utilizator
-    await createNotification(
+    await createDocumentNotification(
       document.user_id,
       NOTIFICATION_TYPES.DOCUMENT_UPDATED,
-      `Documentul dumneavoastră ${document.document_type} a fost actualizat`,
+      document.document_type,
       document.id
     );
 
@@ -502,10 +502,104 @@ router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
     });
   }
 });
-router.delete('/:id', authMiddleware, deleteDocument);
+router.delete('/:id', auth, async (req, res) => {
+  try {
+    const documentId = req.params.id;
+    const { admin_message } = req.body;
+
+    // Verificăm dacă documentul există
+    const document = await Document.findByPk(documentId);
+    if (!document) {
+      return res.status(404).json({
+        success: false,
+        message: 'Documentul nu a fost găsit'
+      });
+    }
+
+    // Verificăm permisiunile
+    if (req.user.role === 'admin') {
+      // Administratorii pot șterge orice document
+      console.log('Administrator șterge document:', {
+        documentId,
+        userId: document.user_id,
+        adminId: req.user.id
+      });
+    } else if (document.user_id === req.user.id) {
+      // Utilizatorii pot șterge doar documentele lor
+      console.log('Utilizator șterge propriul document:', {
+        documentId,
+        userId: req.user.id
+      });
+    } else {
+      return res.status(403).json({
+        success: false,
+        message: 'Nu aveți permisiunea de a șterge acest document'
+      });
+    }
+
+    // Creăm notificările în funcție de rolul utilizatorului și statusul documentului
+    try {
+      if (req.user.role === 'admin') {
+        // Dacă adminul șterge documentul, notificăm utilizatorul
+        await createDocumentNotification(
+          document.user_id,
+          NOTIFICATION_TYPES.DOCUMENT_DELETED,
+          document.document_type,
+          document.id,
+          { customMessage: admin_message }
+        );
+      } else if (document.status === 'approved') {
+        // Dacă utilizatorul șterge un document aprobat, notificăm adminul
+        const admins = await User.findAll({ where: { role: 'admin' } });
+        for (const admin of admins) {
+          await createDocumentNotification(
+            admin.id,
+            NOTIFICATION_TYPES.DOCUMENT_DELETED,
+            document.document_type,
+            document.id,
+            { customMessage: `Utilizatorul ${req.user.name} a șters documentul de tip ${document.document_type}.` }
+          );
+        }
+      }
+    } catch (notificationError) {
+      console.error('Eroare la crearea notificării:', notificationError);
+      // Continuăm cu ștergerea documentului chiar dacă notificarea eșuează
+    }
+
+    // Construiește calea către fișier
+    const userDir = path.join(__dirname, '../../../uploads', document.user_id.toString());
+    const absolutePath = path.join(userDir, path.basename(document.file_path));
+
+    // Șterge fișierul fizic dacă există
+    if (fs.existsSync(absolutePath)) {
+      try {
+        fs.unlinkSync(absolutePath);
+        console.log('Fișier șters cu succes:', absolutePath);
+      } catch (error) {
+        console.error('Eroare la ștergerea fișierului:', error);
+        // Continuăm cu ștergerea din baza de date chiar dacă ștergerea fișierului a eșuat
+      }
+    }
+
+    // Șterge documentul din baza de date
+    await document.destroy();
+
+    res.json({
+      success: true,
+      message: 'Document șters cu succes'
+    });
+  } catch (error) {
+    console.error('Eroare la ștergerea documentului:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Eroare la ștergerea documentului',
+      error: error.message
+    });
+  }
+});
 
 // Get all documents (admin only)
-router.get('/', authMiddleware, adminMiddleware, async (req, res) => {
+router.get('/', auth, adminAuth, async (req, res) => {
   try {
     logger.info('Încărcare documente pentru admin', {
       role: req.user.role,
@@ -547,7 +641,7 @@ router.get('/', authMiddleware, adminMiddleware, async (req, res) => {
 
 // Upload document
 router.post('/upload',
-  authMiddleware,
+  auth,
   upload.single('file'),
   handleMulterError,
   validateDocument,
@@ -604,6 +698,14 @@ router.post('/upload',
         uploadDate: new Date()
       });
 
+      // Adăugăm notificare pentru încărcarea documentului
+      await createDocumentNotification(
+        req.user.id,
+        NOTIFICATION_TYPES.DOCUMENT_UPLOADED,
+        documentType,
+        document.id
+      );
+
       res.status(201).json({
         success: true,
         message: 'Document încărcat cu succes',
@@ -630,7 +732,7 @@ router.post('/upload',
 );
 
 // Obține toate documentele unui utilizator
-router.get('/my-documents', authMiddleware, async (req, res) => {
+router.get('/my-documents', auth, async (req, res) => {
   try {
     const documents = await Document.findAll({
       where: { user_id: req.user.id },
@@ -651,7 +753,7 @@ router.get('/my-documents', authMiddleware, async (req, res) => {
 });
 
 // Obține toate documentele (doar pentru admin)
-router.get('/all-documents', authMiddleware, adminMiddleware, async (req, res) => {
+router.get('/all-documents', auth, adminAuth, async (req, res) => {
   try {
     const documents = await Document.findAll({
       attributes: ['id', 'user_id', 'document_type', 'file_path', 'createdAt'],
@@ -699,7 +801,7 @@ const checkPermissions = async (req, res, next) => {
 };
 
 // Optimizare pentru descărcarea fișierelor
-router.get('/download/:id', authMiddleware, downloadLimiter, checkPermissions, async (req, res, next) => {
+router.get('/download/:id', auth, downloadLimiter, checkPermissions, async (req, res, next) => {
   try {
     const document = req.document;
     const filePath = path.resolve(document.file_path);
@@ -738,85 +840,8 @@ router.get('/download/:id', authMiddleware, downloadLimiter, checkPermissions, a
   }
 });
 
-// Șterge un document
-router.delete('/:id', authMiddleware, checkPermissions, async (req, res, next) => {
-  try {
-    console.log('Încercare ștergere document:', req.params.id);
-    
-    // Construiește calea către fișier
-    const userDir = path.join(uploadsDir, req.document.user_id.toString());
-    const absolutePath = path.join(userDir, path.basename(req.document.file_path));
-    
-    console.log('Căi pentru ștergere:', {
-      userDir,
-      absolutePath,
-      fileExists: fs.existsSync(absolutePath)
-    });
-
-    // Verifică dacă directorul utilizatorului există
-    if (!fs.existsSync(userDir)) {
-      console.log('Directorul utilizatorului nu există:', userDir);
-      // Șterge documentul din baza de date chiar dacă directorul nu există
-      await req.document.destroy();
-      return res.json({ 
-        success: true,
-        message: 'Document șters din baza de date (directorul nu exista)' 
-      });
-    }
-
-    // Verifică dacă fișierul există
-    if (!fs.existsSync(absolutePath)) {
-      console.log('Fișierul nu există la calea:', absolutePath);
-      // Șterge documentul din baza de date chiar dacă fișierul nu există
-      await req.document.destroy();
-      return res.json({ 
-        success: true,
-        message: 'Document șters din baza de date (fișierul nu exista)' 
-      });
-    }
-
-    // Încearcă să șteargă fișierul
-    try {
-      fs.unlinkSync(absolutePath);
-      console.log('Fișier șters cu succes:', absolutePath);
-    } catch (error) {
-      console.error('Eroare la ștergerea fișierului:', error);
-      // Continuă cu ștergerea din baza de date chiar dacă ștergerea fișierului a eșuat
-    }
-
-    // Șterge documentul din baza de date
-    await req.document.destroy();
-    console.log('Document șters din baza de date');
-
-    // Creează notificare pentru utilizator dacă documentul a fost șters de administrator
-    if (req.user.role === 'admin' && req.document.user_id !== req.user.id) {
-      const adminMessage = req.body.admin_message || 'Documentul a fost șters de către administrator';
-      await createNotification(
-        req.document.user_id,
-        NOTIFICATION_TYPES.DOCUMENT_DELETED,
-        `Documentul tău de tip ${req.document.document_type} a fost șters de către administrator`,
-        req.document.id,
-        adminMessage
-      );
-      console.log('Notificare creată pentru utilizator:', req.document.user_id);
-    }
-
-    res.json({ 
-      success: true,
-      message: 'Document șters cu succes' 
-    });
-  } catch (error) {
-    console.error('Eroare la ștergerea documentului:', error);
-    res.status(500).json({ 
-      success: false,
-      message: 'Eroare la ștergerea documentului',
-      error: error.message
-    });
-  }
-});
-
 // Șterge un document (doar pentru admin)
-router.delete('/admin/:id', authMiddleware, adminMiddleware, async (req, res) => {
+router.delete('/admin/:id', auth, adminAuth, async (req, res) => {
   try {
     console.log('Încercare ștergere document (admin):', req.params.id);
     
@@ -884,11 +909,12 @@ router.delete('/admin/:id', authMiddleware, adminMiddleware, async (req, res) =>
     console.log('Document marcat ca șters în baza de date');
 
     // Creează notificare pentru utilizator
-    await createNotification(
+    await createDocumentNotification(
       document.user_id,
       NOTIFICATION_TYPES.DOCUMENT_DELETED,
-      `Documentul tău de tip ${document.document_type} a fost șters de către administrator`,
-      document.id
+      document.document_type,
+      document.id,
+      { customMessage: admin_message }
     );
 
     res.json({ 
@@ -949,7 +975,7 @@ async function cleanupOrphanedDocuments() {
 }
 
 // Endpoint pentru curățarea documentelor
-router.post('/cleanup', authMiddleware, async (req, res) => {
+router.post('/cleanup', auth, async (req, res) => {
   try {
     const result = await cleanupOrphanedDocuments();
     
@@ -976,7 +1002,7 @@ router.post('/cleanup', authMiddleware, async (req, res) => {
 });
 
 // Descarcă un document (doar pentru admin)
-router.get('/admin/download/:id', authMiddleware, adminMiddleware, async (req, res) => {
+router.get('/admin/download/:id', auth, adminAuth, async (req, res) => {
   try {
     console.log('Încercare descărcare document (admin):', req.params.id);
     
@@ -1043,7 +1069,7 @@ router.get('/admin/download/:id', authMiddleware, adminMiddleware, async (req, r
 });
 
 // Verifică statusul documentelor
-router.get('/document-status', authMiddleware, async (req, res) => {
+router.get('/document-status', auth, async (req, res) => {
   try {
     console.log('Verificare status documente pentru utilizatorul:', req.user.id);
     
@@ -1212,7 +1238,7 @@ function determineDocumentType(filename) {
 }
 
 // Endpoint pentru curățarea documentelor
-router.post('/cleanup', authMiddleware, async (req, res) => {
+router.post('/cleanup', auth, async (req, res) => {
   try {
     const result = await cleanupInvalidDocuments(req.user.id);
     
@@ -1237,6 +1263,30 @@ router.post('/cleanup', authMiddleware, async (req, res) => {
     });
   }
 });
+
+// Funcție helper pentru crearea notificărilor
+async function createDocumentNotification(userId, type, documentType, documentId, additionalInfo = {}) {
+  try {
+    const messages = {
+      [NOTIFICATION_TYPES.DOCUMENT_UPDATED]: `Documentul dumneavoastră de tip ${documentType} a fost actualizat`,
+      [NOTIFICATION_TYPES.DOCUMENT_DELETED]: `Documentul dumneavoastră de tip ${documentType} a fost șters`,
+      [NOTIFICATION_TYPES.DOCUMENT_UPLOADED]: `Documentul dumneavoastră de tip ${documentType} a fost încărcat cu succes`,
+      [NOTIFICATION_TYPES.DOCUMENT_APPROVED]: `Documentul dumneavoastră de tip ${documentType} a fost aprobat`,
+      [NOTIFICATION_TYPES.DOCUMENT_REJECTED]: `Documentul dumneavoastră de tip ${documentType} a fost respins`
+    };
+
+    const message = additionalInfo.customMessage || messages[type];
+    if (!message) {
+      throw new Error(`Tip de notificare necunoscut: ${type}`);
+    }
+
+    await createNotification(userId, type, message, documentId);
+    return true;
+  } catch (error) {
+    console.error('Eroare la crearea notificării:', error);
+    return false;
+  }
+}
 
 // Adăugare middleware pentru erori la sfârșitul fișierului
 router.use(errorHandler);

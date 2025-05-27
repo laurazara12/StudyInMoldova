@@ -21,6 +21,11 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      title: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: 'Notificare nouă'
+      },
       message: {
         type: Sequelize.TEXT,
         allowNull: false

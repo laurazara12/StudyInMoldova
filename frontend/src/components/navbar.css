@@ -19,9 +19,10 @@
 }
  
 .navbar-container2 {
-  width: 145px;
-  height: 2rem;
+  width: auto;
+  height: auto;
   display: flex;
+  align-items: center;
 }
  
 .navbar-text10,
@@ -125,7 +126,7 @@
  
 .navbar-text15 {
   color: rgba(0, 0, 0, 1);
-  width: 123px;
+  width: 90px;
   height: auto;
   font-size: var(--dl-font-size-small);
   font-style: Medium;
@@ -217,7 +218,9 @@
 }
  
 .navbar-logo {
-  height: 2rem;
+  height: 35px;
+  width: auto;
+  object-fit: contain;
 }
  
 .navbar-close-menu {
@@ -586,18 +589,17 @@
 }
 
 .navbar-text10 {
-  color: var(--dl-color-theme-neutral-dark);
-  text-decoration: none;
-  font-size: var(--dl-font-size-small);
-  font-weight: 500;
   display: flex;
   align-items: center;
+  text-decoration: none;
+  gap: 10px;
 }
 
 .navbar-text25 {
   color: var(--dl-color-theme-neutral-dark);
   font-size: var(--dl-font-size-small);
   font-family: Roboto;
+  font-weight: 500;
 }
 
 .modal-overlay {

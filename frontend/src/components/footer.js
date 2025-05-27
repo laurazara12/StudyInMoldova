@@ -10,7 +10,10 @@ const Footer = () => {
         <div className="footer-content">
           <div className="footer-column">
             <div className="footer-logo">
-              <h2 className="footer-title">StudyInMoldova</h2>
+              <div className="footer-logo-container">
+                <img src="/LogoStudyInMoldova.png" alt="Study In Moldova Logo" className="footer-logo-img" />
+                <h2 className="footer-title">StudyInMoldova</h2>
+              </div>
               <p className="footer-description">
                 Your platform for university studies in the Republic of Moldova
               </p>

@@ -20,21 +20,38 @@ const DeleteDocumentModal = ({ isOpen, onClose, document, onDelete }) => {
         throw new Error('Document invalid sau lipsă');
       }
 
+      // Verificăm dacă documentul are toate câmpurile necesare
+      const documentData = {
+        id: document.id,
+        document_type: document.document_type || document.type,
+        file_path: document.file_path || document.filePath,
+        filename: document.filename,
+        originalName: document.originalName,
+        user_id: document.user_id,
+        status: document.status
+      };
+
+      console.log('Încercare ștergere document:', documentData);
+
       const response = await axios.delete(`${API_BASE_URL}/api/documents/${document.id}`, {
         headers: getAuthHeaders(),
-        data: { admin_message: adminMessage }
+        data: { 
+          admin_message: adminMessage,
+          document: documentData
+        }
       });
 
       if (response.data.success) {
-        onDelete();
+        console.log('Document șters cu succes:', response.data);
+        onDelete(document);
         onClose();
         setShowConfirmation(false);
         setAdminMessage('');
       } else {
-        setError(response.data.message || 'Eroare la ștergerea documentului');
+        throw new Error(response.data.message || 'Eroare la ștergerea documentului');
       }
     } catch (error) {
-      console.error('Error deleting document:', error);
+      console.error('Eroare la ștergerea documentului:', error);
       let errorMessage = 'Eroare la ștergerea documentului';
       
       if (error.response) {
@@ -47,6 +64,9 @@ const DeleteDocumentModal = ({ isOpen, onClose, document, onDelete }) => {
             break;
           case 403:
             errorMessage = 'Nu aveți permisiunea de a șterge acest document';
+            break;
+          case 400:
+            errorMessage = error.response.data.message || 'Documentul nu poate fi șters';
             break;
           default:
             errorMessage = error.response.data?.message || errorMessage;

@@ -2,20 +2,100 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../../components/navbar';
 import Footer from '../../components/footer';
+import { Helmet } from 'react-helmet-async';
 import './about.css';
 
 const About = () => {
   return (
     <div className="about-page">
+      <Helmet>
+        <title>About Us | StudyInMoldova</title>
+        <meta name="description" content="Discover how StudyInMoldova helps you achieve your dream of studying in Moldova" />
+      </Helmet>
+
       <Navbar />
       <div className="about-hero">
         <div className="about-hero-content">
           <h1>About StudyInMoldova</h1>
-          <p>Your trusted platform for international students in the Republic of Moldova</p>
+          <p>The first platform dedicated to international students in Moldova</p>
         </div>
       </div>
 
       <div className="about-container">
+        <section className="about-section">
+          <h2>What We Offer</h2>
+          <p>
+            StudyInMoldova is the first and only comprehensive platform dedicated to international students who want to study in Moldova. 
+            We aim to simplify the enrollment process and provide all necessary information in one place.
+          </p>
+          <div className="features-grid">
+            <div className="feature-card">
+              <h3>Complete Guide</h3>
+              <p>Detailed information about universities, study programs, costs, and the admission process</p>
+            </div>
+            <div className="feature-card">
+              <h3>Personalized Assistance</h3>
+              <p>Help in choosing the right program and guidance through the application process</p>
+            </div>
+            <div className="feature-card">
+              <h3>Practical Resources</h3>
+              <p>Guides about life in Moldova, transportation, accommodation, and other important aspects</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="about-section">
+          <h2>Why We're Unique</h2>
+          <ul className="unique-points">
+            <li>
+              <strong>Specialized Platform:</strong> We are the only platform exclusively dedicated to international students in Moldova
+            </li>
+            <li>
+              <strong>Updated Information:</strong> All information is verified and regularly updated
+            </li>
+            <li>
+              <strong>Personalized Support:</strong> We provide individual assistance for each student
+            </li>
+            <li>
+              <strong>Complete Resources:</strong> From academic information to practical advice about life in Moldova
+            </li>
+          </ul>
+        </section>
+
+        <section className="about-section">
+          <h2>How to Use the Platform</h2>
+          <div className="steps-container">
+            <div className="step">
+              <div className="step-number">1</div>
+              <h3>Explore</h3>
+              <p>Browse through universities and study programs to find the right options for you</p>
+            </div>
+            <div className="step">
+              <div className="step-number">2</div>
+              <h3>Plan</h3>
+              <p>Use the "Plan Your Studies" section to organize your application process</p>
+            </div>
+            <div className="step">
+              <div className="step-number">3</div>
+              <h3>Prepare</h3>
+              <p>Upload necessary documents and prepare for the admission process</p>
+            </div>
+            <div className="step">
+              <div className="step-number">4</div>
+              <h3>Apply</h3>
+              <p>Submit your application and track its status through the platform</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="about-section">
+          <h2>Our Vision</h2>
+          <p>
+            We want to make the process of studying in Moldova accessible and transparent for all international students. 
+            Through our platform, we aspire to become the trusted partner of every student who dreams of studying in Moldova.
+          </p>
+        </section>
+
         <section className="about-section why-moldova-section">
           <div className="why-moldova-content">
             <div className="why-moldova-grid">
@@ -85,6 +165,7 @@ const About = () => {
             </div>
           </div>
         </section>
+
         <section className="about-section cta-section">
           <div className="cta-content">
             <h2>Ready to start your adventure in Moldova?</h2>
@@ -135,8 +216,6 @@ const About = () => {
             </div>
           </div>
         </section>
-
-      
       </div>
       <Footer />
     </div>

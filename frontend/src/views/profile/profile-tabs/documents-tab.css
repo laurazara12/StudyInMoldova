@@ -1,0 +1,200 @@
+.documents-section {
+  width: 100%;
+}
+
+.documents-section h2 {
+  color: #2c3e50;
+  font-size: var(--dl-font-size-small);
+  margin-bottom: 2rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #eee;
+}
+
+.documents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.document-item {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.document-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.document-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.document-info h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: var(--dl-font-size-small);
+}
+
+.document-info p {
+  margin: 0;
+  color: #666;
+  font-size: var(--dl-font-size-small);
+}
+
+/* Status badges */
+[class^="status-"] {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: var(--dl-font-size-small);
+}
+
+.status-pending {
+  color: #856404;
+  background-color: #fff3cd;
+}
+
+.status-approved {
+  color: #155724;
+  background-color: #d4edda;
+}
+
+.status-rejected {
+  color: #721c24;
+  background-color: #f8d7da;
+}
+
+.status-deleted {
+  color: #383d41;
+  background-color: #e2e3e5;
+}
+
+/* Buttons */
+.document-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+[class$="-button"] {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: var(--dl-font-size-small);
+  transition: all 0.2s ease;
+  flex: 1;
+}
+
+.download-button {
+  background-color: #007bff;
+  color: white;
+}
+
+.download-button:hover {
+  background-color: #0056b3;
+}
+
+.delete-button {
+  background-color: #dc3545;
+  color: white;
+}
+
+.delete-button:hover {
+  background-color: #c82333;
+}
+
+.upload-button {
+  background-color: #28a745;
+  color: white;
+}
+
+.upload-button:hover {
+  background-color: #218838;
+}
+
+.upload-button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.choose-button {
+  background-color: #6c757d;
+  color: white;
+}
+
+.choose-button:hover {
+  background-color: #5a6268;
+}
+
+/* Upload progress */
+.upload-progress {
+  margin-top: 1rem;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 4px;
+  background-color: #28a745;
+  transition: width 0.3s ease;
+}
+
+.upload-progress span {
+  display: block;
+  text-align: center;
+  font-size: var(--dl-font-size-small);
+  color: #666;
+  margin-top: 0.25rem;
+}
+
+/* Messages */
+.success-message,
+.error-message {
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  font-size: var(--dl-font-size-small);
+}
+
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  font-size: var(--dl-font-size-small);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .documents-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .document-actions {
+    flex-direction: column;
+  }
+
+  [class$="-button"] {
+    width: 100%;
+  }
+} 

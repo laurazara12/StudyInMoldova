@@ -1,236 +1,186 @@
-const { Application, Program, User, Document, University } = require('../models');
+const { Application, Program, User, Document, University, Notification, SavedProgram } = require('../models');
+const { NOTIFICATION_TYPES } = require('../constants/notificationTypes');
+const { Op } = require('sequelize');
 
 exports.createApplication = async (req, res) => {
   try {
-    const { programId, documentIds, status = 'pending' } = req.body;
-    const user_id = req.user.id;
+    const userId = req.user.id;
+    const { program_id, motivation_letter } = req.body;
+    const document_ids = req.body['document_ids[]'] || [];
+
+    console.log('Începe crearea aplicației:', {
+      userId,
+      program_id,
+      document_ids,
+      motivation_letter
+    });
 
     // Verificăm dacă programul există
-    const program = await Program.findByPk(programId);
+    const program = await Program.findByPk(program_id, {
+      include: [{
+        model: University,
+        as: 'university'
+      }]
+    });
+
     if (!program) {
-      return res.status(404).json({ 
+      console.log('Programul nu a fost găsit:', program_id);
+      return res.status(404).json({
         success: false,
-        message: 'Programul nu a fost găsit',
-        data: null
+        message: 'Programul nu a fost găsit'
       });
     }
 
-    // Verificăm dacă utilizatorul are deja o aplicație activă pentru acest program
+    console.log('Program găsit:', {
+      id: program.id,
+      name: program.name,
+      university: program.university?.name
+    });
+
+    // Verificăm dacă utilizatorul are deja o aplicație pentru acest program
     const existingApplication = await Application.findOne({
-      where: { 
-        user_id, 
-        program_id: programId,
-        status: ['pending', 'confirmed', 'draft'] // Verificăm doar aplicațiile active și draft-urile
+      where: {
+        user_id: userId,
+        program_id: program_id
       }
     });
+
     if (existingApplication) {
-      return res.status(400).json({ 
+      console.log('Aplicație existentă găsită:', {
+        id: existingApplication.id,
+        status: existingApplication.status
+      });
+      return res.status(400).json({
         success: false,
-        message: 'Aveți deja o aplicație activă pentru acest program',
-        data: null
+        message: 'Aveți deja o aplicație pentru acest program'
       });
     }
 
     // Creăm aplicația
     const application = await Application.create({
-      user_id,
-      program_id: programId,
-      status,
-      university_id: program.university_id
+      user_id: userId,
+      program_id: program_id,
+      university_id: program.university.id,
+      motivation_letter: motivation_letter,
+      status: 'draft',
+      application_date: new Date()
+    });
+
+    console.log('Aplicație creată:', {
+      id: application.id,
+      status: application.status,
+      university_id: application.university_id,
+      application_date: application.application_date
     });
 
     // Asociem documentele dacă există
-    if (documentIds && documentIds.length > 0) {
-      await application.setDocuments(documentIds);
+    if (document_ids.length > 0) {
+      await application.setDocuments(document_ids);
+      console.log('Documente asociate:', document_ids);
     }
 
-    // Încărcăm relațiile pentru răspuns
-    const applicationWithRelations = await Application.findByPk(application.id, {
-      include: [
-        {
-          model: Program,
-          as: 'program',
-          include: [{
-            model: University,
-            as: 'university'
-          }]
-        },
-        {
-          model: Document,
-          as: 'documents'
-        }
-      ]
+    // Obținem lista de programe salvate
+    const savedPrograms = await SavedProgram.findAll({
+      where: { user_id: userId },
+      include: [{
+        model: Program,
+        as: 'program',
+        include: [{
+          model: University,
+          as: 'university'
+        }]
+      }]
     });
 
-    res.status(201).json({
+    // Formatăm lista de programe salvate
+    const formattedSavedPrograms = savedPrograms.map(sp => ({
+      id: sp.program.id,
+      name: sp.program.name,
+      university: {
+        id: sp.program.university.id,
+        name: sp.program.university.name
+      }
+    }));
+
+    console.log('Răspuns final:', {
+      applicationId: application.id,
+      savedProgramsCount: formattedSavedPrograms.length
+    });
+
+    return res.status(201).json({
       success: true,
       message: 'Aplicația a fost creată cu succes',
-      data: applicationWithRelations
+      data: {
+        application,
+        savedPrograms: formattedSavedPrograms
+      }
     });
+
   } catch (error) {
     console.error('Eroare la crearea aplicației:', error);
-    res.status(500).json({ 
+    return res.status(500).json({
       success: false,
-      message: 'Eroare la crearea aplicației',
-      error: error.message,
-      data: null
+      message: 'A apărut o eroare la crearea aplicației'
     });
   }
 };
 
 exports.getUserApplications = async (req, res) => {
   try {
-    console.log('Căutăm aplicații pentru utilizatorul:', req.user.id);
+    console.log('=== getUserApplications ===');
+    console.log('User din request:', req.user);
+    console.log('User ID:', req.user.id);
     
+    const user_id = req.user.id;
+
+    console.log('Căutăm aplicații pentru user_id:', user_id);
+
     const applications = await Application.findAll({
-      where: { user_id: req.user.id },
+      where: { user_id },
       include: [
-        { 
+        {
           model: Program,
           as: 'program',
           include: [{
             model: University,
             as: 'university',
-            attributes: ['name', 'location']
+            attributes: ['id', 'name', 'location']
           }]
         },
         {
           model: Document,
-          as: 'documents'
+          as: 'documents',
+          attributes: ['id', 'document_type', 'status', 'originalName', 'filename']
         }
       ],
-      order: [['createdAt', 'DESC']]
+      order: [['created_at', 'DESC']]
     });
 
     console.log('Aplicații găsite:', applications.length);
-    console.log('Prima aplicație:', JSON.stringify(applications[0], null, 2));
 
-    // Inițializăm toate grupurile cu array-uri goale
-    const groupedApplications = {
-      drafts: [],
-      pending: [],
-      sent: [],
-      rejected: [],
-      withdrawn: []
-    };
-
-    // Formatăm și grupăm aplicațiile
-    applications.forEach(app => {
-      console.log('Procesăm aplicația:', app.id, 'cu status:', app.status);
-      
-      const formattedApp = {
-        id: app.id,
-        status: app.status,
-        createdAt: app.createdAt,
-        updatedAt: app.updatedAt,
-        notes: app.notes || '',
-        program: app.program ? {
-          id: app.program.id,
-          name: app.program.name,
-          faculty: app.program.faculty,
-          degree: app.program.degree,
-          university: {
-            name: app.program.university?.name || 'N/A',
-            location: app.program.university?.location || 'N/A'
-          }
-        } : null,
-        documents: app.documents ? app.documents.map(doc => ({
-          id: doc.id,
-          document_type: doc.document_type,
-          status: doc.status,
-          filename: doc.filename,
-          originalName: doc.originalName
-        })) : []
-      };
-
-      // Grupăm aplicațiile după status
-      switch(app.status) {
-        case 'draft':
-          groupedApplications.drafts.push(formattedApp);
-          break;
-        case 'pending':
-          groupedApplications.pending.push(formattedApp);
-          break;
-        case 'confirmed':
-          groupedApplications.sent.push(formattedApp);
-          break;
-        case 'rejected':
-          groupedApplications.rejected.push(formattedApp);
-          break;
-        case 'withdrawn':
-          groupedApplications.withdrawn.push(formattedApp);
-          break;
-        default:
-          console.log('Status necunoscut pentru aplicația:', app.id, 'status:', app.status);
-          groupedApplications.drafts.push(formattedApp);
-          break;
-      }
-    });
-
-    // Calculăm statisticile
-    const status = {
-      drafts: groupedApplications.drafts.length,
-      pending: groupedApplications.pending.length,
-      sent: groupedApplications.sent.length,
-      rejected: groupedApplications.rejected.length,
-      withdrawn: groupedApplications.withdrawn.length
-    };
-
-    // Verificăm și formatăm datele înainte de a le trimite
-    const formattedData = {
-      drafts: Array.isArray(groupedApplications.drafts) ? groupedApplications.drafts : [],
-      pending: Array.isArray(groupedApplications.pending) ? groupedApplications.pending : [],
-      sent: Array.isArray(groupedApplications.sent) ? groupedApplications.sent : [],
-      rejected: Array.isArray(groupedApplications.rejected) ? groupedApplications.rejected : [],
-      withdrawn: Array.isArray(groupedApplications.withdrawn) ? groupedApplications.withdrawn : []
-    };
-
-    // Construim răspunsul final
-    const response = {
+    res.json({
       success: true,
-      message: applications.length === 0 ? 'La moment nu există aplicații în profilul dumneavoastră' : 'Aplicațiile au fost preluate cu succes',
-      data: formattedData,
-      total: applications.length,
-      status: status
-    };
-
-    console.log('Răspuns final:', JSON.stringify(response, null, 2));
-    res.json(response);
-  } catch (error) {
-    console.error('Eroare detaliată la obținerea aplicațiilor:', {
-      message: error.message,
-      stack: error.stack,
-      code: error.code
+      data: applications
     });
-    res.status(500).json({ 
+  } catch (error) {
+    console.error('Eroare la obținerea aplicațiilor utilizatorului:', error);
+    res.status(500).json({
       success: false,
       message: 'Eroare la obținerea aplicațiilor',
-      error: error.message,
-      data: {
-        drafts: [],
-        pending: [],
-        sent: [],
-        rejected: [],
-        withdrawn: []
-      },
-      total: 0,
-      status: {
-        drafts: 0,
-        pending: 0,
-        sent: 0,
-        rejected: 0,
-        withdrawn: 0
-      }
+      error: error.message
     });
   }
 };
 
 exports.getApplicationById = async (req, res) => {
   try {
+    const { id } = req.params;
+    const user_id = req.user.id;
+
     const application = await Application.findOne({
-      where: {
-        id: req.params.id,
-        user_id: req.user.id
+      where: { 
+        id,
+        user_id
       },
       include: [
         {
@@ -238,12 +188,14 @@ exports.getApplicationById = async (req, res) => {
           as: 'program',
           include: [{
             model: University,
-            as: 'university'
+            as: 'university',
+            attributes: ['id', 'name', 'location']
           }]
         },
         {
           model: Document,
-          as: 'documents'
+          as: 'documents',
+          attributes: ['id', 'document_type', 'status', 'originalName', 'filename']
         }
       ]
     });
@@ -269,14 +221,58 @@ exports.getApplicationById = async (req, res) => {
   }
 };
 
+exports.getAllApplications = async (req, res) => {
+  try {
+    const applications = await Application.findAll({
+      include: [
+        {
+          model: Program,
+          as: 'program',
+          include: [{
+            model: University,
+            as: 'university',
+            attributes: ['id', 'name', 'location']
+          }]
+        },
+        {
+          model: Document,
+          as: 'documents',
+          attributes: ['id', 'document_type', 'status', 'originalName', 'filename']
+        },
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name', 'email']
+        }
+      ],
+      order: [['created_at', 'DESC']]
+    });
+
+    res.json({
+      success: true,
+      data: applications
+    });
+  } catch (error) {
+    console.error('Eroare la obținerea aplicațiilor:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Eroare la obținerea aplicațiilor',
+      error: error.message
+    });
+  }
+};
+
 exports.updateApplication = async (req, res) => {
   try {
     const { id } = req.params;
-    const { programId, documentIds, status } = req.body;
     const user_id = req.user.id;
+    const updateData = req.body;
 
     const application = await Application.findOne({
-      where: { id, user_id }
+      where: { 
+        id,
+        user_id
+      }
     });
 
     if (!application) {
@@ -286,49 +282,12 @@ exports.updateApplication = async (req, res) => {
       });
     }
 
-    if (programId) {
-      const program = await Program.findByPk(programId);
-      if (!program) {
-        return res.status(404).json({
-          success: false,
-          message: 'Programul nu a fost găsit'
-        });
-      }
-      application.program_id = programId;
-      application.university_id = program.university_id;
-    }
-
-    if (status) {
-      application.status = status;
-    }
-
-    await application.save();
-
-    if (documentIds) {
-      await application.setDocuments(documentIds);
-    }
-
-    const updatedApplication = await Application.findByPk(id, {
-      include: [
-        {
-          model: Program,
-          as: 'program',
-          include: [{
-            model: University,
-            as: 'university'
-          }]
-        },
-        {
-          model: Document,
-          as: 'documents'
-        }
-      ]
-    });
+    await application.update(updateData);
 
     res.json({
       success: true,
       message: 'Aplicația a fost actualizată cu succes',
-      data: updatedApplication
+      data: application
     });
   } catch (error) {
     console.error('Eroare la actualizarea aplicației:', error);
@@ -342,173 +301,36 @@ exports.updateApplication = async (req, res) => {
 
 exports.cancelApplication = async (req, res) => {
   try {
+    const { id } = req.params;
+    const user_id = req.user.id;
+
     const application = await Application.findOne({
-      where: {
-        id: req.params.id,
-        user_id: req.user.id
-      },
-      include: [
-        { 
-          model: Program,
-          as: 'program',
-          include: [{
-            model: University,
-            as: 'university',
-            attributes: ['name', 'location']
-          }]
-        },
-        {
-          model: Document,
-          as: 'documents'
-        }
-      ]
+      where: { 
+        id,
+        user_id
+      }
     });
 
     if (!application) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: 'Aplicația nu a fost găsită',
-        data: null
+        message: 'Aplicația nu a fost găsită'
       });
     }
 
-    if (application.status !== 'pending') {
-      return res.status(400).json({ 
-        success: false,
-        message: 'Aplicația nu poate fi anulată',
-        data: null
-      });
-    }
-
-    application.status = 'withdrawn';
-    await application.save();
-
-    const formattedApplication = {
-      id: application.id,
-      status: application.status,
-      createdAt: application.createdAt,
-      updatedAt: application.updatedAt,
-      notes: application.notes || '',
-      program: application.program ? {
-        id: application.program.id,
-        name: application.program.name,
-        faculty: application.program.faculty,
-        degree: application.program.degree,
-        university: {
-          name: application.program.university?.name || 'N/A',
-          location: application.program.university?.location || 'N/A'
-        }
-      } : null,
-      documents: application.documents || []
-    };
-
-    res.json({ 
-      success: true,
-      message: 'Aplicație anulată cu succes',
-      data: formattedApplication
-    });
-  } catch (error) {
-    console.error('Eroare la anularea aplicației:', error);
-    res.status(500).json({ 
-      success: false,
-      message: 'Eroare la anularea aplicației',
-      error: error.message,
-      data: null
-    });
-  }
-};
-
-exports.getApplications = async (req, res) => {
-  try {
-    const applications = await Application.findAll({
-      where: { user_id: req.user.id },
-      include: [
-        { 
-          model: Program,
-          as: 'program',
-          include: [{
-            model: University,
-            as: 'University',
-            attributes: ['name', 'location']
-          }]
-        },
-        {
-          model: Document,
-          as: 'documents'
-        }
-      ],
-      order: [['createdAt', 'DESC']]
-    });
-
-    // Formatăm aplicațiile pentru a include toate informațiile necesare
-    const formattedApplications = applications.map(app => ({
-      id: app.id,
-      status: app.status,
-      createdAt: app.createdAt,
-      updatedAt: app.updatedAt,
-      notes: app.notes || '',
-      program: app.program ? {
-        id: app.program.id,
-        name: app.program.name,
-        faculty: app.program.faculty,
-        degree: app.program.degree,
-        university: {
-          name: app.program.university?.name || 'N/A',
-          location: app.program.university?.location || 'N/A'
-        }
-      } : null,
-      documents: app.documents || []
-    }));
-
-    // Grupăm aplicațiile pe categorii
-    const groupedApplications = {
-      drafts: formattedApplications.filter(app => app.status === 'draft'),
-      pending: formattedApplications.filter(app => app.status === 'pending'),
-      sent: formattedApplications.filter(app => app.status === 'confirmed'),
-      rejected: formattedApplications.filter(app => app.status === 'rejected'),
-      withdrawn: formattedApplications.filter(app => app.status === 'withdrawn')
-    };
+    await application.update({ status: 'cancelled' });
 
     res.json({
       success: true,
-      message: applications.length === 0 ? 'Nu există aplicații în profilul dumneavoastră' : 'Aplicațiile au fost preluate cu succes',
-      data: {
-        all: formattedApplications,
-        grouped: groupedApplications
-      },
-      total: applications.length,
-      status: {
-        drafts: groupedApplications.drafts.length,
-        pending: groupedApplications.pending.length,
-        sent: groupedApplications.sent.length,
-        rejected: groupedApplications.rejected.length,
-        withdrawn: groupedApplications.withdrawn.length
-      }
+      message: 'Aplicația a fost anulată cu succes',
+      data: application
     });
   } catch (error) {
-    console.error('Eroare la preluarea aplicațiilor:', error);
+    console.error('Eroare la anularea aplicației:', error);
     res.status(500).json({
       success: false,
-      message: 'Eroare la preluarea aplicațiilor',
-      error: error.message,
-      data: {
-        all: [],
-        grouped: {
-          drafts: [],
-          pending: [],
-          sent: [],
-          rejected: [],
-          withdrawn: []
-        }
-      },
-      total: 0,
-      status: {
-        drafts: 0,
-        pending: 0,
-        sent: 0,
-        rejected: 0,
-        withdrawn: 0
-      }
+      message: 'Eroare la anularea aplicației',
+      error: error.message
     });
   }
 };
@@ -519,7 +341,10 @@ exports.withdrawApplication = async (req, res) => {
     const user_id = req.user.id;
 
     const application = await Application.findOne({
-      where: { id, user_id }
+      where: { 
+        id,
+        user_id
+      }
     });
 
     if (!application) {
@@ -529,24 +354,7 @@ exports.withdrawApplication = async (req, res) => {
       });
     }
 
-    // Verificăm dacă aplicația poate fi retrasă
-    if (application.status === 'withdrawn') {
-      return res.status(400).json({
-        success: false,
-        message: 'Aplicația a fost deja retrasă'
-      });
-    }
-
-    if (application.status === 'rejected') {
-      return res.status(400).json({
-        success: false,
-        message: 'Nu se poate retrage o aplicație care a fost deja respinsă'
-      });
-    }
-
-    // Actualizăm statusul aplicației
-    application.status = 'withdrawn';
-    await application.save();
+    await application.update({ status: 'withdrawn' });
 
     res.json({
       success: true,
@@ -558,6 +366,80 @@ exports.withdrawApplication = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Eroare la retragerea aplicației',
+      error: error.message
+    });
+  }
+};
+
+exports.updateApplicationStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const application = await Application.findByPk(id);
+
+    if (!application) {
+      return res.status(404).json({
+        success: false,
+        message: 'Aplicația nu a fost găsită'
+      });
+    }
+
+    await application.update({ status });
+
+    res.json({
+      success: true,
+      message: 'Statusul aplicației a fost actualizat cu succes',
+      data: application
+    });
+  } catch (error) {
+    console.error('Eroare la actualizarea statusului aplicației:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Eroare la actualizarea statusului aplicației',
+      error: error.message
+    });
+  }
+};
+
+exports.deleteApplication = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user_id = req.user.id;
+
+    const application = await Application.findOne({
+      where: { 
+        id,
+        user_id
+      }
+    });
+
+    if (!application) {
+      return res.status(404).json({
+        success: false,
+        message: 'Aplicația nu a fost găsită'
+      });
+    }
+
+    // Verificăm dacă aplicația poate fi ștearsă (doar în draft și neîncepută)
+    if (application.status !== 'draft' || application.submitted_at) {
+      return res.status(400).json({
+        success: false,
+        message: 'Nu puteți șterge această aplicație deoarece a fost deja trimisă'
+      });
+    }
+
+    await application.destroy();
+
+    res.json({
+      success: true,
+      message: 'Aplicația a fost ștearsă cu succes'
+    });
+  } catch (error) {
+    console.error('Eroare la ștergerea aplicației:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Eroare la ștergerea aplicației',
       error: error.message
     });
   }

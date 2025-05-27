@@ -3,9 +3,9 @@
   display: flex;
   position: relative;
   align-items: center;
-  padding-top: var(--dl-space-space-twounits);
+  padding-top: var(--dl-space-space-fourunits);
   flex-direction: column;
-  padding-bottom: var(--dl-space-space-twounits);
+  padding-bottom: var(--dl-space-space-fourunits);
   justify-content: center;
   background-color: var(--dl-color-theme-neutral-light);
   overflow: hidden;
@@ -48,7 +48,6 @@
   max-width: 800px;
   text-align: center;
   background-color: var(--dl-color-theme-neutral-light);
-  margin-bottom: var(--dl-space-space-twounits);
 }
  
 .feature-steps-text11 {
@@ -67,20 +66,25 @@
  
 .feature-steps-container3 {
   display: grid;
-  grid-gap: var(--dl-space-space-twounits);
-  grid-template-columns: repeat(2, 1fr);
+  grid-gap: var(--dl-space-space-unit);
+  grid-template-columns: repeat(4, 1fr);
   position: relative;
   z-index: 2;
   width: 100%;
   max-width: 1200px;
   background-color: var(--dl-color-theme-neutral-light);
+  padding: 0 var(--dl-space-space-unit);
 }
  
 .feature-steps-container4,
 .feature-steps-container5,
 .feature-steps-container6,
-.feature-steps-container7 {
-  padding: var(--dl-space-space-twounits);
+.feature-steps-container7,
+.feature-steps-container8,
+.feature-steps-container9,
+.feature-steps-container10,
+.feature-steps-container11 {
+  padding: var(--dl-space-space-unit);
   position: relative;
   background-color: var(--dl-color-theme-accent1);
   border-radius: var(--dl-radius-radius-cardradius);
@@ -88,30 +92,44 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   width: 100%;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 100px;
 }
  
 .feature-steps-container4:hover,
 .feature-steps-container5:hover,
 .feature-steps-container6:hover,
-.feature-steps-container7:hover {
+.feature-steps-container7:hover,
+.feature-steps-container8:hover,
+.feature-steps-container9:hover,
+.feature-steps-container10:hover,
+.feature-steps-container11:hover {
   transform: translateY(-5px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
  
 .feature-steps-container5,
-.feature-steps-container7 {
+.feature-steps-container7,
+.feature-steps-container9,
+.feature-steps-container11 {
   background-color: var(--dl-color-theme-accent2);
 }
  
 .feature-steps-text14,
 .feature-steps-text17,
 .feature-steps-text20,
-.feature-steps-text23 {
+.feature-steps-text23,
+.feature-steps-text25,
+.feature-steps-text27,
+.feature-steps-text29,
+.feature-steps-text31 {
   text-align: left;
-  font-size: var(--dl-font-size-medium);
-  line-height: 1.6;
+  font-size: var(--dl-font-size-small);
+  line-height: 1.4;
   color: var(--dl-color-theme-neutral-dark);
-  margin-top: var(--dl-space-space-unit);
+  margin-top: var(--dl-space-space-halfunit);
   max-width: 100%;
   word-wrap: break-word;
 }
@@ -119,54 +137,49 @@
 .feature-steps-text15,
 .feature-steps-text18,
 .feature-steps-text21,
-.feature-steps-text24 {
+.feature-steps-text24,
+.feature-steps-text26,
+.feature-steps-text28,
+.feature-steps-text30,
+.feature-steps-text32 {
   position: absolute;
-  top: var(--dl-space-space-unit);
-  right: var(--dl-space-space-unit);
-  font-size: var(--dl-font-size-extralarge);
+  top: var(--dl-space-space-halfunit);
+  right: var(--dl-space-space-halfunit);
+  font-size: var(--dl-font-size-large);
   font-weight: 700;
   color: var(--dl-color-theme-primary1);
   opacity: 0.8;
 }
  
-.feature-steps-text25 {
+.feature-steps-text25,
+.feature-steps-text29,
+.feature-steps-text33,
+.feature-steps-text35,
+.feature-steps-text37,
+.feature-steps-text39,
+.feature-steps-text41,
+.feature-steps-text43 {
   display: inline-block;
-  font-size: 24px;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--dl-color-theme-neutral-dark);
+  margin-bottom: var(--dl-space-space-halfunit);
 }
  
-.feature-steps-text26 {
+.feature-steps-text26,
+.feature-steps-text27,
+.feature-steps-text28,
+.feature-steps-text32,
+.feature-steps-text34,
+.feature-steps-text36,
+.feature-steps-text38,
+.feature-steps-text40,
+.feature-steps-text42,
+.feature-steps-text44 {
   display: inline-block;
-  font-size: 12px;
-}
- 
-.feature-steps-text27 {
-  display: inline-block;
-  font-size: 12px;
-}
- 
-.feature-steps-text28 {
-  display: inline-block;
-  font-size: 12px;
-}
- 
-.feature-steps-text29 {
-  display: inline-block;
-  font-size: 24px;
-}
- 
-.feature-steps-text30 {
-  display: inline-block;
-  font-size: 24px;
-}
- 
-.feature-steps-text31 {
-  display: inline-block;
-  font-size: 24px;
-}
- 
-.feature-steps-text32 {
-  display: inline-block;
-  font-size: 12px;
+  font-size: 14px;
+  color: var(--dl-color-theme-neutral-dark);
+  opacity: 0.8;
 }
  
 @media(max-width: 991px) {
@@ -182,7 +195,6 @@
     margin-bottom: var(--dl-space-space-unit);
     width: 100%;
     max-width: 100%;
-    order: 1;
   }
   
   .feature-steps-text11 {
@@ -191,11 +203,8 @@
   }
   
   .feature-steps-container3 {
-    width: 100%;
-    order: 2;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--dl-space-space-twounits);
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 800px;
   }
 }
  
@@ -204,25 +213,42 @@
     padding: var(--dl-space-space-twounits) var(--dl-space-space-unit);
   }
   
+  .feature-steps-container3 {
+    grid-template-columns: 1fr;
+    max-width: 500px;
+  }
+  
   .feature-steps-container4,
   .feature-steps-container5,
   .feature-steps-container6,
-  .feature-steps-container7 {
+  .feature-steps-container7,
+  .feature-steps-container8,
+  .feature-steps-container9,
+  .feature-steps-container10,
+  .feature-steps-container11 {
     padding: var(--dl-space-space-unit);
-    width: 100%;
+    min-height: 100px;
   }
   
   .feature-steps-text15,
   .feature-steps-text18,
   .feature-steps-text21,
-  .feature-steps-text24 {
+  .feature-steps-text24,
+  .feature-steps-text26,
+  .feature-steps-text28,
+  .feature-steps-text30,
+  .feature-steps-text32 {
     font-size: var(--dl-font-size-large);
   }
   
   .feature-steps-text14,
   .feature-steps-text17,
   .feature-steps-text20,
-  .feature-steps-text23 {
+  .feature-steps-text23,
+  .feature-steps-text25,
+  .feature-steps-text27,
+  .feature-steps-text29,
+  .feature-steps-text31 {
     font-size: var(--dl-font-size-small);
   }
   

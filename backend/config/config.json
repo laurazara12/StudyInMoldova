@@ -3,18 +3,21 @@
     "dialect": "sqlite",
     "storage": "./database.sqlite",
     "logging": false,
-    "migrationsPath": "./src/migrations"
+    "migrationsPath": "./src/migrations",
+    "seedersPath": "./src/seeders"
   },
   "test": {
     "dialect": "sqlite",
     "storage": ":memory:",
     "logging": false,
-    "migrationsPath": "./src/migrations"
+    "migrationsPath": "./src/migrations",
+    "seedersPath": "./src/seeders"
   },
   "production": {
     "dialect": "sqlite",
     "storage": "./database.sqlite",
     "logging": false,
-    "migrationsPath": "./src/migrations"
+    "migrationsPath": "./src/migrations",
+    "seedersPath": "./src/seeders"
   }
 } 

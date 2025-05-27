@@ -4,8 +4,8 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
-const { authMiddleware, adminMiddleware } = require('../middleware/auth');
-const { register, login, getUserProfile, getMe, getUserRole } = require('../controllers/userController');
+const { auth, adminAuth } = require('../middleware/auth');
+const { register, login, getUserProfile, getCurrentUser, getUserRole } = require('../controllers/userController');
 
 // Registration
 router.post('/register', async (req, res) => {
@@ -87,34 +87,10 @@ router.post('/login', async (req, res) => {
 });
 
 // Get current user data
-router.get('/me', authMiddleware, async (req, res) => {
-  try {
-    console.log('=== Începe procesul de obținere a datelor utilizatorului ===');
-    console.log('ID utilizator din token:', req.user.id);
-
-    const result = await getMe(req.user.id);
-    
-    if (!result.success) {
-      console.error('Eroare la obținerea datelor utilizatorului:', result.message);
-      return res.status(404).json({
-        success: false,
-        message: result.message
-      });
-    }
-
-    console.log('Date utilizator preluate cu succes');
-    res.json(result);
-  } catch (error) {
-    console.error('Eroare la obținerea datelor utilizatorului:', error);
-    res.status(500).json({
-      success: false,
-      message: 'A apărut o eroare în timpul preluării datelor utilizatorului'
-    });
-  }
-});
+router.get('/me', auth, getCurrentUser);
 
 // Ruta pentru obținerea rolului utilizatorului
-router.get('/user/role', authMiddleware, async (req, res) => {
+router.get('/user/role', auth, async (req, res) => {
   try {
     const result = await getUserRole(req.user.id);
     
@@ -142,7 +118,7 @@ router.get('/user/role', authMiddleware, async (req, res) => {
 });
 
 // List users (only for admin)
-router.get('/users', authMiddleware, adminMiddleware, async (req, res) => {
+router.get('/users', auth, adminAuth, async (req, res) => {
   try {
     console.log('Starting user retrieval');
     console.log('Current user:', req.user);
@@ -185,7 +161,7 @@ const getUserById = (id) => {
 };
 
 // Delete a user
-router.delete('/users/:id', authMiddleware, adminMiddleware, async (req, res) => {
+router.delete('/users/:id', auth, adminAuth, async (req, res) => {
   try {
     const userId = req.params.id;
     console.log('Delete attempt for user:', userId);
@@ -220,7 +196,7 @@ router.get('/health', (req, res) => {
 });
 
 // Update user profile
-router.put('/update-profile', authMiddleware, async (req, res) => {
+router.put('/update-profile', auth, async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id);
     if (!user) {
@@ -275,7 +251,7 @@ router.put('/update-profile', authMiddleware, async (req, res) => {
 });
 
 // Endpoint pentru verificarea validității token-ului
-router.get('/verify-token', authMiddleware, (req, res) => {
+router.get('/verify-token', auth, (req, res) => {
   try {
     const response = {
       success: true,

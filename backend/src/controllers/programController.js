@@ -17,23 +17,52 @@ exports.getAllPrograms = async (req, res) => {
       order: [['name', 'ASC']]
     });
 
-    const formattedPrograms = programs.map(program => ({
-      id: program.id,
-      name: program.name,
-      description: program.description,
-      duration: program.duration,
-      degree: program.degree,
-      degree_type: program.degree_type,
-      language: program.language,
-      tuition_fees: program.tuition_fees,
-      credits: program.credits,
-      faculty: program.faculty,
-      university: program.university ? {
-        name: program.university.name
-      } : null,
-      createdAt: program.createdAt,
-      updatedAt: program.updatedAt
-    }));
+    const formattedPrograms = programs.map(program => {
+      // Formatăm durata
+      let formattedDuration = 'N/A';
+      if (program.duration) {
+        formattedDuration = program.duration.includes('ani') ? program.duration : `${program.duration} ani`;
+      }
+
+      // Formatăm taxele de școlarizare
+      let formattedTuitionFees = 'N/A';
+      if (program.tuition_fees) {
+        formattedTuitionFees = `${parseFloat(program.tuition_fees).toFixed(2)} EUR`;
+      }
+
+      // Formatăm limba
+      let formattedLanguage = 'N/A';
+      if (program.language) {
+        formattedLanguage = program.language.toLowerCase();
+        // Capitalizăm prima literă
+        formattedLanguage = formattedLanguage.charAt(0).toUpperCase() + formattedLanguage.slice(1);
+      }
+
+      return {
+        id: program.id,
+        name: program.name || 'N/A',
+        description: program.description || 'N/A',
+        duration: formattedDuration,
+        degree: program.degree || 'N/A',
+        degree_type: program.degree_type || 'N/A',
+        language: formattedLanguage,
+        tuition_fees: formattedTuitionFees,
+        credits: program.credits ? `${program.credits} credite` : 'N/A',
+        faculty: program.faculty || 'N/A',
+        university: program.university ? {
+          id: program.university.id,
+          name: program.university.name || 'N/A',
+          location: program.university.location || 'N/A',
+          website: program.university.website || 'N/A'
+        } : {
+          name: 'N/A',
+          location: 'N/A',
+          website: 'N/A'
+        },
+        createdAt: program.createdAt,
+        updatedAt: program.updatedAt
+      };
+    });
 
     console.log('Programe formatate:', JSON.stringify(formattedPrograms, null, 2));
 

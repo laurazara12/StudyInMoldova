@@ -29,9 +29,25 @@ module.exports = (sequelize) => {
           'team',
           'new_user',
           'new_document',
-          'new_application'
+          'new_application',
+          'application_status_changed',
+          'application_approved',
+          'application_rejected',
+          'application_withdrawn',
+          'user_profile_updated',
+          'user_document_updated',
+          'admin_action_required',
+          'admin_review_required',
+          'admin_document_review',
+          'admin_application_review',
+          'system'
         ]
       }
+    },
+    title: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: 'Notificare nouă'
     },
     message: {
       type: DataTypes.STRING,

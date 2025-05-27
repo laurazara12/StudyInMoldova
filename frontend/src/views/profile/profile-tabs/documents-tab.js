@@ -22,6 +22,7 @@ const DocumentsTab = ({ userData }) => {
   const [error, setError] = useState(null);
   const [uploadStatus, setUploadStatus] = useState({});
   const [buttonStates, setButtonStates] = useState({});
+  const [successMessage, setSuccessMessage] = useState(null);
 
   useEffect(() => {
     fetchDocuments();
@@ -235,22 +236,47 @@ const DocumentsTab = ({ userData }) => {
     }
   };
 
-  const handleDelete = async (documentId) => {
+  const handleDocumentDelete = async (documentId) => {
     try {
-      const response = await axios.delete(
-        `${API_BASE_URL}/api/documents/${documentId}`,
-        { headers: getAuthHeaders() }
-      );
+      setLoading(true);
+      setError(null);
 
-      if (response.data?.success) {
-        setDocuments(prev => prev.filter(doc => doc.id !== documentId));
-        toast.success('Document șters cu succes');
+      // Verificăm mai întâi dacă documentul există
+      const document = documents.find(doc => doc.id === documentId);
+      if (!document) {
+        throw new Error('Documentul nu a fost găsit');
+      }
+
+      const response = await axios.delete(`${API_BASE_URL}/api/documents/${documentId}`, {
+        headers: getAuthHeaders()
+      });
+
+      if (response.data.success) {
+        // Actualizăm lista de documente
+        const updatedDocuments = documents.filter(doc => doc.id !== documentId);
+        setDocuments(updatedDocuments);
+        
+        // Afișăm mesajul de succes
+        setSuccessMessage('Document șters cu succes');
+        setTimeout(() => setSuccessMessage(null), 3000);
       } else {
         throw new Error(response.data.message || 'Eroare la ștergerea documentului');
       }
     } catch (error) {
-      console.error('Eroare la ștergerea documentului:', error);
-      toast.error(handleApiError(error));
+      console.error('Error deleting document:', error);
+      if (error.response) {
+        if (error.response.status === 404) {
+          setError('Documentul nu a fost găsit');
+        } else if (error.response.status === 403) {
+          setError('Nu aveți permisiunea de a șterge acest document');
+        } else {
+          setError(error.response.data.message || 'Eroare la ștergerea documentului');
+        }
+      } else {
+        setError(error.message || 'Eroare la comunicarea cu serverul');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -317,14 +343,12 @@ const DocumentsTab = ({ userData }) => {
                     >
                       Descarcă
                     </button>
-                    {document.status !== 'rejected' && (
-                      <button 
-                        className={`delete-button ${buttonState.isDeleteActive ? 'active' : ''}`}
-                        onClick={() => handleDelete(document.id)}
-                      >
-                        Șterge
-                      </button>
-                    )}
+                    <button 
+                      className={`delete-button ${buttonState.isDeleteActive ? 'active' : ''}`}
+                      onClick={() => handleDocumentDelete(document.id)}
+                    >
+                      Șterge
+                    </button>
                   </>
                 ) : (
                   <>

@@ -62,6 +62,10 @@ module.exports = (sequelize) => {
       foreignKey: 'university_id',
       as: 'university'
     });
+    Program.hasMany(models.Application, {
+      foreignKey: 'program_id',
+      as: 'applications'
+    });
   };
 
   return Program;

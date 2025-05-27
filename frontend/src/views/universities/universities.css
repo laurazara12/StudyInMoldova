@@ -18,7 +18,7 @@
 
 .universities-header {
   width: 100%;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url('../../assets/images/universitate-header.jpg');
+  background-image: url('https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599098/maria-lupan-4UrF0fxutJs-unsplash_tufw9c.jpg');
   background-size: cover;
   background-position: center;
   color: white;
@@ -30,9 +30,9 @@
   margin: 0;
 }
 
-.universities-title {
-  font-size: 2.2rem;
-  font-weight: 800;
+h1{
+  font-family: STIX Two Text;
+  font-size: 2.5rem;
   margin-bottom: 1rem;
   color: white;
   text-align: center;

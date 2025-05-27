@@ -1,20 +1,29 @@
 const express = require('express');
 const router = express.Router();
-const { authMiddleware } = require('../middleware/auth');
-const { 
+const { applicationAuth, applicationOwnership } = require('../middleware/auth');
+const {
   createApplication,
-  updateApplication,
   getUserApplications,
   getApplicationById,
-  cancelApplication
+  updateApplication,
+  cancelApplication,
+  withdrawApplication,
+  getAllApplications,
+  updateApplicationStatus,
+  deleteApplication
 } = require('../controllers/applicationController');
 
-// Rute pentru aplicații
-router.post('/', authMiddleware, createApplication);
-router.put('/:id', authMiddleware, updateApplication);
-router.get('/my-applications', authMiddleware, getUserApplications);
-router.get('/', authMiddleware, getUserApplications);
-router.get('/:id', authMiddleware, getApplicationById);
-router.post('/:id/cancel', authMiddleware, cancelApplication);
+// Rute pentru utilizatori
+router.post('/', applicationAuth, createApplication);
+router.get('/user', applicationAuth, getUserApplications);
+router.get('/:id', applicationAuth, applicationOwnership, getApplicationById);
+router.patch('/:id', applicationAuth, applicationOwnership, updateApplication);
+router.patch('/:id/cancel', applicationAuth, applicationOwnership, cancelApplication);
+router.patch('/:id/withdraw', applicationAuth, applicationOwnership, withdrawApplication);
+router.delete('/:id', applicationAuth, applicationOwnership, deleteApplication);
+
+// Rute pentru administratori
+router.get('/', applicationAuth, getAllApplications);
+router.patch('/:id/status', applicationAuth, updateApplicationStatus);
 
 module.exports = router; 

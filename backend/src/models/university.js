@@ -92,7 +92,7 @@ module.exports = (sequelize) => {
   University.associate = (models) => {
     University.hasMany(models.Program, {
       foreignKey: 'university_id',
-      as: 'Programs'
+      as: 'programs'
     });
   };
 

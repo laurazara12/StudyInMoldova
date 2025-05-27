@@ -9,40 +9,32 @@ module.exports = (sequelize) => {
     },
     user_id: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'users',
-        key: 'id'
-      }
+      allowNull: false
     },
     program_id: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'programs',
-        key: 'id'
-      }
+      allowNull: false
     },
     university_id: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'universities',
-        key: 'id'
-      }
+      allowNull: false
     },
     status: {
-      type: DataTypes.ENUM('draft', 'pending', 'confirmed', 'rejected', 'withdrawn'),
-      allowNull: false,
+      type: DataTypes.ENUM('draft', 'submitted', 'under_review', 'accepted', 'rejected'),
       defaultValue: 'draft'
     },
     notes: {
       type: DataTypes.TEXT,
       allowNull: true
+    },
+    application_date: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: DataTypes.NOW
     }
   }, {
-    timestamps: true,
     tableName: 'applications',
+    timestamps: true,
     underscored: true
   });
 

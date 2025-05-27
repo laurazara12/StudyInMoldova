@@ -4,9 +4,6 @@ const jwt = require('jsonwebtoken');
 
 const login = async (email, password) => {
   try {
-    console.log('=== Începe procesul de autentificare în controller ===');
-    console.log('Email primit:', email);
-    console.log('Tip email:', typeof email);
 
     // Verificăm dacă email-ul este un obiect sau null
     if (typeof email === 'object' && email !== null) {
@@ -83,6 +80,15 @@ const login = async (email, password) => {
 
 const register = async (name, email, password) => {
   try {
+    // Verificăm formatul email-ului
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      return {
+        success: false,
+        message: 'Format email invalid'
+      };
+    }
+
     const existingUser = await User.findOne({ where: { email } });
     
     if (existingUser) {
@@ -109,13 +115,16 @@ const register = async (name, email, password) => {
 
     return {
       success: true,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role
-      },
-      token
+      message: 'Înregistrare reușită',
+      data: {
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role
+        },
+        token
+      }
     };
   } catch (error) {
     console.error('Eroare la înregistrare:', error);
@@ -123,75 +132,31 @@ const register = async (name, email, password) => {
   }
 };
 
-const getMe = async (userId) => {
-  try {
-    console.log('=== Începe obținerea datelor utilizatorului ===');
-    console.log('ID utilizator:', userId);
-
-    const user = await User.findByPk(userId, {
-      attributes: ['id', 'email', 'name', 'role']
-    });
-
-    if (!user) {
-      console.log('Utilizatorul nu a fost găsit');
-      return {
-        success: false,
-        message: 'Utilizatorul nu a fost găsit'
-      };
-    }
-
-    console.log('Utilizator găsit:', {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role
-    });
-
-    return {
-      success: true,
-      message: 'Date utilizator preluate cu succes',
-      data: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role
-      }
-    };
-  } catch (error) {
-    console.error('Eroare la obținerea datelor utilizatorului:', error);
-    throw error;
-  }
-};
-
 const getUserRole = async (req, res) => {
   try {
-    console.log('=== Obținere rol utilizator ===');
-    console.log('User ID:', req.user.id);
-    console.log('User Role:', req.user.role);
-
-    if (!req.user || !req.user.role) {
-      console.log('Rolul utilizatorului nu a fost găsit');
-      return res.status(401).json({
+    const user = await User.findByPk(req.user.id);
+    
+    if (!user) {
+      return res.status(404).json({
         success: false,
-        message: 'Rolul utilizatorului nu a fost găsit'
+        message: 'Utilizatorul nu a fost găsit',
+        data: null
       });
     }
-
-    console.log('Rolul utilizatorului a fost găsit:', req.user.role);
-    return res.status(200).json({
+    
+    res.json({
       success: true,
       message: 'Rolul utilizatorului a fost preluat cu succes',
       data: {
-        role: req.user.role,
-        id: req.user.id,
-        email: req.user.email
+        role: user.role
       }
     });
   } catch (error) {
-    console.error('Eroare la obținerea rolului:', error);
-    return res.status(500).json({
+    console.error('Eroare la obținerea rolului utilizatorului:', error);
+    res.status(500).json({
       success: false,
-      message: 'Eroare la obținerea rolului utilizatorului'
+      message: 'Eroare la obținerea rolului utilizatorului',
+      data: null
     });
   }
 };
@@ -205,21 +170,21 @@ const getUserProfile = async (req, res) => {
     if (!user) {
       return res.status(404).json({ 
         success: false,
-        message: 'Utilizatorul nu a fost găsit',
+        message: 'User not found',
         data: null
       });
     }
 
     res.json({
       success: true,
-      message: 'Profil utilizator preluat cu succes',
+      message: 'User profile retrieved successfully',
       data: user
     });
   } catch (error) {
-    console.error('Eroare la preluarea profilului:', error);
+    console.error('Error in getUserProfile controller:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la preluarea profilului',
+      message: 'Error in getUserProfile controller',
       data: null
     });
   }
@@ -227,8 +192,7 @@ const getUserProfile = async (req, res) => {
 
 const updateUserProfile = async (req, res) => {
   try {
-    const { name, email, currentPassword, newPassword } = req.body;
-    const user = await User.findByPk(req.user.userId);
+    const user = await User.findByPk(req.user.id);
 
     if (!user) {
       return res.status(404).json({ 
@@ -238,40 +202,83 @@ const updateUserProfile = async (req, res) => {
       });
     }
 
-    // Actualizăm datele de bază
-    if (name) user.name = name;
-    if (email) user.email = email;
+    const allowedFields = [
+      'name',
+      'phone',
+      'date_of_birth',
+      'country_of_origin',
+      'nationality',
+      'desired_study_level',
+      'preferred_study_field',
+      'desired_academic_year',
+      'preferred_study_language',
+      'estimated_budget',
+      'accommodation_preferences'
+    ];
 
-    // Dacă se schimbă parola
-    if (currentPassword && newPassword) {
-      const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
-      if (!isPasswordValid) {
-        return res.status(401).json({ 
-          success: false,
-          message: 'Parola actuală este incorectă',
-          data: null
-        });
+    // Validări pentru câmpuri
+    const updateData = {};
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) {
+        // Validări specifice pentru fiecare câmp
+        switch (field) {
+          case 'name':
+            if (typeof req.body[field] !== 'string' || req.body[field].trim().length < 2) {
+              return res.status(400).json({
+                success: false,
+                message: 'Numele trebuie să aibă cel puțin 2 caractere',
+                data: null
+              });
+            }
+            updateData[field] = req.body[field].trim();
+            break;
+
+          case 'phone':
+            if (req.body[field] && !/^[+]?[\d\s-]{8,}$/.test(req.body[field])) {
+              return res.status(400).json({
+                success: false,
+                message: 'Format număr de telefon invalid. Trebuie să conțină cel puțin 8 cifre și poate include +, spații sau -',
+                data: null
+              });
+            }
+            updateData[field] = req.body[field];
+            break;
+
+          case 'estimated_budget':
+            if (req.body[field] && (isNaN(req.body[field]) || req.body[field] < 0)) {
+              return res.status(400).json({
+                success: false,
+                message: 'Bugetul trebuie să fie un număr pozitiv',
+                data: null
+              });
+            }
+            updateData[field] = req.body[field];
+            break;
+
+          default:
+            if (req.body[field] !== undefined) {
+              updateData[field] = req.body[field];
+            }
+        }
       }
-      user.password = await bcrypt.hash(newPassword, 10);
     }
 
-    await user.save();
+    await user.update(updateData);
+
+    const updatedUser = await User.findByPk(req.user.id, {
+      attributes: { exclude: ['password'] }
+    });
 
     res.json({
       success: true,
-      message: 'Profil actualizat cu succes',
-      data: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role
-      }
+      message: 'Profilul utilizatorului a fost actualizat cu succes',
+      data: updatedUser
     });
   } catch (error) {
-    console.error('Eroare la actualizarea profilului:', error);
+    console.error('Eroare la actualizarea profilului utilizatorului:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la actualizarea profilului',
+      message: 'Eroare la actualizarea profilului utilizatorului',
       data: null
     });
   }
@@ -279,12 +286,12 @@ const updateUserProfile = async (req, res) => {
 
 const deleteUser = async (req, res) => {
   try {
-    const user = await User.findByPk(req.user.userId);
+    const user = await User.findByPk(req.user.id);
     
     if (!user) {
       return res.status(404).json({ 
         success: false,
-        message: 'Utilizatorul nu a fost găsit',
+        message: 'User not found',
         data: null
       });
     }
@@ -292,14 +299,14 @@ const deleteUser = async (req, res) => {
     await user.destroy();
     res.json({ 
       success: true,
-      message: 'Utilizator șters cu succes',
+      message: 'User deleted successfully',
       data: null
     });
   } catch (error) {
-    console.error('Eroare la ștergerea utilizatorului:', error);
+    console.error('Error in deleteUser controller:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la ștergerea utilizatorului',
+      message: 'Error in deleteUser controller',
       data: null
     });
   }
@@ -307,6 +314,14 @@ const deleteUser = async (req, res) => {
 
 const getCurrentUser = async (req, res) => {
   try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({
+        success: false,
+        message: 'Utilizatorul nu este autentificat',
+        data: null
+      });
+    }
+
     const user = await User.findByPk(req.user.id, {
       attributes: { exclude: ['password'] }
     });
@@ -321,14 +336,14 @@ const getCurrentUser = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Utilizator preluat cu succes',
+      message: 'Profilul utilizatorului a fost preluat cu succes',
       data: user
     });
   } catch (error) {
-    console.error('Eroare la obținerea utilizatorului:', error);
+    console.error('Eroare la obținerea profilului utilizatorului:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la obținerea utilizatorului',
+      message: 'Eroare la obținerea profilului utilizatorului',
       data: null
     });
   }
@@ -337,21 +352,48 @@ const getCurrentUser = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id);
+
     if (!user) {
-      return res.status(404).json({ message: 'Utilizatorul nu a fost găsit' });
+      return res.status(404).json({ 
+        success: false,
+        message: 'Utilizatorul nu a fost găsit',
+        data: null
+      });
     }
 
-    await user.update(req.body);
+    const allowedFields = [
+      'name',
+      'email',
+      'phone',
+      'date_of_birth',
+      'country_of_origin',
+      'nationality'
+    ];
+
+    const updateData = {};
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) {
+        updateData[field] = req.body[field];
+      }
+    }
+
+    await user.update(updateData);
+
     const updatedUser = await User.findByPk(req.user.id, {
       attributes: { exclude: ['password'] }
     });
 
-    res.json(updatedUser);
+    res.json({
+      success: true,
+      message: 'Utilizatorul a fost actualizat cu succes',
+      data: updatedUser
+    });
   } catch (error) {
     console.error('Eroare la actualizarea utilizatorului:', error);
     res.status(500).json({ 
+      success: false,
       message: 'Eroare la actualizarea utilizatorului',
-      error: error.message 
+      data: null
     });
   }
 };
@@ -359,7 +401,6 @@ const updateUser = async (req, res) => {
 module.exports = {
   login,
   register,
-  getMe,
   getUserRole,
   getUserProfile,
   updateUserProfile,

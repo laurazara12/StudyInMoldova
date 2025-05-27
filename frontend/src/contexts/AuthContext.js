@@ -1,39 +1,51 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { API_BASE_URL } from '../config/api.config';
+import { API_BASE_URL, verifyToken } from '../config/api.config';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(localStorage.getItem('token'));
-  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(() => {
+    const storedToken = localStorage.getItem('token');
+    return storedToken || null;
+  });
+  
+  const [user, setUser] = useState(() => {
+    try {
+      const storedUser = localStorage.getItem('user');
+      return storedUser ? JSON.parse(storedUser) : null;
+    } catch (error) {
+      console.error('Eroare la parsarea datelor utilizatorului:', error);
+      return null;
+    }
+  });
+  
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const verifyToken = async () => {
+    const checkAuth = async () => {
       if (!token) {
         setLoading(false);
         return;
       }
 
       try {
-        const response = await fetch(`${API_BASE_URL}/api/auth/verify-token`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user);
-        } else {
-          // Token invalid sau expirat
-          localStorage.removeItem('token');
+        const isValid = await verifyToken();
+        if (!isValid) {
           setToken(null);
           setUser(null);
+          setLoading(false);
+          return;
+        }
+
+        // Actualizăm starea cu datele din localStorage
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+          setUser(JSON.parse(storedUser));
         }
       } catch (error) {
-        console.error('Eroare la verificarea token-ului:', error);
+        console.error('Eroare la verificarea autentificării:', error);
         localStorage.removeItem('token');
+        localStorage.removeItem('user');
         setToken(null);
         setUser(null);
       } finally {
@@ -41,7 +53,7 @@ export const AuthProvider = ({ children }) => {
       }
     };
 
-    verifyToken();
+    checkAuth();
   }, [token]);
 
   const login = async (userData, token) => {
@@ -52,8 +64,10 @@ export const AuthProvider = ({ children }) => {
 
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(userData));
+      
       setToken(token);
       setUser(userData);
+      
       return { user: userData, token };
     } catch (error) {
       console.error('Eroare la autentificare:', error);
@@ -66,6 +80,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('user');
     setToken(null);
     setUser(null);
+    window.location.href = '/sign-in';
   };
 
   const value = {
@@ -74,7 +89,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     login,
     logout,
-    isAuthenticated: !!token
+    isAuthenticated: !!token && !!user
   };
 
   return (

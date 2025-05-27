@@ -44,7 +44,7 @@
 }
 
 .university-hero {
-  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('../../assets/images/universitate-header.jpg');
+  background-image: url('https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599108/sasha-pleshco-LI5MSjGm6sQ-unsplash_qquwmh.jpg');
   background-size: cover;
   background-position: center;
   color: white;
@@ -60,6 +60,7 @@
 .hero-content h1 {
   font-size: 2.5rem;
   margin-bottom: 1rem;
+  font-family: STIX Two Text;
 }
 
 .hero-details {
@@ -214,6 +215,7 @@
 
   .hero-content h1 {
     font-size: 2rem;
+    font-family: STIX Two Text;
   }
 
   .hero-details {
@@ -318,6 +320,7 @@
   margin-bottom: var(--dl-space-space-halfunit);
   font-weight: 700;
   letter-spacing: -0.5px;
+  font-family: STIX Two Text;
 }
 
 .university-header h2 {
@@ -453,6 +456,7 @@
   }
 
   .university-header h1 {
+    font-family: STIX Two Text;
     font-size: var(--dl-font-size-medium);
   }
 

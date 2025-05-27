@@ -2,7 +2,7 @@ import React, { Fragment } from 'react'
 import { Helmet } from 'react-helmet-async'
 
 import Navbar from '../components/navbar'
-import SignUp from '../components/sign-up'
+import SignUp from './auth/components/sign-up'
 import './page.css'
 
 const Page = (props) => {

@@ -11,7 +11,8 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const http = require('http');
-const { authMiddleware } = require('./middleware/auth');
+const multer = require('multer');
+const { auth } = require('./middleware/auth');
 const { sequelize, safeSync } = require('./config/database');
 const universitiesRouter = require('./routes/universities');
 const programsRouter = require('./routes/programRoutes');
@@ -25,11 +26,14 @@ const { setupRoutes } = require('./routes');
 const { wss, authenticateWebSocket } = require('./websocket/notificationSocket');
 const WebSocket = require('ws');
 const jwt = require('jsonwebtoken');
-const userRoutes = require('./routes/users');
+const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 const server = http.createServer(app);
 const PORT = 4000; // Forțăm portul 4000
+
+// Configurare multer pentru multipart/form-data
+const upload = multer();
 
 // Configurare middleware-uri de bază
 app.use(cors({
@@ -62,7 +66,7 @@ app.use('/api/universities', universitiesRouter);
 app.use('/api/programs', programsRouter);
 app.use('/api/documents', documentsRouter);
 app.use('/api/saved-programs', savedProgramRoutes);
-app.use('/api/applications', applicationsRouter);
+app.use('/api/applications', upload.none(), applicationsRouter);
 app.use('/api/help-you-choose', helpYouChooseRoutes);
 
 // Ruta pentru verificarea stării serverului
@@ -74,7 +78,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // Ruta pentru verificarea token-ului
-app.get('/api/auth/verify-token', authMiddleware, (req, res) => {
+app.get('/api/auth/verify-token', auth, (req, res) => {
   res.json({
     success: true,
     message: 'Token valid',
@@ -87,7 +91,7 @@ app.get('/api/auth/verify-token', authMiddleware, (req, res) => {
 });
 
 // Ruta pentru obținerea datelor utilizatorului curent
-app.get('/api/auth/me', authMiddleware, (req, res) => {
+app.get('/api/auth/me', auth, (req, res) => {
   res.json({
     success: true,
     message: 'Date utilizator preluate cu succes',

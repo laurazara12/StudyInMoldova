@@ -42,6 +42,10 @@
   --dl-color-theme-background: #f8f9fa;
 }
  
+p{
+  font-size: var(--dl-font-size-small);
+}
+
 .button {
   color: var(--dl-color-theme-neutral-dark);
   display: inline-block;

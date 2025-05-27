@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { University, Program } = require('../models');
-const { authMiddleware } = require('../middleware/auth');
+const { auth, adminAuth } = require('../middleware/auth');
 const universityController = require('../controllers/universityController');
 
 // Rute publice
@@ -56,7 +56,7 @@ router.get('/:slug', async (req, res) => {
 });
 
 // Rute protejate
-router.post('/', authMiddleware, async (req, res) => {
+router.post('/', auth, async (req, res) => {
   try {
     console.log('=== Începere creare universitate ===');
     console.log('Received university creation request:', JSON.stringify(req.body, null, 2));
@@ -135,7 +135,7 @@ router.post('/', authMiddleware, async (req, res) => {
   }
 });
 
-router.put('/:id', authMiddleware, async (req, res) => {
+router.put('/:id', auth, async (req, res) => {
   try {
     const [updated] = await University.update(req.body, {
       where: { id: req.params.id }
@@ -153,7 +153,7 @@ router.put('/:id', authMiddleware, async (req, res) => {
   }
 });
 
-router.delete('/:id', authMiddleware, async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
   try {
     const deleted = await University.destroy({
       where: { id: req.params.id }

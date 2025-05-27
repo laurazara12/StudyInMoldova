@@ -24,11 +24,24 @@
   margin-bottom: 3rem;
 }
 
+.footer-logo-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 0.8rem;
+}
+
+.footer-logo-img {
+  height: 35px;
+  width: auto;
+  object-fit: contain;
+}
+
 .footer-title {
   font-size: var(--dl-font-size-large);
   font-weight: 700;
-  margin-bottom: 0.8rem;
   color: #ffffff;
+  margin: 0;
 }
 
 .footer-description {

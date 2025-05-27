@@ -7,7 +7,7 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "reset-db": "node -e \"require('./src/config/database').safeSync(true).then(() => process.exit())\"",
-    "migrate": "node -e \"require('./src/config/database').migrate().then(() => process.exit())\""
+    "migrate": "node src/scripts/runMigrations.js"
   },
   "keywords": [],
   "author": "",

@@ -13,10 +13,14 @@ export const axiosInstance = axios.create({
 // Interceptor pentru cereri
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    const headers = getAuthHeaders();
+    console.log('=== Interceptor Request ===');
+    console.log('Headers generate:', headers);
+    
+    config.headers = {
+      ...config.headers,
+      ...headers
+    };
     
     console.log('=== Începem cererea ===');
     console.log('URL complet:', `${config.baseURL}${config.url}`);

@@ -1,22 +1,13 @@
 // Configurare API
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
 
 console.log('=== Configurare API ===');
 console.log('API Base URL:', API_BASE_URL);
 console.log('Environment:', process.env.NODE_ENV);
 console.log('REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
 
-// Funcție pentru obținerea header-urilor de autentificare
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
-  return {
-    'Authorization': token ? `Bearer ${token}` : '',
-    'Content-Type': 'application/json',
-    'Accept': 'application/json'
-  };
-};
-
-const verifyToken = () => {
+// Funcție pentru verificarea token-ului
+export const verifyToken = async () => {
   console.log('=== Verificare Token ===');
   const token = localStorage.getItem('token');
   console.log('Token prezent:', !!token);
@@ -27,30 +18,57 @@ const verifyToken = () => {
   }
 
   try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    console.log('Token payload:', payload);
+    const response = await fetch(`${API_BASE_URL}/api/auth/verify-token`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
 
-    const expirationDate = new Date(payload.exp * 1000);
-    const now = new Date();
-    const timeLeft = Math.floor((expirationDate - now) / 1000);
-
-    console.log('Expirare:', expirationDate.toLocaleString('ro-RO'));
-    console.log('Acum:', now.toLocaleString('ro-RO'));
-    console.log('Timp rămas:', timeLeft, 'secunde');
-
-    if (timeLeft <= 0) {
-      console.log('Token expirat');
-      localStorage.removeItem('token');
+    if (!response.ok) {
+      console.log('Token invalid sau expirat');
+      await clearUserData();
       return false;
     }
 
-    console.log('Token valid, expiră la:', expirationDate.toLocaleString('ro-RO'));
+    const data = await response.json();
+    if (!data.success || !data.user) {
+      console.log('Date utilizator invalide');
+      await clearUserData();
+      return false;
+    }
+
+    // Actualizăm datele utilizatorului în localStorage
+    localStorage.setItem('user', JSON.stringify(data.user));
+    console.log('Token valid, utilizator autentificat');
     return true;
   } catch (error) {
     console.error('Eroare la verificarea token-ului:', error);
-    localStorage.removeItem('token');
+    await clearUserData();
     return false;
   }
+};
+
+// Funcție pentru obținerea header-urilor de autentificare
+export const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  console.log('=== Obținere Headers ===');
+  console.log('Token prezent:', !!token);
+  
+  if (!token) {
+    console.log('Token lipsă pentru headers');
+    return {
+      'Content-Type': 'application/json'
+    };
+  }
+
+  const headers = {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json'
+  };
+  
+  console.log('Headers generate:', headers);
+  return headers;
 };
 
 // Funcție pentru gestionarea erorilor API
@@ -68,9 +86,7 @@ export const handleApiError = (error) => {
     switch (error.response.status) {
       case 401:
         // Token invalid sau expirat
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '/sign-in';
+        clearUserData();
         return 'Sesiunea a expirat. Vă rugăm să vă autentificați din nou.';
       
       case 403:
@@ -96,4 +112,20 @@ export const handleApiError = (error) => {
   }
 };
 
-export { API_BASE_URL, getAuthHeaders, verifyToken }; 
+import { useNavigation } from '../contexts/NavigationContext';
+
+let navigationCallback = null;
+
+export const setNavigationCallback = (callback) => {
+  navigationCallback = callback;
+};
+
+export const clearUserData = async () => {
+  console.log('Ștergere date utilizator');
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  // Nu mai redirecționăm automat aici
+  return true;
+};
+
+export { API_BASE_URL }; 

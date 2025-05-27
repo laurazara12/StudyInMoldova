@@ -120,7 +120,7 @@ function Home() {
         }
         heading1={
           <Fragment>
-            <span className="landing-text28">Study in Moldova</span>
+            <h1 className="landing-text28">Study in Moldova</h1>
           </Fragment>
         }
       ></HeroLandingPage>
@@ -242,55 +242,87 @@ function Home() {
       <FeatureSteps
         step1Title={
           <Fragment>
-            <span className="landing-text50">Research Programs</span>
+            <span className="landing-text50">1. Create Account</span>
           </Fragment>
         }
         step2Title={
           <Fragment>
-            <span className="landing-text51">Choose a University</span>
+            <span className="landing-text51">2. Browse & Save Programs</span>
           </Fragment>
         }
         step3Title={
           <Fragment>
             <span className="landing-text52">
-              Arrange Living Accommodations
+              3. Research Universities
             </span>
           </Fragment>
         }
         step4Title={
           <Fragment>
-            <span className="landing-text53">Prepare Necessary Documents</span>
+            <span className="landing-text53">4. Upload Documents</span>
+          </Fragment>
+        }
+        step5Title={
+          <Fragment>
+            <span className="landing-text54">5. Submit Application</span>
+          </Fragment>
+        }
+        step6Title={
+          <Fragment>
+            <span className="landing-text55">6. Track Progress</span>
+          </Fragment>
+        }
+        step7Title={
+          <Fragment>
+            <span className="landing-text56">7. Get Support</span>
           </Fragment>
         }
         step1Description={
           <Fragment>
-            <span className="landing-text54">
-              Explore the different study programs available in Moldova to find
-              the one that best fits your academic goals and interests.
+            <span className="landing-text57">
+              Start by creating your personal account. Quick and easy registration process.
             </span>
           </Fragment>
         }
         step2Description={
           <Fragment>
-            <span className="landing-text55">
-              Select a university that offers your desired program and has a
-              strong reputation for academic excellence.
+            <span className="landing-text58">
+              Explore programs on our platform and save your favorites in the Programs section.
             </span>
           </Fragment>
         }
         step3Description={
           <Fragment>
-            <span className="landing-text56">
-              Secure suitable living arrangements, whether on-campus or
-              off-campus, to ensure a comfortable stay during your studies.
+            <span className="landing-text59">
+              Read detailed information about universities and programs to make an informed decision.
             </span>
           </Fragment>
         }
         step4Description={
           <Fragment>
-            <span className="landing-text57">
-              Gather all required documents for studying, including academic
-              transcripts, identification papers, and visa paperwork.
+            <span className="landing-text60">
+              Upload all required documents in your personal profile page.
+            </span>
+          </Fragment>
+        }
+        step5Description={
+          <Fragment>
+            <span className="landing-text61">
+              Create and submit applications for your saved programs when you're ready.
+            </span>
+          </Fragment>
+        }
+        step6Description={
+          <Fragment>
+            <span className="landing-text62">
+              Wait for feedback and track your application status in real-time.
+            </span>
+          </Fragment>
+        }
+        step7Description={
+          <Fragment>
+            <span className="landing-text63">
+              Contact us anytime for questions or support throughout your journey.
             </span>
           </Fragment>
         }

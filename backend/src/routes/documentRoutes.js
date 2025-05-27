@@ -1,0 +1,1 @@
+router.get('/:id/check-dependencies', authMiddleware, documentController.checkDocumentDependencies); 

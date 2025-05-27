@@ -60,6 +60,10 @@ module.exports = (sequelize) => {
   });
 
   Document.associate = (models) => {
+    if (!models.User || !models.Application) {
+      throw new Error('Modelele necesare nu sunt disponibile pentru Document.associate');
+    }
+    
     Document.belongsTo(models.User, {
       foreignKey: 'user_id',
       as: 'user'

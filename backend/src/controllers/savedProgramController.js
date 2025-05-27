@@ -53,6 +53,17 @@ exports.getSavedPrograms = async (req, res) => {
       include: [{
         model: Program,
         as: 'program',
+        attributes: [
+          'id',
+          'name',
+          'description',
+          'duration',
+          'degree_type',
+          'language',
+          'tuition_fees',
+          'faculty',
+          'credits'
+        ],
         include: [{
           model: University,
           as: 'university',
@@ -66,7 +77,15 @@ exports.getSavedPrograms = async (req, res) => {
       success: true,
       message: 'Programele salvate au fost preluate cu succes',
       data: savedPrograms.map(sp => ({
-        ...sp.program.toJSON(),
+        id: sp.program.id,
+        name: sp.program.name,
+        description: sp.program.description,
+        duration: sp.program.duration,
+        degree_type: sp.program.degree_type,
+        language: sp.program.language,
+        tuition_fees: sp.program.tuition_fees,
+        faculty: sp.program.faculty,
+        credits: sp.program.credits,
         university: sp.program.university
       })),
       total: savedPrograms.length
