@@ -26,10 +26,9 @@
 }
  
 .sign-in-container2 {
-  width: 100%;
+  width: 50%;
   height: 100%;
   display: flex;
-  align-self: center;
   align-items: center;
   flex-direction: row;
   justify-content: center;
@@ -38,6 +37,7 @@
 .sign-in-sign-up-image {
   width: 100%;
   height: 100%;
+  object-fit: cover;
   overflow: hidden;
 }
  
@@ -268,7 +268,8 @@
   }
   .sign-in-sign-up-image {
     width: 100%;
-    height: 615px;
+    height: 100%;
+    object-fit: cover;
   }
   .sign-in-text10 {
     font-size: 12px;
@@ -323,8 +324,8 @@
   }
   .sign-in-container2 {
     width: 100%;
-    height: var(--dl-size-size-xxlarge);
-    display: none;
+    height: 300px;
+    display: flex;
   }
   .sign-in-form-root {
     width: 100%;
