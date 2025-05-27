@@ -145,8 +145,30 @@
 .sign-in-textinput2 {
   width: 100%;
   padding-top: var(--dl-space-space-halfunit);
+  padding-right: 40px;
   border-color: var(--dl-color-theme-primary1);
   background-color: transparent;
+}
+ 
+.sign-in-button3 {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+  color: var(--dl-color-theme-neutral-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s ease;
+  z-index: 1;
+}
+ 
+.sign-in-button3:hover {
+  color: var(--dl-color-theme-primary1);
 }
  
 .sign-in-link {
@@ -194,13 +216,10 @@
 }
  
 .sign-in-container4 {
-  gap: var(--dl-space-space-unit);
+  position: relative;
   width: 100%;
   display: flex;
-  box-sizing: border-box;
   align-items: center;
-  flex-direction: column;
-  justify-content: flex-end;
 }
  
 .sign-in-button2 {
@@ -233,6 +252,12 @@
   margin-left: 0px;
   margin-right: 0px;
   margin-bottom: 0px;
+}
+ 
+.sign-in-navlink1 {
+  width: 100%;
+  display: block;
+  text-decoration: none;
 }
  
 @media(max-width: 1200px) {

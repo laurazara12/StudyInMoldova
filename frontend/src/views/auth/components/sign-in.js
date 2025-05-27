@@ -9,7 +9,7 @@ import { getCloudinaryImageUrl } from '../../../config/cloudinary'
 
 const SignIn = (props) => {
   const [email, setEmail] = useState(() => {
-    // Încercăm să preluăm email-ul salvat din localStorage
+    // Try to retrieve saved email from localStorage
     return localStorage.getItem('lastEmail') || '';
   });
   const [password, setPassword] = useState('');
@@ -29,7 +29,7 @@ const SignIn = (props) => {
     setLoading(true);
 
     try {      
-      // Ne asigurăm că email-ul este un string
+      // Ensure email is a string
       const emailString = typeof email === 'string' ? email : email.email;
       
       const requestData = {
@@ -45,77 +45,77 @@ const SignIn = (props) => {
         }
       });
 
-      console.log('Răspuns de la server:', response.data);
+      console.log('Server response:', response.data);
 
-      // Verificăm structura răspunsului
+      // Check response structure
       if (!response.data) {
-        throw new Error('Răspuns gol de la server');
+        throw new Error('Empty server response');
       }
 
-      // Verificăm dacă răspunsul are structura corectă
+      // Check if response has correct structure
       if (!response.data.success || !response.data.data) {
-        throw new Error('Format răspuns invalid');
+        throw new Error('Invalid response format');
       }
 
-      // Extragem datele din răspuns
+      // Extract data from response
       const { token, user: userData } = response.data.data;
 
       if (!token) {
-        console.error('Răspuns server:', response.data);
-        throw new Error('Token lipsă din răspunsul serverului');
+        console.error('Server response:', response.data);
+        throw new Error('Missing token in server response');
       }
 
       if (!userData || !userData.id || !userData.email || !userData.role) {
-        console.error('Date utilizator incomplete:', userData);
-        throw new Error('Date utilizator incomplete');
+        console.error('Incomplete user data:', userData);
+        throw new Error('Incomplete user data');
       }
 
-      console.log('Date primite de la server:', { userData, token });
+      console.log('Data received from server:', { userData, token });
 
-      // Salvăm email-ul în localStorage pentru autentificări viitoare
+      // Save email in localStorage for future logins
       localStorage.setItem('lastEmail', emailString.trim());
 
-      // Salvăm token-ul și datele utilizatorului în localStorage
-      console.log('Încercăm să salvăm token-ul în localStorage...');
+      // Save token and user data in localStorage
+      console.log('Attempting to save token in localStorage...');
       localStorage.setItem('token', token);
-      console.log('Token salvat în localStorage:', localStorage.getItem('token'));
+      console.log('Token saved in localStorage:', localStorage.getItem('token'));
       
-      console.log('Încercăm să salvăm datele utilizatorului în localStorage...');
+      console.log('Attempting to save user data in localStorage...');
       localStorage.setItem('user', JSON.stringify(userData));
-      console.log('Date utilizator salvate în localStorage:', localStorage.getItem('user'));
+      console.log('User data saved in localStorage:', localStorage.getItem('user'));
 
-      // Autentificăm utilizatorul prin context
+      // Authenticate user through context
       await login(userData, token);
       
-      // Redirecționăm utilizatorul în funcție de rol
+      // Redirect user based on role
       if (userData.role === 'admin') {
-        console.log('Redirecționare către dashboard pentru admin');
+        console.log('Redirecting to dashboard for admin');
         navigate('/dashboard');
       } else {
-        console.log('Redirecționare către profil pentru utilizator');
+        console.log('Redirecting to profile for user');
         navigate('/profile');
       }
     } catch (error) {
-      console.error('Eroare la autentificare:', error);
+      console.error('Authentication error:', error);
       
       if (error.response) {
-        console.error('Detalii eroare:', {
+        console.error('Error details:', {
           status: error.response.status,
           statusText: error.response.statusText,
           data: error.response.data
         });
         
         if (error.response.status === 401) {
-          setError('Email sau parolă incorectă.');
+          setError('Incorrect email or password.');
         } else {
-          setError(error.response.data?.message || 'A apărut o eroare în timpul autentificării.');
+          setError(error.response.data?.message || 'An error occurred during authentication.');
         }
       } else if (error.request) {
-        console.error('Nu s-a primit răspuns de la server:', error.request);
-        setError('Nu s-a putut conecta la server. Verificați conexiunea la internet.');
+        console.error('No response from server:', error.request);
+        setError('Could not connect to server. Please check your internet connection.');
       } else {
-        console.error('Eroare la configurarea cererii:', error.message);
-        setError('A apărut o eroare în timpul comunicării cu serverul.');
+        console.error('Error configuring request:', error.message);
+        setError('An error occurred while communicating with the server.');
       }
     } finally {
       setLoading(false);
@@ -154,7 +154,7 @@ const SignIn = (props) => {
               {props.heading11 ?? (
                 <Fragment>
                   <span className="sign-in-text19">
-                    Autentificare în Study in Moldova
+                    Sign in to Study in Moldova
                   </span>
                 </Fragment>
               )}
@@ -170,52 +170,60 @@ const SignIn = (props) => {
                   htmlFor="thq-sign-in-6-email"
                   className="thq-body-large sign-in-text12"
                 >
-                  Email
+                  <span>Email</span>
                 </label>
+
                 <input
                   type="email"
                   id="thq-sign-in-6-email"
                   required={true}
-                  placeholder="Adresa de email"
-                  className="sign-in-textinput1 thq-input thq-body-large"
+                  placeholder="Email address"
+                  className="sign-in-textinput1 input-field thq-body-large"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               <div className="sign-in-password">
+                <label
+                  htmlFor="thq-sign-in-6-password"
+                  className="thq-body-large sign-in-text13"
+                >
+                  <span>Password</span>
+                </label>
                 <div className="sign-in-textfield">
-                  <div className="sign-in-container3">
-                    <label
-                      htmlFor="thq-sign-in-6-password"
-                      className="thq-body-large sign-in-text13"
+                  <div className="sign-in-container4">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      id="thq-sign-in-6-password"
+                      required={true}
+                      placeholder="Password"
+                      className="sign-in-textinput2 input-field thq-body-large"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      className="sign-in-button3"
+                      onClick={togglePasswordVisibility}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
                     >
-                      Parolă
-                    </label>
-                    <div className="sign-in-container4">
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        id="thq-sign-in-6-password"
-                        required={true}
-                        placeholder="Parolă"
-                        className="sign-in-textinput2 thq-input thq-body-large"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                      />
-                      <button
-                        type="button"
-                        className="sign-in-button3"
-                        onClick={togglePasswordVisibility}
-                      >
-                        {showPassword ? "Ascunde" : "Arată"}
-                      </button>
-                    </div>
+                      {showPassword ? (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 4.5C7 4.5 2.73 7.61 1 12C2.73 16.39 7 19.5 12 19.5C17 19.5 21.27 16.39 23 12C21.27 7.61 17 4.5 12 4.5ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17ZM12 9C10.34 9 9 10.34 9 12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12C15 10.34 13.66 9 12 9Z" fill="currentColor"/>
+                        </svg>
+                      ) : (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 7C14.76 7 17 9.24 17 12C17 12.65 16.87 13.26 16.64 13.83L19.56 16.75C21.07 15.49 22.26 13.86 22.99 12C21.26 7.61 16.99 4.5 11.99 4.5C10.59 4.5 9.25 4.75 8.01 5.2L10.17 7.36C10.74 7.13 11.35 7 12 7ZM2 4.27L3.28 5.55L3.74 6.01C2.08 7.3 0.78 9 0 11C1.73 15.39 6 18.5 11 18.5C12.55 18.5 14.03 18.2 15.38 17.66L15.8 18.08L19.73 22L21 20.73L3.27 3L2 4.27ZM7.53 9.8L9.08 11.35C9.03 11.56 9 11.78 9 12C9 13.66 10.34 15 12 15C12.22 15 12.44 14.97 12.65 14.92L14.2 16.47C13.53 16.8 12.79 17 12 17C9.24 17 7 14.76 7 12C7 11.21 7.2 10.47 7.53 9.8ZM11.84 9.02L14.99 12.17L15.01 12.01C15.01 10.35 13.67 9.01 12.01 9.01L11.84 9.02Z" fill="currentColor"/>
+                        </svg>
+                      )}
+                    </button>
                   </div>
                 </div>
                 <Link
                   to="/forgot-password"
                   className="sign-in-link thq-body-small"
                 >
-                  Ați uitat parola?
+                  Forgot password?
                 </Link>
               </div>
               <button 
@@ -224,9 +232,9 @@ const SignIn = (props) => {
                 disabled={loading}
               >
                 <span className="sign-in-text15 thq-body-small">
-                  {loading ? "Se încarcă..." : (props.action1 ?? (
+                  {loading ? "Loading..." : (props.action1 ?? (
                     <Fragment>
-                      <span className="sign-in-text19">Autentificare</span>
+                      <span className="sign-in-text19">Sign In</span>
                     </Fragment>
                   ))}
                 </span>
@@ -234,14 +242,14 @@ const SignIn = (props) => {
             </form>
             <div className="sign-in-divider1">
               <div className="sign-in-divider2"></div>
-              <p className="thq-body-large sign-in-text16">SAU</p>
+              <p className="thq-body-large sign-in-text16">OR</p>
               <div className="sign-in-divider3"></div>
             </div>
             <div className="sign-in-container4">
               <Link to="/sign-up" className="sign-in-navlink1">
                 <button className="sign-in-button2 thq-button-outline">
                   <span className="sign-in-text17 thq-body-small">
-                    Creează cont nou
+                    Create new account
                   </span>
                 </button>
               </Link>
@@ -255,7 +263,7 @@ const SignIn = (props) => {
 
 SignIn.defaultProps = {
   rootClassName: '',
-  image1Alt: 'Imagine Autentificare',
+  image1Alt: 'Sign In Image',
   heading11: undefined,
   action1: undefined,
 }
