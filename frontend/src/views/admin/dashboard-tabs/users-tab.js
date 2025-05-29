@@ -23,21 +23,26 @@ const UsersTab = () => {
 
   useEffect(() => {
     loadUsers();
-    loadDocuments();
   }, []);
+
+  useEffect(() => {
+    if (users.length > 0) {
+      loadDocuments();
+    }
+  }, [users]);
 
   const loadUsers = async () => {
     try {
       setLoading(true);
-      console.log('Începe încărcarea utilizatorilor...');
+      console.log('Loading users...');
       const response = await axios.get(`${API_BASE_URL}/api/auth/users`, { 
         headers: getAuthHeaders()
       });
       
-      console.log('Răspuns server utilizatori:', response.data);
+      console.log('Server response users:', response.data);
       
       if (!response.data) {
-        throw new Error('Nu s-au primit date de la server');
+        throw new Error('No data received from server');
       }
 
       let usersData;
@@ -48,15 +53,15 @@ const UsersTab = () => {
       } else if (response.data.users && Array.isArray(response.data.users)) {
         usersData = response.data.users;
       } else {
-        throw new Error('Format invalid al datelor primite');
+        throw new Error('Invalid data format received');
       }
 
-      console.log('Utilizatori procesați:', usersData);
+      console.log('Processed users:', usersData);
       setUsers(usersData);
       setFilteredUsers(usersData);
     } catch (error) {
-      console.error('Eroare la încărcarea utilizatorilor:', error);
-      setError('Eroare la încărcarea utilizatorilor: ' + error.message);
+      console.error('Error loading users:', error);
+      setError('Error loading users: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -69,7 +74,7 @@ const UsersTab = () => {
       });
 
       if (!response.data) {
-        throw new Error('Nu s-au primit date de la server');
+        throw new Error('No data received from server');
       }
 
       let documentsData = [];
@@ -81,10 +86,20 @@ const UsersTab = () => {
         documentsData = response.data.documents;
       }
 
-      const activeDocuments = documentsData.filter(doc => doc.status !== 'deleted');
+      const activeDocuments = documentsData.filter(doc => doc && doc.status !== 'deleted');
       setDocuments(activeDocuments);
+
+      // Actualizăm statusul documentelor pentru fiecare utilizator
+      const updatedDocStatus = {};
+      users.forEach(user => {
+        if (user && user.id) {
+          updatedDocStatus[user.id] = getDocumentStatus(user.id);
+        }
+      });
+      setDocStatus(updatedDocStatus);
     } catch (error) {
-      console.error('Eroare la încărcarea documentelor:', error);
+      console.error('Error loading documents:', error);
+      setError('Error loading documents: ' + error.message);
     }
   };
 
@@ -104,7 +119,12 @@ const UsersTab = () => {
       };
     }
 
-    const userDocuments = documents.filter(doc => doc && doc.user_id === userId && doc.status !== 'deleted');
+    const userDocuments = documents.filter(doc => 
+      doc && 
+      doc.user_id === userId && 
+      doc.status !== 'deleted' &&
+      doc.document_type
+    );
     
     const getStatus = (type) => {
       const doc = userDocuments.find(d => d && d.document_type === type);
@@ -113,18 +133,12 @@ const UsersTab = () => {
         return { ...defaultStatus };
       }
 
-      if (doc && !doc.status) {
-        return {
-          exists: true,
-          status: 'pending',
-          uploadDate: doc.createdAt || doc.uploadDate || null
-        };
-      }
-
       return {
         exists: true,
-        status: doc.status,
-        uploadDate: doc.createdAt || doc.uploadDate || null
+        status: doc.status || 'pending',
+        uploadDate: doc.createdAt || doc.uploadDate || null,
+        filename: doc.filename || null,
+        originalName: doc.originalName || null
       };
     };
 
@@ -137,22 +151,21 @@ const UsersTab = () => {
   };
 
   const getDocumentStatusClass = (status) => {
-    if (!status) return 'status-missing';
-    const normalizedStatus = String(status).toLowerCase();
+    if (!status || typeof status !== 'string') return 'status-missing';
+    const normalizedStatus = status.toLowerCase();
     if (normalizedStatus === 'missing') return 'status-missing';
     return `status-${normalizedStatus}`;
   };
 
   const getDocumentStatusText = (docStatus) => {
-    if (!docStatus) return 'Lipsește';
-    if (!docStatus.exists) return 'Lipsește';
-    if (!docStatus.status) return 'În procesare';
+    if (!docStatus || typeof docStatus !== 'object') return 'Missing';
+    if (!docStatus.exists || !docStatus.status) return 'Missing';
     
-    const status = String(docStatus.status).toLowerCase();
-    return status === 'pending' ? 'În procesare' : 
-           status === 'approved' ? 'Aprobat' :
-           status === 'rejected' ? 'Respinse' : 
-           status === 'missing' ? 'Lipsește' : 'Încărcat';
+    const status = docStatus.status.toLowerCase();
+    return status === 'pending' ? 'Processing' : 
+           status === 'approved' ? 'Approved' :
+           status === 'rejected' ? 'Rejected' : 
+           status === 'missing' ? 'Missing' : 'Uploaded';
   };
 
   const formatDate = (dateString) => {
@@ -181,14 +194,14 @@ const UsersTab = () => {
 
       if (response.data.success) {
         await loadUsers();
-        setSuccessMessage('Utilizatorul a fost șters cu succes!');
+        setSuccessMessage('User was successfully deleted!');
         setTimeout(() => setSuccessMessage(''), 3000);
       } else {
-        throw new Error(response.data.message || 'Eroare la ștergerea utilizatorului');
+        throw new Error(response.data.message || 'Error deleting user');
       }
     } catch (error) {
-      console.error('Eroare la ștergerea utilizatorului:', error);
-      setError('A apărut o eroare la ștergerea utilizatorului. Vă rugăm să încercați din nou.');
+      console.error('Error deleting user:', error);
+      setError('An error occurred while deleting the user. Please try again.');
       setTimeout(() => setError(null), 5000);
     }
   };
@@ -242,7 +255,7 @@ const UsersTab = () => {
             <input
               type="text"
               className="search-input"
-              placeholder="Caută după nume, email sau ID..."
+              placeholder="Search by name, email or ID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -250,15 +263,15 @@ const UsersTab = () => {
         </div>
         <div className="filter-section users-filter">
           <div className="filter-group">
-            <label>Rol:</label>
+            <label>Role:</label>
             <select 
               className="filter-select"
               value={filterRole}
               onChange={(e) => setFilterRole(e.target.value)}
             >
-              <option value="all">Toți</option>
+              <option value="all">All</option>
               <option value="admin">Admin</option>
-              <option value="user">Utilizator</option>
+              <option value="user">User</option>
             </select>
           </div>
           <div className="filter-group">
@@ -268,13 +281,13 @@ const UsersTab = () => {
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
             >
-              <option value="all">Toți</option>
-              <option value="active">Activi</option>
-              <option value="inactive">Inactivi</option>
+              <option value="all">All</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
             </select>
           </div>
           <div className="filter-group">
-            <label>Data:</label>
+            <label>Date:</label>
             <div className="date-range-inputs">
               <input 
                 type="date" 
@@ -282,7 +295,7 @@ const UsersTab = () => {
                 value={filterUserDateRange.start}
                 onChange={(e) => setFilterUserDateRange({...filterUserDateRange, start: e.target.value})}
               />
-              <span>până la</span>
+              <span>to</span>
               <input 
                 type="date" 
                 className="date-input" 
@@ -299,7 +312,7 @@ const UsersTab = () => {
               setFilterUserDateRange({ start: '', end: '' });
             }}
           >
-            Resetează Filtrele
+            Reset Filters
           </button>
           <button 
             className="search-button"
@@ -315,7 +328,7 @@ const UsersTab = () => {
               setFilteredUsers(filtered);
             }}
           >
-            Caută
+            Search
           </button>
         </div>
       </div>
@@ -323,7 +336,7 @@ const UsersTab = () => {
       {loading ? (
         <div className="loading-container">
           <div className="loading-spinner"></div>
-          <p>Se încarcă utilizatorii...</p>
+          <p>Loading users...</p>
         </div>
       ) : error ? (
         <div className="error-message">
@@ -333,7 +346,7 @@ const UsersTab = () => {
             className="retry-button"
             onClick={loadUsers}
           >
-            Reîncearcă
+            Retry
           </button>
         </div>
       ) : (
@@ -342,14 +355,14 @@ const UsersTab = () => {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Nume</th>
+                <th>Name</th>
                 <th>Email</th>
-                <th>Rol</th>
-                <th>Diplomă</th>
+                <th>Role</th>
+                <th>Diploma</th>
                 <th>Transcript</th>
-                <th>Pașaport</th>
-                <th>Fotografie</th>
-                <th>Acțiuni</th>
+                <th>Passport</th>
+                <th>Photo</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -360,10 +373,10 @@ const UsersTab = () => {
                     <td>{user.id}</td>
                     <td>{user.displayName || user.name || 'N/A'}</td>
                     <td>{user.email || 'N/A'}</td>
-                    <td>{user.role === 'admin' ? 'Administrator' : 'Utilizator'}</td>
+                    <td>{user.role === 'admin' ? 'Administrator' : 'User'}</td>
                     <td>
-                      <span className={getDocumentStatusClass(docStatus?.diploma?.status)}>
-                        {getDocumentStatusText(docStatus?.diploma)}
+                      <span className={getDocumentStatusClass(docStatus?.diploma?.status || 'missing')}>
+                        {getDocumentStatusText(docStatus?.diploma || { exists: false, status: 'missing' })}
                         {docStatus?.diploma?.uploadDate && (
                           <span className="upload-date">
                             ({formatDate(docStatus.diploma.uploadDate)})
@@ -372,8 +385,8 @@ const UsersTab = () => {
                       </span>
                     </td>
                     <td>
-                      <span className={getDocumentStatusClass(docStatus?.transcript?.status)}>
-                        {getDocumentStatusText(docStatus?.transcript)}
+                      <span className={getDocumentStatusClass(docStatus?.transcript?.status || 'missing')}>
+                        {getDocumentStatusText(docStatus?.transcript || { exists: false, status: 'missing' })}
                         {docStatus?.transcript?.uploadDate && (
                           <span className="upload-date">
                             ({formatDate(docStatus.transcript.uploadDate)})
@@ -382,8 +395,8 @@ const UsersTab = () => {
                       </span>
                     </td>
                     <td>
-                      <span className={getDocumentStatusClass(docStatus?.passport?.status)}>
-                        {getDocumentStatusText(docStatus?.passport)}
+                      <span className={getDocumentStatusClass(docStatus?.passport?.status || 'missing')}>
+                        {getDocumentStatusText(docStatus?.passport || { exists: false, status: 'missing' })}
                         {docStatus?.passport?.uploadDate && (
                           <span className="upload-date">
                             ({formatDate(docStatus.passport.uploadDate)})
@@ -392,8 +405,8 @@ const UsersTab = () => {
                       </span>
                     </td>
                     <td>
-                      <span className={getDocumentStatusClass(docStatus?.photo?.status)}>
-                        {getDocumentStatusText(docStatus?.photo)}
+                      <span className={getDocumentStatusClass(docStatus?.photo?.status || 'missing')}>
+                        {getDocumentStatusText(docStatus?.photo || { exists: false, status: 'missing' })}
                         {docStatus?.photo?.uploadDate && (
                           <span className="upload-date">
                             ({formatDate(docStatus.photo.uploadDate)})
@@ -407,19 +420,19 @@ const UsersTab = () => {
                           className="btn1"
                           onClick={() => handleViewUser(user)}
                         >
-                          <i className="fas fa-eye"></i> Vezi Utilizator
+                          <i className="fas fa-eye"></i> View User
                         </button>
                         <button 
                           className="btn2"
                           onClick={() => handleViewDocuments(user)}
                         >
-                          <i className="fas fa-file"></i> Vezi Documente
+                          <i className="fas fa-file"></i> View Documents
                         </button>
                         <button 
                           className="btn-delete"
                           onClick={() => confirmDelete(user.id)}
                         >
-                          <i className="fas fa-trash"></i> Șterge
+                          <i className="fas fa-trash"></i> Delete
                         </button>
                       </div>
                     </td>
@@ -435,20 +448,20 @@ const UsersTab = () => {
         <div className="modal-overlay">
           <div className="modal-content user-details-modal">
             <div className="modal-header">
-              <h2>Detalii Utilizator</h2>
+              <h2>User Details</h2>
               <button className="close-button" onClick={closeModals}>
                 <span className="close-x">×</span>
               </button>
             </div>
             <div className="user-details-content">
               <div className="user-details-section">
-                <h3>Informații de Bază</h3>
+                <h3>Basic Information</h3>
                 <div className="detail-row">
                   <span className="detail-label">ID:</span>
                   <span className="detail-value">{selectedUser.id}</span>
                 </div>
                 <div className="detail-row">
-                  <span className="detail-label">Nume:</span>
+                  <span className="detail-label">Name:</span>
                   <span className="detail-value">{selectedUser.name}</span>
                 </div>
                 <div className="detail-row">
@@ -456,47 +469,47 @@ const UsersTab = () => {
                   <span className="detail-value">{selectedUser.email}</span>
                 </div>
                 <div className="detail-row">
-                  <span className="detail-label">Rol:</span>
-                  <span className="detail-value">{selectedUser.role === 'admin' ? 'Administrator' : 'Utilizator'}</span>
+                  <span className="detail-label">Role:</span>
+                  <span className="detail-value">{selectedUser.role === 'admin' ? 'Administrator' : 'User'}</span>
                 </div>
                 <div className="detail-row">
-                  <span className="detail-label">Data înregistrării:</span>
+                  <span className="detail-label">Registration Date:</span>
                   <span className="detail-value">{formatDate(selectedUser.created_at)}</span>
                 </div>
                 <div className="detail-row">
-                  <span className="detail-label">Ultima actualizare:</span>
+                  <span className="detail-label">Last Update:</span>
                   <span className="detail-value">{formatDate(selectedUser.updated_at)}</span>
                 </div>
               </div>
 
               <div className="user-details-section">
-                <h3>Informații Personale</h3>
+                <h3>Personal Information</h3>
                 <div className="detail-row">
-                  <span className="detail-label">Data nașterii:</span>
-                  <span className="detail-value">{selectedUser.date_of_birth ? formatDate(selectedUser.date_of_birth) : 'Nespecificată'}</span>
+                  <span className="detail-label">Date of Birth:</span>
+                  <span className="detail-value">{selectedUser.date_of_birth ? formatDate(selectedUser.date_of_birth) : 'Not specified'}</span>
                 </div>
                 <div className="detail-row">
-                  <span className="detail-label">Țara de origine:</span>
-                  <span className="detail-value">{selectedUser.country_of_origin || 'Nespecificată'}</span>
+                  <span className="detail-label">Country of Origin:</span>
+                  <span className="detail-value">{selectedUser.country_of_origin || 'Not specified'}</span>
                 </div>
                 <div className="detail-row">
-                  <span className="detail-label">Naționalitate:</span>
-                  <span className="detail-value">{selectedUser.nationality || 'Nespecificată'}</span>
+                  <span className="detail-label">Nationality:</span>
+                  <span className="detail-value">{selectedUser.nationality || 'Not specified'}</span>
                 </div>
                 <div className="detail-row">
-                  <span className="detail-label">Număr de telefon:</span>
-                  <span className="detail-value">{selectedUser.phone || 'Nespecificat'}</span>
+                  <span className="detail-label">Phone Number:</span>
+                  <span className="detail-value">{selectedUser.phone || 'Not specified'}</span>
                 </div>
               </div>
 
               <div className="user-details-section">
-                <h3>Status Documente</h3>
+                <h3>Document Status</h3>
                 <div className="document-status-grid">
                   <div className="document-status-item">
-                    <span className="status-label">Diplomă:</span>
-                    <span className={`status-value ${docStatus.diploma.status}`}>
-                      {docStatus.diploma.exists ? 'Încărcat' : 'Lipsește'}
-                      {docStatus.diploma.uploadDate && (
+                    <span className="status-label">Diploma:</span>
+                    <span className={`status-value ${docStatus?.diploma?.status || 'missing'}`}>
+                      {docStatus?.diploma?.exists ? 'Uploaded' : 'Missing'}
+                      {docStatus?.diploma?.uploadDate && (
                         <span className="upload-date">
                           ({formatDate(docStatus.diploma.uploadDate)})
                         </span>
@@ -505,9 +518,9 @@ const UsersTab = () => {
                   </div>
                   <div className="document-status-item">
                     <span className="status-label">Transcript:</span>
-                    <span className={`status-value ${docStatus.transcript.status}`}>
-                      {docStatus.transcript.exists ? 'Încărcat' : 'Lipsește'}
-                      {docStatus.transcript.uploadDate && (
+                    <span className={`status-value ${docStatus?.transcript?.status || 'missing'}`}>
+                      {docStatus?.transcript?.exists ? 'Uploaded' : 'Missing'}
+                      {docStatus?.transcript?.uploadDate && (
                         <span className="upload-date">
                           ({formatDate(docStatus.transcript.uploadDate)})
                         </span>
@@ -515,10 +528,10 @@ const UsersTab = () => {
                     </span>
                   </div>
                   <div className="document-status-item">
-                    <span className="status-label">Pașaport:</span>
-                    <span className={`status-value ${docStatus.passport.status}`}>
-                      {docStatus.passport.exists ? 'Încărcat' : 'Lipsește'}
-                      {docStatus.passport.uploadDate && (
+                    <span className="status-label">Passport:</span>
+                    <span className={`status-value ${docStatus?.passport?.status || 'missing'}`}>
+                      {docStatus?.passport?.exists ? 'Uploaded' : 'Missing'}
+                      {docStatus?.passport?.uploadDate && (
                         <span className="upload-date">
                           ({formatDate(docStatus.passport.uploadDate)})
                         </span>
@@ -526,10 +539,10 @@ const UsersTab = () => {
                     </span>
                   </div>
                   <div className="document-status-item">
-                    <span className="status-label">Fotografie:</span>
-                    <span className={`status-value ${docStatus.photo.status}`}>
-                      {docStatus.photo.exists ? 'Încărcat' : 'Lipsește'}
-                      {docStatus.photo.uploadDate && (
+                    <span className="status-label">Photo:</span>
+                    <span className={`status-value ${docStatus?.photo?.status || 'missing'}`}>
+                      {docStatus?.photo?.exists ? 'Uploaded' : 'Missing'}
+                      {docStatus?.photo?.uploadDate && (
                         <span className="upload-date">
                           ({formatDate(docStatus.photo.uploadDate)})
                         </span>
@@ -540,14 +553,14 @@ const UsersTab = () => {
               </div>
 
               <div className="user-details-section">
-                <h3>Activități Recente</h3>
+                <h3>Recent Activity</h3>
                 <div className="detail-row">
-                  <span className="detail-label">Ultima autentificare:</span>
-                  <span className="detail-value">{selectedUser.last_login ? formatDate(selectedUser.last_login) : 'Nespecificată'}</span>
+                  <span className="detail-label">Last Login:</span>
+                  <span className="detail-value">{selectedUser.last_login ? formatDate(selectedUser.last_login) : 'Not specified'}</span>
                 </div>
                 <div className="detail-row">
-                  <span className="detail-label">Status cont:</span>
-                  <span className="detail-value">{selectedUser.is_active ? 'Activ' : 'Inactiv'}</span>
+                  <span className="detail-label">Account Status:</span>
+                  <span className="detail-value">{selectedUser.is_active ? 'Active' : 'Inactive'}</span>
                 </div>
               </div>
             </div>
@@ -559,7 +572,7 @@ const UsersTab = () => {
         <div className="modal-overlay">
           <div className="modal-content documents-modal">
             <div className="modal-header">
-              <h2>Documente Utilizator</h2>
+              <h2>User Documents</h2>
               <button className="close-button" onClick={closeModals}>
                 <span className="close-x">×</span>
               </button>
@@ -576,27 +589,27 @@ const UsersTab = () => {
           <div className="modal-content">
             <div className="modal-warning">
               <span className="warning-icon">⚠️</span>
-              <h3>ATENȚIE!</h3>
+              <h3>WARNING!</h3>
             </div>
             <p className="modal-message">
-              Sunteți pe cale să ștergeți acest utilizator. 
-              <strong>Această acțiune nu poate fi anulată!</strong>
+              You are about to delete this user. 
+              <strong>This action cannot be undone!</strong>
             </p>
             <p className="modal-details">
-              Toate datele utilizatorului, inclusiv documentele încărcate, vor fi șterse definitiv.
+              All user data, including uploaded documents, will be permanently deleted.
             </p>
             <div className="modal-buttons">
               <button 
                 className="cancel-button"
                 onClick={cancelDelete}
               >
-                Anulează
+                Cancel
               </button>
               <button 
                 className="confirm-button"
                 onClick={() => handleDeleteUser(deleteConfirmation)}
               >
-                Da, șterge utilizatorul
+                Yes, delete user
               </button>
             </div>
           </div>
