@@ -2,7 +2,7 @@ const { Program, University } = require('../models');
 
 exports.getAllPrograms = async (req, res) => {
   try {
-    console.log('Începe obținerea programelor...');
+    console.log('Starting to get programs...');
     const programs = await Program.findAll({
       include: [{
         model: University,
@@ -18,65 +18,39 @@ exports.getAllPrograms = async (req, res) => {
     });
 
     const formattedPrograms = programs.map(program => {
-      // Formatăm durata
-      let formattedDuration = 'N/A';
-      if (program.duration) {
-        formattedDuration = program.duration.includes('ani') ? program.duration : `${program.duration} ani`;
-      }
-
-      // Formatăm taxele de școlarizare
-      let formattedTuitionFees = 'N/A';
-      if (program.tuition_fees) {
-        formattedTuitionFees = `${parseFloat(program.tuition_fees).toFixed(2)} EUR`;
-      }
-
-      // Formatăm limba
-      let formattedLanguage = 'N/A';
-      if (program.language) {
-        formattedLanguage = program.language.toLowerCase();
-        // Capitalizăm prima literă
-        formattedLanguage = formattedLanguage.charAt(0).toUpperCase() + formattedLanguage.slice(1);
-      }
-
       return {
         id: program.id,
         name: program.name || 'N/A',
         description: program.description || 'N/A',
-        duration: formattedDuration,
+        duration: program.duration || 'N/A',
         degree: program.degree || 'N/A',
         degree_type: program.degree_type || 'N/A',
-        language: formattedLanguage,
-        tuition_fees: formattedTuitionFees,
-        credits: program.credits ? `${program.credits} credite` : 'N/A',
+        language: program.language || 'N/A',
+        tuition_fees: program.tuition_fees || 'N/A',
+        credits: program.credits || 'N/A',
         faculty: program.faculty || 'N/A',
         university: program.university ? {
           id: program.university.id,
           name: program.university.name || 'N/A',
           location: program.university.location || 'N/A',
           website: program.university.website || 'N/A'
-        } : {
-          name: 'N/A',
-          location: 'N/A',
-          website: 'N/A'
-        },
-        createdAt: program.createdAt,
-        updatedAt: program.updatedAt
+        } : null
       };
     });
 
-    console.log('Programe formatate:', JSON.stringify(formattedPrograms, null, 2));
+    console.log('Formatted programs:', JSON.stringify(formattedPrograms, null, 2));
 
     res.json({
       success: true,
-      message: 'Programele au fost preluate cu succes',
+      message: 'Programs retrieved successfully',
       data: formattedPrograms,
       total: programs.length
     });
   } catch (error) {
-    console.error('Eroare detaliată la obținerea programelor:', error);
+    console.error('Detailed error getting programs:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la obținerea programelor', 
+      message: 'Error getting programs', 
       error: error.message,
       data: [],
       total: 0
@@ -97,7 +71,7 @@ exports.getProgramById = async (req, res) => {
     if (!program) {
       return res.status(404).json({ 
         success: false,
-        message: 'Programul nu a fost găsit',
+        message: 'Program not found',
         data: null
       });
     }
@@ -111,14 +85,14 @@ exports.getProgramById = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Programul a fost găsit cu succes',
+      message: 'Program found successfully',
       data: formattedProgram
     });
   } catch (error) {
-    console.error('Eroare la obținerea programului:', error);
+    console.error('Error getting program:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la obținerea programului',
+      message: 'Error getting program',
       error: error.message,
       data: null
     });
@@ -146,15 +120,15 @@ exports.getProgramsByUniversity = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Programele universității au fost preluate cu succes',
+      message: 'University programs retrieved successfully',
       data: formattedPrograms,
       total: programs.length
     });
   } catch (error) {
-    console.error('Eroare la obținerea programelor universității:', error);
+    console.error('Error getting university programs:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la obținerea programelor universității',
+      message: 'Error getting university programs',
       error: error.message,
       data: [],
       total: 0
@@ -164,15 +138,15 @@ exports.getProgramsByUniversity = async (req, res) => {
 
 exports.createProgram = async (req, res) => {
   try {
-    console.log('Date primite pentru crearea programului:', req.body);
+    console.log('Received data for program creation:', req.body);
     
-    // Verificăm câmpurile obligatorii
+    // Check required fields
     const requiredFields = ['name', 'university_id'];
     const missingFields = requiredFields.filter(field => !req.body[field]);
     
     if (missingFields.length > 0) {
       return res.status(400).json({
-        message: 'Câmpuri obligatorii lipsă',
+        message: 'Missing required fields',
         missingFields: missingFields
       });
     }
@@ -190,18 +164,18 @@ exports.createProgram = async (req, res) => {
       credits: req.body.credits ? parseInt(req.body.credits) : null
     };
 
-    console.log('Date procesate pentru crearea programului:', programData);
+    console.log('Processed data for program creation:', programData);
 
     const program = await Program.create(programData);
-    console.log('Program creat cu succes:', program.toJSON());
+    console.log('Program created successfully:', program.toJSON());
     
     res.status(201).json({
       success: true,
-      message: 'Programul a fost creat cu succes',
+      message: 'Program created successfully',
       data: program
     });
   } catch (error) {
-    console.error('Eroare detaliată la crearea programului:', {
+    console.error('Detailed error creating program:', {
       message: error.message,
       stack: error.stack,
       data: req.body
@@ -210,7 +184,7 @@ exports.createProgram = async (req, res) => {
     if (error.name === 'SequelizeValidationError') {
       return res.status(400).json({
         success: false,
-        message: 'Eroare de validare',
+        message: 'Validation error',
         errors: error.errors.map(e => ({
           field: e.path,
           message: e.message
@@ -221,13 +195,13 @@ exports.createProgram = async (req, res) => {
     if (error.name === 'SequelizeForeignKeyConstraintError') {
       return res.status(400).json({
         success: false,
-        message: 'Universitatea specificată nu există'
+        message: 'The specified university does not exist'
       });
     }
 
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la crearea programului',
+      message: 'Error creating program',
       error: error.message
     });
   }
@@ -235,9 +209,14 @@ exports.createProgram = async (req, res) => {
 
 exports.updateProgram = async (req, res) => {
   try {
+    console.log('Date primite pentru actualizare:', req.body);
+    
     const program = await Program.findByPk(req.params.id);
     if (!program) {
-      return res.status(404).json({ message: 'Programul nu a fost găsit' });
+      return res.status(404).json({ 
+        success: false,
+        message: 'Programul nu a fost găsit' 
+      });
     }
 
     const programData = {
@@ -252,10 +231,55 @@ exports.updateProgram = async (req, res) => {
       credits: req.body.credits
     };
 
+    console.log('Date procesate pentru actualizare:', programData);
+
     await program.update(programData);
-    res.json(program);
+
+    // Obținem programul actualizat cu toate relațiile
+    const updatedProgram = await Program.findByPk(program.id, {
+      include: [{
+        model: University,
+        as: 'university',
+        attributes: ['id', 'name', 'location', 'website']
+      }]
+    });
+
+    // Formatăm datele pentru răspuns
+    const formattedProgram = {
+      id: updatedProgram.id,
+      name: updatedProgram.name || 'N/A',
+      description: updatedProgram.description || 'N/A',
+      duration: updatedProgram.duration || 'N/A',
+      degree: updatedProgram.degree || 'N/A',
+      degree_type: updatedProgram.degree_type || 'N/A',
+      language: updatedProgram.language || 'N/A',
+      tuition_fees: updatedProgram.tuition_fees || 'N/A',
+      credits: updatedProgram.credits ? `${updatedProgram.credits} credits` : 'N/A',
+      faculty: updatedProgram.faculty || 'N/A',
+      university: updatedProgram.university ? {
+        id: updatedProgram.university.id,
+        name: updatedProgram.university.name || 'N/A',
+        location: updatedProgram.university.location || 'N/A',
+        website: updatedProgram.university.website || 'N/A'
+      } : {
+        name: 'N/A',
+        location: 'N/A',
+        website: 'N/A'
+      }
+    };
+
+    res.json({
+      success: true,
+      message: 'Programul a fost actualizat cu succes',
+      data: formattedProgram
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Eroare la actualizarea programului', error: error.message });
+    console.error('Eroare la actualizarea programului:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Eroare la actualizarea programului', 
+      error: error.message 
+    });
   }
 };
 
@@ -263,11 +287,11 @@ exports.deleteProgram = async (req, res) => {
   try {
     const program = await Program.findByPk(req.params.id);
     if (!program) {
-      return res.status(404).json({ message: 'Programul nu a fost găsit' });
+      return res.status(404).json({ message: 'Program not found' });
     }
     await program.destroy();
-    res.json({ message: 'Programul a fost șters cu succes' });
+    res.json({ message: 'Program deleted successfully' });
   } catch (error) {
-    res.status(500).json({ message: 'Eroare la ștergerea programului', error: error.message });
+    res.status(500).json({ message: 'Error deleting program', error: error.message });
   }
 }; 

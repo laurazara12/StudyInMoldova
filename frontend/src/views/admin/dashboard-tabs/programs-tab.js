@@ -40,50 +40,30 @@ const ProgramsTab = () => {
       const response = await axios.get(`${API_BASE_URL}/api/programs`, {
         headers: getAuthHeaders()
       });
-
-      console.log('Răspuns server programe:', JSON.stringify(response.data, null, 2));
-
-      if (!response.data || typeof response.data !== 'object') {
-        throw new Error('Format invalid al răspunsului de la server');
+      
+      console.log('Răspuns server programe:', response.data);
+      
+      if (!response.data) {
+        throw new Error('Nu s-au primit date de la server');
       }
 
-      if (!response.data.success) {
-        throw new Error(response.data.message || 'Eroare la preluarea programelor');
-      }
-
-      const { data, total } = response.data;
-
-      if (!Array.isArray(data)) {
+      let programsData;
+      if (Array.isArray(response.data)) {
+        programsData = response.data;
+      } else if (response.data.data && Array.isArray(response.data.data)) {
+        programsData = response.data.data;
+      } else if (response.data.programs && Array.isArray(response.data.programs)) {
+        programsData = response.data.programs;
+      } else {
         throw new Error('Format invalid al datelor primite');
       }
 
-      // Formatăm datele
-      const formattedData = data.map(program => ({
-        id: program.id,
-        name: program.name,
-        description: program.description,
-        duration: program.duration,
-        degree_type: program.degree_type,
-        language: program.language,
-        tuition_fees: program.tuition_fees,
-        credits: program.credits,
-        faculty: program.faculty,
-        university: program.university ? {
-          id: program.university.id,
-          name: program.university.name,
-          image_url: program.university.image_url,
-          location: program.university.location,
-          website: program.university.website
-        } : null,
-        createdAt: program.createdAt,
-        updatedAt: program.updatedAt
-      }));
-
-      setPrograms(formattedData);
-      setFilteredPrograms(formattedData);
+      console.log('Programe procesate:', programsData);
+      setPrograms(programsData);
+      setFilteredPrograms(programsData);
     } catch (error) {
       console.error('Eroare la încărcarea programelor:', error);
-      setError(error.message);
+      setError('Eroare la încărcarea programelor: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -125,7 +105,13 @@ const ProgramsTab = () => {
   const handleAddProgram = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/programs`, newProgram, {
+      const programData = {
+        ...newProgram,
+        duration: newProgram.duration.toString(),
+        tuition_fee: newProgram.tuition_fee.toString()
+      };
+
+      const response = await axios.post(`${API_BASE_URL}/api/programs`, programData, {
         headers: getAuthHeaders()
       });
       if (response.data.success) {
@@ -176,9 +162,23 @@ const ProgramsTab = () => {
   const handleUpdateProgram = async (e) => {
     e.preventDefault();
     try {
+      const updatedData = {
+        name: editingProgram.name,
+        description: editingProgram.description,
+        university_id: editingProgram.university_id,
+        degree_type: editingProgram.degree_type,
+        faculty: editingProgram.faculty,
+        credits: editingProgram.credits,
+        language: editingProgram.language,
+        duration: editingProgram.duration?.years ? `${editingProgram.duration.years} ani` : editingProgram.duration,
+        tuition_fees: editingProgram.tuition_fees
+      };
+
+      console.log('Date trimise pentru actualizare:', updatedData);
+
       const response = await axios.put(
         `${API_BASE_URL}/api/programs/${editingProgram.id}`,
-        editingProgram,
+        updatedData,
         { headers: getAuthHeaders() }
       );
 
@@ -193,8 +193,27 @@ const ProgramsTab = () => {
       }
     } catch (error) {
       console.error('Eroare la actualizarea programului:', error);
-      setError('A apărut o eroare la actualizarea programului. Vă rugăm să încercați din nou.');
-      setTimeout(() => setError(null), 5000);
+      setError(error.response?.data?.message || 'A apărut o eroare la actualizarea programului. Vă rugăm să încercați din nou.');
+    }
+  };
+
+  const handleEditProgramChange = (e) => {
+    const { name, value } = e.target;
+    
+    if (name.includes('.')) {
+      const [parent, child] = name.split('.');
+      setEditingProgram(prev => ({
+        ...prev,
+        [parent]: {
+          ...prev[parent],
+          [child]: value
+        }
+      }));
+    } else {
+      setEditingProgram(prev => ({
+        ...prev,
+        [name]: value
+      }));
     }
   };
 
@@ -340,25 +359,28 @@ const ProgramsTab = () => {
               {filteredPrograms.map(program => (
                 <tr key={program.id}>
                   <td>{program.id}</td>
-                  <td>{program.name}</td>
-                  <td>{program.degree_type}</td>
-                  <td>{program.duration}</td>
-                  <td>{program.language}</td>
-                  <td>{program.tuition_fees}</td>
+                  <td>{program.name || 'N/A'}</td>
+                  <td>{program.degree_type || program.degree || 'N/A'}</td>
+                  <td>{program.duration || 'N/A'}</td>
+                  <td>{program.language === 'Ro' ? 'Română' : 
+                       program.language === 'En' ? 'Engleză' : 
+                       program.language === 'Ru' ? 'Rusă' : 
+                       program.language || 'N/A'}</td>
+                  <td>{program.tuition_fees || 'N/A'}</td>
                   <td>{program.university?.name || 'N/A'}</td>
                   <td>
                     <div className="action-buttons">
                       <button 
                         onClick={() => handleEditProgram(program)} 
-                        className="edit-button"
+                        className="btn1"
                       >
-                        Editează
+                        <i className="fas fa-edit"></i> Edit
                       </button>
                       <button 
                         onClick={() => handleDeleteProgram(program.id)} 
-                        className="delete-button"
+                        className="btn-delete"
                       >
-                        Șterge
+                        <i className="fas fa-trash"></i> Delete
                       </button>
                     </div>
                   </td>
@@ -472,8 +494,8 @@ const ProgramsTab = () => {
                 />
               </div>
               <div className="button-group">
-                <button type="submit" className="save-button">Salvează</button>
-                <button type="button" onClick={handleCloseAddProgramForm} className="cancel-button">Anulează</button>
+                <button type="submit" className="btn1">Save</button>
+                <button type="button" onClick={handleCloseAddProgramForm} className="btn-grey-2">Cancel</button>
               </div>
             </form>
           </div>
@@ -491,12 +513,8 @@ const ProgramsTab = () => {
                   <input
                     type="text"
                     name="name"
-                    value={editingProgram.name}
-                    onChange={(e) => setEditingProgram({
-                      ...editingProgram,
-                      name: e.target.value
-                    })}
-                    required
+                    value={editingProgram.name || ''}
+                    onChange={handleEditProgramChange}
                     className="form-input"
                   />
                 </div>
@@ -505,12 +523,8 @@ const ProgramsTab = () => {
                   <label>Grad:</label>
                   <select
                     name="degree_type"
-                    value={editingProgram.degree_type}
-                    onChange={(e) => setEditingProgram({
-                      ...editingProgram,
-                      degree_type: e.target.value
-                    })}
-                    required
+                    value={editingProgram.degree_type || ''}
+                    onChange={handleEditProgramChange}
                     className="form-select"
                   >
                     <option value="">Selectează gradul</option>
@@ -528,10 +542,7 @@ const ProgramsTab = () => {
                     type="text"
                     name="faculty"
                     value={editingProgram.faculty || ''}
-                    onChange={(e) => setEditingProgram({
-                      ...editingProgram,
-                      faculty: e.target.value
-                    })}
+                    onChange={handleEditProgramChange}
                     className="form-input"
                   />
                 </div>
@@ -539,13 +550,10 @@ const ProgramsTab = () => {
                 <div className="form-group">
                   <label>Credite:</label>
                   <input
-                    type="number"
+                    type="text"
                     name="credits"
                     value={editingProgram.credits || ''}
-                    onChange={(e) => setEditingProgram({
-                      ...editingProgram,
-                      credits: e.target.value
-                    })}
+                    onChange={handleEditProgramChange}
                     className="form-input"
                   />
                 </div>
@@ -555,30 +563,23 @@ const ProgramsTab = () => {
                 <div className="form-group">
                   <label>Durată (ani):</label>
                   <input
-                    type="number"
+                    type="text"
                     name="duration"
-                    min="1"
-                    max="6"
-                    value={editingProgram.duration}
-                    onChange={(e) => setEditingProgram({
-                      ...editingProgram,
-                      duration: e.target.value
-                    })}
-                    required
+                    value={editingProgram.duration || ''}
+                    onChange={handleEditProgramChange}
                     className="form-input"
+                    placeholder="ex: 3 ani"
                   />
                 </div>
+              </div>
 
+              <div className="form-row">
                 <div className="form-group">
                   <label>Limbă predare:</label>
                   <select
                     name="language"
-                    value={editingProgram.language}
-                    onChange={(e) => setEditingProgram({
-                      ...editingProgram,
-                      language: e.target.value
-                    })}
-                    required
+                    value={editingProgram.language || ''}
+                    onChange={handleEditProgramChange}
                     className="form-select"
                   >
                     <option value="">Selectează limba</option>
@@ -593,11 +594,8 @@ const ProgramsTab = () => {
                 <label>Descriere:</label>
                 <textarea
                   name="description"
-                  value={editingProgram.description}
-                  onChange={(e) => setEditingProgram({
-                    ...editingProgram,
-                    description: e.target.value
-                  })}
+                  value={editingProgram.description || ''}
+                  onChange={handleEditProgramChange}
                   className="form-textarea"
                   rows="4"
                 />
@@ -609,26 +607,21 @@ const ProgramsTab = () => {
                   <input
                     type="text"
                     name="tuition_fees"
-                    value={editingProgram.tuition_fees}
-                    onChange={(e) => setEditingProgram({
-                      ...editingProgram,
-                      tuition_fees: e.target.value
-                    })}
-                    required
+                    value={editingProgram.tuition_fees || ''}
+                    onChange={handleEditProgramChange}
                     className="form-input"
+                    placeholder="ex: 2000 EUR/an"
                   />
                 </div>
+              </div>
 
+              <div className="form-row">
                 <div className="form-group">
                   <label>Universitate:</label>
                   <select
                     name="university_id"
-                    value={editingProgram.university_id}
-                    onChange={(e) => setEditingProgram({
-                      ...editingProgram,
-                      university_id: e.target.value
-                    })}
-                    required
+                    value={editingProgram.university_id || ''}
+                    onChange={handleEditProgramChange}
                     className="form-select"
                   >
                     <option value="">Selectează universitatea</option>
@@ -644,16 +637,16 @@ const ProgramsTab = () => {
               <div className="modal-buttons">
                 <button
                   type="button"
-                  className="cancel-button"
+                  className="btn-grey-2"
                   onClick={() => {
                     setShowEditProgramForm(false);
                     setEditingProgram(null);
                   }}
                 >
-                  Anulează
+                  Cancel
                 </button>
-                <button type="submit" className="confirm-button">
-                  Salvează modificările
+                <button type="submit" className="btn1">
+                  Save Changes
                 </button>
               </div>
             </form>
