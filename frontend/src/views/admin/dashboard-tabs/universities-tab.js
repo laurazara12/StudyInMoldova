@@ -59,13 +59,16 @@ const UniversitiesTab = () => {
       }
 
       let universitiesData;
-      if (Array.isArray(response.data)) {
+      if (response.data.success && response.data.data) {
+        universitiesData = response.data.data;
+      } else if (Array.isArray(response.data)) {
         universitiesData = response.data;
       } else if (response.data.data && Array.isArray(response.data.data)) {
         universitiesData = response.data.data;
       } else if (response.data.universities && Array.isArray(response.data.universities)) {
         universitiesData = response.data.universities;
       } else {
+        console.error('Format invalid al datelor primite:', response.data);
         throw new Error('Format invalid al datelor primite');
       }
 
@@ -127,34 +130,83 @@ const UniversitiesTab = () => {
     setDeleteConfirmation(universityId);
   };
 
+  const handleEditUniversityChange = (e) => {
+    const { name, value } = e.target;
+    
+    if (name.includes('.')) {
+      const [parent, child] = name.split('.');
+      setEditingUniversity(prev => ({
+        ...prev,
+        [parent]: {
+          ...prev[parent],
+          [child]: value
+        }
+      }));
+    } else {
+      setEditingUniversity(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+  };
+
   const handleUpdateUniversity = async (e) => {
     e.preventDefault();
     try {
+      console.log('Începe actualizarea universității:', editingUniversity);
+      
+      // Pregătim datele pentru actualizare
+      const updateData = {
+        name: editingUniversity.name,
+        type: editingUniversity.type,
+        description: editingUniversity.description || '',
+        location: editingUniversity.location,
+        image_url: editingUniversity.image_url || '',
+        website: editingUniversity.website || '',
+        ranking: editingUniversity.ranking || '',
+        tuition_fees: {
+          bachelor: editingUniversity.tuition_fees?.bachelor || null,
+          master: editingUniversity.tuition_fees?.master || null,
+          phd: editingUniversity.tuition_fees?.phd || null
+        },
+        contact_info: {
+          email: editingUniversity.contact_info?.email || null,
+          phone: editingUniversity.contact_info?.phone || null,
+          address: editingUniversity.contact_info?.address || null
+        }
+      };
+
+      console.log('Date trimise la server:', updateData);
+
       const response = await axios.put(
         `${API_BASE_URL}/api/universities/${editingUniversity.id}`,
-        editingUniversity,
-        { headers: getAuthHeaders() }
+        updateData,
+        { 
+          headers: {
+            ...getAuthHeaders(),
+            'Content-Type': 'application/json'
+          }
+        }
       );
 
-      if (response.data.success) {
+      console.log('Răspuns server:', response.data);
+
+      // Verificăm dacă răspunsul este un obiect valid
+      if (response.data && typeof response.data === 'object') {
         await loadUniversities();
         setIsModalOpen(false);
         setEditingUniversity(null);
         setSuccessMessage('Universitatea a fost actualizată cu succes!');
         setTimeout(() => setSuccessMessage(''), 3000);
+      } else {
+        throw new Error('Format invalid al răspunsului de la server');
       }
     } catch (error) {
-      console.error('Eroare la actualizarea universității:', error);
-      setError('A apărut o eroare la actualizarea universității. Vă rugăm să încercați din nou.');
+      console.error('Eroare detaliată la actualizarea universității:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'A apărut o eroare la actualizarea universității. Vă rugăm să încercați din nou.';
+      setError(errorMessage);
+      // Nu închidem modalul în caz de eroare
     }
-  };
-
-  const handleEditUniversityChange = (e) => {
-    const { name, value } = e.target;
-    setEditingUniversity(prev => ({
-      ...prev,
-      [name]: value
-    }));
   };
 
   const handleCloseModal = () => {
@@ -581,7 +633,6 @@ const UniversitiesTab = () => {
                       value={editingUniversity.name || ''}
                       onChange={handleEditUniversityChange}
                       placeholder="Introduceți numele universității"
-                      required
                       className="form-input"
                     />
                   </div>
@@ -591,7 +642,6 @@ const UniversitiesTab = () => {
                       name="type"
                       value={editingUniversity.type || ''}
                       onChange={handleEditUniversityChange}
-                      required
                       className="form-select"
                     >
                       <option value="">Selectați tipul</option>
@@ -606,7 +656,6 @@ const UniversitiesTab = () => {
                       value={editingUniversity.description || ''}
                       onChange={handleEditUniversityChange}
                       placeholder="Introduceți descrierea universității"
-                      required
                       className="form-textarea"
                     />
                   </div>
@@ -616,7 +665,6 @@ const UniversitiesTab = () => {
                       name="location"
                       value={editingUniversity.location || ''}
                       onChange={handleEditUniversityChange}
-                      required
                       className="form-select"
                     >
                       <option value="">Selectați locația</option>
@@ -645,7 +693,6 @@ const UniversitiesTab = () => {
                       value={editingUniversity.website || ''}
                       onChange={handleEditUniversityChange}
                       placeholder="Introduceți adresa website-ului"
-                      required
                       className="form-input"
                     />
                   </div>
@@ -747,6 +794,10 @@ const UniversitiesTab = () => {
                     <button 
                       type="submit" 
                       className="save-button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleUpdateUniversity(e);
+                      }}
                     >
                       Salvează
                     </button>
