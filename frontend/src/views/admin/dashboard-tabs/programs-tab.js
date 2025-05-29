@@ -106,19 +106,30 @@ const ProgramsTab = () => {
     e.preventDefault();
     try {
       const programData = {
-        ...newProgram,
-        duration: newProgram.duration.toString(),
-        tuition_fee: newProgram.tuition_fee.toString()
+        name: newProgram.name,
+        description: newProgram.description,
+        university_id: newProgram.university_id,
+        degree_type: newProgram.degree,
+        language: newProgram.language,
+        duration: `${newProgram.duration} years`,
+        tuition_fees: newProgram.tuition_fee,
+        start_date: newProgram.start_date,
+        application_deadline: newProgram.application_deadline
       };
+
+      console.log('Date trimise pentru creare:', programData);
 
       const response = await axios.post(`${API_BASE_URL}/api/programs`, programData, {
         headers: getAuthHeaders()
       });
+
       if (response.data.success) {
-        setPrograms([...programs, response.data.data]);
+        await loadPrograms();
         handleCloseAddProgramForm();
         setSuccessMessage('Programul a fost adăugat cu succes!');
         setTimeout(() => setSuccessMessage(''), 3000);
+      } else {
+        throw new Error(response.data.message || 'Eroare la adăugarea programului');
       }
     } catch (error) {
       console.error('Eroare la adăugarea programului:', error);
@@ -239,7 +250,7 @@ const ProgramsTab = () => {
             <input
               type="text"
               className="search-input"
-              placeholder="Caută după nume sau descriere..."
+              placeholder="Search by name or description..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -248,33 +259,33 @@ const ProgramsTab = () => {
 
         <div className="filter-section programs-filter">
           <div className="filter-group">
-            <label>Grad:</label>
+            <label>Degree:</label>
             <select
               value={filterDegree}
               onChange={(e) => setFilterDegree(e.target.value)}
               className="filter-select"
             >
-              <option value="all">Toate gradele</option>
+              <option value="all">All Degrees</option>
               <option value="Bachelor">Bachelor</option>
               <option value="Master">Master</option>
               <option value="PhD">PhD</option>
             </select>
           </div>
           <div className="filter-group">
-            <label>Limbă:</label>
+            <label>Language:</label>
             <select
               value={filterLanguage}
               onChange={(e) => setFilterLanguage(e.target.value)}
               className="filter-select"
             >
-              <option value="">Toate limbile</option>
-              <option value="Romanian">Română</option>
-              <option value="English">Engleză</option>
-              <option value="Russian">Rusă</option>
+              <option value="">All Languages</option>
+              <option value="Romanian">Romanian</option>
+              <option value="English">English</option>
+              <option value="Russian">Russian</option>
             </select>
           </div>
           <div className="filter-group">
-            <label>Taxă școlară:</label>
+            <label>Tuition Fee:</label>
             <div className="range-inputs">
               <input
                 type="number"
@@ -303,13 +314,13 @@ const ProgramsTab = () => {
               setFilteredPrograms(programs);
             }}
           >
-            Resetează filtrele
+            Reset Filters
           </button>
           <button 
             className="search-button"
             onClick={handleSearch}
           >
-            Caută
+            Search
           </button>
         </div>
       </div>
@@ -319,7 +330,7 @@ const ProgramsTab = () => {
           className="btn1"
           onClick={handleOpenAddProgramForm}
         >
-          Adaugă Program
+          Add Program
         </button>
       </div>
 
@@ -338,7 +349,7 @@ const ProgramsTab = () => {
       {loading ? (
         <div className="loading-container">
           <div className="loading-spinner"></div>
-          <p>Se încarcă programele...</p>
+          <p>Loading programs...</p>
         </div>
       ) : (
         <div className="programs-table-container">
@@ -346,13 +357,13 @@ const ProgramsTab = () => {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Nume</th>
-                <th>Grad</th>
-                <th>Durată</th>
-                <th>Limbă</th>
-                <th>Taxă școlară</th>
-                <th>Universitate</th>
-                <th>Acțiuni</th>
+                <th>Name</th>
+                <th>Degree</th>
+                <th>Duration</th>
+                <th>Language</th>
+                <th>Tuition Fee</th>
+                <th>University</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -362,9 +373,9 @@ const ProgramsTab = () => {
                   <td>{program.name || 'N/A'}</td>
                   <td>{program.degree_type || program.degree || 'N/A'}</td>
                   <td>{program.duration || 'N/A'}</td>
-                  <td>{program.language === 'Ro' ? 'Română' : 
-                       program.language === 'En' ? 'Engleză' : 
-                       program.language === 'Ru' ? 'Rusă' : 
+                  <td>{program.language === 'Ro' ? 'Romanian' : 
+                       program.language === 'En' ? 'English' : 
+                       program.language === 'Ru' ? 'Russian' : 
                        program.language || 'N/A'}</td>
                   <td>{program.tuition_fees || 'N/A'}</td>
                   <td>{program.university?.name || 'N/A'}</td>
@@ -392,110 +403,138 @@ const ProgramsTab = () => {
       )}
 
       {showAddProgramForm && (
-        <div className="modal">
-          <div className="modal-content">
-            <h2>Adaugă Program Nou</h2>
+        <div className="modal-overlay">
+          <div className="modal-content program-modal">
+            <h2>Add New Program</h2>
             <form onSubmit={handleAddProgram}>
-              <div className="form-group">
-                <label>Nume Program:</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={newProgram.name}
-                  onChange={handleNewProgramChange}
-                  required
-                />
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Program Name:</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={newProgram.name}
+                    onChange={handleNewProgramChange}
+                    className="form-input"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>University:</label>
+                  <select
+                    name="university_id"
+                    value={newProgram.university_id}
+                    onChange={handleNewProgramChange}
+                    className="form-select"
+                    required
+                  >
+                    <option value="">Select University</option>
+                    {universities.map(uni => (
+                      <option key={uni.id} value={uni.id}>{uni.name}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Degree:</label>
+                  <select
+                    name="degree"
+                    value={newProgram.degree}
+                    onChange={handleNewProgramChange}
+                    className="form-select"
+                    required
+                  >
+                    <option value="">Select Degree</option>
+                    <option value="Bachelor">Bachelor</option>
+                    <option value="Master">Master</option>
+                    <option value="PhD">PhD</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Tuition Fee (EUR):</label>
+                  <input
+                    type="number"
+                    name="tuition_fee"
+                    value={newProgram.tuition_fee}
+                    onChange={handleNewProgramChange}
+                    className="form-input"
+                    placeholder="Enter amount in EUR"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Duration (years):</label>
+                  <input
+                    type="number"
+                    name="duration"
+                    value={newProgram.duration}
+                    onChange={handleNewProgramChange}
+                    className="form-input"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Language:</label>
+                  <select
+                    name="language"
+                    value={newProgram.language}
+                    onChange={handleNewProgramChange}
+                    className="form-select"
+                    required
+                  >
+                    <option value="">Select Language</option>
+                    <option value="Romanian">Romanian</option>
+                    <option value="English">English</option>
+                    <option value="Russian">Russian</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Start Date:</label>
+                  <input
+                    type="date"
+                    name="start_date"
+                    value={newProgram.start_date}
+                    onChange={handleNewProgramChange}
+                    className="form-input"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Application Deadline:</label>
+                  <input
+                    type="date"
+                    name="application_deadline"
+                    value={newProgram.application_deadline}
+                    onChange={handleNewProgramChange}
+                    className="form-input"
+                    required
+                  />
+                </div>
+              </div>
+
               <div className="form-group">
-                <label>Descriere:</label>
+                <label>Description:</label>
                 <textarea
                   name="description"
                   value={newProgram.description}
                   onChange={handleNewProgramChange}
+                  className="form-textarea"
+                  rows="4"
                   required
                 />
               </div>
-              <div className="form-group">
-                <label>Universitate:</label>
-                <select
-                  name="university_id"
-                  value={newProgram.university_id}
-                  onChange={handleNewProgramChange}
-                  required
-                >
-                  <option value="">Selectează universitatea</option>
-                  {universities.map(uni => (
-                    <option key={uni.id} value={uni.id}>{uni.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Durată (ani):</label>
-                <input
-                  type="number"
-                  name="duration"
-                  value={newProgram.duration}
-                  onChange={handleNewProgramChange}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Grad:</label>
-                <select
-                  name="degree"
-                  value={newProgram.degree}
-                  onChange={handleNewProgramChange}
-                  required
-                >
-                  <option value="">Selectează gradul</option>
-                  <option value="Bachelor">Bachelor</option>
-                  <option value="Master">Master</option>
-                  <option value="PhD">PhD</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Limbă:</label>
-                <input
-                  type="text"
-                  name="language"
-                  value={newProgram.language}
-                  onChange={handleNewProgramChange}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Taxă Școlară:</label>
-                <input
-                  type="number"
-                  name="tuition_fee"
-                  value={newProgram.tuition_fee}
-                  onChange={handleNewProgramChange}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Data de început:</label>
-                <input
-                  type="date"
-                  name="start_date"
-                  value={newProgram.start_date}
-                  onChange={handleNewProgramChange}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Termen limită aplicare:</label>
-                <input
-                  type="date"
-                  name="application_deadline"
-                  value={newProgram.application_deadline}
-                  onChange={handleNewProgramChange}
-                  required
-                />
-              </div>
-              <div className="button-group">
-                <button type="submit" className="btn1">Save</button>
+
+              <div className="modal-buttons">
                 <button type="button" onClick={handleCloseAddProgramForm} className="btn-grey-2">Cancel</button>
+                <button type="submit" className="btn1">Save</button>
               </div>
             </form>
           </div>
@@ -505,11 +544,11 @@ const ProgramsTab = () => {
       {showEditProgramForm && editingProgram && (
         <div className="modal-overlay">
           <div className="modal-content program-modal">
-            <h2>Editează Program</h2>
+            <h2>Edit Program</h2>
             <form onSubmit={handleUpdateProgram} className="program-form">
               <div className="form-row">
                 <div className="form-group">
-                  <label>Nume Program:</label>
+                  <label>Program Name:</label>
                   <input
                     type="text"
                     name="name"
@@ -520,14 +559,14 @@ const ProgramsTab = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Grad:</label>
+                  <label>Degree:</label>
                   <select
                     name="degree_type"
                     value={editingProgram.degree_type || ''}
                     onChange={handleEditProgramChange}
                     className="form-select"
                   >
-                    <option value="">Selectează gradul</option>
+                    <option value="">Select Degree</option>
                     <option value="Bachelor">Bachelor</option>
                     <option value="Master">Master</option>
                     <option value="PhD">PhD</option>
@@ -537,7 +576,7 @@ const ProgramsTab = () => {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Facultate:</label>
+                  <label>Faculty:</label>
                   <input
                     type="text"
                     name="faculty"
@@ -548,7 +587,7 @@ const ProgramsTab = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Credite:</label>
+                  <label>Credits:</label>
                   <input
                     type="text"
                     name="credits"
@@ -561,37 +600,37 @@ const ProgramsTab = () => {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Durată (ani):</label>
+                  <label>Duration (years):</label>
                   <input
                     type="text"
                     name="duration"
                     value={editingProgram.duration || ''}
                     onChange={handleEditProgramChange}
                     className="form-input"
-                    placeholder="ex: 3 ani"
+                    placeholder="ex: 3 years"
                   />
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Limbă predare:</label>
+                  <label>Language:</label>
                   <select
                     name="language"
                     value={editingProgram.language || ''}
                     onChange={handleEditProgramChange}
                     className="form-select"
                   >
-                    <option value="">Selectează limba</option>
-                    <option value="Romanian">Română</option>
-                    <option value="English">Engleză</option>
-                    <option value="Russian">Rusă</option>
+                    <option value="">Select Language</option>
+                    <option value="Romanian">Romanian</option>
+                    <option value="English">English</option>
+                    <option value="Russian">Russian</option>
                   </select>
                 </div>
               </div>
 
               <div className="form-group">
-                <label>Descriere:</label>
+                <label>Description:</label>
                 <textarea
                   name="description"
                   value={editingProgram.description || ''}
@@ -603,28 +642,28 @@ const ProgramsTab = () => {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Taxă școlară:</label>
+                  <label>Tuition Fee:</label>
                   <input
                     type="text"
                     name="tuition_fees"
                     value={editingProgram.tuition_fees || ''}
                     onChange={handleEditProgramChange}
                     className="form-input"
-                    placeholder="ex: 2000 EUR/an"
+                    placeholder="ex: 2000 EUR/year"
                   />
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Universitate:</label>
+                  <label>University:</label>
                   <select
                     name="university_id"
                     value={editingProgram.university_id || ''}
                     onChange={handleEditProgramChange}
                     className="form-select"
                   >
-                    <option value="">Selectează universitatea</option>
+                    <option value="">Select University</option>
                     {universities.map(university => (
                       <option key={university.id} value={university.id}>
                         {university.name}
