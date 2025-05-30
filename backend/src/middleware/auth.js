@@ -87,21 +87,17 @@ const applicationAuth = async (req, res, next) => {
   try {
     await auth(req, res, () => {
       console.log('Verificare acces aplicații:', {
-        userId: req.user.id,
-        userRole: req.user.role
+        userId: req.userId,
+        userRole: req.userRole
       });
 
-      if (req.user.role !== 'admin' && req.user.role !== 'student') {
-        console.log('Acces refuzat - rol invalid:', req.user.role);
+      if (req.userRole !== 'admin' && req.userRole !== 'student') {
+        console.log('Acces refuzat - rol invalid:', req.userRole);
         return res.status(403).json({
           success: false,
           message: 'Acces interzis. Drepturi de administrator sau student necesare.'
         });
       }
-
-      // Adăugăm userId în request pentru a fi folosit în controller
-      req.userId = req.user.id;
-      req.userRole = req.user.role;
       
       console.log('Acces permis pentru:', {
         userId: req.userId,

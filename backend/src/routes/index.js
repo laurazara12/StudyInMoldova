@@ -6,6 +6,7 @@ const universitiesRouter = require('./universities');
 const notificationRoutes = require('./notificationRoutes');
 const applicationsRouter = require('./applications');
 const helpYouChooseRoutes = require('./helpYouChooseRoutes');
+const paymentRoutes = require('./payment.routes');
 
 const setupRoutes = (app) => {
   // Rute API
@@ -17,6 +18,7 @@ const setupRoutes = (app) => {
   app.use('/api/notifications', notificationRoutes);
   app.use('/api/applications', applicationsRouter);
   app.use('/api/help-you-choose', helpYouChooseRoutes);
+  app.use('/api/payments', paymentRoutes);
 
   // Logging pentru rute înregistrate
   console.log('Registered API routes:');

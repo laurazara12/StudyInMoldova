@@ -18,10 +18,12 @@ const ApplicationTab = () => {
     program_id: '',
     motivation_letter: '',
     selectedDocuments: [], // Documente selectate din lista existentă
+    is_paid: false, // Starea plății
     errors: {
       program: '',
       documents: '',
-      motivation_letter: ''
+      motivation_letter: '',
+      payment: ''
     }
   });
   const [savedPrograms, setSavedPrograms] = useState([]);
@@ -82,8 +84,18 @@ const ApplicationTab = () => {
         throw new Error('Format invalid al datelor primite: datele nu sunt un array');
       }
 
-      console.log('Aplicații procesate:', applicationsData);
-      setApplications(applicationsData);
+      // Asigurăm-ne că fiecare aplicație are toate câmpurile necesare
+      const processedApplications = applicationsData.map(app => ({
+        ...app,
+        documents: app.documents || [],
+        program: app.program || {},
+        created_at: app.created_at || new Date().toISOString(),
+        status: app.status || 'draft',
+        is_paid: app.is_paid || false
+      }));
+
+      console.log('Aplicații procesate:', processedApplications);
+      setApplications(processedApplications);
     } catch (error) {
       console.error('Eroare la încărcarea aplicațiilor:', error);
       setError('A apărut o eroare la încărcarea aplicațiilor. Vă rugăm să încercați din nou.');
@@ -123,22 +135,19 @@ const ApplicationTab = () => {
     const errors = {
       program: '',
       documents: '',
-      motivation_letter: ''
+      motivation_letter: '',
+      payment: ''
     };
     let isValid = true;
 
-    if (!newApplication.program_id) {
-      errors.program = 'Vă rugăm să selectați un program';
+    // Verificăm doar dacă câmpurile modificate sunt valide
+    if (newApplication.program_id && !newApplication.program_id) {
+      errors.program = 'Programul selectat nu este valid';
       isValid = false;
     }
 
-    if (newApplication.selectedDocuments.length === 0) {
-      errors.documents = 'Vă rugăm să selectați cel puțin un document';
-      isValid = false;
-    }
-
-    if (!newApplication.motivation_letter.trim()) {
-      errors.motivation_letter = 'Vă rugăm să scrieți o scrisoare de motivație';
+    if (newApplication.motivation_letter && !newApplication.motivation_letter.trim()) {
+      errors.motivation_letter = 'Scrisoarea de motivație nu poate fi goală';
       isValid = false;
     }
 
@@ -149,6 +158,133 @@ const ApplicationTab = () => {
 
     return isValid;
   };
+
+  const validateForSubmission = (application) => {
+    if (!application.is_paid) {
+      setError('Trebuie să plătiți taxa de aplicare pentru a trimite aplicația');
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmitApplication = async (applicationId) => {
+    const application = applications.find(app => app.id === applicationId);
+    
+    if (!validateForSubmission(application)) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await axios.patch(
+        `${API_BASE_URL}/api/applications/${applicationId}/status`,
+        {
+          status: 'submitted'
+        },
+        {
+          headers: getAuthHeaders()
+        }
+      );
+
+      if (response.data.success) {
+        setSuccessMessage('Aplicația a fost trimisă cu succes!');
+        setShowApplicationDetails(false);
+        setSelectedApplication(null);
+        await loadUserApplications();
+      } else {
+        throw new Error(response.data.message || 'Eroare la trimiterea aplicației');
+      }
+    } catch (error) {
+      console.error('Eroare la trimiterea aplicației:', error);
+      setError(error.response?.data?.message || 'A apărut o eroare la trimiterea aplicației');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditApplication = async (application) => {
+    try {
+      console.log('Începe editarea aplicației:', application);
+      setLoading(true);
+      setError(null);
+
+      // Încărcăm datele complete ale aplicației
+      const response = await axios.get(
+        `${API_BASE_URL}/api/applications/${application.id}`,
+        {
+          headers: getAuthHeaders()
+        }
+      );
+
+      console.log('Răspuns de la server:', response.data);
+
+      if (response.data.success) {
+        const fullApplication = response.data.data;
+        console.log('Date aplicație încărcate:', fullApplication);
+        
+        // Setăm aplicația selectată
+        setSelectedApplication(fullApplication);
+        
+        // Setăm datele în formular
+        const formData = {
+          program_id: fullApplication.program_id,
+          motivation_letter: fullApplication.motivation_letter || '',
+          selectedDocuments: fullApplication.documents?.map(doc => doc.id) || [],
+          is_paid: fullApplication.is_paid || false,
+          errors: {
+            program: '',
+            documents: '',
+            motivation_letter: '',
+            payment: ''
+          }
+        };
+        
+        console.log('Date pentru formular:', formData);
+        setNewApplication(formData);
+        
+        // Afișăm formularul și închidem detaliile dacă sunt deschise
+        setShowCreateForm(true);
+        setShowApplicationDetails(false);
+        
+        // Verificăm dacă datele au fost setate corect
+        console.log('Starea după setare:', {
+          selectedApplication: fullApplication,
+          newApplication: formData,
+          showCreateForm: true
+        });
+      } else {
+        throw new Error('Nu s-au putut încărca datele aplicației');
+      }
+    } catch (error) {
+      console.error('Eroare la încărcarea datelor aplicației:', error);
+      setError('A apărut o eroare la încărcarea datelor aplicației. Vă rugăm să încercați din nou.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Modificăm useEffect-ul pentru a gestiona selecția documentelor
+  useEffect(() => {
+    if (showCreateForm && selectedApplication) {
+      console.log('Formular deschis cu datele:', {
+        selectedApplication,
+        newApplication
+      });
+
+      // Selectăm automat documentele existente
+      if (selectedApplication.documents && selectedApplication.documents.length > 0) {
+        const documentIds = selectedApplication.documents.map(doc => doc.id);
+        console.log('Documente existente pentru selecție:', documentIds);
+        
+        setNewApplication(prev => ({
+          ...prev,
+          selectedDocuments: documentIds
+        }));
+      }
+    }
+  }, [showCreateForm, selectedApplication]);
 
   const handleCreateApplication = async (e) => {
     e.preventDefault();
@@ -161,57 +297,147 @@ const ApplicationTab = () => {
       setLoading(true);
       setError(null);
 
-      const formData = new FormData();
-      formData.append('program_id', newApplication.program_id);
-      formData.append('motivation_letter', newApplication.motivation_letter);
-      
-      // Adăugăm ID-urile documentelor selectate
-      newApplication.selectedDocuments.forEach(docId => {
-        formData.append('document_ids[]', docId);
-      });
+      // Verificăm dacă există deja o aplicație pentru acest program, dar doar pentru aplicații noi
+      if (!selectedApplication) {
+        const existingApplication = applications.find(app => 
+          app.program_id === parseInt(newApplication.program_id)
+        );
 
-      const response = await axios.post(
-        `${API_BASE_URL}/api/applications`,
-        formData,
-        {
-          headers: {
-            ...getAuthHeaders(),
-            'Content-Type': 'multipart/form-data'
-          }
+        if (existingApplication) {
+          setError(`Aveți deja o aplicație pentru acest program (${existingApplication.program?.name}). Puteți să o editați pe cea existentă.`);
+          setLoading(false);
+          return;
         }
-      );
+      }
+
+      // Pregătim datele pentru trimitere conform modelului din backend
+      const applicationData = {
+        program_id: newApplication.program_id ? parseInt(newApplication.program_id) : selectedApplication?.program_id,
+        motivation_letter: newApplication.motivation_letter || selectedApplication?.motivation_letter || '',
+        status: selectedApplication?.status || 'draft',
+        application_date: selectedApplication?.created_at || new Date().toISOString(),
+        document_ids: newApplication.selectedDocuments.length > 0 
+          ? newApplication.selectedDocuments.map(id => parseInt(id))
+          : selectedApplication?.documents?.map(doc => parseInt(doc.id)) || [],
+        is_paid: selectedApplication?.is_paid || false
+      };
+
+      console.log('Date trimise către server:', applicationData);
+
+      let response;
+      if (selectedApplication) {
+        // Editare aplicație existentă
+        response = await axios.put(
+          `${API_BASE_URL}/api/applications/${selectedApplication.id}/update`,
+          applicationData,
+          {
+            headers: {
+              ...getAuthHeaders(),
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+      } else {
+        // Creare aplicație nouă
+        response = await axios.post(
+          `${API_BASE_URL}/api/applications`,
+          applicationData,
+          {
+            headers: {
+              ...getAuthHeaders(),
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+      }
 
       if (response.data.success) {
-        setSuccessMessage('Aplicația a fost trimisă cu succes!');
+        setSuccessMessage(selectedApplication ? 'Aplicația a fost actualizată cu succes!' : 'Aplicația a fost creată cu succes!');
         setShowCreateForm(false);
         setNewApplication({
           program_id: '',
           motivation_letter: '',
           selectedDocuments: [],
+          is_paid: false,
           errors: {
             program: '',
             documents: '',
-            motivation_letter: ''
+            motivation_letter: '',
+            payment: ''
           }
         });
+        setSelectedApplication(null);
         await loadUserApplications();
       } else {
-        throw new Error(response.data.message || 'Eroare la trimiterea aplicației');
+        throw new Error(response.data.message || (selectedApplication ? 'Eroare la actualizarea aplicației' : 'Eroare la crearea aplicației'));
       }
     } catch (error) {
-      console.error('Eroare la crearea aplicației:', error);
-      setError(error.response?.data?.message || 'A apărut o eroare la trimiterea aplicației');
+      console.error('Eroare:', error);
+      if (error.response?.data?.message?.includes('deja există')) {
+        setError('Aveți deja o aplicație pentru acest program. Vă rugăm să o editați pe cea existentă.');
+      } else {
+        setError(error.response?.data?.message || (selectedApplication ? 'A apărut o eroare la actualizarea aplicației' : 'A apărut o eroare la crearea aplicației'));
+      }
     } finally {
       setLoading(false);
     }
   };
 
+  // Modificăm și partea de render pentru documente
+  const renderDocumentsSection = () => (
+    <div className="form-group">
+      <label>Documente necesare: <span className="required">*</span></label>
+      <div className="documents-selection">
+        {!userDocuments || userDocuments.length === 0 ? (
+          <p className="no-documents">Nu aveți documente încărcate. Vă rugăm să încărcați documentele în secțiunea de profil.</p>
+        ) : (
+          <div className="documents-list">
+            {userDocuments.map((doc) => {
+              const isSelected = newApplication.selectedDocuments.includes(doc.id);
+              console.log(`Document ${doc.id} este selectat:`, isSelected);
+              
+              return (
+                <div key={doc.id} className="document-item">
+                  <label className="document-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleDocumentSelection(doc.id)}
+                    />
+                    <span className="document-name">{doc.name || doc.document_type}</span>
+                  </label>
+                  {doc.url && (
+                    <a 
+                      href={doc.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="document-preview"
+                    >
+                      <i className="fas fa-eye"></i> Vizualizare
+                    </a>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+        {newApplication.errors.documents && (
+          <span className="error-message">{newApplication.errors.documents}</span>
+        )}
+      </div>
+    </div>
+  );
+
+  // Modificăm funcția toggleDocumentSelection pentru a adăuga log-uri
   const toggleDocumentSelection = (docId) => {
+    console.log('Toggle document:', docId);
     setNewApplication(prev => {
       const isSelected = prev.selectedDocuments.includes(docId);
       const newSelectedDocuments = isSelected
         ? prev.selectedDocuments.filter(id => id !== docId)
         : [...prev.selectedDocuments, docId];
+
+      console.log('Documente selectate după toggle:', newSelectedDocuments);
 
       return {
         ...prev,
@@ -280,7 +506,16 @@ const ApplicationTab = () => {
   };
 
   const handleViewApplication = (application) => {
-    setSelectedApplication(application);
+    // Asigurăm-ne că avem toate datele necesare
+    const fullApplication = {
+      ...application,
+      documents: application.documents || [],
+      program: application.program || {},
+      created_at: application.created_at || new Date().toISOString(),
+      status: application.status || 'draft',
+      is_paid: application.is_paid || false
+    };
+    setSelectedApplication(fullApplication);
     setShowApplicationDetails(true);
   };
 
@@ -435,6 +670,95 @@ const ApplicationTab = () => {
     }
   };
 
+  const canSubmitApplication = (application) => {
+    // Doar utilizatorul poate trimite propria aplicație
+    if (userRole === 'admin') return false;
+    
+    // Poate fi trimisă doar dacă este în starea draft și a fost plătită
+    return application.status === 'draft' && application.is_paid;
+  };
+
+  const canEditApplication = (application) => {
+    // Doar utilizatorul poate edita propria aplicație
+    if (userRole === 'admin') return false;
+    
+    // Poate fi editată doar dacă este în starea draft sau nu a fost trimisă niciodată
+    return application.status === 'draft' || !application.submitted_at;
+  };
+
+  const handlePayment = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      let paymentData = {};
+
+      // Dacă avem o aplicație selectată, folosim datele ei
+      if (selectedApplication) {
+        paymentData = {
+          program_id: parseInt(selectedApplication.program_id),
+          motivation_letter: selectedApplication.motivation_letter || '',
+          document_ids: selectedApplication.documents?.map(doc => parseInt(doc.id)) || []
+        };
+      } else {
+        // Pentru o aplicație nouă, folosim datele din newApplication
+        paymentData = {
+          program_id: newApplication.program_id ? parseInt(newApplication.program_id) : null,
+          motivation_letter: newApplication.motivation_letter || '',
+          document_ids: newApplication.selectedDocuments.map(id => parseInt(id))
+        };
+      }
+
+      // Verificăm dacă avem toate datele necesare
+      if (!paymentData.program_id) {
+        throw new Error('Programul este obligatoriu');
+      }
+
+      if (!paymentData.motivation_letter) {
+        throw new Error('Scrisoarea de motivație este obligatorie');
+      }
+
+      console.log('Date trimise pentru plată:', paymentData);
+
+      const response = await axios.post(
+        `${API_BASE_URL}/api/payments/create-checkout-session`,
+        paymentData,
+        {
+          headers: {
+            ...getAuthHeaders(),
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.data.success) {
+        localStorage.setItem('currentPaymentSession', response.data.session_id);
+        window.location.href = response.data.url;
+      } else {
+        throw new Error(response.data.message || 'Eroare la crearea sesiunii de plată');
+      }
+    } catch (error) {
+      console.error('Eroare la procesarea plății:', error);
+      setError(error.response?.data?.message || error.message || 'A apărut o eroare la procesarea plății');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Verificăm dacă avem un parametru de plată în URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentStatus = urlParams.get('payment');
+    
+    if (paymentStatus === 'success') {
+      setSuccessMessage('Plata a fost procesată cu succes!');
+      // Reîncărcăm aplicațiile pentru a actualiza starea plății
+      loadUserApplications();
+    } else if (paymentStatus === 'canceled') {
+      setError('Plata a fost anulată. Puteți încerca din nou.');
+    }
+  }, []);
+
   return (
     <div className="application-tab">
       <div className="application-section">
@@ -507,6 +831,7 @@ const ApplicationTab = () => {
                 <th>Universitate</th>
                 <th>Data aplicării</th>
                 <th>Status</th>
+                <th>Plata</th>
                 <th>Acțiuni</th>
               </tr>
             </thead>
@@ -525,12 +850,30 @@ const ApplicationTab = () => {
                     </span>
                   </td>
                   <td>
+                    <span className={`payment-status ${app.is_paid ? 'paid' : 'unpaid'}`}>
+                      {app.is_paid ? (
+                        <i className="fas fa-check-circle"></i>
+                      ) : (
+                        <i className="fas fa-times-circle"></i>
+                      )}
+                      {app.is_paid ? 'Plătită' : 'Neplătită'}
+                    </span>
+                  </td>
+                  <td>
                     <button 
                       className="btn-view"
                       onClick={() => handleViewApplication(app)}
                     >
                       <i className="fas fa-eye"></i> Vizualizare
                     </button>
+                    {canEditApplication(app) && (
+                      <button 
+                        className="btn-edit"
+                        onClick={() => handleEditApplication(app)}
+                      >
+                        <i className="fas fa-edit"></i> Editează
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -542,55 +885,52 @@ const ApplicationTab = () => {
       {showCreateForm && (
         <div className="modal">
           <div className="modal-content">
-            <h2>Creare aplicație nouă</h2>
+            <h2>{selectedApplication ? 'Editare aplicație' : 'Creare aplicație nouă'}</h2>
             <form onSubmit={handleCreateApplication} className="application-form">
               <div className="form-group">
                 <label>Program: <span className="required">*</span></label>
                 <select
-                  value={newApplication.program_id}
-                  onChange={(e) => setNewApplication({
-                    ...newApplication,
-                    program_id: e.target.value,
-                    errors: {
-                      ...newApplication.errors,
-                      program: ''
-                    }
-                  })}
+                  value={newApplication.program_id || ''}
+                  onChange={(e) => {
+                    console.log('Program selectat:', e.target.value);
+                    setNewApplication({
+                      ...newApplication,
+                      program_id: e.target.value,
+                      errors: {
+                        ...newApplication.errors,
+                        program: ''
+                      }
+                    });
+                  }}
                   className={`form-select ${newApplication.errors.program ? 'error' : ''}`}
                 >
                   <option value="">Selectează un program</option>
-                  {savedPrograms.length > 0 ? (
-                    savedPrograms.map(program => (
-                      <option key={program.id} value={program.id}>
-                        {program.name} - {program.university?.name}
-                      </option>
-                    ))
-                  ) : (
-                    <option value="" disabled>Nu aveți programe salvate</option>
-                  )}
+                  {savedPrograms.map(program => (
+                    <option key={program.id} value={program.id}>
+                      {program.name} - {program.university?.name}
+                    </option>
+                  ))}
                 </select>
                 {newApplication.errors.program && (
                   <span className="error-message">{newApplication.errors.program}</span>
-                )}
-                {savedPrograms.length === 0 && (
-                  <p className="info-message">
-                    Pentru a crea o aplicație, trebuie să salvați mai întâi un program din lista de programe.
-                  </p>
                 )}
               </div>
 
               <div className="form-group">
                 <label>Scrisoare de motivație: <span className="required">*</span></label>
                 <textarea
-                  value={newApplication.motivation_letter}
-                  onChange={(e) => setNewApplication({
-                    ...newApplication,
-                    motivation_letter: e.target.value,
-                    errors: {
-                      ...newApplication.errors,
-                      motivation_letter: ''
-                    }
-                  })}
+                  value={newApplication.motivation_letter || ''}
+                  onChange={(e) => {
+                    console.log('Scrisoare de motivație actualizată:', e.target.value);
+                    setNewApplication({
+                      ...newApplication,
+                      motivation_letter: e.target.value,
+                      errors: {
+                        ...newApplication.errors,
+                        motivation_letter: ''
+                      }
+                    });
+                  }}
                   className={`form-textarea ${newApplication.errors.motivation_letter ? 'error' : ''}`}
                   rows="6"
                   placeholder="Scrieți scrisoarea de motivație..."
@@ -600,39 +940,27 @@ const ApplicationTab = () => {
                 )}
               </div>
 
+              {renderDocumentsSection()}
+
               <div className="form-group">
-                <label>Documente necesare: <span className="required">*</span></label>
-                <div className="documents-selection">
-                  {!userDocuments || userDocuments.length === 0 ? (
-                    <p className="no-documents">Nu aveți documente încărcate. Vă rugăm să încărcați documentele în secțiunea de profil.</p>
-                  ) : (
-                    <div className="documents-list">
-                      {userDocuments.map((doc, index) => (
-                        <div key={`doc-${doc.id}-${index}`} className="document-item">
-                          <label className="document-checkbox">
-                            <input
-                              type="checkbox"
-                              checked={newApplication.selectedDocuments.includes(doc.id)}
-                              onChange={() => toggleDocumentSelection(doc.id)}
-                            />
-                            <span className="document-name">{doc.name || doc.document_type}</span>
-                          </label>
-                          {doc.url && (
-                            <a 
-                              href={doc.url} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="document-preview"
-                            >
-                              <i className="fas fa-eye"></i> Vizualizare
-                            </a>
-                          )}
-                        </div>
-                      ))}
+                <label>Plata aplicației:</label>
+                <div className="payment-section">
+                  {newApplication.is_paid ? (
+                    <div className="payment-status success">
+                      <i className="fas fa-check-circle"></i> Plata a fost efectuată
                     </div>
-                  )}
-                  {newApplication.errors.documents && (
-                    <span className="error-message">{newApplication.errors.documents}</span>
+                  ) : (
+                    <div className="payment-status">
+                      <p>Taxa de aplicare: 100 MDL</p>
+                      <button
+                        type="button"
+                        className="btn-pay"
+                        onClick={handlePayment}
+                        disabled={loading}
+                      >
+                        <i className="fas fa-credit-card"></i> Plătește acum
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -642,9 +970,31 @@ const ApplicationTab = () => {
               </div>
 
               <div className="button-group">
-                <button type="submit" className="btn-submit">
-                  Trimite aplicația
+                <button 
+                  type="submit" 
+                  className="btn-submit"
+                >
+                  {selectedApplication ? 'Actualizează aplicația' : 'Salvează aplicația'}
                 </button>
+                {selectedApplication && selectedApplication.status === 'draft' && selectedApplication.is_paid && (
+                  <button
+                    type="button"
+                    className="btn-submit-application"
+                    onClick={() => {
+                      if (!selectedApplication.is_paid) {
+                        setError('Trebuie să plătiți taxa de aplicare pentru a trimite aplicația');
+                        return;
+                      }
+                      handleSubmitApplication(selectedApplication.id);
+                    }}
+                    disabled={!selectedApplication.program_id || !selectedApplication.motivation_letter || !selectedApplication.documents || selectedApplication.documents.length === 0}
+                  >
+                    <i className="fas fa-paper-plane"></i> Trimite aplicația
+                    {!selectedApplication.is_paid && (
+                      <span className="payment-required">(Plată necesară)</span>
+                    )}
+                  </button>
+                )}
                 <button
                   type="button"
                   className="btn-cancel"
@@ -654,10 +1004,12 @@ const ApplicationTab = () => {
                       program_id: '',
                       motivation_letter: '',
                       selectedDocuments: [],
+                      is_paid: false,
                       errors: {
                         program: '',
                         documents: '',
-                        motivation_letter: ''
+                        motivation_letter: '',
+                        payment: ''
                       }
                     });
                   }}
@@ -682,6 +1034,17 @@ const ApplicationTab = () => {
               <p><strong>Universitate:</strong> {selectedApplication.program?.university?.name || 'N/A'}</p>
               <p><strong>Data aplicării:</strong> {formatDate(selectedApplication.created_at)}</p>
               <p><strong>Status:</strong> {getStatusLabel(selectedApplication.status)}</p>
+              <p>
+                <strong>Stare plată:</strong>
+                <span className={`payment-status ${selectedApplication.is_paid ? 'paid' : 'unpaid'}`}>
+                  {selectedApplication.is_paid ? (
+                    <i className="fas fa-check-circle"></i>
+                  ) : (
+                    <i className="fas fa-times-circle"></i>
+                  )}
+                  {selectedApplication.is_paid ? 'Plătită' : 'Neplătită'}
+                </span>
+              </p>
               
               {selectedApplication.motivation_letter && (
                 <div className="motivation-letter">
@@ -713,12 +1076,50 @@ const ApplicationTab = () => {
               )}
 
               <div className="action-buttons">
+                {!selectedApplication.is_paid && canEditApplication(selectedApplication) && (
+                  <button
+                    className="btn-pay"
+                    onClick={() => handlePayment()}
+                    disabled={loading}
+                  >
+                    <i className="fas fa-credit-card"></i> Plătește 100 MDL
+                  </button>
+                )}
+                
                 {canDeleteApplication(selectedApplication) && (
                   <button
                     className="btn-delete"
                     onClick={() => handleDeleteApplication(selectedApplication.id)}
                   >
                     <i className="fas fa-trash"></i> Șterge aplicația
+                  </button>
+                )}
+                
+                {canEditApplication(selectedApplication) && (
+                  <button
+                    className="btn-edit"
+                    onClick={() => handleEditApplication(selectedApplication)}
+                  >
+                    <i className="fas fa-edit"></i> Editează aplicația
+                  </button>
+                )}
+
+                {selectedApplication.status === 'draft' && (
+                  <button
+                    className="btn-submit-application"
+                    onClick={() => {
+                      if (!selectedApplication.is_paid) {
+                        setError('Trebuie să plătiți taxa de aplicare pentru a trimite aplicația');
+                        return;
+                      }
+                      handleSubmitApplication(selectedApplication.id);
+                    }}
+                    disabled={!selectedApplication.program_id || !selectedApplication.motivation_letter || !selectedApplication.documents || selectedApplication.documents.length === 0}
+                  >
+                    <i className="fas fa-paper-plane"></i> Trimite aplicația
+                    {!selectedApplication.is_paid && (
+                      <span className="payment-required">(Plată necesară)</span>
+                    )}
                   </button>
                 )}
                 

@@ -22,6 +22,7 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const savedProgramRoutes = require('./routes/savedProgramRoutes');
 const applicationsRouter = require('./routes/applications');
 const helpYouChooseRoutes = require('./routes/helpYouChooseRoutes');
+const paymentRoutes = require('./routes/payment.routes');
 const { setupRoutes } = require('./routes');
 const { wss, authenticateWebSocket } = require('./websocket/notificationSocket');
 const WebSocket = require('ws');
@@ -68,6 +69,7 @@ app.use('/api/documents', documentsRouter);
 app.use('/api/saved-programs', savedProgramRoutes);
 app.use('/api/applications', upload.none(), applicationsRouter);
 app.use('/api/help-you-choose', helpYouChooseRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // Ruta pentru verificarea stării serverului
 app.get('/api/health', (req, res) => {

@@ -1,23 +1,23 @@
 {
   "development": {
     "dialect": "sqlite",
-    "storage": "./database.sqlite",
+    "storage": "./data/database.sqlite",
     "logging": false,
-    "migrationsPath": "./src/migrations",
-    "seedersPath": "./src/seeders"
+    "migrationsPath": "./src/database/migrations",
+    "seedersPath": "./src/database/seeders"
   },
   "test": {
     "dialect": "sqlite",
     "storage": ":memory:",
     "logging": false,
-    "migrationsPath": "./src/migrations",
-    "seedersPath": "./src/seeders"
+    "migrationsPath": "./src/database/migrations",
+    "seedersPath": "./src/database/seeders"
   },
   "production": {
     "dialect": "sqlite",
-    "storage": "./database.sqlite",
+    "storage": "./data/database.sqlite",
     "logging": false,
-    "migrationsPath": "./src/migrations",
-    "seedersPath": "./src/seeders"
+    "migrationsPath": "./src/database/migrations",
+    "seedersPath": "./src/database/seeders"
   }
 } 

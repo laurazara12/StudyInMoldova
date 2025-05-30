@@ -19,8 +19,12 @@ module.exports = (sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: false
     },
+    motivation_letter: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
     status: {
-      type: DataTypes.ENUM('draft', 'submitted', 'under_review', 'accepted', 'rejected'),
+      type: DataTypes.ENUM('draft', 'submitted', 'under_review', 'approved', 'rejected', 'withdrawn'),
       defaultValue: 'draft'
     },
     notes: {

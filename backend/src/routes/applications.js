@@ -16,14 +16,15 @@ const {
 // Rute pentru utilizatori
 router.post('/', applicationAuth, createApplication);
 router.get('/user', applicationAuth, getUserApplications);
+router.get('/my-applications', applicationAuth, getUserApplications);
 router.get('/:id', applicationAuth, applicationOwnership, getApplicationById);
-router.patch('/:id', applicationAuth, applicationOwnership, updateApplication);
-router.patch('/:id/cancel', applicationAuth, applicationOwnership, cancelApplication);
-router.patch('/:id/withdraw', applicationAuth, applicationOwnership, withdrawApplication);
+router.put('/:id/update', applicationAuth, applicationOwnership, updateApplication);
+router.get('/', applicationAuth, getAllApplications);
 router.delete('/:id', applicationAuth, applicationOwnership, deleteApplication);
 
-// Rute pentru administratori
-router.get('/', applicationAuth, getAllApplications);
-router.patch('/:id/status', applicationAuth, updateApplicationStatus);
+// Rute pentru admin
+router.put('/:id/status', applicationAuth, updateApplicationStatus);
+router.put('/:id/cancel', applicationAuth, applicationOwnership, cancelApplication);
+router.put('/:id/withdraw', applicationAuth, applicationOwnership, withdrawApplication);
 
 module.exports = router; 

@@ -302,7 +302,7 @@ module.exports = {
         onDelete: 'CASCADE'
       },
       status: {
-        type: Sequelize.ENUM('draft', 'pending', 'confirmed', 'rejected', 'withdrawn'),
+        type: Sequelize.ENUM('draft', 'submitted', 'under_review', 'approved', 'rejected', 'withdrawn'),
         defaultValue: 'draft'
       },
       notes: {

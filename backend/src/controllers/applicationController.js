@@ -266,7 +266,17 @@ exports.updateApplication = async (req, res) => {
   try {
     const { id } = req.params;
     const user_id = req.user.id;
-    const updateData = req.body;
+    const { program_id, motivation_letter, document_ids, status, is_paid } = req.body;
+
+    console.log('Actualizare aplicație:', {
+      id,
+      user_id,
+      program_id,
+      motivation_letter,
+      document_ids,
+      status,
+      is_paid
+    });
 
     const application = await Application.findOne({
       where: { 
@@ -276,18 +286,57 @@ exports.updateApplication = async (req, res) => {
     });
 
     if (!application) {
+      console.log('Aplicație negăsită:', { id, user_id });
       return res.status(404).json({
         success: false,
         message: 'Aplicația nu a fost găsită'
       });
     }
 
+    // Actualizăm aplicația
+    const updateData = {
+      program_id: program_id || application.program_id,
+      motivation_letter: motivation_letter || application.motivation_letter,
+      status: status || application.status,
+      is_paid: is_paid !== undefined ? is_paid : application.is_paid
+    };
+
     await application.update(updateData);
+
+    // Actualizăm documentele asociate dacă există
+    if (document_ids && Array.isArray(document_ids)) {
+      await application.setDocuments(document_ids);
+    }
+
+    // Obținem aplicația actualizată cu toate relațiile
+    const updatedApplication = await Application.findByPk(id, {
+      include: [
+        {
+          model: Program,
+          as: 'program',
+          include: [{
+            model: University,
+            as: 'university',
+            attributes: ['id', 'name', 'location']
+          }]
+        },
+        {
+          model: Document,
+          as: 'documents',
+          attributes: ['id', 'document_type', 'status', 'originalName', 'filename']
+        }
+      ]
+    });
+
+    console.log('Aplicație actualizată cu succes:', {
+      id: updatedApplication.id,
+      status: updatedApplication.status
+    });
 
     res.json({
       success: true,
       message: 'Aplicația a fost actualizată cu succes',
-      data: application
+      data: updatedApplication
     });
   } catch (error) {
     console.error('Eroare la actualizarea aplicației:', error);
