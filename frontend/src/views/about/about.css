@@ -27,7 +27,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(45deg, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.7));
+    background: linear-gradient(45deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.7));
     z-index: 1;
 }
 
@@ -423,6 +423,88 @@
     position: absolute;
     left: 0;
     font-size: var(--dl-font-size-medium);
+}
+
+.universities-header {
+    background-image: url('https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599095/ghenadie-cebanu-_kBKZeT-EQs-unsplash_kjtqno.jpg');
+    background-size: cover;
+    background-position: center;
+    padding: 60px 20px;
+    text-align: center;
+    color: white;
+    position: relative;
+}
+
+.universities-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.7));
+    z-index: 1;
+}
+
+.universities-header h1,
+.universities-header p {
+    position: relative;
+    z-index: 2;
+}
+
+.universities-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.universities-description {
+    font-size: 1.2rem;
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.6;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.living-in-moldova-header {
+    background-size: cover;
+    background-position: center;
+    padding: 60px 20px;
+    text-align: center;
+    color: white;
+    position: relative;
+}
+
+.living-in-moldova-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.7));
+    z-index: 1;
+}
+
+.living-in-moldova-header-content {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.living-in-moldova-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    font-family: 'STIX Two Text', serif;
+}
+
+.living-in-moldova-header p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    opacity: 0.9;
 }
 
 @media (max-width: 768px) {

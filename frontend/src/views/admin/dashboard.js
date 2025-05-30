@@ -15,7 +15,14 @@ import { API_BASE_URL, getAuthHeaders, handleApiError } from '../../config/api.c
 import { FaCheckCircle, FaTimesCircle, FaTrash, FaEdit, FaClock, FaUsers, FaUserPlus, FaFileUpload, FaFileAlt, FaShieldAlt } from 'react-icons/fa';
 
 const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState('users');
+  const [activeTab, setActiveTab] = useState(() => {
+    // Încercăm să recuperăm tabul salvat din localStorage
+    const savedTab = localStorage.getItem('activeDashboardTab');
+    // Dacă există un tab salvat și este valid, îl folosim, altfel folosim 'users' ca default
+    return savedTab && ['users', 'universities', 'programs', 'applications', 'documents', 'notifications'].includes(savedTab) 
+      ? savedTab 
+      : 'users';
+  });
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [loadingNotifications, setLoadingNotifications] = useState(false);
@@ -25,6 +32,8 @@ const Dashboard = () => {
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
+    // Salvăm tabul activ în localStorage
+    localStorage.setItem('activeDashboardTab', tab);
   };
 
   const formatDate = (dateString) => {

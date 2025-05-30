@@ -11,7 +11,11 @@
   flex-direction: row;
   justify-content: center;
 }
- 
+ .btn-create-account{
+  display: block;
+  text-align: center;
+ }
+
 .sign-in-max-width {
   width: 1354px;
   height: 619px;

@@ -43,6 +43,14 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: true
     },
+    start_date: {
+      type: DataTypes.DATEONLY,
+      allowNull: true
+    },
+    application_deadline: {
+      type: DataTypes.DATEONLY,
+      allowNull: true
+    },
     university_id: {
       type: DataTypes.INTEGER,
       allowNull: false,

@@ -90,3 +90,36 @@
     font-size: 24px;
   }
 } */
+
+.sign-in-button1.thq-button-filled {
+  background-color: var(--dl-color-theme-primary1);
+  color: var(--dl-color-theme-accent1);
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--dl-radius-radius-buttonradius);
+  font-size: var(--dl-font-size-small);
+  transition: all 0.1s ease;
+  cursor: pointer;
+  width: 100%;
+}
+
+.sign-in-button1.thq-button-filled:hover {
+  background-color: var(--dl-color-theme-primary2);
+}
+
+.sign-in-button2.thq-button-outline {
+  background-color: transparent;
+  border: var(--dl-border-width-thin) solid var(--dl-color-theme-primary1);
+  color: var(--dl-color-theme-primary1);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--dl-radius-radius-buttonradius);
+  font-size: var(--dl-font-size-small);
+  transition: all 0.1s ease;
+  cursor: pointer;
+  width: 100%;
+}
+
+.sign-in-button2.thq-button-outline:hover {
+  background-color: var(--dl-color-theme-primary1);
+  color: var(--dl-color-theme-accent1);
+}

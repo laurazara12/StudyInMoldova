@@ -61,7 +61,7 @@ const FeatureLocations = (props) => {
                 href="https://g.co/kgs/2ho8iqN"
                 target="_blank"
                 rel="noreferrer noopener"
-                className="feature-locations-link1 thq-button-flat thq-body-small"
+                className="btn2"
               >
                 <span>Get directions</span>
               </a>
@@ -95,7 +95,7 @@ const FeatureLocations = (props) => {
                 href="https://g.co/kgs/RkN4Zp2"
                 target="_blank"
                 rel="noreferrer noopener"
-                className="feature-locations-link2 thq-button-flat thq-body-small"
+                className="btn2"
               >
                 <span>Get directions</span>
               </a>

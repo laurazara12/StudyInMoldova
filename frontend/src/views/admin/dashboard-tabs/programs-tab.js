@@ -11,6 +11,8 @@ const ProgramsTab = () => {
   const [showAddProgramForm, setShowAddProgramForm] = useState(false);
   const [showEditProgramForm, setShowEditProgramForm] = useState(false);
   const [editingProgram, setEditingProgram] = useState(null);
+  const [viewingProgram, setViewingProgram] = useState(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [newProgram, setNewProgram] = useState({
     name: '',
     description: '',
@@ -20,7 +22,9 @@ const ProgramsTab = () => {
     language: '',
     tuition_fee: '',
     start_date: '',
-    application_deadline: ''
+    application_deadline: '',
+    faculty: '',
+    credits: ''
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDegree, setFilterDegree] = useState('all');
@@ -36,15 +40,15 @@ const ProgramsTab = () => {
   const loadPrograms = async () => {
     try {
       setLoading(true);
-      console.log('Începe încărcarea programelor...');
+      console.log('Loading programs...');
       const response = await axios.get(`${API_BASE_URL}/api/programs`, {
         headers: getAuthHeaders()
       });
       
-      console.log('Răspuns server programe:', response.data);
+      console.log('Server response programs:', response.data);
       
       if (!response.data) {
-        throw new Error('Nu s-au primit date de la server');
+        throw new Error('No data received from server');
       }
 
       let programsData;
@@ -55,15 +59,15 @@ const ProgramsTab = () => {
       } else if (response.data.programs && Array.isArray(response.data.programs)) {
         programsData = response.data.programs;
       } else {
-        throw new Error('Format invalid al datelor primite');
+        throw new Error('Invalid data format received');
       }
 
-      console.log('Programe procesate:', programsData);
+      console.log('Processed programs:', programsData);
       setPrograms(programsData);
       setFilteredPrograms(programsData);
     } catch (error) {
-      console.error('Eroare la încărcarea programelor:', error);
-      setError('Eroare la încărcarea programelor: ' + error.message);
+      console.error('Error loading programs:', error);
+      setError('Error loading programs: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -79,7 +83,7 @@ const ProgramsTab = () => {
         setUniversities(response.data.data);
       }
     } catch (error) {
-      console.error('Eroare la încărcarea universităților:', error);
+      console.error('Error loading universities:', error);
     }
   };
 
@@ -94,7 +98,9 @@ const ProgramsTab = () => {
       language: '',
       tuition_fee: '',
       start_date: '',
-      application_deadline: ''
+      application_deadline: '',
+      faculty: '',
+      credits: ''
     });
   };
 
@@ -113,11 +119,13 @@ const ProgramsTab = () => {
         language: newProgram.language,
         duration: `${newProgram.duration} years`,
         tuition_fees: newProgram.tuition_fee,
-        start_date: newProgram.start_date,
-        application_deadline: newProgram.application_deadline
+        start_date: newProgram.start_date ? new Date(newProgram.start_date).toISOString().split('T')[0] : null,
+        application_deadline: newProgram.application_deadline ? new Date(newProgram.application_deadline).toISOString().split('T')[0] : null,
+        faculty: newProgram.faculty,
+        credits: newProgram.credits
       };
 
-      console.log('Date trimise pentru creare:', programData);
+      console.log('Data sent for creation:', programData);
 
       const response = await axios.post(`${API_BASE_URL}/api/programs`, programData, {
         headers: getAuthHeaders()
@@ -126,14 +134,14 @@ const ProgramsTab = () => {
       if (response.data.success) {
         await loadPrograms();
         handleCloseAddProgramForm();
-        setSuccessMessage('Programul a fost adăugat cu succes!');
+        setSuccessMessage('Program was successfully added!');
         setTimeout(() => setSuccessMessage(''), 3000);
       } else {
-        throw new Error(response.data.message || 'Eroare la adăugarea programului');
+        throw new Error(response.data.message || 'Error adding program');
       }
     } catch (error) {
-      console.error('Eroare la adăugarea programului:', error);
-      setError(error.response?.data?.message || 'Eroare la adăugarea programului');
+      console.error('Error adding program:', error);
+      setError(error.response?.data?.message || 'Error adding program');
     }
   };
 
@@ -156,17 +164,25 @@ const ProgramsTab = () => {
         headers: getAuthHeaders()
       });
 
-      if (response.data.success) {
+      console.log('Delete program response:', response.data);
+
+      if (response.data && (response.data.success || response.data.message === 'Program deleted successfully')) {
         await loadPrograms();
-        setSuccessMessage('Programul a fost șters cu succes!');
+        setSuccessMessage('Program was successfully deleted!');
         setTimeout(() => setSuccessMessage(''), 3000);
       } else {
-        throw new Error(response.data.message || 'Eroare la ștergerea programului');
+        throw new Error(response.data.message || 'Error deleting program');
       }
     } catch (error) {
-      console.error('Eroare la ștergerea programului:', error);
-      setError('A apărut o eroare la ștergerea programului. Vă rugăm să încercați din nou.');
-      setTimeout(() => setError(null), 5000);
+      console.error('Error deleting program:', error);
+      if (error.message === 'Program deleted successfully') {
+        await loadPrograms();
+        setSuccessMessage('Program was successfully deleted!');
+        setTimeout(() => setSuccessMessage(''), 3000);
+      } else {
+        setError('An error occurred while deleting the program. Please try again.');
+        setTimeout(() => setError(null), 5000);
+      }
     }
   };
 
@@ -181,11 +197,13 @@ const ProgramsTab = () => {
         faculty: editingProgram.faculty,
         credits: editingProgram.credits,
         language: editingProgram.language,
-        duration: editingProgram.duration?.years ? `${editingProgram.duration.years} ani` : editingProgram.duration,
-        tuition_fees: editingProgram.tuition_fees
+        duration: editingProgram.duration?.years ? `${editingProgram.duration.years} years` : editingProgram.duration,
+        tuition_fees: editingProgram.tuition_fees,
+        start_date: editingProgram.start_date ? new Date(editingProgram.start_date).toISOString().split('T')[0] : null,
+        application_deadline: editingProgram.application_deadline ? new Date(editingProgram.application_deadline).toISOString().split('T')[0] : null
       };
 
-      console.log('Date trimise pentru actualizare:', updatedData);
+      console.log('Data sent for update:', updatedData);
 
       const response = await axios.put(
         `${API_BASE_URL}/api/programs/${editingProgram.id}`,
@@ -197,14 +215,14 @@ const ProgramsTab = () => {
         await loadPrograms();
         setShowEditProgramForm(false);
         setEditingProgram(null);
-        setSuccessMessage('Programul a fost actualizat cu succes!');
+        setSuccessMessage('Program was successfully updated!');
         setTimeout(() => setSuccessMessage(''), 3000);
       } else {
-        throw new Error(response.data.message || 'Eroare la actualizarea programului');
+        throw new Error(response.data.message || 'Error updating program');
       }
     } catch (error) {
-      console.error('Eroare la actualizarea programului:', error);
-      setError(error.response?.data?.message || 'A apărut o eroare la actualizarea programului. Vă rugăm să încercați din nou.');
+      console.error('Error updating program:', error);
+      setError(error.response?.data?.message || 'An error occurred while updating the program. Please try again.');
     }
   };
 
@@ -240,6 +258,16 @@ const ProgramsTab = () => {
       return matchesSearch && matchesDegree && matchesLanguage && matchesTuitionFee;
     });
     setFilteredPrograms(filtered);
+  };
+
+  const handleViewProgram = (program) => {
+    setViewingProgram(program);
+    setIsViewModalOpen(true);
+  };
+
+  const handleCloseViewModal = () => {
+    setIsViewModalOpen(false);
+    setViewingProgram(null);
   };
 
   return (
@@ -382,6 +410,12 @@ const ProgramsTab = () => {
                   <td>
                     <div className="action-buttons">
                       <button 
+                        className="btn1"
+                        onClick={() => handleViewProgram(program)}
+                      >
+                        <i className="fas fa-eye"></i> View
+                      </button>
+                      <button 
                         onClick={() => handleEditProgram(program)} 
                         className="btn1"
                       >
@@ -492,6 +526,31 @@ const ProgramsTab = () => {
                     <option value="English">English</option>
                     <option value="Russian">Russian</option>
                   </select>
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Faculty:</label>
+                  <input
+                    type="text"
+                    name="faculty"
+                    value={newProgram.faculty}
+                    onChange={handleNewProgramChange}
+                    className="form-input"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Credits:</label>
+                  <input
+                    type="number"
+                    name="credits"
+                    value={newProgram.credits}
+                    onChange={handleNewProgramChange}
+                    className="form-input"
+                    required
+                  />
                 </div>
               </div>
 
@@ -656,6 +715,29 @@ const ProgramsTab = () => {
 
               <div className="form-row">
                 <div className="form-group">
+                  <label>Start Date:</label>
+                  <input
+                    type="date"
+                    name="start_date"
+                    value={editingProgram.start_date || ''}
+                    onChange={handleEditProgramChange}
+                    className="form-input"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Application Deadline:</label>
+                  <input
+                    type="date"
+                    name="application_deadline"
+                    value={editingProgram.application_deadline || ''}
+                    onChange={handleEditProgramChange}
+                    className="form-input"
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
                   <label>University:</label>
                   <select
                     name="university_id"
@@ -689,6 +771,93 @@ const ProgramsTab = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {isViewModalOpen && viewingProgram && (
+        <div className="modal-overlay">
+          <div className="modal-content program-modal">
+            <h2>Program Details</h2>
+            <div className="program-details">
+              <div className="detail-section">
+                <h3>Basic Information</h3>
+                <div className="detail-row">
+                  <span className="detail-label">Name:</span>
+                  <span className="detail-value">{viewingProgram.name || 'N/A'}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">University:</span>
+                  <span className="detail-value">{viewingProgram.university?.name || 'N/A'}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Degree:</span>
+                  <span className="detail-value">{viewingProgram.degree_type || viewingProgram.degree || 'N/A'}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Faculty:</span>
+                  <span className="detail-value">{viewingProgram.faculty || 'N/A'}</span>
+                </div>
+              </div>
+
+              <div className="detail-section">
+                <h3>Program Details</h3>
+                <div className="detail-row">
+                  <span className="detail-label">Duration:</span>
+                  <span className="detail-value">{viewingProgram.duration || 'N/A'}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Credits:</span>
+                  <span className="detail-value">{viewingProgram.credits || 'N/A'}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Language:</span>
+                  <span className="detail-value">
+                    {viewingProgram.language === 'Ro' ? 'Romanian' : 
+                     viewingProgram.language === 'En' ? 'English' : 
+                     viewingProgram.language === 'Ru' ? 'Russian' : 
+                     viewingProgram.language || 'N/A'}
+                  </span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Tuition Fee:</span>
+                  <span className="detail-value">{viewingProgram.tuition_fees || 'N/A'}</span>
+                </div>
+              </div>
+
+              <div className="detail-section">
+                <h3>Important Dates</h3>
+                <div className="detail-row">
+                  <span className="detail-label">Start Date:</span>
+                  <span className="detail-value">
+                    {viewingProgram.start_date ? new Date(viewingProgram.start_date).toLocaleDateString() : 'N/A'}
+                  </span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Application Deadline:</span>
+                  <span className="detail-value">
+                    {viewingProgram.application_deadline ? new Date(viewingProgram.application_deadline).toLocaleDateString() : 'N/A'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="detail-section">
+                <h3>Description</h3>
+                <div className="detail-description">
+                  {viewingProgram.description || 'No description available'}
+                </div>
+              </div>
+            </div>
+
+            <div className="modal-buttons">
+              <button 
+                type="button" 
+                className="btn-grey-2"
+                onClick={handleCloseViewModal}
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

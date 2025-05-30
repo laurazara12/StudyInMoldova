@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
-
 import { Helmet } from 'react-helmet-async'
+import { useNavigate } from 'react-router-dom'
 
 import Navbar from '../../components/navbar'
 import HeroLandingPage from './components/hero-landing-page'
@@ -14,6 +14,12 @@ import Footer from '../../components/footer'
 import './landing.css'
 
 function Home() {
+  const navigate = useNavigate();
+
+  const handleExplorePrograms = () => {
+    navigate('/programs');
+  };
+
   return (
     <div className="landing-container">
       <Helmet>
@@ -101,20 +107,25 @@ function Home() {
       <HeroLandingPage
         action1={
           <Fragment>
-            <span className="landing-text25">Explore Programs</span>
+            <button 
+              className="btn1 "
+              onClick={handleExplorePrograms}
+            >
+              <span>
+                <span>Explore Programs</span>
+              </span>
+            </button>
           </Fragment>
         }
         action2={
           <Fragment>
-            <span className="landing-text26">Contact Us</span>
+            <span className="btn2">Contact Us</span>
           </Fragment>
         }
         content1={
           <Fragment>
             <span className="landing-text27">
-              Discover high-quality education in Moldova with affordable tuition
-              fees and a rich cultural experience. Explore various programs and
-              universities tailored to international students&apos; needs.
+              Your access to Moldovan universities. We process international applications for all universities in Moldova. We evaluate your documents and guide you through the process.
             </span>
           </Fragment>
         }
@@ -179,8 +190,13 @@ function Home() {
         content1={
           <Fragment>
             <span className="landing-text36">
-              Explore the opportunities for high-quality education in Moldova
-              and take the first step towards a successful academic career.
+              Apply in 6 simple steps:
+              1. Create your account
+              2. Check your eligibility
+              3. Prepare your documents
+              4. Choose your programs
+              5. Submit your application
+              6. Track your status
             </span>
           </Fragment>
         }
@@ -280,42 +296,42 @@ function Home() {
         step1Description={
           <Fragment>
             <span className="landing-text57">
-              Start by creating your personal account. Quick and easy registration process.
+              Create your account and verify your email. This is your first step towards studying in Moldova.
             </span>
           </Fragment>
         }
         step2Description={
           <Fragment>
             <span className="landing-text58">
-              Explore programs on our platform and save your favorites in the Programs section.
+              Check if your qualifications meet the requirements for Moldovan universities.
             </span>
           </Fragment>
         }
         step3Description={
           <Fragment>
             <span className="landing-text59">
-              Read detailed information about universities and programs to make an informed decision.
+              Prepare and verify all required documents according to our checklist.
             </span>
           </Fragment>
         }
         step4Description={
           <Fragment>
             <span className="landing-text60">
-              Upload all required documents in your personal profile page.
+              Browse and select your preferred study programs from our partner universities.
             </span>
           </Fragment>
         }
         step5Description={
           <Fragment>
             <span className="landing-text61">
-              Create and submit applications for your saved programs when you're ready.
+              Submit your application and pay the processing fee through our secure platform.
             </span>
           </Fragment>
         }
         step6Description={
           <Fragment>
             <span className="landing-text62">
-              Wait for feedback and track your application status in real-time.
+              Track your application status and receive updates in real-time.
             </span>
           </Fragment>
         }
@@ -362,9 +378,12 @@ function Home() {
         content1={
           <Fragment>
             <span className="landing-text62">
-              Studying in Moldova has been a life-changing experience for many
-              students. The quality of education and the welcoming environment
-              at the university made them feel at home. They say...
+              Useful Tools:
+              • Check Your Eligibility
+              • Document Requirements by Country
+              • Application Deadlines
+              • Processing Times
+              • Fee Calculator
             </span>
           </Fragment>
         }

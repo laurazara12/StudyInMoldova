@@ -146,20 +146,6 @@
   background-color: var(--dl-color-theme-accent2);
 }
 
-.error button {
-  margin-top: 1rem;
-  padding: 0.5rem 1rem;
-  background: var(--dl-color-theme-primary1);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.error button:hover {
-  background: var(--dl-color-theme-primary2);
-}
 
 .no-programs {
   color: var(--dl-color-theme-neutral-dark);
@@ -214,23 +200,6 @@
   padding-right: 2rem;
 }
 
-/* Butoane și acțiuni */
-.action-button {
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  border: none;
-  background: linear-gradient(to right, #ff6b35, #ff914d);
-  color: white;
-  font-weight: 500;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.action-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.2);
-}
-
 /* Stiluri responsive */
 @media (max-width: 768px) {
   .programs-content {
@@ -265,10 +234,7 @@
     padding: 0.75rem;
   }
 
-  .clear-filters-button {
-    width: 100%;
-    margin-top: var(--dl-space-space-unit);
-  }
+
 }
 
 @media (max-width: 480px) {
@@ -389,32 +355,7 @@
   color: #00695c;
 }
 
-.save-button, .remove-save-button {
-  padding: 6px 12px;
-  border-radius: 4px;
-  border: none;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
 
-.save-button {
-  background-color: #4caf50;
-  color: white;
-}
-
-.save-button:hover {
-  background-color: #388e3c;
-}
-
-.remove-save-button {
-  background-color: #f44336;
-  color: white;
-}
-
-.remove-save-button:hover {
-  background-color: #d32f2f;
-}
 
 .no-programs-message {
   text-align: center;
@@ -464,38 +405,6 @@
   }
 }
 
-.clear-filters-button {
-  padding: var(--dl-space-space-halfunit) var(--dl-space-space-unit);
-  border: 1px solid #e9ecef;
-  border-radius: var(--dl-radius-radius-inputradius);
-  font-size: var(--dl-font-size-small);
-  color: var(--dl-color-theme-neutral-dark);
-  background-color: white;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.clear-filters-button:hover {
-  background-color: #f8f9fa;
-  border-color: var(--dl-color-theme-primary1);
-}
-
-.search-button {
-  padding: var(--dl-space-space-halfunit) var(--dl-space-space-unit);
-  border: none;
-  border-radius: var(--dl-radius-radius-inputradius);
-  font-size: var(--dl-font-size-small);
-  color: white;
-  background-color: var(--dl-color-theme-primary1);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-left: var(--dl-space-space-unit);
-}
-
-.search-button:hover {
-  background-color: var(--dl-color-theme-primary2);
-  transform: translateY(-1px);
-}
 
 .notification {
   position: fixed;

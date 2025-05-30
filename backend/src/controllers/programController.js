@@ -11,7 +11,7 @@ exports.getAllPrograms = async (req, res) => {
       }],
       attributes: [
         'id', 'name', 'description', 'duration', 'degree', 'degree_type', 
-        'language', 'tuition_fees', 'credits', 'faculty',
+        'language', 'tuition_fees', 'credits', 'faculty', 'start_date', 'application_deadline',
         'university_id', 'createdAt', 'updatedAt'
       ],
       order: [['name', 'ASC']]
@@ -29,6 +29,8 @@ exports.getAllPrograms = async (req, res) => {
         tuition_fees: program.tuition_fees || 'N/A',
         credits: program.credits || 'N/A',
         faculty: program.faculty || 'N/A',
+        start_date: program.start_date || 'N/A',
+        application_deadline: program.application_deadline || 'N/A',
         university: program.university ? {
           id: program.university.id,
           name: program.university.name || 'N/A',
@@ -161,7 +163,9 @@ exports.createProgram = async (req, res) => {
       tuition_fees: req.body.tuition_fees || null,
       university_id: parseInt(req.body.university_id),
       faculty: req.body.faculty || null,
-      credits: req.body.credits ? parseInt(req.body.credits) : null
+      credits: req.body.credits ? parseInt(req.body.credits) : null,
+      start_date: req.body.start_date || null,
+      application_deadline: req.body.application_deadline || null
     };
 
     console.log('Processed data for program creation:', programData);
@@ -228,7 +232,9 @@ exports.updateProgram = async (req, res) => {
       tuition_fees: req.body.tuition_fees,
       university_id: req.body.university_id,
       faculty: req.body.faculty,
-      credits: req.body.credits
+      credits: req.body.credits,
+      start_date: req.body.start_date,
+      application_deadline: req.body.application_deadline
     };
 
     console.log('Date procesate pentru actualizare:', programData);
@@ -256,6 +262,8 @@ exports.updateProgram = async (req, res) => {
       tuition_fees: updatedProgram.tuition_fees || 'N/A',
       credits: updatedProgram.credits ? `${updatedProgram.credits} credits` : 'N/A',
       faculty: updatedProgram.faculty || 'N/A',
+      start_date: updatedProgram.start_date || 'N/A',
+      application_deadline: updatedProgram.application_deadline || 'N/A',
       university: updatedProgram.university ? {
         id: updatedProgram.university.id,
         name: updatedProgram.university.name || 'N/A',

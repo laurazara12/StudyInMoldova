@@ -97,65 +97,15 @@ p{
   transform: scaleX(1);
 }
  
-.font-size-36 {
-  font-size: 36px;
-  font-style: normal;
-  font-family: Roboto;
-  font-weight: 200;
-  font-stretch: normal;
-  letter-spacing: 0em;
-}
- 
-.font-size-54 {
-  font-size: 54px;
-  font-style: normal;
-  font-family: Roboto;
-  font-weight: 500;
-  font-stretch: normal;
-  letter-spacing: 0em;
-}
- 
-.font-size-81 {
-  font-size: 81px;
-  font-style: normal;
-  font-family: Roboto;
-  font-weight: 700;
-  font-stretch: normal;
-  letter-spacing: 0em;
-}
- 
-.font-size-121 {
-  font-size: 121px;
-  font-style: normal;
-  font-family: Libre Bodoni;
-  font-weight: 700;
-  font-stretch: normal;
-  letter-spacing: 0em;
-}
- 
-.font-size-16 {
-  font-size: 16px;
-  font-style: normal;
-  font-family: Roboto;
-  font-weight: 500;
-  font-stretch: normal;
-  letter-spacing: 0em;
-}
- 
-.px24 {
-  font-size: 24px;
-  font-family: Roboto;
-  font-weight: 400;
-  letter-spacing: 0em;
-}
- 
+/* Eliminăm clasele neutilizate */
+.font-size-36,
+.font-size-54,
+.font-size-81,
+.font-size-121,
+.font-size-16,
+.px24,
 .Content {
-  font-size: 16px;
-  font-family: Inter;
-  font-weight: 400;
-  line-height: 1.15;
-  text-transform: none;
-  text-decoration: none;
+  display: none;
 }
  
 @media(max-width: 991px) {
@@ -247,21 +197,30 @@ p{
   color: var(--dl-color-theme-primary1);
   border-radius: 25px;
   transition: all 0.15s ease;
+  cursor: pointer;
+  display: inline-block;
+  text-decoration: none;
 }
 
 .navbar-register1.button:hover {
   background-color: var(--dl-color-theme-primary1);
   color: var(--dl-color-theme-accent1);
+  cursor: pointer;
 }
 
 .navbar-register1.button .navbar-navlink2 {
   color: inherit;
   text-decoration: none;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .navbar-register1.button .navbar-text34 {
   color: var(--dl-color-theme-primary1);
   font-weight: 500;
+  cursor: pointer;
 }
 
 .navbar-register1.button:hover .navbar-text34 {
@@ -359,11 +318,6 @@ p{
   transition: all 0.15s ease;
 }
 
-.footer-text-input.thq-input:focus {
-  outline: none;
-  border-color: var(--dl-color-theme-gray-dark);
-  box-shadow: 0 0 0 2px rgba(255, 107, 0, 0.1); /* Umbră subtilă portocalie la focus */
-}
 
 .footer-text-input.thq-input::placeholder {
   color: var(--dl-color-theme-neutral-light);
@@ -404,31 +358,7 @@ p{
   font-weight: 500;
 }
 
-/* Stiluri pentru butonul Contact Us */
-.hero-landing-page-button2.thq-button-outline {
-  background-color: transparent;
-  border: var(--dl-border-width-thin) solid var(--dl-color-theme-primary1);
-  border-radius: 25px;
-  transition: all 0.15s ease;
-}
 
-.hero-landing-page-button2.thq-button-outline:hover {
-  background-color: var(--dl-color-theme-primary1);
-}
-
-.hero-landing-page-button2.thq-button-outline .thq-body-small {
-  color: var(--dl-color-theme-primary1);
-  font-weight: 700;
-  transition: color 0.15s ease; /* Tranziție mai rapidă pentru text */
-}
-
-.hero-landing-page-button2.thq-button-outline:hover .thq-body-small {
-  color: var(--dl-color-theme-accent1);
-}
-
-.hero-landing-page-button2.thq-button-outline .landing-text26 {
-  color: inherit;
-}
 
 /* Stiluri pentru butoane de acțiune */
 .action-buttons {
@@ -525,40 +455,6 @@ p{
 }
 
 /* Stiluri pentru butoane de blog */
-.btn {
-  padding: 0.75rem 1rem;
-  border-radius: var(--dl-radius-radius-buttonradius);
-  font-weight: 500;
-  transition: all 0.1s ease;
-  cursor: pointer;
-}
-
-.btn-primary {
-  background: var(--dl-color-theme-primary1);
-  color: var(--dl-color-theme-accent1);
-}
-
-.btn-primary:hover {
-  background: var(--dl-color-theme-primary2);
-}
-
-.btn-secondary {
-  padding: 0.5rem 1rem;
-  border: var(--dl-border-width-thin) solid var(--dl-color-theme-gray-light);
-  border-radius: var(--dl-radius-radius-buttonradius);
-  transition: all 0.15s ease;
-  cursor: pointer;
-  background-color: var(--dl-color-theme-gray-light);
-  color: var(--dl-color-theme-neutral-dark);
-  font-size: var(--dl-font-size-small);
-  font-family: 'Open Sans', sans-serif;
-}
-
-.btn-secondary:hover {
-  background-color: var(--dl-color-theme-gray-dark);
-  color: white;
-  border-color: var(--dl-color-theme-gray-dark);
-}
 
 /* Stiluri pentru butoane de documente */
 .document-actions button {
@@ -653,7 +549,8 @@ p{
   border: none;
   border-radius: var(--dl-radius-radius-buttonradius);
   font-size: var(--dl-font-size-small);
-  transition: all 0.2s ease;
+  font-weight: 500;
+  transition: all 0.1s ease;
   cursor: pointer;
 }
 
@@ -664,11 +561,12 @@ p{
 .btn2 {
   background-color: white;
   color: var(--dl-color-theme-primary1); /* portocaliu pentru text */
-  padding: 0.75rem 1.5rem;
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
   border: var(--dl-border-width-thin) solid var(--dl-color-theme-primary1);
   border-radius: var(--dl-radius-radius-buttonradius);
   font-size: var(--dl-font-size-small);
-  transition: all 0.1s ease;
+  transition: all 0.1s ;
   cursor: pointer;
 }
 
@@ -746,7 +644,7 @@ p{
 
 .tab-button {
   padding: 0.5rem 1rem;
-  border-radius: 25px;
+  border-radius: var(--dl-radius-radius-buttonradius);
   font-weight: 500;
   border: none;
   cursor: pointer;
@@ -771,9 +669,9 @@ p{
   padding: 0.4rem 1.2rem;
   font-size: var(--dl-font-size-small);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--dl-radius-radius-buttonradius);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.1s ease;
   background-color: var(--dl-color-theme-gray-light);
   color: var(--dl-color-theme-neutral-dark);
   height: 36px;
@@ -805,14 +703,14 @@ p{
   gap: 0.5rem;
   background-color: var(--dl-color-theme-primary1);
   color: var(--dl-color-theme-neutral-light);
-  border-radius: 8px;
+  border-radius: var(--dl-radius-radius-buttonradius);
 }
 
 .delete-confirmation button {
   padding: 0.5rem 1rem;
   margin: 0 0.5rem;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--dl-radius-radius-buttonradius);
   cursor: pointer;
 }
 
@@ -843,7 +741,7 @@ p{
     padding: 0.4rem 1.2rem;
     font-size: var(--dl-font-size-small);
     border: none;
-    border-radius: 8px;
+    border-radius: var(--dl-radius-radius-buttonradius);
     cursor: pointer;
     transition: all 0.2s ease;
     background-color: var(--dl-color-theme-gray-light);
@@ -903,7 +801,7 @@ p{
     padding: 0.4rem 0.8rem;
     font-size: 0.8rem;
     border: none;
-    border-radius: 4px;
+    border-radius: var(--dl-radius-radius-buttonradius);
     cursor: pointer;
     transition: background-color 0.3s ease;
   }
@@ -944,6 +842,85 @@ p{
 
 .confirm-button:hover {
   background-color: var(--dl-color-theme-primary2);
+}
+
+/* Stiluri de bază pentru body */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: var(--dl-font-size-small);
+  line-height: 1.5;
+  color: var(--dl-color-theme-neutral-dark);
+  background-color: var(--dl-color-theme-background);
+  overflow-x: hidden;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Media queries pentru body */
+@media (max-width: 1200px) {
+  body {
+    font-size: calc(var(--dl-font-size-small) * 0.95);
+  }
+}
+
+@media (max-width: 991px) {
+  body {
+    font-size: calc(var(--dl-font-size-small) * 0.9);
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    font-size: calc(var(--dl-font-size-small) * 0.85);
+  }
+}
+
+@media (max-width: 576px) {
+  body {
+    font-size: calc(var(--dl-font-size-small) * 0.8);
+  }
+}
+
+/* Stiluri pentru input-uri */
+.input-field {
+  color: var(--dl-color-theme-neutral-dark);
+  cursor: auto;
+  padding: 0.5rem 1rem;
+  border-color: var(--dl-color-theme-primary1);
+  border-width: var(--dl-border-width-thin);
+  border-radius: var(--dl-radius-radius-inputradius);
+  background-color: var(--dl-color-theme-neutral-light);
+  font-size: 0.85rem;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+  transition: all 0.15s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--dl-color-theme-primary1);
+  border-width: 2px;
+}
+
+.input-field::placeholder {
+  color: var(--dl-color-theme-neutral-dark);
+  opacity: 0.7;
+}
+
+.input-field:hover {
+  border-color: var(--dl-color-theme-primary1);
+}
+
+/* Media queries pentru input-uri */
+@media (max-width: 768px) {
+  .input-field {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+  }
 }
 
 

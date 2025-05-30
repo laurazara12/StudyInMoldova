@@ -178,7 +178,7 @@ const SignIn = (props) => {
                   id="thq-sign-in-6-email"
                   required={true}
                   placeholder="Email address"
-                  className="sign-in-textinput1 input-field thq-body-large"
+                  className="input-field"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -197,7 +197,7 @@ const SignIn = (props) => {
                       id="thq-sign-in-6-password"
                       required={true}
                       placeholder="Password"
-                      className="sign-in-textinput2 input-field thq-body-large"
+                      className="input-field"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                     />
@@ -228,7 +228,7 @@ const SignIn = (props) => {
               </div>
               <button 
                 type="submit" 
-                className="sign-in-button1 thq-button-filled"
+                className="thq-button-filled"
                 disabled={loading}
               >
                 <span className="sign-in-text15 thq-body-small">
@@ -247,9 +247,13 @@ const SignIn = (props) => {
             </div>
             <div className="sign-in-container4">
               <Link to="/sign-up" className="sign-in-navlink1">
-                <button className="sign-in-button2 thq-button-outline">
+                <button className="thq-button-outline">
                   <span className="sign-in-text17 thq-body-small">
-                    Create new account
+                    {props.action2 ?? (
+                      <Fragment>
+                        <span className="sign-in-text19">Create Account</span>
+                      </Fragment>
+                    )}
                   </span>
                 </button>
               </Link>
@@ -266,6 +270,7 @@ SignIn.defaultProps = {
   image1Alt: 'Sign In Image',
   heading11: undefined,
   action1: undefined,
+  action2: undefined,
 }
 
 SignIn.propTypes = {
@@ -273,6 +278,7 @@ SignIn.propTypes = {
   image1Alt: PropTypes.string,
   heading11: PropTypes.element,
   action1: PropTypes.element,
+  action2: PropTypes.element,
 }
 
 export default SignIn

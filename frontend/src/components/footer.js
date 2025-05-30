@@ -57,7 +57,7 @@ const Footer = () => {
                 placeholder="Your email address"
                 className="footer-text-input thq-input"
               />
-              <button className="thq-button-filled footer-button">
+              <button className="btn2">
                 Subscribe
               </button>
             </div>

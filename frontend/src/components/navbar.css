@@ -470,7 +470,7 @@
  
 @media(max-width: 479px) {
   .navbar-navbar-interactive {
-    padding: var(--dl-space-space-unit);
+    padding: var(--dl-space-space-twounits);
   }
   .navbar-mobile-menu {
     padding: 16px;

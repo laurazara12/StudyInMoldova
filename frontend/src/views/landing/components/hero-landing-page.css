@@ -38,7 +38,6 @@
 .hero-landing-page-actions {
   gap: var(--dl-space-space-unit);
   display: flex;
-  align-items: flex-start;
   padding-top: var(--dl-space-space-unit);
 }
  

@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import Navbar from '../../components/navbar';
 import SignIn from './components/sign-in';
 import './sign-in.css';
+import '../../style.css';
 
 const SignInPage = () => {
   return (
@@ -14,7 +15,7 @@ const SignInPage = () => {
       <Navbar rootClassName="navbar-root-class-name" />
       <SignIn
         action1={
-          <span className="sign-in-text25">Login</span>
+          <span className="btn2 btn-create-account">Login</span>
         }
         heading11={
           <span className="sign-in-text26">Login in Study in Moldova</span>

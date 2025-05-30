@@ -18,6 +18,7 @@ const Programs = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredPrograms, setFilteredPrograms] = useState([]);
   const [notification, setNotification] = useState(null);
+  const [filterTuitionFee, setFilterTuitionFee] = useState({ min: '', max: '' });
 
   const fetchData = async () => {
     try {
@@ -63,41 +64,49 @@ const Programs = () => {
     try {
       console.log('Starting program fetch...');
       const response = await axios.get(`${API_BASE_URL}/api/programs`);
-      console.log('Server response:', response.data);
+      console.log('Server response:', JSON.stringify(response.data, null, 2));
       
       let programsData = [];
       
-      if (response.data?.data && Array.isArray(response.data.data)) {
+      if (response.data?.success && Array.isArray(response.data.data)) {
         programsData = response.data.data.map(program => ({
           id: program.id,
-          name: program.name,
-          description: program.description,
-          faculty: program.faculty,
-          degree_type: program.degree_type,
-          credits: program.credits,
-          language: program.language,
-          duration: program.duration,
-          tuition_fees: program.tuition_fees,
+          name: program.name || 'N/A',
+          description: program.description || 'N/A',
+          faculty: program.faculty || 'N/A',
+          degree_type: program.degree_type || 'N/A',
+          credits: program.credits || 'N/A',
+          language: program.language || 'N/A',
+          duration: program.duration || 'N/A',
+          tuition_fees: program.tuition_fees || 'N/A',
+          start_date: program.start_date === 'N/A' ? null : program.start_date,
+          application_deadline: program.application_deadline === 'N/A' ? null : program.application_deadline,
           university: program.university ? {
             id: program.university.id,
-            name: program.university.name
+            name: program.university.name || 'N/A'
           } : null
         }));
       } else {
-        console.error('Invalid response format:', response.data);
+        console.error('Invalid response format:', JSON.stringify(response.data, null, 2));
         setError('Eroare la încărcarea programelor: Format invalid');
         setPrograms([]);
         return;
       }
 
-      console.log('Formatted programs:', programsData);
+      console.log('Formatted programs:', JSON.stringify(programsData, null, 2));
       setPrograms(programsData);
       setFilteredPrograms(programsData);
     } catch (error) {
       console.error('Detailed error fetching programs:', {
         message: error.message,
         response: error.response?.data,
-        status: error.response?.status
+        status: error.response?.status,
+        headers: error.response?.headers,
+        config: {
+          url: error.config?.url,
+          method: error.config?.method,
+          headers: error.config?.headers
+        }
       });
       setPrograms([]);
       setFilteredPrograms([]);
@@ -130,6 +139,8 @@ const Programs = () => {
           language: program.language,
           duration: program.duration,
           tuition_fees: program.tuition_fees,
+          start_date: program.start_date,
+          application_deadline: program.application_deadline,
           university: program.university ? {
             id: program.university.id,
             name: program.university.name
@@ -245,15 +256,18 @@ const Programs = () => {
         (program.description && program.description.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesDegree = !degreeFilter || program.degree_type === degreeFilter;
       const matchesLanguage = !languageFilter || program.language === languageFilter;
-      return matchesSearch && matchesDegree && matchesLanguage;
+      const matchesTuitionFee = (!filterTuitionFee.min || program.tuition_fees >= filterTuitionFee.min) &&
+                             (!filterTuitionFee.max || program.tuition_fees <= filterTuitionFee.max);
+      return matchesSearch && matchesDegree && matchesLanguage && matchesTuitionFee;
     });
     setFilteredPrograms(filtered);
-  }, [programs, searchTerm, degreeFilter, languageFilter]);
+  }, [programs, searchTerm, degreeFilter, languageFilter, filterTuitionFee]);
 
   const handleClearFilters = () => {
     setDegreeFilter('');
     setLanguageFilter('');
     setSearchTerm('');
+    setFilterTuitionFee({ min: '', max: '' });
   };
 
   if (loading) {
@@ -294,68 +308,99 @@ const Programs = () => {
       )}
       
       <main className="programs-content">
-        <h1>Available study programs</h1>
+        <h1>Available Study Programs</h1>
         
-        <div className="filters">
-          <div className="filter-group">
-            <input
-              type="text"
-              id="program-search"
-              placeholder="Caută programe..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
-          </div>
-          
-          <div className="filter-group">
-            <select 
-              value={degreeFilter} 
-              onChange={(e) => setDegreeFilter(e.target.value)}
-              className="filter-select"
-            >
-              <option value="">Toate gradele</option>
-              <option value="Bachelor">Licență</option>
-              <option value="Master">Master</option>
-              <option value="PhD">Doctorat</option>
-            </select>
-          </div>
-          
-          <div className="filter-group">
-            <select 
-              value={languageFilter} 
-              onChange={(e) => setLanguageFilter(e.target.value)}
-              className="filter-select"
-            >
-              <option value="">Toate limbile</option>
-              <option value="Romanian">Română</option>
-              <option value="Russian">Rusă</option>
-              <option value="English">Engleză</option>
-            </select>
+        <div className="dashboard-filters">
+          <div className="search-box">
+            <div className="search-input-wrapper">
+              <input
+                type="text"
+                className="search-input"
+                placeholder="Search by name or description..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
 
-          <button 
-            className="clear-filters-button"
-            onClick={handleClearFilters}
-          >
-            Curăță filtrele
-          </button>
-          <button 
-            className="search-button"
-            onClick={() => {
-              const filtered = programs.filter(program => {
-                const matchesSearch = searchTerm === '' || 
-                  (program.name && program.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                  (program.description && program.description.toLowerCase().includes(searchTerm.toLowerCase()));
-                const matchesDegree = !degreeFilter || program.degree_type === degreeFilter;
-                const matchesLanguage = !languageFilter || program.language === languageFilter;
-                return matchesSearch && matchesDegree && matchesLanguage;
-              });
-              setFilteredPrograms(filtered);
-            }}
-          >
-            Caută
-          </button>
+          <div className="filter-section programs-filter">
+            <div className="filter-group">
+              <label>Degree:</label>
+              <select
+                value={degreeFilter}
+                onChange={(e) => setDegreeFilter(e.target.value)}
+                className="filter-select"
+              >
+                <option value="">All Degrees</option>
+                <option value="Bachelor">Bachelor</option>
+                <option value="Master">Master</option>
+                <option value="PhD">PhD</option>
+              </select>
+            </div>
+            <div className="filter-group">
+              <label>Language:</label>
+              <select
+                value={languageFilter}
+                onChange={(e) => setLanguageFilter(e.target.value)}
+                className="filter-select"
+              >
+                <option value="">All Languages</option>
+                <option value="Romanian">Romanian</option>
+                <option value="English">English</option>
+                <option value="Russian">Russian</option>
+              </select>
+            </div>
+            <div className="filter-group">
+              <label>Tuition Fee:</label>
+              <div className="range-inputs">
+                <input
+                  type="number"
+                  placeholder="Min"
+                  value={filterTuitionFee.min}
+                  onChange={(e) => setFilterTuitionFee(prev => ({ ...prev, min: e.target.value }))}
+                  className="range-input"
+                />
+                <span>-</span>
+                <input
+                  type="number"
+                  placeholder="Max"
+                  value={filterTuitionFee.max}
+                  onChange={(e) => setFilterTuitionFee(prev => ({ ...prev, max: e.target.value }))}
+                  className="range-input"
+                />
+              </div>
+            </div>
+            <button 
+              className="clear-filters-button"
+              onClick={() => {
+                setSearchTerm('');
+                setDegreeFilter('');
+                setLanguageFilter('');
+                setFilterTuitionFee({ min: '', max: '' });
+                setFilteredPrograms(programs);
+              }}
+            >
+              Reset Filters
+            </button>
+            <button 
+              className="clear-filters-button"
+              onClick={() => {
+                const filtered = programs.filter(program => {
+                  const matchesSearch = searchTerm === '' || 
+                    (program.name && program.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                    (program.description && program.description.toLowerCase().includes(searchTerm.toLowerCase()));
+                  const matchesDegree = !degreeFilter || program.degree_type === degreeFilter;
+                  const matchesLanguage = !languageFilter || program.language === languageFilter;
+                  const matchesTuitionFee = (!filterTuitionFee.min || program.tuition_fees >= filterTuitionFee.min) &&
+                                         (!filterTuitionFee.max || program.tuition_fees <= filterTuitionFee.max);
+                  return matchesSearch && matchesDegree && matchesLanguage && matchesTuitionFee;
+                });
+                setFilteredPrograms(filtered);
+              }}
+            >
+              Search
+            </button>
+          </div>
         </div>
 
         <div className="programs-table-container">
@@ -364,68 +409,70 @@ const Programs = () => {
               <p>No study programs available at this moment.</p>
             </div>
           ) : (
-            <table className="programs-table">
+            <table className="dashboard-table">
               <thead>
                 <tr>
-                  <th>Nume program</th>
-                  <th>Universitate</th>
-                  <th>Facultate</th>
-                  <th>Grad</th>
-                  <th>Credite</th>
-                  <th>Limbă</th>
-                  <th>Durată</th>
-                  <th>Taxă de școlarizare</th>
-                  <th>Acțiuni</th>
+                  <th>ID</th>
+                  <th>Program Name</th>
+                  <th>University</th>
+                  <th>Degree</th>
+                  <th>Language</th>
+                  <th>Duration</th>
+                  <th>Start Date</th>
+                  <th>Application Deadline</th>
+                  <th>Tuition Fee</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredPrograms.map(program => (
                   <tr key={program.id}>
+                    <td>{program.id}</td>
                     <td>
                       <div className="program-name">
-                        <strong>{program.name || 'Nume program indisponibil'}</strong>
+                        <strong>{program.name || 'Program name unavailable'}</strong>
                         {program.description && (
                           <div className="program-description">{program.description}</div>
                         )}
                       </div>
                     </td>
+                    <td>{program.university?.name || 'University not assigned'}</td>
                     <td>
-                      {program.university?.name || 'Universitate neasignată'}
-                    </td>
-                    <td>{program.faculty || 'Facultate neasignată'}</td>
-                    <td>
-                      <span className={`degree-badge ${program.degree_type?.toLowerCase() || 'necunoscut'}`}>
-                        {program.degree_type || program.degree || 'Necunoscut'}
+                      <span className={`degree-badge ${program.degree_type?.toLowerCase() || 'unknown'}`}>
+                        {program.degree_type || program.degree || 'Unknown'}
                       </span>
                     </td>
-                    <td>{program.credits || 'Credite neasignate'}</td>
                     <td>
-                      <span className={`language-badge ${program.language?.toLowerCase() || 'necunoscut'}`}>
-                        {program.language || 'Limba necunoscută'}
+                      <span className={`language-badge ${program.language?.toLowerCase() || 'unknown'}`}>
+                        {program.language || 'Language unknown'}
                       </span>
                     </td>
-                    <td>{program.duration ? `${program.duration} ani` : 'Durată neasignată'}</td>
-                    <td>{program.tuition_fees ? `${program.tuition_fees} EUR` : 'Taxă neasignată'}</td>
+                    <td>{program.duration ? `${program.duration} years` : 'Duration not assigned'}</td>
+                    <td>{program.start_date ? new Date(program.start_date).toLocaleDateString() : 'Not set'}</td>
+                    <td>{program.application_deadline ? new Date(program.application_deadline).toLocaleDateString() : 'Not set'}</td>
+                    <td>{program.tuition_fees ? `${program.tuition_fees} EUR` : 'Fee not assigned'}</td>
                     <td>
-                      {isAuthenticated && !isAdmin ? (
-                        isProgramSaved(program.id) ? (
-                          <button 
-                            className="remove-save-button"
-                            onClick={() => handleRemoveSavedProgram(program.id)}
-                            title="Elimină din programele salvate"
-                          >
-                            Elimină
-                          </button>
-                        ) : (
-                          <button 
-                            className="save-button"
-                            onClick={() => handleSaveProgram(program.id)}
-                            title="Salvează programul"
-                          >
-                            Salvează
-                          </button>
-                        )
-                      ) : null}
+                      <div className="action-buttons">
+                        {isAuthenticated && !isAdmin ? (
+                          isProgramSaved(program.id) ? (
+                            <button 
+                              className="btn-delete"
+                              onClick={() => handleRemoveSavedProgram(program.id)}
+                              title="Remove from saved programs"
+                            >
+                              <i className="fas fa-trash"></i> Remove
+                            </button>
+                          ) : (
+                            <button 
+                              className="btn1"
+                              onClick={() => handleSaveProgram(program.id)}
+                              title="Save program"
+                            >
+                              <i className="fas fa-save"></i> Save
+                            </button>
+                          )
+                        ) : null}
+                      </div>
                     </td>
                   </tr>
                 ))}

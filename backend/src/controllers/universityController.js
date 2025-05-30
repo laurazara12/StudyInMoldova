@@ -163,53 +163,67 @@ exports.updateUniversity = async (req, res) => {
   try {
     console.log('Received update request with body:', JSON.stringify(req.body, null, 2));
     
-    const updateData = {
-      name: req.body.name,
-      type: req.body.type,
-      description: req.body.description,
-      location: req.body.location,
-      image_url: req.body.image_url,
-      website: req.body.website,
-      ranking: req.body.ranking,
-      tuition_fees: req.body.tuition_fees || {
-        bachelor: null,
-        master: null,
-        phd: null
-      },
-      contact_info: req.body.contact_info || {
-        email: null,
-        phone: null,
-        address: null
-      }
-    };
-
-    console.log('Data prepared for update:', JSON.stringify(updateData, null, 2));
-
-    const [updated] = await University.update(updateData, {
-      where: { id: req.params.id }
-    });
-    
-    if (!updated) {
+    // Verificăm dacă universitatea există
+    const existingUniversity = await University.findByPk(req.params.id);
+    if (!existingUniversity) {
       return res.status(404).json({ 
         success: false,
         message: 'Universitatea nu a fost găsită'
       });
     }
-    
-    const updatedUniversity = await University.findByPk(req.params.id);
-    console.log('Updated university data:', JSON.stringify(updatedUniversity, null, 2));
-    
-    res.json({
-      success: true,
-      data: updatedUniversity,
-      message: 'Universitatea a fost actualizată cu succes'
-    });
+
+    // Pregătim datele pentru actualizare
+    const updateData = {
+      name: req.body.name,
+      type: req.body.type,
+      description: req.body.description || '',
+      location: req.body.location,
+      image_url: req.body.image_url || '',
+      website: req.body.website || '',
+      ranking: req.body.ranking ? parseInt(req.body.ranking) : null,
+      tuition_fees: {
+        bachelor: req.body.tuition_fees?.bachelor ? parseFloat(req.body.tuition_fees.bachelor) : null,
+        master: req.body.tuition_fees?.master ? parseFloat(req.body.tuition_fees.master) : null,
+        phd: req.body.tuition_fees?.phd ? parseFloat(req.body.tuition_fees.phd) : null
+      },
+      contact_info: {
+        email: req.body.contact_info?.email || null,
+        phone: req.body.contact_info?.phone || null,
+        address: req.body.contact_info?.address || null
+      }
+    };
+
+    console.log('Data prepared for update:', JSON.stringify(updateData, null, 2));
+
+    try {
+      // Actualizăm universitatea
+      await existingUniversity.update(updateData);
+      
+      // Reîncărcăm datele actualizate
+      const updatedUniversity = await University.findByPk(req.params.id);
+      console.log('Updated university data:', JSON.stringify(updatedUniversity, null, 2));
+      
+      return res.json({
+        success: true,
+        data: updatedUniversity,
+        message: 'Universitatea a fost actualizată cu succes'
+      });
+    } catch (updateError) {
+      console.error('Error during university update:', updateError);
+      return res.status(400).json({
+        success: false,
+        message: 'Eroare la actualizarea datelor universității',
+        error: updateError.message,
+        details: updateError.errors
+      });
+    }
   } catch (error) {
-    console.error('Error updating university:', error);
-    res.status(500).json({ 
+    console.error('Error in updateUniversity:', error);
+    return res.status(500).json({ 
       success: false,
       message: 'Eroare la actualizarea universității',
-      error: error.message
+      error: error.message,
+      details: error.errors
     });
   }
 };

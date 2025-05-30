@@ -19,11 +19,14 @@ const Universities = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('');
   const [filterLocation, setFilterLocation] = useState('');
+  const [filterRanking, setFilterRanking] = useState({ min: '', max: '' });
+  const [filterTuitionFee, setFilterTuitionFee] = useState({ min: '', max: '' });
+  const [filterDateRange, setFilterDateRange] = useState({ start: '', end: '' });
   const [sortBy, setSortBy] = useState('name');
   
   // Opțiuni pentru filtre
   const typeOptions = ['Public', 'Private'];
-  const locationOptions = ['Chișinău', 'Bălți', 'Comrat', 'Tiraspol'];
+  const locationOptions = ['Chișinău', 'Bălți', 'Cahul', 'Comrat'];
 
   const fetchUniversities = async () => {
     try {
@@ -89,11 +92,37 @@ const Universities = () => {
     }
 
     if (filterType) {
-      filtered = filtered.filter(uni => uni.type === filterType);
+      filtered = filtered.filter(uni => uni.type.toLowerCase() === filterType.toLowerCase());
     }
 
     if (filterLocation) {
       filtered = filtered.filter(uni => uni.location === filterLocation);
+    }
+
+    // Filtrare după ranking
+    if (filterRanking.min) {
+      filtered = filtered.filter(uni => uni.ranking >= parseInt(filterRanking.min));
+    }
+    if (filterRanking.max) {
+      filtered = filtered.filter(uni => uni.ranking <= parseInt(filterRanking.max));
+    }
+
+    // Filtrare după taxe de studii
+    if (filterTuitionFee.min) {
+      filtered = filtered.filter(uni => {
+        const fees = uni.tuition_fees || {};
+        return (fees.bachelor >= parseInt(filterTuitionFee.min) ||
+                fees.master >= parseInt(filterTuitionFee.min) ||
+                fees.phd >= parseInt(filterTuitionFee.min));
+      });
+    }
+    if (filterTuitionFee.max) {
+      filtered = filtered.filter(uni => {
+        const fees = uni.tuition_fees || {};
+        return (fees.bachelor <= parseInt(filterTuitionFee.max) ||
+                fees.master <= parseInt(filterTuitionFee.max) ||
+                fees.phd <= parseInt(filterTuitionFee.max));
+      });
     }
 
     // Aplicăm sortarea
@@ -101,21 +130,41 @@ const Universities = () => {
       switch (sortBy) {
         case 'name':
           return a.name.localeCompare(b.name);
-        case 'type':
-          return a.type.localeCompare(b.type);
+        case 'name_desc':
+          return b.name.localeCompare(a.name);
         case 'location':
           return a.location.localeCompare(b.location);
+        case 'type':
+          return a.type.localeCompare(b.type);
+        case 'ranking':
+          return (a.ranking || 0) - (b.ranking || 0);
+        case 'ranking_desc':
+          return (b.ranking || 0) - (a.ranking || 0);
+        case 'tuition':
+          return ((a.tuition_fees?.bachelor || 0) - (b.tuition_fees?.bachelor || 0));
+        case 'tuition_desc':
+          return ((b.tuition_fees?.bachelor || 0) - (a.tuition_fees?.bachelor || 0));
         default:
           return 0;
       }
     });
 
     setFilteredUniversities(filtered);
-  }, [universities, searchTerm, filterType, filterLocation, sortBy]);
+  }, [universities, searchTerm, filterType, filterLocation, filterRanking, filterTuitionFee, filterDateRange, sortBy]);
 
   const handleRetry = () => {
     setRetryCount(prev => prev + 1);
     fetchUniversities();
+  };
+
+  const handleClearFilters = () => {
+    setSearchTerm('');
+    setFilterType('');
+    setFilterLocation('');
+    setFilterRanking({ min: '', max: '' });
+    setFilterTuitionFee({ min: '', max: '' });
+    setFilterDateRange({ start: '', end: '' });
+    setSortBy('name');
   };
 
   if (loading) {
@@ -158,18 +207,121 @@ const Universities = () => {
         <p className="universities-description">Descoperă universitățile de top din Moldova care oferă educație de calitate pentru studenții internaționali.</p>
       </div>
       <div className="universities-content">
-        <FilterSection 
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          filterType={filterType}
-          setFilterType={setFilterType}
-          filterLocation={filterLocation}
-          setFilterLocation={setFilterLocation}
-          sortBy={sortBy}
-          setSortBy={setSortBy}
-          typeOptions={typeOptions}
-          locationOptions={locationOptions}
-        />
+        <div className="filter-section universities-filter">
+          <div className="filter-group">
+            <label>Type:</label>
+            <select 
+              className="filter-select"
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+            >
+              <option value="">All Types</option>
+              <option value="public">Public</option>
+              <option value="private">Private</option>
+            </select>
+          </div>
+          <div className="filter-group">
+            <label>Location:</label>
+            <select 
+              className="filter-select"
+              value={filterLocation}
+              onChange={(e) => setFilterLocation(e.target.value)}
+            >
+              <option value="">All Locations</option>
+              <option value="Chișinău">Chișinău</option>
+              <option value="Bălți">Bălți</option>
+              <option value="Cahul">Cahul</option>
+              <option value="Comrat">Comrat</option>
+            </select>
+          </div>
+          <div className="filter-group">
+            <label>Ranking Range:</label>
+            <div className="range-inputs">
+              <input
+                type="number"
+                placeholder="Min"
+                className="range-input"
+                value={filterRanking.min}
+                onChange={(e) => setFilterRanking({...filterRanking, min: e.target.value})}
+              />
+              <span>to</span>
+              <input
+                type="number"
+                placeholder="Max"
+                className="range-input"
+                value={filterRanking.max}
+                onChange={(e) => setFilterRanking({...filterRanking, max: e.target.value})}
+              />
+            </div>
+          </div>
+          <div className="filter-group">
+            <label>Tuition Fee Range:</label>
+            <div className="range-inputs">
+              <input
+                type="number"
+                placeholder="Min"
+                className="range-input"
+                value={filterTuitionFee.min}
+                onChange={(e) => setFilterTuitionFee({...filterTuitionFee, min: e.target.value})}
+              />
+              <span>to</span>
+              <input
+                type="number"
+                placeholder="Max"
+                className="range-input"
+                value={filterTuitionFee.max}
+                onChange={(e) => setFilterTuitionFee({...filterTuitionFee, max: e.target.value})}
+              />
+            </div>
+          </div>
+          <div className="filter-group">
+            <label>Date:</label>
+            <div className="date-range-inputs">
+              <input
+                type="date"
+                className="date-input"
+                value={filterDateRange.start}
+                onChange={(e) => setFilterDateRange({...filterDateRange, start: e.target.value})}
+              />
+              <span>to</span>
+              <input
+                type="date"
+                className="date-input"
+                value={filterDateRange.end}
+                onChange={(e) => setFilterDateRange({...filterDateRange, end: e.target.value})}
+              />
+            </div>
+          </div>
+          <div className="filter-group">
+            <label>Sort:</label>
+            <select 
+              className="filter-select"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="name">Name (A-Z)</option>
+              <option value="name_desc">Name (Z-A)</option>
+              <option value="location">Location (A-Z)</option>
+              <option value="type">Type (A-Z)</option>
+              <option value="ranking">Ranking (Low-High)</option>
+              <option value="ranking_desc">Ranking (High-Low)</option>
+              <option value="tuition">Tuition Fee (Low-High)</option>
+              <option value="tuition_desc">Tuition Fee (High-Low)</option>
+            </select>
+          </div>
+          <button 
+            className="clear-filters-button"
+            onClick={handleClearFilters}
+          >
+            Clear Filters
+          </button>
+          <button 
+            className="search-button"
+            onClick={() => setFilteredUniversities([...filteredUniversities])}
+          >
+            Caută
+          </button>
+        </div>
         
         <div className="universities-grid">
           {filteredUniversities.length > 0 ? (

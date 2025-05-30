@@ -20,12 +20,12 @@ const SignUp = (props) => {
     event.preventDefault();
     
     if (!termsAccepted) {
-      setErrorMessage('Trebuie să acceptați termenii și condițiile pentru a continua.');
+      setErrorMessage('You must accept the terms and conditions to continue.');
       return;
     }
 
     if (password !== confirmPassword) {
-      setErrorMessage('Parolele nu se potrivesc.');
+      setErrorMessage('Passwords do not match.');
       return;
     }
 
@@ -46,15 +46,15 @@ const SignUp = (props) => {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        setSuccessMessage('Înregistrare reușită!');
+        setSuccessMessage('Registration successful!');
         setErrorMessage('');
         navigate('/sign-in');
       } else {
-        setErrorMessage(data.message || 'A apărut o eroare în timpul înregistrării.');
+        setErrorMessage(data.message || 'An error occurred during registration.');
         setSuccessMessage('');
       }
     } catch (error) {
-      setErrorMessage('Eroare de rețea. Vă rugăm să verificați conexiunea și să încercați din nou.');
+      setErrorMessage('Network error. Please check your connection and try again.');
       setSuccessMessage('');
     }
   };
@@ -77,14 +77,14 @@ const SignUp = (props) => {
             <h2 className="sign-up-text10 thq-heading-2">
               {props.heading1 ?? (
                 <Fragment>
-                  <span className="sign-up-text20">Creează un cont</span>
+                  <span className="sign-up-text20">Create an account</span>
                 </Fragment>
               )}
             </h2>
             <span className="thq-body-small">
               {props.content1 ?? (
                 <Fragment>
-                  <span className="sign-up-text23">Înregistrează-te pentru a vedea detaliile</span>
+                  <span className="sign-up-text23">Sign up to see details</span>
                 </Fragment>
               )}
             </span>
@@ -92,10 +92,11 @@ const SignUp = (props) => {
           <form onSubmit={handleSignUp}>
             <input
               type="text"
-              placeholder="Nume"
+              placeholder="Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
+              className="input-field"
             />
             <input
               type="email"
@@ -103,20 +104,23 @@ const SignUp = (props) => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              className="input-field"
             />
             <input
               type="password"
-              placeholder="Parolă"
+              placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              className="input-field"
             />
             <input
               type="password"
-              placeholder="Confirmă parola"
+              placeholder="Confirm password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
+              className="input-field"
             />
             <div className="terms-checkbox">
               <input
@@ -127,17 +131,17 @@ const SignUp = (props) => {
                 required
               />
               <label htmlFor="terms">
-                Accept{' '}
-                <Link to="/terms" className="sign-up-navlink">Termenii de utilizare</Link>
-                {' '}și{' '}
-                <Link to="/privacy" className="sign-up-navlink">Politica de confidențialitate</Link>
+                I accept the{' '}
+                <Link to="/terms" className="sign-up-navlink">Terms of Use</Link>
+                {' '}and{' '}
+                <Link to="/privacy" className="sign-up-navlink">Privacy Policy</Link>
               </label>
             </div>
             {errorMessage && <div className="error-message">{errorMessage}</div>}
             <button type="submit" className="sign-up-button1 thq-button-filled">
               {props.action1 ?? (
                 <Fragment>
-                  <span className="sign-up-text22">Continuă cu email</span>
+                  <span className="sign-up-text22">Continue with email</span>
                 </Fragment>
               )}
             </button>
@@ -151,7 +155,7 @@ const SignUp = (props) => {
               <span className="sign-up-text13 thq-body-small">
                 {props.action3 ?? (
                   <Fragment>
-                    <span className="sign-up-text21">Continuă cu Google</span>
+                    <span className="sign-up-text21">Continue with Google</span>
                   </Fragment>
                 )}
               </span>
@@ -159,7 +163,7 @@ const SignUp = (props) => {
           </form>
           <span className="sign-up-text18 thq-body-small">
             <span>
-              Ai deja un cont?
+              Already have an account?
               <span
                 dangerouslySetInnerHTML={{
                   __html: ' ',
@@ -167,7 +171,7 @@ const SignUp = (props) => {
               />
             </span>
             <Link to="/sign-in" className="sign-up-navlink">
-              Autentificare
+              Sign in
             </Link>
           </span>
         </div>
