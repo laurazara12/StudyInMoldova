@@ -1,4 +1,5 @@
 const { DataTypes } = require('sequelize');
+const { NOTIFICATION_TYPES } = require('../constants/notificationTypes');
 
 module.exports = (sequelize) => {
   const Notification = sequelize.define('Notification', {
@@ -19,30 +20,7 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        isIn: [
-          'document_deleted',
-          'document_approved',
-          'document_rejected',
-          'document_updated',
-          'document_expired',
-          'document_uploaded',
-          'deadline',
-          'team',
-          'new_user',
-          'new_document',
-          'new_application',
-          'application_status_changed',
-          'application_approved',
-          'application_rejected',
-          'application_withdrawn',
-          'user_profile_updated',
-          'user_document_updated',
-          'admin_action_required',
-          'admin_review_required',
-          'admin_document_review',
-          'admin_application_review',
-          'system'
-        ]
+        isIn: [Object.values(NOTIFICATION_TYPES)]
       }
     },
     title: {

@@ -12,13 +12,17 @@ const {
 // Get user notifications
 router.get('/', auth, async (req, res) => {
   try {
-    const result = await getUserNotifications(req.user.id, req.user.role);
-    res.json(result);
+    const notifications = await getUserNotifications(req.user.id, req.user.role);
+    res.json({
+      success: true,
+      data: notifications,
+      total: notifications.length
+    });
   } catch (error) {
     console.error('Error getting notifications:', error);
     res.status(500).json({
       success: false,
-      message: 'Eroare la obținerea notificărilor',
+      message: 'Error retrieving notifications',
       error: error.message
     });
   }
@@ -31,19 +35,19 @@ router.post('/test', auth, async (req, res) => {
     if (success) {
       res.json({
         success: true,
-        message: 'Notificări de test create cu succes'
+        message: 'Test notifications created successfully'
       });
     } else {
       res.status(500).json({
         success: false,
-        message: 'Eroare la crearea notificărilor de test'
+        message: 'Error creating test notifications'
       });
     }
   } catch (error) {
     console.error('Error creating test notifications:', error);
     res.status(500).json({
       success: false,
-      message: 'Eroare la crearea notificărilor de test',
+      message: 'Error creating test notifications',
       error: error.message
     });
   }
@@ -55,13 +59,13 @@ router.put('/:id/read', auth, async (req, res) => {
     await markAsRead(req.params.id, req.user.id);
     res.json({
       success: true,
-      message: 'Notificare marcată ca citită'
+      message: 'Notification marked as read'
     });
   } catch (error) {
     console.error('Error marking notification as read:', error);
     res.status(500).json({
       success: false,
-      message: 'Eroare la marcarea notificării ca citită',
+      message: 'Error marking notification as read',
       error: error.message
     });
   }
@@ -73,13 +77,13 @@ router.put('/read-all', auth, async (req, res) => {
     await markAllAsRead(req.user.id);
     res.json({
       success: true,
-      message: 'Toate notificările au fost marcate ca citite'
+      message: 'All notifications have been marked as read'
     });
   } catch (error) {
     console.error('Error marking all notifications as read:', error);
     res.status(500).json({
       success: false,
-      message: 'Eroare la marcarea notificărilor ca citite',
+      message: 'Error marking notifications as read',
       error: error.message
     });
   }
@@ -91,13 +95,13 @@ router.delete('/:id', auth, async (req, res) => {
     await deleteNotification(req.params.id, req.user.id);
     res.json({
       success: true,
-      message: 'Notificare ștearsă cu succes'
+      message: 'Notification deleted successfully'
     });
   } catch (error) {
     console.error('Error deleting notification:', error);
     res.status(500).json({
       success: false,
-      message: 'Eroare la ștergerea notificării',
+      message: 'Error deleting notification',
       error: error.message
     });
   }

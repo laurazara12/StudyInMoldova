@@ -40,7 +40,7 @@ const createNotification = async (userId, type, message, documentId = null, admi
       isAdminNotification
     });
 
-    if (!NOTIFICATION_TYPES[type]) {
+    if (!Object.values(NOTIFICATION_TYPES).includes(type)) {
       console.error('Invalid notification type:', type);
       throw new Error(`Invalid notification type: ${type}`);
     }
@@ -302,11 +302,7 @@ const getUserNotifications = async (userId, userRole) => {
       } : null
     }));
 
-    return {
-      success: true,
-      data: formattedNotifications,
-      total: formattedNotifications.length
-    };
+    return formattedNotifications;
   } catch (error) {
     console.error('Error getting notifications:', error);
     throw error;
@@ -388,7 +384,8 @@ const getAllNotifications = async (req, res) => {
     
     res.json({
       success: true,
-      data: notifications
+      data: notifications,
+      total: notifications.length
     });
   } catch (error) {
     console.error('Error getting notifications:', error);
@@ -592,17 +589,17 @@ const createTestNotifications = async (userId) => {
     const notifications = [
       {
         type: NOTIFICATION_TYPES.NEW_DOCUMENT,
-        message: 'Un document nou a fost încărcat',
+        message: 'A new document has been uploaded',
         priority: 'medium'
       },
       {
         type: NOTIFICATION_TYPES.DOCUMENT_APPROVED,
-        message: 'Documentul dumneavoastră a fost aprobat',
+        message: 'Your document has been approved',
         priority: 'high'
       },
       {
         type: NOTIFICATION_TYPES.ADMIN_ACTION_REQUIRED,
-        message: 'Acțiune administrativă necesară',
+        message: 'Administrative action required',
         priority: 'high'
       }
     ];

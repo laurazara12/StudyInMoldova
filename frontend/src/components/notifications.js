@@ -176,8 +176,15 @@ function Notifications() {
         }
         
         const data = await response.json();
+        console.log('Notifications data received:', data);
+        
         if (!data.success) {
           throw new Error(data.message || 'Error loading notifications');
+        }
+        
+        if (!Array.isArray(data.data)) {
+          console.error('Invalid notifications data format:', data);
+          throw new Error('Invalid notifications data format');
         }
         
         const processedNotifications = data.data.map(notification => ({
@@ -198,8 +205,9 @@ function Notifications() {
 
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 300000); // Actualizare la fiecare 5 minute
+
     return () => clearInterval(interval);
-  }, [userRole]);
+  }, []);
 
   const calculatePriority = (notification) => {
     switch (notification.type) {

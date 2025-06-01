@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_BASE_URL, getAuthHeaders } from '../../../config/api.config';
 import DeleteDocumentModal from '../../../components/DeleteDocumentModal';
+import { FaCheckCircle, FaTimesCircle, FaTrash, FaEdit, FaClock, FaUsers, FaUserPlus, FaFileUpload, FaFileAlt, FaShieldAlt } from 'react-icons/fa';
 
 const DocumentsTab = () => {
   const [documents, setDocuments] = useState([]);
@@ -35,16 +36,12 @@ const DocumentsTab = () => {
         throw new Error('No data received from server');
       }
 
-      let documentsData = [];
-      if (response.data.success && response.data.data) {
-        documentsData = Array.isArray(response.data.data) ? response.data.data : [];
-      } else if (Array.isArray(response.data)) {
-        documentsData = response.data;
-      } else if (response.data.documents && Array.isArray(response.data.documents)) {
-        documentsData = response.data.documents;
-      } else {
-        throw new Error('Invalid data format received');
+      if (!response.data.success) {
+        throw new Error(response.data.message || 'Error loading documents');
       }
+
+      const documentsData = response.data.data || [];
+      console.log(`Found ${documentsData.length} documents`);
 
       // Filtrăm documentele șterse
       const activeDocuments = documentsData.filter(doc => doc.status !== 'deleted');
@@ -66,15 +63,18 @@ const DocumentsTab = () => {
       setDocuments(processedDocuments);
       setFilteredDocuments(processedDocuments);
 
-      // Actualizăm statisticile
-      const statusCounts = {
-        pending: processedDocuments.filter(doc => doc.status === 'pending').length,
-        approved: processedDocuments.filter(doc => doc.status === 'approved').length,
-        rejected: processedDocuments.filter(doc => doc.status === 'rejected').length
-      };
-
-      console.log('Document statistics:', statusCounts);
-      setDocumentStats(statusCounts);
+      // Actualizăm statisticile din răspunsul serverului
+      if (response.data.status) {
+        setDocumentStats(response.data.status);
+      } else {
+        // Fallback la calculul local dacă statisticile nu sunt în răspuns
+        const statusCounts = {
+          pending: processedDocuments.filter(doc => doc.status === 'pending').length,
+          approved: processedDocuments.filter(doc => doc.status === 'approved').length,
+          rejected: processedDocuments.filter(doc => doc.status === 'rejected').length
+        };
+        setDocumentStats(statusCounts);
+      }
     } catch (error) {
       console.error('Error loading documents:', error);
       setError('Error loading documents: ' + error.message);
@@ -353,77 +353,79 @@ const DocumentsTab = () => {
         </div>
       )}
 
-      {loading ? (
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Loading documents...</p>
-        </div>
-      ) : (
-        <div className="documents-table-container">
-          <table className="dashboard-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>User</th>
-                <th>Type</th>
-                <th>Status</th>
-                <th>Upload Date</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredDocuments.map(doc => (
-                <tr key={doc.id}>
-                  <td>{doc.id}</td>
-                  <td>{doc.user_name || `User ID: ${doc.user_id}`}</td>
-                  <td>{doc.document_type}</td>
-                  <td>
-                    <span className={`status-badge status-${doc.status}`}>
-                      {doc.status === 'pending' ? 'Pending' :
-                       doc.status === 'approved' ? 'Approved' :
-                       doc.status === 'rejected' ? 'Rejected' :
-                       doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}
-                    </span>
-                  </td>
-                  <td>{formatDate(doc.uploadDate || doc.createdAt)}</td>
-                  <td>
-                    <div className="action-buttons">
-                      <button 
-                        className="btn1"
-                        onClick={() => handleDownloadDocument(doc.document_type, doc.user_id)}
-                      >
-                        <i className="fas fa-download"></i> Download
-                      </button>
-                      {doc.status === 'pending' && (
-                        <>
-                          <button 
-                            className="btn-success"
-                            onClick={() => handleConfirmDocument(doc)}
-                          >
-                            <i className="fas fa-check"></i> Approve
-                          </button>
-                          <button 
-                            className="btn-delete"
-                            onClick={() => handleRejectDocument(doc)}
-                          >
-                            <i className="fas fa-times"></i> Reject
-                          </button>
-                        </>
-                      )}
-                      <button 
-                        className="btn-delete"
-                        onClick={() => setDocumentToDelete(doc)}
-                      >
-                        <i className="fas fa-trash"></i> Delete
-                      </button>
-                    </div>
-                  </td>
+      <div className="documents-section">
+        {loading ? (
+          <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <p>Loading documents...</p>
+          </div>
+        ) : (
+          <div className="documents-table-container">
+            <table className="dashboard-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>User</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Upload Date</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {filteredDocuments.map(doc => (
+                  <tr key={doc.id}>
+                    <td>{doc.id}</td>
+                    <td>{doc.user_name || `User ID: ${doc.user_id}`}</td>
+                    <td>{doc.document_type}</td>
+                    <td>
+                      <span className={`status-badge status-${doc.status}`}>
+                        {doc.status === 'pending' ? 'Pending' :
+                         doc.status === 'approved' ? 'Approved' :
+                         doc.status === 'rejected' ? 'Rejected' :
+                         doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}
+                      </span>
+                    </td>
+                    <td>{formatDate(doc.uploadDate || doc.createdAt)}</td>
+                    <td>
+                      <div className="action-buttons">
+                        <button 
+                          className="btn1"
+                          onClick={() => handleDownloadDocument(doc.document_type, doc.user_id)}
+                        >
+                          <i className="fas fa-download"></i> Download
+                        </button>
+                        {doc.status === 'pending' && (
+                          <>
+                            <button 
+                              className="btn-success"
+                              onClick={() => handleConfirmDocument(doc)}
+                            >
+                              <i className="fas fa-check"></i> Approve
+                            </button>
+                            <button 
+                              className="btn-delete"
+                              onClick={() => handleRejectDocument(doc)}
+                            >
+                              <i className="fas fa-times"></i> Reject
+                            </button>
+                          </>
+                        )}
+                        <button 
+                          className="btn-delete"
+                          onClick={() => setDocumentToDelete(doc)}
+                        >
+                          <i className="fas fa-trash"></i> Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
       {documentToDelete && (
         <DeleteDocumentModal

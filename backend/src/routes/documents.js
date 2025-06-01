@@ -42,7 +42,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Middleware pentru gestionarea erorilor
 const errorHandler = (err, req, res, next) => {
-  logger.error('Eroare:', {
+  logger.error('Error:', {
     message: err.message,
     stack: err.stack,
     path: req.path,
@@ -52,7 +52,7 @@ const errorHandler = (err, req, res, next) => {
 
   res.status(err.status || 500).json({
     success: false,
-    message: err.message || 'Eroare internă a serverului',
+    message: err.message || 'Internal server error',
     ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
   });
 };
@@ -73,7 +73,7 @@ const validateDocument = async (req, res, next) => {
     console.log('Tip document:', document_type);
     
     if (!document_type) {
-      console.error('Tipul documentului lipsește din request body');
+      console.error('Document type missing from request body');
       return res.status(400).json({
         success: false,
         message: 'Tipul documentului este obligatoriu',
@@ -493,7 +493,7 @@ router.put('/:id', auth, adminAuth, async (req, res) => {
     // Creăm notificare pentru utilizator
     await createDocumentNotification(
       document.user_id,
-      NOTIFICATION_TYPES.DOCUMENT_UPDATED,
+      'document_updated',
       document.document_type,
       document.id
     );
@@ -579,12 +579,12 @@ router.delete('/:id', auth, async (req, res) => {
             NOTIFICATION_TYPES.DOCUMENT_DELETED,
             document.document_type,
             document.id,
-            { customMessage: `Utilizatorul ${req.user.name} a șters documentul de tip ${document.document_type}.` }
+            { customMessage: `User ${req.user.name} has deleted the ${document.document_type} document.` }
           );
         }
       }
     } catch (notificationError) {
-      console.error('Eroare la crearea notificării:', notificationError);
+      console.error('Error creating notification:', notificationError);
       // Continuăm cu ștergerea documentului chiar dacă notificarea eșuează
     }
 
@@ -760,7 +760,7 @@ router.post('/upload',
       // Adăugăm notificare pentru încărcarea documentului
       await createNotification(
         req.user.id,
-        NOTIFICATION_TYPES.NEW_DOCUMENT,
+        NOTIFICATION_TYPES.DOCUMENT_UPLOADED,
         `Documentul dumneavoastră de tip ${documentType} a fost încărcat cu succes`,
         document.id
       );

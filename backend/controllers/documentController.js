@@ -16,7 +16,7 @@ exports.getAllDocuments = async (req, res) => {
     const formattedDocuments = documents.map(doc => ({
       id: doc.id,
       document_type: doc.type,
-      status: doc.status,
+      status: doc.status || 'pending',
       filename: doc.filePath.split('/').pop(),
       originalName: doc.filePath.split('/').pop(),
       user_id: doc.Application?.userId,
@@ -25,13 +25,33 @@ exports.getAllDocuments = async (req, res) => {
       file_path: doc.filePath
     }));
 
+    // Calculăm statisticile
+    const stats = {
+      pending: formattedDocuments.filter(doc => doc.status === 'pending').length,
+      approved: formattedDocuments.filter(doc => doc.status === 'approved').length,
+      rejected: formattedDocuments.filter(doc => doc.status === 'rejected').length
+    };
+
     res.json({ 
-      success: true, 
-      documents: formattedDocuments 
+      success: true,
+      message: formattedDocuments.length === 0 ? 'Nu există documente în sistem' : 'Documentele au fost preluate cu succes',
+      data: formattedDocuments,
+      total: formattedDocuments.length,
+      status: stats
     });
   } catch (error) {
     console.error('Error getting all documents:', error);
-    res.status(500).json({ success: false, message: 'Eroare la obținerea documentelor' });
+    res.status(500).json({ 
+      success: false, 
+      message: 'Eroare la obținerea documentelor',
+      data: [],
+      total: 0,
+      status: {
+        pending: 0,
+        approved: 0,
+        rejected: 0
+      }
+    });
   }
 };
 
@@ -50,7 +70,7 @@ exports.getUserDocuments = async (req, res) => {
     const formattedDocuments = documents.map(doc => ({
       id: doc.id,
       document_type: doc.type,
-      status: doc.status,
+      status: doc.status || 'pending',
       filename: doc.filePath.split('/').pop(),
       originalName: doc.filePath.split('/').pop(),
       user_id: doc.Application?.userId,
@@ -59,13 +79,33 @@ exports.getUserDocuments = async (req, res) => {
       file_path: doc.filePath
     }));
 
+    // Calculăm statisticile
+    const stats = {
+      pending: formattedDocuments.filter(doc => doc.status === 'pending').length,
+      approved: formattedDocuments.filter(doc => doc.status === 'approved').length,
+      rejected: formattedDocuments.filter(doc => doc.status === 'rejected').length
+    };
+
     res.json({ 
-      success: true, 
-      documents: formattedDocuments 
+      success: true,
+      message: formattedDocuments.length === 0 ? 'Nu există documente încărcate' : 'Documentele au fost preluate cu succes',
+      data: formattedDocuments,
+      total: formattedDocuments.length,
+      status: stats
     });
   } catch (error) {
     console.error('Error getting user documents:', error);
-    res.status(500).json({ success: false, message: 'Eroare la obținerea documentelor' });
+    res.status(500).json({ 
+      success: false, 
+      message: 'Eroare la obținerea documentelor',
+      data: [],
+      total: 0,
+      status: {
+        pending: 0,
+        approved: 0,
+        rejected: 0
+      }
+    });
   }
 };
 

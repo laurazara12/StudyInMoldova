@@ -23,6 +23,7 @@ const DocumentsTab = ({ userData }) => {
   const [uploadStatus, setUploadStatus] = useState({});
   const [buttonStates, setButtonStates] = useState({});
   const [successMessage, setSuccessMessage] = useState(null);
+  const [documentStats, setDocumentStats] = useState({ pending: 0, approved: 0, rejected: 0 });
 
   useEffect(() => {
     fetchDocuments();
@@ -57,35 +58,54 @@ const DocumentsTab = ({ userData }) => {
         headers: getAuthHeaders()
       });
 
+      console.log('Server response documents:', response.data);
+
       if (!response.data) {
         throw new Error('No data received from server');
       }
 
-      let documentsData = [];
-      if (response.data.success && response.data.data) {
-        documentsData = Array.isArray(response.data.data) ? response.data.data : [response.data.data];
-      } else if (Array.isArray(response.data)) {
-        documentsData = response.data;
-      } else if (response.data.documents && Array.isArray(response.data.documents)) {
-        documentsData = response.data.documents;
+      if (!response.data.success) {
+        throw new Error(response.data.message || 'Error loading documents');
       }
 
-      const processedDocuments = documentsData
-        .filter(doc => doc && doc.status !== 'deleted')
-        .map(doc => ({
-          id: doc.id,
-          document_type: doc.document_type,
-          name: doc.name || doc.document_type,
-          status: doc.status || 'pending',
-          url: doc.url || doc.file_path,
-          uploadDate: doc.uploadDate || doc.createdAt,
-          createdAt: doc.createdAt
-        }));
+      const documentsData = response.data.data || [];
+      console.log(`Found ${documentsData.length} documents`);
 
+      // Filtrăm documentele șterse
+      const activeDocuments = documentsData.filter(doc => doc.status !== 'deleted');
+      console.log(`Found ${activeDocuments.length} active documents out of ${documentsData.length} total`);
+
+      const processedDocuments = activeDocuments.map(doc => ({
+        id: doc.id,
+        document_type: doc.document_type,
+        status: doc.status || 'pending',
+        filename: doc.filename,
+        originalName: doc.originalName,
+        createdAt: doc.createdAt,
+        uploadDate: doc.uploadDate || doc.createdAt,
+        file_path: doc.file_path
+      }));
+
+      console.log('Processed documents:', processedDocuments);
       setDocuments(processedDocuments);
+
+      // Actualizăm statisticile din răspunsul serverului
+      if (response.data.status) {
+        setDocumentStats(response.data.status);
+      } else {
+        // Fallback la calculul local dacă statisticile nu sunt în răspuns
+        const statusCounts = {
+          pending: processedDocuments.filter(doc => doc.status === 'pending').length,
+          approved: processedDocuments.filter(doc => doc.status === 'approved').length,
+          rejected: processedDocuments.filter(doc => doc.status === 'rejected').length
+        };
+        setDocumentStats(statusCounts);
+      }
     } catch (error) {
-      console.error('Error fetching documents:', error);
-      setError(handleApiError(error));
+      console.error('Error loading documents:', error);
+      setError('Error loading documents: ' + error.message);
+      setDocuments([]);
+      setDocumentStats({ pending: 0, approved: 0, rejected: 0 });
     } finally {
       setLoading(false);
     }

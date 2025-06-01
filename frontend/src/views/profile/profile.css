@@ -73,30 +73,6 @@
   overflow-x: auto;
   padding-bottom: var(--spacing-xs);
 }
-
-.tab-button {
-  padding: var(--spacing-xs) var(--spacing-md);
-  border: none;
-  background: none;
-  cursor: pointer;
-  color: var(--text-secondary);
-  border-radius: var(--radius-sm);
-  transition: all 0.3s ease;
-  font-size: var(--dl-font-size-small);
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
-
-.tab-button:hover {
-  background-color: var(--background-light);
-}
-
-.tab-button.active {
-  background-color: var(--primary-color);
-  color: white;
-}
-
 .edit-button-container {
   display: flex;
   align-items: center;
@@ -220,10 +196,7 @@
     gap: var(--spacing-xs);
   }
   
-  .tab-button {
-    padding: var(--spacing-xs) var(--spacing-sm);
-    font-size: 0.8rem;
-  }
+ 
   
   .edit-modal-content {
     width: 95%;
