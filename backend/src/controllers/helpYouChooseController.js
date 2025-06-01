@@ -2,21 +2,21 @@ const { Program, University } = require('../models');
 const { Op } = require('sequelize');
 const OpenAI = require('openai');
 
-// Inițializăm clientul OpenAI pentru DeepSeek
+// Initialize OpenAI client for DeepSeek
 let openai;
 try {
   if (!process.env.DEEPSEEK_API_KEY) {
-    console.warn('AVERTISMENT: DEEPSEEK_API_KEY nu este configurat în fișierul .env');
+    console.warn('WARNING: DEEPSEEK_API_KEY is not configured in .env file');
   }
   openai = new OpenAI({
     baseURL: 'https://api.deepseek.com/v1',
     apiKey: process.env.DEEPSEEK_API_KEY || 'dummy-key'
   });
 } catch (error) {
-  console.error('Eroare la inițializarea clientului OpenAI:', error);
+  console.error('Error initializing OpenAI client:', error);
 }
 
-// Funcție pentru detectarea limbii
+// Function for language detection
 const detectLanguage = (text) => {
   const romanianWords = ['bună', 'salut', 'ce', 'cum', 'sunt', 'suntem', 'vă', 'te', 'mă', 'îmi', 'și', 'sau', 'dar', 'pentru', 'despre'];
   const englishWords = ['hello', 'hi', 'what', 'how', 'are', 'is', 'you', 'me', 'my', 'and', 'or', 'but', 'for', 'about'];
@@ -38,10 +38,10 @@ const detectLanguage = (text) => {
   if (englishCount > romanianCount && englishCount > russianCount) return 'engleză';
   if (russianCount > romanianCount && russianCount > englishCount) return 'rusă';
   
-  return 'engleză'; // limba implicită
+  return 'engleză'; // default language
 };
 
-// Răspunsuri predefinite pentru diferite tipuri de întrebări
+// Predefined responses for different types of questions
 const defaultResponses = {
   greeting: {
     'română': 'Bună! Sunt asistentul tău pentru alegerea programului de studii în Moldova. Cu ce te pot ajuta astăzi?',
@@ -59,55 +59,55 @@ exports.getRecommendations = async (req, res) => {
   try {
     const { interests, budget, duration, language, question } = req.body;
     
-    // Verificăm dacă avem o întrebare validă
+    // Check if we have a valid question
     if (!question || question.trim().length < 2) {
       return res.json({
         success: true,
-        message: defaultResponses.greeting['română']
+        message: defaultResponses.greeting['engleză']
       });
     }
 
-    // Detectăm limba întrebării
+    // Detect the question language
     const detectedLanguage = detectLanguage(question);
 
-    // Verificăm dacă întrebarea este relevantă pentru site-ul nostru
+    // Check if the question is relevant to our website
     const relevantKeywords = [
-      // Termeni generali despre studii
+      // General study terms
       'studii', 'universitate', 'moldova', 'program', 'curs', 'facultate',
       'taxă', 'bursă', 'admitere', 'cazare', 'studenți', 'educație',
       'mediu', 'academic', 'campus', 'profesor', 'cursant', 'student',
       
-      // Detașamente și specializări
+      // Degrees and specializations
       'licență', 'master', 'doctorat', 'specializare', 'profil', 'domeniu',
       'inginerie', 'medicină', 'drept', 'economie', 'informatică', 'științe',
       
-      // Aspecte administrative
+      // Administrative aspects
       'înscriere', 'documente', 'diplomă', 'certificat', 'transcript',
       'viză', 'permis', 'rezidență', 'cazare', 'camin', 'dormitor',
       
-      // Aspecte financiare
+      // Financial aspects
       'cost', 'preț', 'plățile', 'taxă', 'bursă', 'scholarship',
       'finanțare', 'ajutor', 'sprijin', 'reducere', 'discount',
       
-      // Aspecte academice
+      // Academic aspects
       'examen', 'notă', 'evaluare', 'semestru', 'an', 'sesiune',
       'profesor', 'curs', 'seminar', 'laborator', 'practică',
       'mediu', 'academic', 'campus', 'facultate', 'departament',
       
-      // Aspecte sociale și culturale
+      // Social and cultural aspects
       'viață', 'social', 'activități', 'club', 'asociație', 'eveniment',
       'cultură', 'tradiții', 'limbă', 'română', 'rusă', 'engleză',
       
-      // Servicii pentru studenți
+      // Student services
       'bibliotecă', 'cantină', 'sport', 'sănătate', 'medical',
       'transport', 'autobuz', 'tramvai', 'taxi', 'internet', 'wifi',
       
-      // Orașe și locații
+      // Cities and locations
       'chișinău', 'bălți', 'cahul', 'tiraspol', 'bender', 'orhei',
       'campus', 'clădire', 'facultate', 'departament', 'centru'
     ];
 
-    // Obținem recomandările din baza de date
+    // Get recommendations from database
     const recommendations = await Program.findAll({
       include: [{
         model: University,
@@ -126,28 +126,28 @@ exports.getRecommendations = async (req, res) => {
     let aiResponse;
     try {
       if (!openai) {
-        throw new Error('Clientul OpenAI nu a fost inițializat corect');
+        throw new Error('OpenAI client was not properly initialized');
       }
 
-      // Pregătim contextul pentru DeepSeek
-      const systemPrompt = `Ești un asistent prietenos și util specializat în ajutarea studenților să găsească programe de studii în Moldova. 
-      Ai acces la următoarele programe: ${JSON.stringify(recommendations)}.
+      // Prepare context for DeepSeek
+      const systemPrompt = `You are a friendly and helpful assistant specialized in helping students find study programs in Moldova.
+      You have access to the following programs: ${JSON.stringify(recommendations)}.
       
-      Instrucțiuni pentru răspunsuri:
-      1. Răspunde în aceeași limbă în care primești întrebarea (română, engleză sau rusă)
-      2. Pentru saluturi simple, răspunde prietenos și întreabă cum te poate ajuta cu studiile în Moldova
-      3. Pentru întrebări generale despre Moldova, răspunde pe scurt și redirecționează conversația către studii
-      4. Pentru întrebări despre studii, oferă informații detaliate despre:
-         - Calitatea educației în Moldova
-         - Relația profesor-student
-         - Facilitățile universitare
-         - Oportunitățile de dezvoltare
-         - Viața studențească
-         - Integrarea studenților internaționali
-      5. Dacă întrebarea nu este legată de studii, răspunde politicos și sugerează să discutăm despre studii în Moldova
-      6. Menține un ton prietenos și profesionist în toate răspunsurile`;
+      Response instructions:
+      1. Respond in the same language as the question (Romanian, English, or Russian)
+      2. For simple greetings, respond friendly and ask how you can help with studies in Moldova
+      3. For general questions about Moldova, respond briefly and redirect the conversation to studies
+      4. For questions about studies, provide detailed information about:
+         - Quality of education in Moldova
+         - Professor-student relationship
+         - University facilities
+         - Development opportunities
+         - Student life
+         - Integration of international students
+      5. If the question is not related to studies, respond politely and suggest discussing studies in Moldova
+      6. Maintain a friendly and professional tone in all responses`;
 
-      // Încercăm să obținem răspunsul de la DeepSeek
+      // Try to get response from DeepSeek
       const completion = await openai.chat.completions.create({
         messages: [
           { role: "system", content: systemPrompt },
@@ -160,7 +160,7 @@ exports.getRecommendations = async (req, res) => {
       aiResponse = completion.choices[0].message.content;
     } catch (apiError) {
       console.error('DeepSeek API Error:', apiError);
-      // Folosim răspunsuri predefinite în caz de eroare
+      // Use predefined responses in case of error
       if (question.toLowerCase().includes('bună') || question.toLowerCase().includes('salut')) {
         aiResponse = defaultResponses.greeting[detectedLanguage];
       } else {
@@ -184,7 +184,7 @@ exports.getRecommendations = async (req, res) => {
     console.error('Error in getRecommendations:', error);
     res.status(500).json({
       success: false,
-      message: 'Îmi pare rău, a apărut o eroare. Vă rugăm să încercați din nou.'
+      message: 'Sorry, an error occurred. Please try again.'
     });
   }
 }; 

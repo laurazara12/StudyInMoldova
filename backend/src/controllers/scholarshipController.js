@@ -8,15 +8,15 @@ exports.getAllScholarships = async (req, res) => {
     });
     res.json({
       success: true,
-      message: 'Bursele au fost preluate cu succes',
+      message: 'Scholarships retrieved successfully',
       data: scholarships,
       total: scholarships.length
     });
   } catch (error) {
-    console.error('Eroare la obținerea burselor:', error);
+    console.error('Error getting scholarships:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la obținerea burselor',
+      message: 'Error getting scholarships',
       error: error.message,
       data: [],
       total: 0
@@ -31,21 +31,21 @@ exports.getScholarshipById = async (req, res) => {
     if (!scholarship) {
       return res.status(404).json({ 
         success: false,
-        message: 'Bursa nu a fost găsită',
+        message: 'Scholarship not found',
         data: null
       });
     }
     
     res.json({
       success: true,
-      message: 'Bursa a fost preluată cu succes',
+      message: 'Scholarship retrieved successfully',
       data: scholarship
     });
   } catch (error) {
-    console.error('Eroare la obținerea bursei:', error);
+    console.error('Error getting scholarship:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la obținerea bursei',
+      message: 'Error getting scholarship',
       error: error.message,
       data: null
     });
@@ -67,14 +67,14 @@ exports.createScholarship = async (req, res) => {
     
     res.status(201).json({
       success: true,
-      message: 'Bursa a fost creată cu succes',
+      message: 'Scholarship created successfully',
       data: scholarship
     });
   } catch (error) {
-    console.error('Eroare la crearea bursei:', error);
+    console.error('Error creating scholarship:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la crearea bursei',
+      message: 'Error creating scholarship',
       error: error.message,
       data: null
     });
@@ -87,7 +87,7 @@ exports.updateScholarship = async (req, res) => {
     const scholarship = await Scholarship.findByPk(req.params.id);
     
     if (!scholarship) {
-      return res.status(404).json({ message: 'Bursa nu a fost găsită' });
+      return res.status(404).json({ message: 'Scholarship not found' });
     }
     
     scholarship.name = name || scholarship.name;
@@ -101,8 +101,8 @@ exports.updateScholarship = async (req, res) => {
     
     res.json(scholarship);
   } catch (error) {
-    console.error('Eroare la actualizarea bursei:', error);
-    res.status(500).json({ message: 'Eroare la actualizarea bursei' });
+    console.error('Error updating scholarship:', error);
+    res.status(500).json({ message: 'Error updating scholarship' });
   }
 };
 
@@ -111,14 +111,14 @@ exports.deleteScholarship = async (req, res) => {
     const scholarship = await Scholarship.findByPk(req.params.id);
     
     if (!scholarship) {
-      return res.status(404).json({ message: 'Bursa nu a fost găsită' });
+      return res.status(404).json({ message: 'Scholarship not found' });
     }
     
     await scholarship.destroy();
-    res.json({ message: 'Bursă ștearsă cu succes' });
+    res.json({ message: 'Scholarship deleted successfully' });
   } catch (error) {
-    console.error('Eroare la ștergerea bursei:', error);
-    res.status(500).json({ message: 'Eroare la ștergerea bursei' });
+    console.error('Error deleting scholarship:', error);
+    res.status(500).json({ message: 'Error deleting scholarship' });
   }
 };
 
@@ -131,7 +131,7 @@ exports.applyForScholarship = async (req, res) => {
     if (!scholarship) {
       return res.status(404).json({ 
         success: false,
-        message: 'Bursa nu a fost găsită',
+        message: 'Scholarship not found',
         data: null
       });
     }
@@ -139,7 +139,7 @@ exports.applyForScholarship = async (req, res) => {
     if (!scholarship.isActive) {
       return res.status(400).json({ 
         success: false,
-        message: 'Bursa nu mai este activă',
+        message: 'Scholarship is no longer active',
         data: null
       });
     }
@@ -148,34 +148,34 @@ exports.applyForScholarship = async (req, res) => {
     if (!user) {
       return res.status(404).json({ 
         success: false,
-        message: 'Utilizatorul nu a fost găsit',
+        message: 'User not found',
         data: null
       });
     }
 
-    // Verificăm dacă utilizatorul a aplicat deja pentru această bursă
+    // Check if user has already applied for this scholarship
     const existingApplication = await user.hasScholarship(scholarship);
     if (existingApplication) {
       return res.status(400).json({ 
         success: false,
-        message: 'Ați aplicat deja pentru această bursă',
+        message: 'You have already applied for this scholarship',
         data: null
       });
     }
 
-    // Adăugăm bursa la utilizator
+    // Add scholarship to user
     await user.addScholarship(scholarship);
 
     res.json({ 
       success: true,
-      message: 'Aplicație pentru bursă trimisă cu succes',
+      message: 'Scholarship application submitted successfully',
       data: null
     });
   } catch (error) {
-    console.error('Eroare la aplicarea pentru bursă:', error);
+    console.error('Error applying for scholarship:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la aplicarea pentru bursă',
+      message: 'Error applying for scholarship',
       error: error.message,
       data: null
     });

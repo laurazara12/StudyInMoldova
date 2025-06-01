@@ -9,7 +9,7 @@ const HelpYouChoose = () => {
   const [messages, setMessages] = useState([
     {
       type: 'ai',
-      content: 'Bună! Sunt asistentul tău pentru alegerea programului de studii în Moldova. Cu ce te pot ajuta astăzi?'
+      content: 'Hello! I am your assistant for choosing a study program in Moldova. How can I help you today?'
     }
   ]);
   const [inputMessage, setInputMessage] = useState('');
@@ -81,7 +81,7 @@ const HelpYouChoose = () => {
       console.error('Error details:', error);
       setMessages(prev => [...prev, {
         type: 'ai',
-        content: 'Îmi pare rău, a apărut o eroare. Vă rugăm să încercați din nou.'
+        content: 'Sorry, an error occurred. Please try again.'
       }]);
     } finally {
       setIsLoading(false);
@@ -123,11 +123,11 @@ const HelpYouChoose = () => {
               type="text"
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
-              placeholder="Scrie un mesaj..."
+              placeholder="Write a message..."
               className="chat-input"
             />
             <button type="submit" className="send-button" disabled={isLoading}>
-              Trimite
+              Send
             </button>
           </form>
         </div>

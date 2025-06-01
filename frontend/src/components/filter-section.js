@@ -18,7 +18,7 @@ const FilterSection = ({
       <div className="filter-group">
         <input
           type="text"
-          placeholder="Caută după nume..."
+          placeholder="Search by name..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="search-input"
@@ -31,7 +31,7 @@ const FilterSection = ({
           onChange={(e) => setFilterType(e.target.value)}
           className="filter-select"
         >
-          <option value="">Toate tipurile</option>
+          <option value="">All types</option>
           {typeOptions.map((type) => (
             <option key={type} value={type}>
               {type}
@@ -46,7 +46,7 @@ const FilterSection = ({
           onChange={(e) => setFilterLocation(e.target.value)}
           className="filter-select"
         >
-          <option value="">Toate locațiile</option>
+          <option value="">All locations</option>
           {locationOptions.map((location) => (
             <option key={location} value={location}>
               {location}
@@ -61,9 +61,9 @@ const FilterSection = ({
           onChange={(e) => setSortBy(e.target.value)}
           className="filter-select"
         >
-          <option value="name">Sortează după nume</option>
-          <option value="type">Sortează după tip</option>
-          <option value="location">Sortează după locație</option>
+          <option value="name">Sort by name</option>
+          <option value="type">Sort by type</option>
+          <option value="location">Sort by location</option>
         </select>
       </div>
     </div>

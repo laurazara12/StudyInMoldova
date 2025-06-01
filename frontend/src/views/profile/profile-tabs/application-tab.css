@@ -830,4 +830,123 @@
   color: #ffc107;
   margin-left: 8px;
   font-style: italic;
+}
+
+.motivation-letter-section,
+.documents-section,
+.admin-notes {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.motivation-letter-section h3,
+.documents-section h3,
+.admin-notes h3 {
+  color: #2c3e50;
+  margin-bottom: 15px;
+  font-size: 1.2em;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 10px;
+}
+
+.motivation-letter-content {
+  background-color: white;
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+.documents-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.document-item {
+  background-color: white;
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.document-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.document-type {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.document-type i {
+  margin-right: 8px;
+  color: #6c757d;
+}
+
+.document-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.9em;
+}
+
+.document-status i {
+  font-size: 0.8em;
+}
+
+.status-approved {
+  color: #28a745;
+}
+
+.status-rejected {
+  color: #dc3545;
+}
+
+.status-pending {
+  color: #ffc107;
+}
+
+.document-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.btn-view-document {
+  padding: 6px 12px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 0.9em;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: background-color 0.2s;
+}
+
+.btn-view-document:hover {
+  background-color: #0056b3;
+}
+
+.document-name {
+  color: #6c757d;
+  font-size: 0.9em;
+}
+
+.notes-content {
+  background-color: white;
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+  line-height: 1.6;
 } 

@@ -27,7 +27,7 @@ import { API_BASE_URL, getAuthHeaders } from '../../config/api.config';
 import { applicationService } from '../../services/applicationService';
 import { useAuth } from '../../contexts/AuthContext';
 
-const steps = ['Selectare program', 'Detalii aplicație', 'Confirmare'];
+const steps = ['Select Program', 'Application Details', 'Confirmation'];
 
 const NewApplication = () => {
   const [activeStep, setActiveStep] = useState(0);
@@ -63,13 +63,13 @@ const NewApplication = () => {
       });
       
       if (!response.data || !Array.isArray(response.data)) {
-        throw new Error('Format invalid pentru datele universităților');
+        throw new Error('Invalid format for university data');
       }
       
       setUniversities(response.data);
     } catch (err) {
       console.error('Eroare la încărcarea universităților:', err);
-      setError(err.response?.data?.message || 'Eroare la încărcarea universităților. Vă rugăm să reîncercați.');
+      setError(err.response?.data?.message || 'Error loading universities. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -90,13 +90,13 @@ const NewApplication = () => {
       });
       
       if (!response.data || !Array.isArray(response.data)) {
-        throw new Error('Format invalid pentru datele programelor');
+        throw new Error('Invalid format for program data');
       }
       
       setPrograms(response.data);
     } catch (err) {
       console.error('Eroare la încărcarea programelor:', err);
-      setError(err.response?.data?.message || 'Eroare la încărcarea programelor. Vă rugăm să reîncercați.');
+      setError(err.response?.data?.message || 'Error loading programs. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -116,7 +116,7 @@ const NewApplication = () => {
       setError(null);
 
       if (!selectedUniversity || !selectedProgram) {
-        throw new Error('Vă rugăm să selectați o universitate și un program');
+        throw new Error('Please select a university and a program');
       }
 
       const applicationData = {
@@ -132,7 +132,7 @@ const NewApplication = () => {
       navigate('/applications');
     } catch (err) {
       console.error('Eroare la crearea aplicației:', err);
-      setError(err.response?.data?.message || err.message || 'Eroare la crearea aplicației. Vă rugăm să reîncercați.');
+      setError(err.response?.data?.message || err.message || 'Error creating application. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -145,11 +145,11 @@ const NewApplication = () => {
           <Grid container spacing={3}>
             <Grid item xs={12}>
               <FormControl fullWidth error={!selectedUniversity}>
-                <InputLabel>Universitate</InputLabel>
+                <InputLabel>University</InputLabel>
                 <Select
                   value={selectedUniversity}
                   onChange={(e) => setSelectedUniversity(e.target.value)}
-                  label="Universitate"
+                  label="University"
                 >
                   {universities.map((university) => (
                     <MenuItem key={university.id} value={university.id}>
@@ -158,7 +158,7 @@ const NewApplication = () => {
                   ))}
                 </Select>
                 {!selectedUniversity && (
-                  <FormHelperText>Selectează o universitate</FormHelperText>
+                  <FormHelperText>Select a university</FormHelperText>
                 )}
               </FormControl>
             </Grid>
@@ -178,7 +178,7 @@ const NewApplication = () => {
                     ))}
                   </Select>
                   {!selectedProgram && (
-                    <FormHelperText>Selectează un program</FormHelperText>
+                    <FormHelperText>Select a program</FormHelperText>
                   )}
                 </FormControl>
               </Grid>
@@ -191,11 +191,11 @@ const NewApplication = () => {
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
               <FormControl fullWidth>
-                <InputLabel>Anul aplicării</InputLabel>
+                <InputLabel>Application Year</InputLabel>
                 <Select
                   value={applicationYear}
                   onChange={(e) => setApplicationYear(e.target.value)}
-                  label="Anul aplicării"
+                  label="Application Year"
                 >
                   <MenuItem value={new Date().getFullYear()}>
                     {new Date().getFullYear()}
@@ -208,14 +208,14 @@ const NewApplication = () => {
             </Grid>
             <Grid item xs={12} md={6}>
               <FormControl fullWidth>
-                <InputLabel>Semestrul</InputLabel>
+                <InputLabel>Semester</InputLabel>
                 <Select
                   value={semester}
                   onChange={(e) => setSemester(e.target.value)}
-                  label="Semestrul"
+                  label="Semester"
                 >
-                  <MenuItem value="fall">Toamnă</MenuItem>
-                  <MenuItem value="spring">Primăvară</MenuItem>
+                  <MenuItem value="fall">Fall</MenuItem>
+                  <MenuItem value="spring">Spring</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
@@ -224,21 +224,21 @@ const NewApplication = () => {
                 fullWidth
                 multiline
                 rows={4}
-                label="Note adiționale"
+                label="Additional Notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
               />
             </Grid>
             <Grid item xs={12}>
               <FormControl fullWidth>
-                <InputLabel>Aplicație urgentă</InputLabel>
+                <InputLabel>Urgent Application</InputLabel>
                 <Select
                   value={isUrgent}
                   onChange={(e) => setIsUrgent(e.target.value)}
-                  label="Aplicație urgentă"
+                  label="Urgent Application"
                 >
-                  <MenuItem value={false}>Nu</MenuItem>
-                  <MenuItem value={true}>Da</MenuItem>
+                  <MenuItem value={false}>No</MenuItem>
+                  <MenuItem value={true}>Yes</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
@@ -251,7 +251,7 @@ const NewApplication = () => {
         return (
           <Box>
             <Typography variant="h6" gutterBottom>
-              Confirmă detaliile aplicației
+              Confirm application details
             </Typography>
             <Card sx={{ mb: 3 }}>
               <CardContent>
@@ -263,11 +263,11 @@ const NewApplication = () => {
                 </Typography>
                 <Box mt={2}>
                   <Chip
-                    label={`Anul ${applicationYear}`}
+                    label={`Year ${applicationYear}`}
                     sx={{ mr: 1 }}
                   />
                   <Chip
-                    label={semester === 'fall' ? 'Semestrul de toamnă' : 'Semestrul de primăvară'}
+                    label={semester === 'fall' ? 'Fall Semester' : 'Spring Semester'}
                     sx={{ mr: 1 }}
                   />
                   {isUrgent && (
@@ -279,7 +279,7 @@ const NewApplication = () => {
                 </Box>
                 {notes && (
                   <Typography variant="body2" sx={{ mt: 2 }}>
-                    <strong>Note adiționale:</strong> {notes}
+                    <strong>Additional Notes:</strong> {notes}
                   </Typography>
                 )}
               </CardContent>
@@ -303,7 +303,7 @@ const NewApplication = () => {
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Typography variant="h4" component="h1" gutterBottom>
-        Aplicație nouă
+        New Application
       </Typography>
 
       {error && (
@@ -327,7 +327,7 @@ const NewApplication = () => {
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
           {activeStep > 0 && (
             <Button onClick={handleBack} sx={{ mr: 1 }}>
-              Înapoi
+              Back
             </Button>
           )}
           {activeStep === steps.length - 1 ? (
@@ -337,7 +337,7 @@ const NewApplication = () => {
               onClick={handleSubmit}
               disabled={loading}
             >
-              Trimite aplicația
+              Submit Application
             </Button>
           ) : (
             <Button
@@ -349,7 +349,7 @@ const NewApplication = () => {
                 loading
               }
             >
-              Următorul
+              Next
             </Button>
           )}
         </Box>

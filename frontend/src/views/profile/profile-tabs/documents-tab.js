@@ -6,13 +6,13 @@ import DocumentCounter from '../../../components/document-counter';
 import './documents-tab.css';
 
 const documentTypes = [
-  { id: 'diploma', name: 'Diploma', description: 'Diploma de bacalaureat sau echivalent' },
-  { id: 'transcript', name: 'Transcript', description: 'Foaia matricolă cu notele' },
-  { id: 'passport', name: 'Pașaport', description: 'Pașaport valid' },
-  { id: 'photo', name: 'Fotografie', description: 'Fotografie recentă 3x4' },
-  { id: 'medical', name: 'Certificat Medical', description: 'Certificat medical' },
-  { id: 'insurance', name: 'Asigurare Medicală', description: 'Asigurare medicală' },
-  { id: 'other', name: 'Alte Documente', description: 'Alte documente' },
+  { id: 'diploma', name: 'Diploma', description: 'Bachelor\'s degree or equivalent' },
+  { id: 'transcript', name: 'Transcript', description: 'Grade transcript' },
+  { id: 'passport', name: 'Passport', description: 'Valid passport' },
+  { id: 'photo', name: 'Photo', description: 'Recent 3x4 photo' },
+  { id: 'medical', name: 'Medical Certificate', description: 'Medical certificate' },
+  { id: 'insurance', name: 'Medical Insurance', description: 'Medical insurance' },
+  { id: 'other', name: 'Other Documents', description: 'Other documents' },
   { id: 'cv', name: 'CV', description: 'Curriculum Vitae' }
 ];
 
@@ -29,7 +29,7 @@ const DocumentsTab = ({ userData }) => {
   }, []);
 
   useEffect(() => {
-    // Salvăm starea butoanelor în localStorage
+    // Save button states in localStorage
     const saveButtonState = () => {
       const newButtonStates = {};
       documentTypes.forEach(docType => {
@@ -58,7 +58,7 @@ const DocumentsTab = ({ userData }) => {
       });
 
       if (!response.data) {
-        throw new Error('Nu s-au primit date de la server');
+        throw new Error('No data received from server');
       }
 
       let documentsData = [];
@@ -70,7 +70,7 @@ const DocumentsTab = ({ userData }) => {
         documentsData = response.data.documents;
       }
 
-      // Filtrăm documentele șterse și ne asigurăm că toate proprietățile necesare sunt prezente
+      // Filter deleted documents and ensure all required properties are present
       const processedDocuments = documentsData
         .filter(doc => doc && doc.status !== 'deleted')
         .map(doc => ({
@@ -85,7 +85,7 @@ const DocumentsTab = ({ userData }) => {
 
       setDocuments(processedDocuments);
     } catch (error) {
-      console.error('Eroare la obținerea documentelor:', error);
+      console.error('Error fetching documents:', error);
       setError(handleApiError(error));
     } finally {
       setLoading(false);
@@ -100,16 +100,16 @@ const DocumentsTab = ({ userData }) => {
     input.onchange = (e) => {
       const file = e.target.files[0];
       if (file) {
-        // Verificăm dimensiunea fișierului (10MB)
+        // Check file size (10MB)
         if (file.size > 10 * 1024 * 1024) {
-          toast.error('Fișierul este prea mare. Dimensiunea maximă permisă este de 10MB.');
+          toast.error('File is too large. Maximum allowed size is 10MB.');
           return;
         }
 
-        // Verificăm tipul fișierului
+        // Check file type
         const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
         if (!allowedTypes.includes(file.type)) {
-          toast.error('Tip de fișier neacceptat. Sunt acceptate doar fișiere PDF, JPG, JPEG și PNG.');
+          toast.error('Unsupported file type. Only PDF, JPG, JPEG and PNG files are accepted.');
           return;
         }
         
@@ -132,7 +132,7 @@ const DocumentsTab = ({ userData }) => {
     try {
       const file = uploadStatus[docTypeId]?.file;
       if (!file) {
-        throw new Error('Nu a fost selectat niciun fișier');
+        throw new Error('No file selected');
       }
 
       setUploadStatus(prev => ({
@@ -164,7 +164,7 @@ const DocumentsTab = ({ userData }) => {
       );
 
       if (!response || !response.data) {
-        throw new Error('Nu s-a primit niciun răspuns de la server');
+        throw new Error('No response received from server');
       }
 
       if (response.data.success) {
@@ -176,13 +176,13 @@ const DocumentsTab = ({ userData }) => {
           createdAt: new Date()
         };
         
-        // Actualizăm lista de documente
+        // Update documents list
         setDocuments(prev => {
           const updatedDocs = prev.filter(doc => doc.document_type !== docTypeId);
           return [...updatedDocs, newDocument];
         });
         
-        // Actualizăm starea butoanelor
+        // Update button states
         setButtonStates(prev => ({
           ...prev,
           [docTypeId]: {
@@ -191,20 +191,20 @@ const DocumentsTab = ({ userData }) => {
           }
         }));
 
-        // Reîncărcăm toate documentele pentru a ne asigura că avem datele cele mai recente
+        // Reload all documents to ensure we have the latest data
         await fetchDocuments();
 
-        toast.success('Document încărcat cu succes');
+        toast.success('Document uploaded successfully');
         setUploadStatus(prev => ({
           ...prev,
           [docTypeId]: { ...prev[docTypeId], uploaded: true }
         }));
       } else {
-        throw new Error(response.data.message || 'Eroare la încărcarea documentului');
+        throw new Error(response.data.message || 'Error uploading document');
       }
     } catch (error) {
-      console.error('Eroare la încărcarea documentului:', error);
-      toast.error(error.message || 'A apărut o eroare la încărcarea documentului');
+      console.error('Error uploading document:', error);
+      toast.error(error.message || 'An error occurred while uploading the document');
     } finally {
       setUploadStatus(prev => ({
         ...prev,
@@ -231,7 +231,7 @@ const DocumentsTab = ({ userData }) => {
       link.click();
       link.remove();
     } catch (error) {
-      console.error('Eroare la descărcarea documentului:', error);
+      console.error('Error downloading document:', error);
       toast.error(handleApiError(error));
     }
   };
@@ -241,10 +241,10 @@ const DocumentsTab = ({ userData }) => {
       setLoading(true);
       setError(null);
 
-      // Verificăm mai întâi dacă documentul există
+      // First check if the document exists
       const document = documents.find(doc => doc.id === documentId);
       if (!document) {
-        throw new Error('Documentul nu a fost găsit');
+        throw new Error('Document not found');
       }
 
       const response = await axios.delete(`${API_BASE_URL}/api/documents/${documentId}`, {
@@ -252,28 +252,28 @@ const DocumentsTab = ({ userData }) => {
       });
 
       if (response.data.success) {
-        // Actualizăm lista de documente
+        // Update documents list
         const updatedDocuments = documents.filter(doc => doc.id !== documentId);
         setDocuments(updatedDocuments);
         
-        // Afișăm mesajul de succes
-        setSuccessMessage('Document șters cu succes');
+        // Show success message
+        setSuccessMessage('Document deleted successfully');
         setTimeout(() => setSuccessMessage(null), 3000);
       } else {
-        throw new Error(response.data.message || 'Eroare la ștergerea documentului');
+        throw new Error(response.data.message || 'Error deleting document');
       }
     } catch (error) {
       console.error('Error deleting document:', error);
       if (error.response) {
         if (error.response.status === 404) {
-          setError('Documentul nu a fost găsit');
+          setError('Document not found');
         } else if (error.response.status === 403) {
-          setError('Nu aveți permisiunea de a șterge acest document');
+          setError('You do not have permission to delete this document');
         } else {
-          setError(error.response.data.message || 'Eroare la ștergerea documentului');
+          setError(error.response.data.message || 'Error deleting document');
         }
       } else {
-        setError(error.message || 'Eroare la comunicarea cu serverul');
+        setError(error.message || 'Error communicating with server');
       }
     } finally {
       setLoading(false);
@@ -288,7 +288,7 @@ const DocumentsTab = ({ userData }) => {
   if (loading) {
     return (
       <div className="documents-section">
-        <div className="loading">Se încarcă documentele...</div>
+        <div className="loading">Loading documents...</div>
       </div>
     );
   }
@@ -303,7 +303,7 @@ const DocumentsTab = ({ userData }) => {
 
   return (
     <div className="documents-section">
-      <h2>Documentele Mele</h2>
+      <h2>My Documents</h2>
       
       <DocumentCounter 
         documents={documents}
@@ -325,12 +325,12 @@ const DocumentsTab = ({ userData }) => {
                 {isDocumentValid && (
                   <>
                     <p className={`status-${document.status}`}>Status: {
-                      document.status === 'pending' ? 'În procesare' :
-                      document.status === 'approved' ? 'Aprobat' :
-                      document.status === 'rejected' ? 'Respinse' :
-                      document.status === 'deleted' ? 'Șters' : document.status
+                      document.status === 'pending' ? 'Processing' :
+                      document.status === 'approved' ? 'Approved' :
+                      document.status === 'rejected' ? 'Rejected' :
+                      document.status === 'deleted' ? 'Deleted' : document.status
                     }</p>
-                    <p>Încărcat: {new Date(document.uploadDate || document.createdAt).toLocaleDateString()}</p>
+                    <p>Uploaded: {new Date(document.uploadDate || document.createdAt).toLocaleDateString()}</p>
                   </>
                 )}
               </div>
@@ -341,13 +341,13 @@ const DocumentsTab = ({ userData }) => {
                       className={`download-button ${buttonState.isDownloadActive ? 'active' : ''}`}
                       onClick={() => handleDownload(document.id)}
                     >
-                      Descarcă
+                      Download
                     </button>
                     <button 
                       className={`delete-button ${buttonState.isDeleteActive ? 'active' : ''}`}
                       onClick={() => handleDocumentDelete(document.id)}
                     >
-                      Șterge
+                      Delete
                     </button>
                   </>
                 ) : (
@@ -358,7 +358,7 @@ const DocumentsTab = ({ userData }) => {
                         onClick={() => handleUpload(docType.id)}
                         disabled={uploadStatusForType.uploading}
                       >
-                        {uploadStatusForType.uploading ? 'Se încarcă...' : 'Încarcă'}
+                        {uploadStatusForType.uploading ? 'Uploading...' : 'Upload'}
                       </button>
                     )}
                     {!uploadStatusForType?.file && (
@@ -366,7 +366,7 @@ const DocumentsTab = ({ userData }) => {
                         className="choose-button"
                         onClick={() => handleFileSelect(docType.id)}
                       >
-                        Alege Fișier
+                        Choose File
                       </button>
                     )}
                   </>

@@ -18,7 +18,7 @@ class WebSocketService {
       this.ws = new WebSocket(wsUrl);
 
       this.ws.onopen = () => {
-        console.log('Conexiune WebSocket stabilită');
+        console.log('WebSocket connection established');
         this.reconnectAttempts = 0;
         this.isConnecting = false;
       };
@@ -29,12 +29,12 @@ class WebSocketService {
           const handlers = this.handlers.get(data.type) || [];
           handlers.forEach(handler => handler(data));
         } catch (error) {
-          console.error('Eroare la procesarea mesajului:', error);
+          console.error('Error processing message:', error);
         }
       };
 
       this.ws.onclose = (event) => {
-        console.log('Conexiune WebSocket închisă:', event.code, event.reason);
+        console.log('WebSocket connection closed:', event.code, event.reason);
         this.isConnecting = false;
         
         if (event.code !== 1000) {
@@ -43,12 +43,12 @@ class WebSocketService {
       };
 
       this.ws.onerror = (error) => {
-        console.error('Eroare WebSocket:', error);
+        console.error('WebSocket error:', error);
         this.isConnecting = false;
       };
 
     } catch (error) {
-      console.error('Eroare la inițializarea WebSocket:', error);
+      console.error('Error initializing WebSocket:', error);
       this.isConnecting = false;
       this.handleReconnect();
     }
@@ -56,12 +56,12 @@ class WebSocketService {
 
   handleReconnect() {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.error('Numărul maxim de încercări de reconectare a fost atins');
+      console.error('Maximum reconnection attempts reached');
       return;
     }
 
     this.reconnectAttempts++;
-    console.log(`Încercare reconectare ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
+    console.log(`Reconnection attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
 
     setTimeout(() => {
       const token = localStorage.getItem('token');
@@ -73,7 +73,7 @@ class WebSocketService {
 
   disconnect() {
     if (this.ws) {
-      this.ws.close(1000, 'Deconectare normală');
+      this.ws.close(1000, 'Normal disconnection');
       this.ws = null;
     }
   }
@@ -99,7 +99,7 @@ class WebSocketService {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify(message));
     } else {
-      console.error('WebSocket nu este conectat');
+      console.error('WebSocket is not connected');
     }
   }
 }

@@ -21,7 +21,7 @@ const DocumentsTab = () => {
 
   const loadDocuments = async () => {
     try {
-      console.log('Începe încărcarea documentelor...');
+      console.log('Loading documents...');
       setLoading(true);
       setError(null);
 
@@ -29,10 +29,10 @@ const DocumentsTab = () => {
         headers: getAuthHeaders()
       });
 
-      console.log('Răspuns server documente:', response.data);
+      console.log('Server response documents:', response.data);
 
       if (!response.data) {
-        throw new Error('Nu s-au primit date de la server');
+        throw new Error('No data received from server');
       }
 
       let documentsData = [];
@@ -43,12 +43,12 @@ const DocumentsTab = () => {
       } else if (response.data.documents && Array.isArray(response.data.documents)) {
         documentsData = response.data.documents;
       } else {
-        throw new Error('Format invalid al datelor primite');
+        throw new Error('Invalid data format received');
       }
 
       // Filtrăm documentele șterse
       const activeDocuments = documentsData.filter(doc => doc.status !== 'deleted');
-      console.log(`S-au găsit ${activeDocuments.length} documente active din ${documentsData.length} total`);
+      console.log(`Found ${activeDocuments.length} active documents out of ${documentsData.length} total`);
 
       const processedDocuments = activeDocuments.map(doc => ({
         id: doc.id,
@@ -62,7 +62,7 @@ const DocumentsTab = () => {
         file_path: doc.file_path
       }));
 
-      console.log('Documente procesate:', processedDocuments);
+      console.log('Processed documents:', processedDocuments);
       setDocuments(processedDocuments);
       setFilteredDocuments(processedDocuments);
 
@@ -73,11 +73,11 @@ const DocumentsTab = () => {
         rejected: processedDocuments.filter(doc => doc.status === 'rejected').length
       };
 
-      console.log('Statistici documente:', statusCounts);
+      console.log('Document statistics:', statusCounts);
       setDocumentStats(statusCounts);
     } catch (error) {
-      console.error('Eroare la încărcarea documentelor:', error);
-      setError('Eroare la încărcarea documentelor: ' + error.message);
+      console.error('Error loading documents:', error);
+      setError('Error loading documents: ' + error.message);
       setDocuments([]);
       setFilteredDocuments([]);
       setDocumentStats({ pending: 0, approved: 0, rejected: 0 });
@@ -130,14 +130,14 @@ const DocumentsTab = () => {
         );
         setDocuments(revertedDocuments);
         setFilteredDocuments(revertedDocuments);
-        throw new Error(response.data.message || 'Eroare la aprobarea documentului');
+        throw new Error(response.data.message || 'Error approving document');
       }
 
-      setSuccessMessage('Document aprobat cu succes!');
+      setSuccessMessage('Document approved successfully!');
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
-      console.error('Eroare la aprobarea documentului:', error);
-      setError('A apărut o eroare la aprobarea documentului. Vă rugăm să încercați din nou.');
+      console.error('Error approving document:', error);
+      setError('An error occurred while approving the document. Please try again.');
       setTimeout(() => setError(null), 5000);
     }
   };
@@ -186,14 +186,14 @@ const DocumentsTab = () => {
         );
         setDocuments(revertedDocuments);
         setFilteredDocuments(revertedDocuments);
-        throw new Error(response.data.message || 'Eroare la respingerea documentului');
+        throw new Error(response.data.message || 'Error rejecting document');
       }
 
-      setSuccessMessage('Document respins cu succes!');
+      setSuccessMessage('Document rejected successfully!');
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
-      console.error('Eroare la respingerea documentului:', error);
-      setError('A apărut o eroare la respingerea documentului. Vă rugăm să încercați din nou.');
+      console.error('Error rejecting document:', error);
+      setError('An error occurred while rejecting the document. Please try again.');
       setTimeout(() => setError(null), 5000);
     }
   };
@@ -216,21 +216,21 @@ const DocumentsTab = () => {
         setDocuments(updatedDocuments);
         setFilteredDocuments(updatedDocuments);
         setDocumentStats(response.data.status);
-        setSuccessMessage('Document șters cu succes');
+        setSuccessMessage('Document deleted successfully');
         setTimeout(() => setSuccessMessage(null), 3000);
       }
     } catch (error) {
-      console.error('Eroare la ștergerea documentului:', error);
+      console.error('Error deleting document:', error);
       if (error.response) {
         if (error.response.status === 404) {
-          setError('Documentul nu a fost găsit');
+          setError('Document not found');
         } else if (error.response.status === 403) {
-          setError('Nu aveți permisiunea de a șterge acest document');
+          setError('You do not have permission to delete this document');
         } else {
-          setError(error.response.data.message || 'Eroare la ștergerea documentului');
+          setError(error.response.data.message || 'Error deleting document');
         }
       } else {
-        setError(error.message || 'Eroare la comunicarea cu serverul');
+        setError(error.message || 'Error communicating with server');
       }
     } finally {
       setLoading(false);
@@ -239,7 +239,7 @@ const DocumentsTab = () => {
 
   const handleDownloadDocument = (documentType, userId) => {
     // Implementați funcția de descărcare a documentului aici
-    console.log(`Descărcarea documentului de tip ${documentType} pentru utilizatorul ${userId}`);
+    console.log(`Downloading document of type ${documentType} for user ${userId}`);
   };
 
   const formatDate = (dateString) => {
@@ -281,7 +281,7 @@ const DocumentsTab = () => {
             <input
               type="text"
               className="search-input"
-              placeholder="Caută după nume utilizator sau tip document..."
+              placeholder="Search by user name or document type..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -290,21 +290,21 @@ const DocumentsTab = () => {
 
         <div className="filter-section documents-filter">
           <div className="filter-group">
-            <label>Tip Document:</label>
+            <label>Document Type:</label>
             <select
               value={filterDocumentType}
               onChange={(e) => setFilterDocumentType(e.target.value)}
               className="filter-select"
             >
-              <option value="all">Toate tipurile</option>
-              <option value="diploma">Diplomă</option>
+              <option value="all">All types</option>
+              <option value="diploma">Diploma</option>
               <option value="transcript">Transcript</option>
-              <option value="passport">Pașaport</option>
-              <option value="photo">Fotografie</option>
+              <option value="passport">Passport</option>
+              <option value="photo">Photo</option>
             </select>
           </div>
           <div className="filter-group">
-            <label>Data:</label>
+            <label>Date:</label>
             <div className="date-range-inputs">
               <input
                 type="date"
@@ -312,7 +312,7 @@ const DocumentsTab = () => {
                 onChange={(e) => setFilterDateRange({...filterDateRange, start: e.target.value})}
                 className="date-input"
               />
-              <span>până la</span>
+              <span>to</span>
               <input
                 type="date"
                 value={filterDateRange.end}
@@ -330,13 +330,13 @@ const DocumentsTab = () => {
               setFilteredDocuments(documents);
             }}
           >
-            Resetează filtrele
+            Reset Filters
           </button>
           <button 
             className="search-button"
             onClick={handleSearch}
           >
-            Caută
+            Search
           </button>
         </div>
       </div>
@@ -356,7 +356,7 @@ const DocumentsTab = () => {
       {loading ? (
         <div className="loading-container">
           <div className="loading-spinner"></div>
-          <p>Se încarcă documentele...</p>
+          <p>Loading documents...</p>
         </div>
       ) : (
         <div className="documents-table-container">
@@ -364,24 +364,24 @@ const DocumentsTab = () => {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Utilizator</th>
-                <th>Tip</th>
+                <th>User</th>
+                <th>Type</th>
                 <th>Status</th>
-                <th>Data încărcării</th>
-                <th>Acțiuni</th>
+                <th>Upload Date</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredDocuments.map(doc => (
                 <tr key={doc.id}>
                   <td>{doc.id}</td>
-                  <td>{doc.user_name || `Utilizator ID: ${doc.user_id}`}</td>
+                  <td>{doc.user_name || `User ID: ${doc.user_id}`}</td>
                   <td>{doc.document_type}</td>
                   <td>
                     <span className={`status-badge status-${doc.status}`}>
-                      {doc.status === 'pending' ? 'În așteptare' :
-                       doc.status === 'approved' ? 'Aprobat' :
-                       doc.status === 'rejected' ? 'Respinse' :
+                      {doc.status === 'pending' ? 'Pending' :
+                       doc.status === 'approved' ? 'Approved' :
+                       doc.status === 'rejected' ? 'Rejected' :
                        doc.status.charAt(0).toUpperCase() + doc.status.slice(1)}
                     </span>
                   </td>
@@ -392,7 +392,7 @@ const DocumentsTab = () => {
                         className="btn1"
                         onClick={() => handleDownloadDocument(doc.document_type, doc.user_id)}
                       >
-                        <i className="fas fa-download"></i> Descarcă
+                        <i className="fas fa-download"></i> Download
                       </button>
                       {doc.status === 'pending' && (
                         <>
@@ -400,13 +400,13 @@ const DocumentsTab = () => {
                             className="btn-success"
                             onClick={() => handleConfirmDocument(doc)}
                           >
-                            <i className="fas fa-check"></i> Aprobă
+                            <i className="fas fa-check"></i> Approve
                           </button>
                           <button 
                             className="btn-delete"
                             onClick={() => handleRejectDocument(doc)}
                           >
-                            <i className="fas fa-times"></i> Respinge
+                            <i className="fas fa-times"></i> Reject
                           </button>
                         </>
                       )}
@@ -414,7 +414,7 @@ const DocumentsTab = () => {
                         className="btn-delete"
                         onClick={() => setDocumentToDelete(doc)}
                       >
-                        <i className="fas fa-trash"></i> Șterge
+                        <i className="fas fa-trash"></i> Delete
                       </button>
                     </div>
                   </td>
@@ -431,7 +431,7 @@ const DocumentsTab = () => {
           onClose={() => setDocumentToDelete(null)}
           document={documentToDelete}
           onDelete={(document) => {
-            handleDocumentDelete(document.id, 'Documentul dumneavoastră a fost șters de administrator.');
+            handleDocumentDelete(document.id, 'Document deleted by administrator.');
             setDocumentToDelete(null);
           }}
         />

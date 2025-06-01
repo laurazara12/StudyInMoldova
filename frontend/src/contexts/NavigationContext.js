@@ -16,7 +16,7 @@ export const NavigationProvider = ({ children }) => {
 export const useNavigation = () => {
   const context = useContext(NavigationContext);
   if (!context) {
-    throw new Error('useNavigation trebuie folosit în interiorul unui NavigationProvider');
+    throw new Error('useNavigation must be used within a NavigationProvider');
   }
   return context;
 }; 

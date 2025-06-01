@@ -2,19 +2,19 @@ const { University } = require('../models');
 
 exports.getAllUniversities = async (req, res) => {
   try {
-    console.log('=== Începe preluarea universităților ===');
+    console.log('=== Starting to fetch universities ===');
     
     const universities = await University.findAll({
       order: [['name', 'ASC']]
     });
     
-    console.log('Universități găsite:', universities.length);
+    console.log('Universities found:', universities.length);
     
-    // Procesăm datele pentru a ne asigura că au formatul corect
+    // Process data to ensure correct format
     const processedUniversities = universities.map(uni => {
       const universityData = uni.toJSON();
       
-      // Procesăm taxele de școlarizare
+      // Process tuition fees
       const tuitionFees = universityData.tuition_fees || {};
       const processedFees = {
         bachelor: tuitionFees.bachelor ? parseFloat(tuitionFees.bachelor) : null,
@@ -22,7 +22,7 @@ exports.getAllUniversities = async (req, res) => {
         phd: tuitionFees.phd ? parseFloat(tuitionFees.phd) : null
       };
       
-      // Procesăm informațiile de contact
+      // Process contact information
       const contactInfo = universityData.contact_info || {};
       const processedContact = {
         email: contactInfo.email || null,
@@ -40,18 +40,18 @@ exports.getAllUniversities = async (req, res) => {
       };
     });
     
-    console.log('Universități procesate:', processedUniversities.length);
+    console.log('Processed universities:', processedUniversities.length);
     
     res.json({
       success: true,
       data: processedUniversities,
-      message: 'Universitățile au fost preluate cu succes'
+      message: 'Universities retrieved successfully'
     });
   } catch (error) {
-    console.error('Eroare la preluarea universităților:', error);
+    console.error('Error fetching universities:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la preluarea universităților',
+      message: 'Error fetching universities',
       error: error.message
     });
   }
@@ -64,20 +64,20 @@ exports.getUniversityById = async (req, res) => {
     if (!university) {
       return res.status(404).json({ 
         success: false,
-        message: 'Universitatea nu a fost găsită'
+        message: 'University not found'
       });
     }
     
     res.json({
       success: true,
       data: university,
-      message: 'Universitatea a fost preluată cu succes'
+      message: 'University retrieved successfully'
     });
   } catch (error) {
     console.error('Error getting university:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la preluarea universității',
+      message: 'Error retrieving university',
       error: error.message
     });
   }
@@ -85,7 +85,7 @@ exports.getUniversityById = async (req, res) => {
 
 exports.createUniversity = async (req, res) => {
   try {
-    console.log('=== Începere creare universitate ===');
+    console.log('=== Starting university creation ===');
     console.log('Received university creation request:', JSON.stringify(req.body, null, 2));
 
     const requiredFields = ['name', 'type', 'location'];
@@ -95,7 +95,7 @@ exports.createUniversity = async (req, res) => {
       console.log('Missing required fields:', missingFields);
       return res.status(400).json({ 
         success: false,
-        message: 'Câmpuri obligatorii lipsă',
+        message: 'Missing required fields',
         fields: missingFields 
       });
     }
@@ -113,7 +113,7 @@ exports.createUniversity = async (req, res) => {
       console.log('University with this slug already exists:', slug);
       return res.status(400).json({ 
         success: false,
-        message: 'Există deja o universitate cu acest nume'
+        message: 'A university with this name already exists'
       });
     }
 
@@ -146,13 +146,13 @@ exports.createUniversity = async (req, res) => {
     res.status(201).json({
       success: true,
       data: university,
-      message: 'Universitatea a fost creată cu succes'
+      message: 'University created successfully'
     });
   } catch (error) {
     console.error('Error creating university:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la crearea universității',
+      message: 'Error creating university',
       error: error.message,
       details: error.errors
     });
@@ -163,16 +163,16 @@ exports.updateUniversity = async (req, res) => {
   try {
     console.log('Received update request with body:', JSON.stringify(req.body, null, 2));
     
-    // Verificăm dacă universitatea există
+    // Check if university exists
     const existingUniversity = await University.findByPk(req.params.id);
     if (!existingUniversity) {
       return res.status(404).json({ 
         success: false,
-        message: 'Universitatea nu a fost găsită'
+        message: 'University not found'
       });
     }
 
-    // Pregătim datele pentru actualizare
+    // Prepare data for update
     const updateData = {
       name: req.body.name,
       type: req.body.type,
@@ -196,23 +196,23 @@ exports.updateUniversity = async (req, res) => {
     console.log('Data prepared for update:', JSON.stringify(updateData, null, 2));
 
     try {
-      // Actualizăm universitatea
+      // Update university
       await existingUniversity.update(updateData);
       
-      // Reîncărcăm datele actualizate
+      // Reload updated data
       const updatedUniversity = await University.findByPk(req.params.id);
       console.log('Updated university data:', JSON.stringify(updatedUniversity, null, 2));
       
       return res.json({
         success: true,
         data: updatedUniversity,
-        message: 'Universitatea a fost actualizată cu succes'
+        message: 'University updated successfully'
       });
     } catch (updateError) {
       console.error('Error during university update:', updateError);
       return res.status(400).json({
         success: false,
-        message: 'Eroare la actualizarea datelor universității',
+        message: 'Error updating university data',
         error: updateError.message,
         details: updateError.errors
       });
@@ -221,7 +221,7 @@ exports.updateUniversity = async (req, res) => {
     console.error('Error in updateUniversity:', error);
     return res.status(500).json({ 
       success: false,
-      message: 'Eroare la actualizarea universității',
+      message: 'Error updating university',
       error: error.message,
       details: error.errors
     });
@@ -237,19 +237,19 @@ exports.deleteUniversity = async (req, res) => {
     if (!deleted) {
       return res.status(404).json({ 
         success: false,
-        message: 'Universitatea nu a fost găsită'
+        message: 'University not found'
       });
     }
     
     res.json({
       success: true,
-      message: 'Universitatea a fost ștearsă cu succes'
+      message: 'University deleted successfully'
     });
   } catch (error) {
     console.error('Error deleting university:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la ștergerea universității',
+      message: 'Error deleting university',
       error: error.message
     });
   }
@@ -258,22 +258,22 @@ exports.deleteUniversity = async (req, res) => {
 exports.getUniversityBySlug = async (req, res) => {
   try {
     const { slug } = req.params;
-    console.log('Căutăm universitatea cu slug-ul:', slug);
+    console.log('Searching for university with slug:', slug);
     
     const university = await University.findOne({
       where: { slug: slug.toLowerCase() }
     });
 
     if (!university) {
-      console.log('Universitatea nu a fost găsită pentru slug-ul:', slug);
+      console.log('University not found for slug:', slug);
       return res.status(404).json({ 
         success: false,
-        message: 'Universitatea nu a fost găsită',
+        message: 'University not found',
         slug: slug
       });
     }
 
-    console.log('Universitatea găsită:', {
+    console.log('University found:', {
       id: university.id,
       name: university.name,
       slug: university.slug
@@ -282,13 +282,13 @@ exports.getUniversityBySlug = async (req, res) => {
     res.json({
       success: true,
       data: university,
-      message: 'Universitatea a fost preluată cu succes'
+      message: 'University retrieved successfully'
     });
   } catch (error) {
-    console.error('Eroare la obținerea universității:', error);
+    console.error('Error getting university:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la obținerea universității',
+      message: 'Error retrieving university',
       error: error.message
     });
   }

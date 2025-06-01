@@ -8,14 +8,14 @@ exports.createApplication = async (req, res) => {
     const { program_id, motivation_letter } = req.body;
     const document_ids = req.body['document_ids[]'] || [];
 
-    console.log('Începe crearea aplicației:', {
+    console.log('Starting application creation:', {
       userId,
       program_id,
       document_ids,
       motivation_letter
     });
 
-    // Verificăm dacă programul există
+    // Check if the program exists
     const program = await Program.findByPk(program_id, {
       include: [{
         model: University,
@@ -24,20 +24,20 @@ exports.createApplication = async (req, res) => {
     });
 
     if (!program) {
-      console.log('Programul nu a fost găsit:', program_id);
+      console.log('Program not found:', program_id);
       return res.status(404).json({
         success: false,
-        message: 'Programul nu a fost găsit'
+        message: 'Program not found'
       });
     }
 
-    console.log('Program găsit:', {
+    console.log('Program found:', {
       id: program.id,
       name: program.name,
       university: program.university?.name
     });
 
-    // Verificăm dacă utilizatorul are deja o aplicație pentru acest program
+    // Check if user already has an application for this program
     const existingApplication = await Application.findOne({
       where: {
         user_id: userId,
@@ -46,17 +46,17 @@ exports.createApplication = async (req, res) => {
     });
 
     if (existingApplication) {
-      console.log('Aplicație existentă găsită:', {
+      console.log('Existing application found:', {
         id: existingApplication.id,
         status: existingApplication.status
       });
       return res.status(400).json({
         success: false,
-        message: 'Aveți deja o aplicație pentru acest program'
+        message: 'You already have an application for this program'
       });
     }
 
-    // Creăm aplicația
+    // Create application
     const application = await Application.create({
       user_id: userId,
       program_id: program_id,
@@ -66,20 +66,20 @@ exports.createApplication = async (req, res) => {
       application_date: new Date()
     });
 
-    console.log('Aplicație creată:', {
+    console.log('Application created:', {
       id: application.id,
       status: application.status,
       university_id: application.university_id,
       application_date: application.application_date
     });
 
-    // Asociem documentele dacă există
+    // Associate documents if they exist
     if (document_ids.length > 0) {
       await application.setDocuments(document_ids);
-      console.log('Documente asociate:', document_ids);
+      console.log('Documents associated:', document_ids);
     }
 
-    // Obținem lista de programe salvate
+    // Get list of saved programs
     const savedPrograms = await SavedProgram.findAll({
       where: { user_id: userId },
       include: [{
@@ -92,7 +92,7 @@ exports.createApplication = async (req, res) => {
       }]
     });
 
-    // Formatăm lista de programe salvate
+    // Format saved programs list
     const formattedSavedPrograms = savedPrograms.map(sp => ({
       id: sp.program.id,
       name: sp.program.name,
@@ -102,14 +102,14 @@ exports.createApplication = async (req, res) => {
       }
     }));
 
-    console.log('Răspuns final:', {
+    console.log('Final response:', {
       applicationId: application.id,
       savedProgramsCount: formattedSavedPrograms.length
     });
 
     return res.status(201).json({
       success: true,
-      message: 'Aplicația a fost creată cu succes',
+      message: 'Application created successfully',
       data: {
         application,
         savedPrograms: formattedSavedPrograms
@@ -117,10 +117,10 @@ exports.createApplication = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Eroare la crearea aplicației:', error);
+    console.error('Error creating application:', error);
     return res.status(500).json({
       success: false,
-      message: 'A apărut o eroare la crearea aplicației'
+      message: 'An error occurred while creating the application'
     });
   }
 };
@@ -128,12 +128,12 @@ exports.createApplication = async (req, res) => {
 exports.getUserApplications = async (req, res) => {
   try {
     console.log('=== getUserApplications ===');
-    console.log('User din request:', req.user);
+    console.log('User from request:', req.user);
     console.log('User ID:', req.user.id);
     
     const user_id = req.user.id;
 
-    console.log('Căutăm aplicații pentru user_id:', user_id);
+    console.log('Searching for applications for user_id:', user_id);
 
     const applications = await Application.findAll({
       where: { user_id },
@@ -156,17 +156,17 @@ exports.getUserApplications = async (req, res) => {
       order: [['created_at', 'DESC']]
     });
 
-    console.log('Aplicații găsite:', applications.length);
+    console.log('Applications found:', applications.length);
 
     res.json({
       success: true,
       data: applications
     });
   } catch (error) {
-    console.error('Eroare la obținerea aplicațiilor utilizatorului:', error);
+    console.error('Error getting user applications:', error);
     res.status(500).json({
       success: false,
-      message: 'Eroare la obținerea aplicațiilor',
+      message: 'Error retrieving applications',
       error: error.message
     });
   }
@@ -203,7 +203,7 @@ exports.getApplicationById = async (req, res) => {
     if (!application) {
       return res.status(404).json({
         success: false,
-        message: 'Aplicația nu a fost găsită'
+        message: 'Application not found'
       });
     }
 
@@ -212,10 +212,10 @@ exports.getApplicationById = async (req, res) => {
       data: application
     });
   } catch (error) {
-    console.error('Eroare la obținerea aplicației:', error);
+    console.error('Error getting application:', error);
     res.status(500).json({
       success: false,
-      message: 'Eroare la obținerea aplicației',
+      message: 'Error retrieving application',
       error: error.message
     });
   }
@@ -253,10 +253,10 @@ exports.getAllApplications = async (req, res) => {
       data: applications
     });
   } catch (error) {
-    console.error('Eroare la obținerea aplicațiilor:', error);
+    console.error('Error getting applications:', error);
     res.status(500).json({
       success: false,
-      message: 'Eroare la obținerea aplicațiilor',
+      message: 'Error retrieving applications',
       error: error.message
     });
   }
@@ -268,7 +268,7 @@ exports.updateApplication = async (req, res) => {
     const user_id = req.user.id;
     const { program_id, motivation_letter, document_ids, status, is_paid } = req.body;
 
-    console.log('Actualizare aplicație:', {
+    console.log('Updating application:', {
       id,
       user_id,
       program_id,
@@ -286,14 +286,14 @@ exports.updateApplication = async (req, res) => {
     });
 
     if (!application) {
-      console.log('Aplicație negăsită:', { id, user_id });
+      console.log('Application not found:', { id, user_id });
       return res.status(404).json({
         success: false,
-        message: 'Aplicația nu a fost găsită'
+        message: 'Application not found'
       });
     }
 
-    // Actualizăm aplicația
+    // Update application
     const updateData = {
       program_id: program_id || application.program_id,
       motivation_letter: motivation_letter || application.motivation_letter,
@@ -303,12 +303,12 @@ exports.updateApplication = async (req, res) => {
 
     await application.update(updateData);
 
-    // Actualizăm documentele asociate dacă există
+    // Update associated documents if they exist
     if (document_ids && Array.isArray(document_ids)) {
       await application.setDocuments(document_ids);
     }
 
-    // Obținem aplicația actualizată cu toate relațiile
+    // Get updated application with all relationships
     const updatedApplication = await Application.findByPk(id, {
       include: [
         {
@@ -328,21 +328,21 @@ exports.updateApplication = async (req, res) => {
       ]
     });
 
-    console.log('Aplicație actualizată cu succes:', {
+    console.log('Application updated successfully:', {
       id: updatedApplication.id,
       status: updatedApplication.status
     });
 
     res.json({
       success: true,
-      message: 'Aplicația a fost actualizată cu succes',
+      message: 'Application updated successfully',
       data: updatedApplication
     });
   } catch (error) {
-    console.error('Eroare la actualizarea aplicației:', error);
+    console.error('Error updating application:', error);
     res.status(500).json({
       success: false,
-      message: 'Eroare la actualizarea aplicației',
+      message: 'Error updating application',
       error: error.message
     });
   }
@@ -363,7 +363,7 @@ exports.cancelApplication = async (req, res) => {
     if (!application) {
       return res.status(404).json({
         success: false,
-        message: 'Aplicația nu a fost găsită'
+        message: 'Application not found'
       });
     }
 
@@ -371,14 +371,14 @@ exports.cancelApplication = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Aplicația a fost anulată cu succes',
+      message: 'Application cancelled successfully',
       data: application
     });
   } catch (error) {
-    console.error('Eroare la anularea aplicației:', error);
+    console.error('Error cancelling application:', error);
     res.status(500).json({
       success: false,
-      message: 'Eroare la anularea aplicației',
+      message: 'Error cancelling application',
       error: error.message
     });
   }
@@ -399,7 +399,7 @@ exports.withdrawApplication = async (req, res) => {
     if (!application) {
       return res.status(404).json({
         success: false,
-        message: 'Aplicația nu a fost găsită'
+        message: 'Application not found'
       });
     }
 
@@ -407,14 +407,14 @@ exports.withdrawApplication = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Aplicația a fost retrasă cu succes',
+      message: 'Application withdrawn successfully',
       data: application
     });
   } catch (error) {
-    console.error('Eroare la retragerea aplicației:', error);
+    console.error('Error withdrawing application:', error);
     res.status(500).json({
       success: false,
-      message: 'Eroare la retragerea aplicației',
+      message: 'Error withdrawing application',
       error: error.message
     });
   }
@@ -430,7 +430,7 @@ exports.updateApplicationStatus = async (req, res) => {
     if (!application) {
       return res.status(404).json({
         success: false,
-        message: 'Aplicația nu a fost găsită'
+        message: 'Application not found'
       });
     }
 
@@ -438,14 +438,14 @@ exports.updateApplicationStatus = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Statusul aplicației a fost actualizat cu succes',
+      message: 'Application status updated successfully',
       data: application
     });
   } catch (error) {
-    console.error('Eroare la actualizarea statusului aplicației:', error);
+    console.error('Error updating application status:', error);
     res.status(500).json({
       success: false,
-      message: 'Eroare la actualizarea statusului aplicației',
+      message: 'Error updating application status',
       error: error.message
     });
   }
@@ -466,15 +466,15 @@ exports.deleteApplication = async (req, res) => {
     if (!application) {
       return res.status(404).json({
         success: false,
-        message: 'Aplicația nu a fost găsită'
+        message: 'Application not found'
       });
     }
 
-    // Verificăm dacă aplicația poate fi ștearsă (doar în draft și neîncepută)
+    // Check if application can be deleted (only in draft and not started)
     if (application.status !== 'draft' || application.submitted_at) {
       return res.status(400).json({
         success: false,
-        message: 'Nu puteți șterge această aplicație deoarece a fost deja trimisă'
+        message: 'You cannot delete this application as it has already been submitted'
       });
     }
 
@@ -482,13 +482,13 @@ exports.deleteApplication = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Aplicația a fost ștearsă cu succes'
+      message: 'Application deleted successfully'
     });
   } catch (error) {
-    console.error('Eroare la ștergerea aplicației:', error);
+    console.error('Error deleting application:', error);
     res.status(500).json({
       success: false,
-      message: 'Eroare la ștergerea aplicației',
+      message: 'Error deleting application',
       error: error.message
     });
   }

@@ -7,13 +7,13 @@
       createdAt: new Date()
     };
     
-    // Actualizăm lista de documente
+    // Update documents list
     setDocuments(prev => {
       const updatedDocs = prev.filter(doc => doc.document_type !== docTypeId);
       return [...updatedDocs, newDocument];
     });
     
-    // Actualizăm starea butoanelor
+    // Update button states
     setButtonStates(prev => ({
       ...prev,
       [docTypeId]: {
@@ -22,7 +22,7 @@
       }
     }));
 
-    toast.success('Document încărcat cu succes');
+    toast.success('Document uploaded successfully');
     setUploadStatus(prev => ({
       ...prev,
       [docTypeId]: { ...prev[docTypeId], uploaded: true }

@@ -20,7 +20,7 @@ export const useAuth = () => {
       const response = await axios.post(`${API_BASE_URL}/api/auth/login`, credentials);
       
       if (!response.data?.token) {
-        throw new Error('Token lipsă din răspuns');
+        throw new Error('Token missing from response');
       }
 
       localStorage.setItem('token', response.data.token);
@@ -28,7 +28,7 @@ export const useAuth = () => {
       return true;
     } catch (err) {
       setAuthState({ 
-        error: err.response?.data?.message || 'Eroare la autentificare',
+        error: err.response?.data?.message || 'Authentication error',
         loading: false 
       });
       return false;
@@ -63,18 +63,18 @@ export const useAuth = () => {
       });
 
       if (!response.data?.success) {
-        throw new Error('Date utilizator invalide');
+        throw new Error('Invalid user data');
       }
 
       const userData = response.data.data;
       
       if (!userData?.id || !userData?.role) {
-        throw new Error('Date utilizator incomplete');
+        throw new Error('Incomplete user data');
       }
 
       const completeUserData = {
         ...userData,
-        name: userData.name || 'Utilizator',
+        name: userData.name || 'User',
         email: userData.email || '',
         avatar: userData.avatar || null
       };
@@ -86,7 +86,7 @@ export const useAuth = () => {
         error: null
       });
     } catch (err) {
-      console.error('Eroare la obținerea datelor utilizator:', err);
+      console.error('Error fetching user data:', err);
       localStorage.removeItem('token');
       setAuthState({
         user: null,

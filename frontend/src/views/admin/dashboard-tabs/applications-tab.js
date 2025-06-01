@@ -28,15 +28,15 @@ const ApplicationsTab = () => {
   const loadApplications = async () => {
     try {
       setLoading(true);
-      console.log('Începe încărcarea aplicațiilor...');
+      console.log('Loading applications...');
       const response = await axios.get(`${API_BASE_URL}/api/applications`, {
         headers: getAuthHeaders()
       });
 
-      console.log('Răspuns server aplicații:', response.data);
+      console.log('Server response applications:', response.data);
 
       if (!response.data) {
-        throw new Error('Nu s-au primit date de la server');
+        throw new Error('No data received from server');
       }
 
       let applicationsData;
@@ -48,19 +48,19 @@ const ApplicationsTab = () => {
         } else if (Array.isArray(response.data.data)) {
           applicationsData = response.data.data;
         } else {
-          throw new Error('Format invalid al datelor primite: structură neașteptată');
+          throw new Error('Invalid data format received: unexpected structure');
         }
       } else if (Array.isArray(response.data)) {
         applicationsData = response.data;
       } else {
-        throw new Error('Format invalid al datelor primite: răspuns neașteptat');
+        throw new Error('Invalid data format received: unexpected response');
       }
 
       if (!Array.isArray(applicationsData)) {
-        throw new Error('Format invalid al datelor primite: datele nu sunt un array');
+        throw new Error('Invalid data format received: data is not an array');
       }
 
-      console.log('Aplicații procesate:', applicationsData);
+      console.log('Processed applications:', applicationsData);
       setApplications(applicationsData);
       setFilteredApplications(applicationsData);
 
@@ -75,8 +75,8 @@ const ApplicationsTab = () => {
       }
 
     } catch (error) {
-      console.error('Eroare la încărcarea aplicațiilor:', error);
-      setError('A apărut o eroare la încărcarea aplicațiilor. Vă rugăm să încercați din nou.');
+      console.error('Error loading applications:', error);
+      setError('An error occurred while loading applications. Please try again.');
       setApplications([]);
       setFilteredApplications([]);
     } finally {
@@ -106,7 +106,7 @@ const ApplicationsTab = () => {
       setLoading(true);
       setError(null);
 
-      console.log('Actualizare status aplicație:', {
+      console.log('Updating application status:', {
         applicationId,
         newStatus,
         currentNotes: application.notes || ''
@@ -135,11 +135,11 @@ const ApplicationsTab = () => {
         setSuccessMessage('Statusul aplicației a fost actualizat cu succes!');
         setTimeout(() => setSuccessMessage(''), 3000);
       } else {
-        throw new Error(response.data.message || 'Eroare la actualizarea statusului aplicației');
+        throw new Error(response.data.message || 'Error updating application status');
       }
     } catch (error) {
-      console.error('Eroare la actualizarea statusului aplicației:', error);
-      setError(error.response?.data?.message || 'Eroare la actualizarea statusului aplicației');
+      console.error('Error updating application status:', error);
+      setError(error.response?.data?.message || 'Error updating application status');
       setTimeout(() => setError(null), 5000);
     } finally {
       setLoading(false);
@@ -185,7 +185,7 @@ const ApplicationsTab = () => {
             <input
               type="text"
               className="search-input"
-              placeholder="Caută după nume utilizator sau program..."
+              placeholder="Search by user name or program..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -200,15 +200,15 @@ const ApplicationsTab = () => {
               onChange={(e) => setFilterApplicationStatus(e.target.value)}
               className="filter-select"
             >
-              <option value="all">Toate statusurile</option>
-              <option value="pending">În așteptare</option>
-              <option value="approved">Aprobat</option>
-              <option value="rejected">Respinse</option>
-              <option value="under_review">În revizuire</option>
+              <option value="all">All statuses</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+              <option value="under_review">Under Review</option>
             </select>
           </div>
           <div className="filter-group">
-            <label>Data:</label>
+            <label>Date:</label>
             <div className="date-range-inputs">
               <input 
                 type="date" 
@@ -216,7 +216,7 @@ const ApplicationsTab = () => {
                 value={filterApplicationDateRange?.start || ''} 
                 onChange={e => setFilterApplicationDateRange({...filterApplicationDateRange, start: e.target.value})} 
               />
-              <span>până la</span>
+              <span>to</span>
               <input 
                 type="date" 
                 className="date-input" 
@@ -234,13 +234,13 @@ const ApplicationsTab = () => {
               setFilteredApplications(applications);
             }}
           >
-            Resetează filtrele
+            Reset Filters
           </button>
           <button 
             className="search-button"
             onClick={handleSearch}
           >
-            Caută
+            Search
           </button>
         </div>
       </div>
@@ -260,7 +260,7 @@ const ApplicationsTab = () => {
       {loading ? (
         <div className="loading-container">
           <div className="loading-spinner"></div>
-          <p>Se încarcă aplicațiile...</p>
+          <p>Loading applications...</p>
         </div>
       ) : (
         <div className="applications-table-container">
@@ -268,12 +268,12 @@ const ApplicationsTab = () => {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Utilizator</th>
+                <th>User</th>
                 <th>Program</th>
-                <th>Universitate</th>
-                <th>Data aplicării</th>
+                <th>University</th>
+                <th>Application Date</th>
                 <th>Status</th>
-                <th>Acțiuni</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -281,18 +281,18 @@ const ApplicationsTab = () => {
                 <tr key={app.id}>
                   <td>{app.id}</td>
                   <td>
-                    <span className="user-name">{app.user_name || `Utilizator ID: ${app.user_id}`}</span>
+                    <span className="user-name">{app.user_name || `User ID: ${app.user_id}`}</span>
                   </td>
                   <td>{app.program?.name || 'N/A'}</td>
                   <td>{app.program?.university?.name || 'N/A'}</td>
                   <td>{formatDate(app.created_at)}</td>
                   <td>
                     <span className={`status-badge status-${app.status}`}>
-                      {app.status === 'pending' ? 'În așteptare' :
-                       app.status === 'approved' ? 'Aprobat' :
-                       app.status === 'rejected' ? 'Respinse' :
-                       app.status === 'under_review' ? 'În revizuire' :
-                       app.status === 'withdrawn' ? 'Retras' :
+                      {app.status === 'pending' ? 'Pending' :
+                       app.status === 'approved' ? 'Approved' :
+                       app.status === 'rejected' ? 'Rejected' :
+                       app.status === 'under_review' ? 'Under Review' :
+                       app.status === 'withdrawn' ? 'Withdrawn' :
                        app.status.charAt(0).toUpperCase() + app.status.slice(1)}
                     </span>
                   </td>
@@ -302,13 +302,13 @@ const ApplicationsTab = () => {
                         className="btn1"
                         onClick={() => handleViewApplication(app)}
                       >
-                        <i className="fas fa-eye"></i> Vizualizare
+                        <i className="fas fa-eye"></i> View
                       </button>
                       <button 
                         className="btn-grey"
                         onClick={() => handleEditApplication(app)}
                       >
-                        <i className="fas fa-edit"></i> Editare
+                        <i className="fas fa-edit"></i> Edit
                       </button>
                     </div>
                   </td>
@@ -322,13 +322,13 @@ const ApplicationsTab = () => {
       {showApplicationDetails && selectedApplication && (
         <div className="modal">
           <div className="modal-content">
-            <h2>Detalii Aplicație</h2>
+            <h2>Application Details</h2>
             <div className="application-details">
               <p><strong>ID:</strong> {selectedApplication.id}</p>
-              <p><strong>Utilizator:</strong> {selectedApplication.user_name || `ID: ${selectedApplication.user_id}`}</p>
+              <p><strong>User:</strong> {selectedApplication.user_name || `ID: ${selectedApplication.user_id}`}</p>
               <p><strong>Program:</strong> {selectedApplication.program?.name || 'N/A'}</p>
-              <p><strong>Universitate:</strong> {selectedApplication.program?.university?.name || 'N/A'}</p>
-              <p><strong>Data aplicării:</strong> {formatDate(selectedApplication.created_at)}</p>
+              <p><strong>University:</strong> {selectedApplication.program?.university?.name || 'N/A'}</p>
+              <p><strong>Application Date:</strong> {formatDate(selectedApplication.created_at)}</p>
               <p><strong>Status:</strong> {selectedApplication.status}</p>
               {selectedApplication.notes && (
                 <p><strong>Note:</strong> {selectedApplication.notes}</p>
@@ -341,7 +341,7 @@ const ApplicationsTab = () => {
                 setSelectedApplication(null);
               }}
             >
-              Închide
+              Close
             </button>
           </div>
         </div>
@@ -350,7 +350,7 @@ const ApplicationsTab = () => {
       {showApplicationEdit && selectedApplication && (
         <div className="modal">
           <div className="modal-content">
-            <h2>Editare Aplicație</h2>
+            <h2>Edit Application</h2>
             <div className="application-edit">
               <div className="form-group">
                 <label>Status:</label>
@@ -362,10 +362,10 @@ const ApplicationsTab = () => {
                   })}
                   className="form-select"
                 >
-                  <option value="pending">În așteptare</option>
-                  <option value="approved">Aprobat</option>
-                  <option value="rejected">Respinse</option>
-                  <option value="under_review">În revizuire</option>
+                  <option value="pending">Pending</option>
+                  <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
+                  <option value="under_review">Under Review</option>
                 </select>
               </div>
               <div className="form-group">
@@ -385,7 +385,7 @@ const ApplicationsTab = () => {
                   className="save-button"
                   onClick={() => handleUpdateApplicationStatus(selectedApplication.id, selectedApplication.status)}
                 >
-                  Salvează
+                  Save
                 </button>
                 <button
                   className="cancel-button"
@@ -394,7 +394,7 @@ const ApplicationsTab = () => {
                     setSelectedApplication(null);
                   }}
                 >
-                  Anulează
+                  Cancel
                 </button>
               </div>
             </div>

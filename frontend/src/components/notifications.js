@@ -19,12 +19,12 @@ function Notifications() {
 
   const connectWebSocket = useCallback(() => {
     if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
-      console.error('Numărul maxim de încercări de reconectare a fost atins');
+      console.error('Maximum reconnection attempts reached');
       return;
     }
 
     if (!token) {
-      console.error('Token lipsă pentru conexiunea WebSocket');
+      console.error('Missing token for WebSocket connection');
       return;
     }
 
@@ -33,7 +33,7 @@ function Notifications() {
       const socket = new WebSocket(wsUrl, [token]);
 
       socket.onopen = () => {
-        console.log('Conexiune WebSocket stabilită');
+        console.log('WebSocket connection established');
         setWsConnected(true);
         setReconnectAttempts(0);
       };
@@ -41,28 +41,28 @@ function Notifications() {
       socket.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          console.log('Mesaj primit:', data);
+          console.log('Message received:', data);
           
           if (data.type === 'connection_established') {
-            console.log('Conexiune WebSocket confirmată:', data.message);
+            console.log('WebSocket connection confirmed:', data.message);
           } else if (data.type === 'new_notification') {
-            console.log('Notificare nouă primită:', data.notification);
+            console.log('New notification received:', data.notification);
             setNotifications(prev => [data.notification, ...prev]);
             toast.info(data.notification.message);
           }
         } catch (error) {
-          console.error('Eroare la procesarea mesajului:', error);
+          console.error('Error processing message:', error);
         }
       };
 
       socket.onerror = (error) => {
-        console.error('Eroare WebSocket:', error);
+        console.error('WebSocket error:', error);
         setWsConnected(false);
-        toast.error('Eroare la conexiunea cu serverul de notificări');
+        toast.error('Error connecting to notification server');
       };
 
       socket.onclose = () => {
-        console.log('Conexiune WebSocket închisă');
+        console.log('WebSocket connection closed');
         setWsConnected(false);
         
         if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
@@ -77,13 +77,13 @@ function Notifications() {
 
       return () => {
         if (socket && socket.readyState === WebSocket.OPEN) {
-          socket.close(1000, 'Componenta se deconectează');
+          socket.close(1000, 'Component disconnecting');
         }
       };
     } catch (error) {
-      console.error('Eroare la inițializarea WebSocket:', error);
+      console.error('Error initializing WebSocket:', error);
       setWsConnected(false);
-      toast.error('Nu s-a putut stabili conexiunea cu serverul de notificări');
+      toast.error('Could not establish connection to notification server');
     }
   }, [reconnectAttempts, token]);
 
@@ -170,14 +170,14 @@ function Notifications() {
         
         if (!response.ok) {
           if (response.status === 401) {
-            throw new Error('Nu sunteți autentificat');
+            throw new Error('You are not authenticated');
           }
-          throw new Error(`Eroare HTTP: ${response.status}`);
+          throw new Error(`HTTP Error: ${response.status}`);
         }
         
         const data = await response.json();
         if (!data.success) {
-          throw new Error(data.message || 'Eroare la încărcarea notificărilor');
+          throw new Error(data.message || 'Error loading notifications');
         }
         
         const processedNotifications = data.data.map(notification => ({
@@ -190,7 +190,7 @@ function Notifications() {
         setNotifications(processedNotifications);
       } catch (err) {
         console.error('Eroare detaliată la încărcarea notificărilor:', err);
-        setError(err.message || 'Nu s-au putut încărca notificările. Vă rugăm să încercați din nou mai târziu.');
+        setError(err.message || 'Could not load notifications. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -356,19 +356,19 @@ function Notifications() {
   return (
     <div className="notifications-container">
       <div className="notifications-header">
-        <h3>Notificări</h3>
+        <h3>Notifications</h3>
         <div className="notifications-filters">
           <button 
             className={`filter-button ${filter === 'all' ? 'active' : ''}`}
             onClick={() => setFilter('all')}
           >
-            Toate
+            All
           </button>
           <button 
             className={`filter-button ${filter === 'unread' ? 'active' : ''}`}
             onClick={() => setFilter('unread')}
           >
-            Necitite
+            Unread
           </button>
           {userRole === 'admin' && (
             <button 
@@ -382,7 +382,7 @@ function Notifications() {
       </div>
 
       {loading ? (
-        <div className="notifications-loading">Se încarcă...</div>
+        <div className="notifications-loading">Loading...</div>
       ) : error ? (
         <div className="notifications-error">{error}</div>
       ) : filterNotifications(notifications).length > 0 ? (
@@ -392,7 +392,7 @@ function Notifications() {
               className="mark-all-read"
               onClick={handleMarkAllRead}
             >
-              <FaCheck /> Marchează toate ca citite
+              <FaCheck /> Mark all as read
             </button>
           )}
           <div className="notifications-list">
@@ -405,14 +405,14 @@ function Notifications() {
                 <div className="notification-content">
                   {getNotificationIcon(notification.type)}
                   {notification.is_admin_notification && (
-                    <span className="admin-badge">Administrativ</span>
+                    <span className="admin-badge">Administrative</span>
                   )}
                   <p>{notification.message}</p>
                   {notification.admin_message && (
                     <p className="admin-message">{notification.admin_message}</p>
                   )}
                   <span className="notification-date">
-                    {new Date(notification.createdAt).toLocaleDateString('ro-RO', {
+                    {new Date(notification.createdAt).toLocaleDateString('en-US', {
                       day: 'numeric',
                       month: 'long',
                       hour: '2-digit',
@@ -420,7 +420,7 @@ function Notifications() {
                     })}
                   </span>
                   {new Date(notification.expiresAt) < new Date() && (
-                    <span className="expired-badge">Expirată</span>
+                    <span className="expired-badge">Expired</span>
                   )}
                 </div>
                 {!notification.is_read && <div className="unread-indicator" />}
@@ -430,7 +430,7 @@ function Notifications() {
         </>
       ) : (
         <div className="no-notifications">
-          Nu există notificări
+          No notifications
         </div>
       )}
     </div>

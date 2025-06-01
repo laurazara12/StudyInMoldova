@@ -10,22 +10,22 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Configurare rute
+// Route configuration
 setupRoutes(app);
 
-// Servire fișiere statice pentru frontend
+// Serve static files for frontend
 app.use(express.static(path.join(__dirname, '../frontend/build')));
 
-// Ruta pentru toate celelalte cereri
+// Route for all other requests
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
 });
 
-// Gestionare erori
+// Error handling
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ 
-    message: 'A apărut o eroare pe server',
+    message: 'An error occurred on the server',
     error: err.message 
   });
 });

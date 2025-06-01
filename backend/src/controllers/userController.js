@@ -4,52 +4,51 @@ const jwt = require('jsonwebtoken');
 
 const login = async (email, password) => {
   try {
-
-    // Verificăm dacă email-ul este un obiect sau null
+    // Check if email is an object or null
     if (typeof email === 'object' && email !== null) {
-      console.error('Email invalid (obiect):', email);
+      console.error('Invalid email (object):', email);
       return {
         success: false,
-        message: 'Format email invalid'
+        message: 'Invalid email format'
       };
     }
 
-    // Verificăm dacă email-ul este un string valid
+    // Check if email is a valid string
     if (typeof email !== 'string' || !email.trim()) {
-      console.error('Email invalid (string gol sau tip invalid):', email);
+      console.error('Invalid email (empty string or invalid type):', email);
       return {
         success: false,
-        message: 'Format email invalid'
+        message: 'Invalid email format'
       };
     }
 
-    // Verificăm formatul email-ului
+    // Check email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
-      console.error('Email invalid (format incorect):', email);
+      console.error('Invalid email (incorrect format):', email);
       return {
         success: false,
-        message: 'Format email invalid'
+        message: 'Invalid email format'
       };
     }
 
     const user = await User.findOne({ where: { email: email.trim() } });
     
     if (!user) {
-      console.log('Utilizatorul nu a fost găsit');
+      console.log('User not found');
       return {
         success: false,
-        message: 'Email sau parolă incorectă'
+        message: 'Incorrect email or password'
       };
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password);
     
     if (!isValidPassword) {
-      console.log('Parolă incorectă');
+      console.log('Incorrect password');
       return {
         success: false,
-        message: 'Email sau parolă incorectă'
+        message: 'Incorrect email or password'
       };
     }
 
@@ -59,7 +58,7 @@ const login = async (email, password) => {
       { expiresIn: '24h' }
     );
 
-    console.log('Autentificare reușită pentru:', email);
+    console.log('Successful authentication for:', email);
     return {
       success: true,
       data: {
@@ -73,19 +72,19 @@ const login = async (email, password) => {
       }
     };
   } catch (error) {
-    console.error('Eroare la autentificare în controller:', error);
+    console.error('Authentication error in controller:', error);
     throw error;
   }
 };
 
 const register = async (name, email, password) => {
   try {
-    // Verificăm formatul email-ului
+    // Check email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
       return {
         success: false,
-        message: 'Format email invalid'
+        message: 'Invalid email format'
       };
     }
 
@@ -94,7 +93,7 @@ const register = async (name, email, password) => {
     if (existingUser) {
       return {
         success: false,
-        message: 'Acest email este deja înregistrat'
+        message: 'This email is already registered'
       };
     }
 
@@ -115,7 +114,7 @@ const register = async (name, email, password) => {
 
     return {
       success: true,
-      message: 'Înregistrare reușită',
+      message: 'Registration successful',
       data: {
         user: {
           id: user.id,
@@ -127,7 +126,7 @@ const register = async (name, email, password) => {
       }
     };
   } catch (error) {
-    console.error('Eroare la înregistrare:', error);
+    console.error('Registration error:', error);
     throw error;
   }
 };
@@ -139,23 +138,23 @@ const getUserRole = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'Utilizatorul nu a fost găsit',
+        message: 'User not found',
         data: null
       });
     }
     
     res.json({
       success: true,
-      message: 'Rolul utilizatorului a fost preluat cu succes',
+      message: 'User role retrieved successfully',
       data: {
         role: user.role
       }
     });
   } catch (error) {
-    console.error('Eroare la obținerea rolului utilizatorului:', error);
+    console.error('Error getting user role:', error);
     res.status(500).json({
       success: false,
-      message: 'Eroare la obținerea rolului utilizatorului',
+      message: 'Error getting user role',
       data: null
     });
   }
@@ -197,7 +196,7 @@ const updateUserProfile = async (req, res) => {
     if (!user) {
       return res.status(404).json({ 
         success: false,
-        message: 'Utilizatorul nu a fost găsit',
+        message: 'User not found',
         data: null
       });
     }
@@ -216,17 +215,17 @@ const updateUserProfile = async (req, res) => {
       'accommodation_preferences'
     ];
 
-    // Validări pentru câmpuri
+    // Field validations
     const updateData = {};
     for (const field of allowedFields) {
       if (req.body[field] !== undefined) {
-        // Validări specifice pentru fiecare câmp
+        // Specific validations for each field
         switch (field) {
           case 'name':
             if (typeof req.body[field] !== 'string' || req.body[field].trim().length < 2) {
               return res.status(400).json({
                 success: false,
-                message: 'Numele trebuie să aibă cel puțin 2 caractere',
+                message: 'Name must be at least 2 characters long',
                 data: null
               });
             }
@@ -237,7 +236,7 @@ const updateUserProfile = async (req, res) => {
             if (req.body[field] && !/^[+]?[\d\s-]{8,}$/.test(req.body[field])) {
               return res.status(400).json({
                 success: false,
-                message: 'Format număr de telefon invalid. Trebuie să conțină cel puțin 8 cifre și poate include +, spații sau -',
+                message: 'Invalid phone number format. Must contain at least 8 digits and can include +, spaces or -',
                 data: null
               });
             }
@@ -248,7 +247,7 @@ const updateUserProfile = async (req, res) => {
             if (req.body[field] && (isNaN(req.body[field]) || req.body[field] < 0)) {
               return res.status(400).json({
                 success: false,
-                message: 'Bugetul trebuie să fie un număr pozitiv',
+                message: 'Budget must be a positive number',
                 data: null
               });
             }
@@ -271,14 +270,14 @@ const updateUserProfile = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Profilul utilizatorului a fost actualizat cu succes',
+      message: 'User profile updated successfully',
       data: updatedUser
     });
   } catch (error) {
-    console.error('Eroare la actualizarea profilului utilizatorului:', error);
+    console.error('Error updating user profile:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la actualizarea profilului utilizatorului',
+      message: 'Error updating user profile',
       data: null
     });
   }
@@ -317,7 +316,7 @@ const getCurrentUser = async (req, res) => {
     if (!req.user || !req.user.id) {
       return res.status(401).json({
         success: false,
-        message: 'Utilizatorul nu este autentificat',
+        message: 'User is not authenticated',
         data: null
       });
     }
@@ -329,21 +328,21 @@ const getCurrentUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ 
         success: false,
-        message: 'Utilizatorul nu a fost găsit',
+        message: 'User not found',
         data: null
       });
     }
 
     res.json({
       success: true,
-      message: 'Profilul utilizatorului a fost preluat cu succes',
+      message: 'User profile retrieved successfully',
       data: user
     });
   } catch (error) {
-    console.error('Eroare la obținerea profilului utilizatorului:', error);
+    console.error('Error getting user profile:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la obținerea profilului utilizatorului',
+      message: 'Error getting user profile',
       data: null
     });
   }
@@ -356,7 +355,7 @@ const updateUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ 
         success: false,
-        message: 'Utilizatorul nu a fost găsit',
+        message: 'User not found',
         data: null
       });
     }
@@ -385,14 +384,14 @@ const updateUser = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Utilizatorul a fost actualizat cu succes',
+      message: 'User updated successfully',
       data: updatedUser
     });
   } catch (error) {
-    console.error('Eroare la actualizarea utilizatorului:', error);
+    console.error('Error updating user:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la actualizarea utilizatorului',
+      message: 'Error updating user',
       data: null
     });
   }

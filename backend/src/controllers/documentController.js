@@ -1,13 +1,12 @@
-const { Document } = require('../models');
+const { Document, Application } = require('../models');
 const { createNotification, NOTIFICATION_TYPES } = require('./notificationController');
-const fs = require('fs');
+const fs = require('fs').promises;
 const path = require('path');
 const { Op } = require('sequelize');
 const cloudinary = require('../config/cloudinary');
 const { User } = require('../models');
-const { Application } = require('../models');
 
-// Definim calea către directorul uploads
+// Define the path to the uploads directory
 const uploadsDir = path.join(__dirname, '../../../uploads');
 
 const deleteDocument = async (req, res) => {
@@ -15,67 +14,67 @@ const deleteDocument = async (req, res) => {
     const documentId = req.params.id;
     const { admin_message } = req.body;
 
-    // Verificăm dacă documentul există
+    // Check if the document exists
     const document = await Document.findByPk(documentId);
     if (!document) {
       return res.status(404).json({
         success: false,
-        message: 'Documentul nu a fost găsit'
+        message: 'Document not found'
       });
     }
 
-    // Verificăm permisiunile
+    // Check permissions
     if (req.user.role === 'admin') {
-      // Administratorii pot șterge orice document
-      console.log('Administrator șterge document:', {
+      // Administrators can delete any document
+      console.log('Administrator deleting document:', {
         documentId,
         userId: document.user_id,
         adminId: req.user.id
       });
     } else if (document.user_id === req.user.id) {
-      // Utilizatorii pot șterge doar documentele lor
-      console.log('Utilizator șterge propriul document:', {
+      // Users can only delete their own documents
+      console.log('User deleting own document:', {
         documentId,
         userId: req.user.id
       });
     } else {
       return res.status(403).json({
         success: false,
-        message: 'Nu aveți permisiunea de a șterge acest document'
+        message: 'You do not have permission to delete this document'
       });
     }
 
-    // Construiește calea către fișier
+    // Build the file path
     const userDir = path.join(uploadsDir, document.user_id.toString());
     const absolutePath = path.join(userDir, path.basename(document.file_path));
 
-    console.log('Încercare ștergere fișier:', {
+    console.log('Attempting to delete file:', {
       userDir,
       absolutePath,
-      exists: fs.existsSync(absolutePath)
+      exists: await fs.access(absolutePath).then(() => true).catch(() => false)
     });
 
-    // Șterge fișierul fizic dacă există
-    if (fs.existsSync(absolutePath)) {
+    // Delete the physical file if it exists
+    if (await fs.access(absolutePath).then(() => true).catch(() => false)) {
       try {
-        fs.unlinkSync(absolutePath);
-        console.log('Fișier șters cu succes:', absolutePath);
+        await fs.unlink(absolutePath);
+        console.log('File successfully deleted:', absolutePath);
       } catch (error) {
-        console.error('Eroare la ștergerea fișierului:', error);
-        // Continuăm cu ștergerea din baza de date chiar dacă ștergerea fișierului a eșuat
+        console.error('Error deleting file:', error);
+        // Continue with database deletion even if file deletion fails
       }
     } else {
-      console.log('Fișierul nu există la calea:', absolutePath);
+      console.log('File does not exist at path:', absolutePath);
     }
 
-    // Șterge documentul din baza de date
+    // Delete the document from the database
     await document.destroy();
 
-    // Creăm notificările în funcție de rolul utilizatorului și statusul documentului
+    // Create notifications based on user role and document status
     try {
       if (req.user.role === 'admin') {
-        // Dacă adminul șterge documentul, notificăm utilizatorul
-        const defaultMessage = `Documentul dumneavoastră de tip ${document.document_type} a fost șters de administrator.`;
+        // If admin deletes the document, notify the user
+        const defaultMessage = `Your ${document.document_type} document has been deleted by the administrator.`;
         await createNotification(
           document.user_id,
           'document_deleted',
@@ -83,23 +82,23 @@ const deleteDocument = async (req, res) => {
           document.id
         );
       } else if (document.status === 'approved') {
-        // Dacă utilizatorul șterge un document aprobat, notificăm adminul
+        // If user deletes an approved document, notify admins
         const admins = await User.findAll({ where: { role: 'admin' } });
         for (const admin of admins) {
           await createNotification(
             admin.id,
             'document_deleted',
-            `Utilizatorul ${req.user.name} a șters documentul de tip ${document.document_type}.`,
+            `User ${req.user.name} has deleted the ${document.document_type} document.`,
             document.id
           );
         }
       }
     } catch (notificationError) {
-      console.error('Eroare la crearea notificării:', notificationError);
-      // Continuăm chiar dacă crearea notificării a eșuat
+      console.error('Error creating notification:', notificationError);
+      // Continue even if notification creation fails
     }
 
-    // Obținem lista actualizată de documente
+    // Get the updated list of documents
     const documents = await Document.findAll({
       where: {
         status: {
@@ -148,16 +147,16 @@ const deleteDocument = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Document șters cu succes',
+      message: 'Document successfully deleted',
       data: formattedDocuments,
       total: documents.length,
       status: statusCounts
     });
   } catch (error) {
-    console.error('Eroare la ștergerea documentului:', error);
+    console.error('Error deleting document:', error);
     res.status(500).json({
       success: false,
-      message: 'Eroare la ștergerea documentului',
+      message: 'Error deleting document',
       error: error.message
     });
   }
@@ -165,12 +164,12 @@ const deleteDocument = async (req, res) => {
 
 exports.getAllDocuments = async (req, res) => {
   try {
-    console.log('Începe preluarea documentelor pentru admin');
+    console.log('Starting document retrieval for admin');
     
     const documents = await Document.findAll({
       where: {
         status: {
-          [Op.ne]: 'deleted' // Exclude documentele șterse
+          [Op.ne]: 'deleted' // Exclude deleted documents
         }
       },
       include: [
@@ -188,7 +187,7 @@ exports.getAllDocuments = async (req, res) => {
       order: [['createdAt', 'DESC']]
     });
 
-    console.log(`S-au găsit ${documents.length} documente active`);
+    console.log(`Found ${documents.length} active documents`);
 
     const formattedDocuments = documents.map(doc => ({
       id: doc.id,
@@ -215,20 +214,20 @@ exports.getAllDocuments = async (req, res) => {
       rejected: documents.filter(doc => doc.status === 'rejected').length
     };
 
-    console.log('Statistici documente:', statusCounts);
+    console.log('Document statistics:', statusCounts);
 
     res.json({
       success: true,
-      message: documents.length === 0 ? 'Nu există documente în sistem' : 'Documentele au fost preluate cu succes',
+      message: documents.length === 0 ? 'No documents in system' : 'Documents retrieved successfully',
       data: formattedDocuments,
       total: documents.length,
       status: statusCounts
     });
   } catch (error) {
-    console.error('Eroare la obținerea documentelor:', error);
+    console.error('Error retrieving documents:', error);
     res.status(500).json({
       success: false,
-      message: 'Eroare la obținerea documentelor',
+      message: 'Error retrieving documents',
       error: error.message,
       data: [],
       total: 0,
@@ -243,7 +242,7 @@ exports.getAllDocuments = async (req, res) => {
 
 exports.getDocumentById = async (req, res) => {
   try {
-    console.log('Căutare document cu ID:', req.params.id);
+    console.log('Searching for document with ID:', req.params.id);
     
     const document = await Document.findOne({
       where: {
@@ -255,21 +254,21 @@ exports.getDocumentById = async (req, res) => {
       attributes: ['id', 'document_type', 'file_path', 'createdAt', 'status', 'filename', 'originalName']
     });
 
-    console.log('Document găsit:', document ? {
+    console.log('Document found:', document ? {
       id: document.id,
       status: document.status,
       document_type: document.document_type
-    } : 'Nu a fost găsit');
+    } : 'Not found');
 
     if (!document) {
       return res.status(404).json({ 
         success: false,
-        message: 'Documentul nu a fost găsit',
+        message: 'Document not found',
         data: null
       });
     }
 
-    // Formatăm documentul pentru a ne asigura că are toate proprietățile necesare
+    // Format the document to ensure it has all required properties
     const formattedDocument = {
       id: document.id,
       document_type: document.document_type,
@@ -282,14 +281,14 @@ exports.getDocumentById = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Documentul a fost preluat cu succes',
+      message: 'Document retrieved successfully',
       data: formattedDocument
     });
   } catch (error) {
-    console.error('Eroare la preluarea documentului:', error);
+    console.error('Error retrieving document:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la preluarea documentului',
+      message: 'Error retrieving document',
       error: error.message,
       data: null
     });
@@ -301,53 +300,53 @@ exports.createDocument = async (req, res) => {
     const { document_type } = req.body;
     const user_id = req.user.id;
 
-    console.log('Începe încărcarea documentului:', {
+    console.log('Starting document upload:', {
       originalName: req.file?.originalname,
       document_type,
       user_id,
       tempPath: req.file?.path,
-      fileExists: req.file ? fs.existsSync(req.file.path) : false
+      fileExists: req.file ? await fs.access(req.file.path).then(() => true).catch(() => false) : false
     });
 
     if (!req.file) {
       return res.status(400).json({
         success: false,
-        message: 'Nu s-a încărcat niciun fișier',
+        message: 'No file uploaded',
         data: null
       });
     }
 
-    // Verificăm dacă fișierul temporar există
-    if (!fs.existsSync(req.file.path)) {
-      console.error('Fișierul temporar nu există la calea:', req.file.path);
+    // Check if temporary file exists
+    if (!(await fs.access(req.file.path).then(() => true).catch(() => false))) {
+      console.error('Temporary file does not exist at path:', req.file.path);
       return res.status(400).json({
         success: false,
-        message: 'Fișierul temporar nu a fost găsit',
+        message: 'Temporary file not found',
         data: null
       });
     }
 
     try {
-      // Creăm directorul pentru utilizator dacă nu există
+      // Create user directory if it doesn't exist
       const userDir = path.join(__dirname, '../../../uploads', user_id.toString());
-      if (!fs.existsSync(userDir)) {
-        fs.mkdirSync(userDir, { recursive: true });
+      if (!(await fs.access(userDir).then(() => true).catch(() => false))) {
+        await fs.mkdir(userDir, { recursive: true });
       }
 
-      // Generăm numele fișierului final
+      // Generate final filename
       const timestamp = Date.now();
       const uniqueSuffix = Math.round(Math.random() * 1E9);
       const ext = path.extname(req.file.originalname);
       const filename = `${req.file.originalname}-${timestamp}-${uniqueSuffix}${ext}`;
       const finalPath = path.join(userDir, filename);
 
-      // Mutăm fișierul din directorul temporar în directorul final
-      fs.copyFileSync(req.file.path, finalPath);
+      // Move file from temporary directory to final directory
+      await fs.copyFile(req.file.path, finalPath);
       
-      // Ștergem fișierul temporar
-      fs.unlinkSync(req.file.path);
+      // Delete temporary file
+      await fs.unlink(req.file.path);
 
-      // Creăm documentul în baza de date
+      // Create document in database
       const documentData = {
         user_id,
         document_type,
@@ -359,34 +358,34 @@ exports.createDocument = async (req, res) => {
         uploadDate: new Date()
       };
 
-      console.log('Creare document în baza de date:', documentData);
+      console.log('Creating document in database:', documentData);
 
       const document = await Document.create(documentData);
 
-      // Creăm notificare pentru utilizator
+      // Create notification for user
       await createNotification(
         user_id,
         'new_document',
-        `Documentul ${document.originalName} a fost încărcat cu succes`,
+        `Document ${document.originalName} has been successfully uploaded`,
         document.id,
         null,
         false
       );
 
-      // Creăm notificare pentru administratori
+      // Create notification for administrators
       const admins = await User.findAll({ where: { role: 'admin' } });
       await Promise.all(admins.map(admin => 
         createNotification(
           admin.id,
           'new_document',
-          `Un nou document (${document.originalName}) a fost încărcat de utilizatorul ${user_id}`,
+          `A new document (${document.originalName}) has been uploaded by user ${user_id}`,
           document.id,
           null,
           true
         )
       ));
 
-      console.log('Document creat cu succes:', {
+      console.log('Document created successfully:', {
         id: document.id,
         document_type: document.document_type,
         status: document.status
@@ -394,7 +393,7 @@ exports.createDocument = async (req, res) => {
 
       res.json({
         success: true,
-        message: 'Document încărcat cu succes',
+        message: 'Document uploaded successfully',
         document: {
           id: document.id,
           document_type: document.document_type,
@@ -404,38 +403,38 @@ exports.createDocument = async (req, res) => {
         }
       });
     } catch (error) {
-      // Încercăm să ștergem fișierul temporar în caz de eroare
-      if (req.file && fs.existsSync(req.file.path)) {
+      // Try to delete temporary file in case of error
+      if (req.file && await fs.access(req.file.path).then(() => true).catch(() => false)) {
         try {
-          fs.unlinkSync(req.file.path);
-          console.log('Fișier temporar șters după eroare:', req.file.path);
+          await fs.unlink(req.file.path);
+          console.log('Temporary file deleted after error:', req.file.path);
         } catch (unlinkError) {
-          console.error('Eroare la ștergerea fișierului temporar:', unlinkError);
+          console.error('Error deleting temporary file:', unlinkError);
         }
       }
 
       return res.status(400).json({
         success: false,
-        message: 'Eroare la încărcarea documentului',
+        message: 'Error uploading document',
         details: error.message
       });
     }
   } catch (error) {
-    console.error('Eroare la încărcarea documentului:', error);
+    console.error('Error uploading document:', error);
 
-    // Încercăm să ștergem fișierul temporar în caz de eroare
-    if (req.file && fs.existsSync(req.file.path)) {
+    // Try to delete temporary file in case of error
+    if (req.file && await fs.access(req.file.path).then(() => true).catch(() => false)) {
       try {
-        fs.unlinkSync(req.file.path);
-        console.log('Fișier temporar șters după eroare:', req.file.path);
+        await fs.unlink(req.file.path);
+        console.log('Temporary file deleted after error:', req.file.path);
       } catch (unlinkError) {
-        console.error('Eroare la ștergerea fișierului temporar:', unlinkError);
+        console.error('Error deleting temporary file:', unlinkError);
       }
     }
 
     res.status(500).json({
       success: false,
-      message: 'Eroare la încărcarea documentului',
+      message: 'Error uploading document',
       error: error.message
     });
   }
@@ -444,8 +443,8 @@ exports.createDocument = async (req, res) => {
 exports.updateDocument = async (req, res) => {
   try {
     const { status, document_type, file_path, filename, originalName } = req.body;
-    console.log('ID document căutat:', req.params.id);
-    console.log('Date primite:', req.body);
+    console.log('Document ID searched:', req.params.id);
+    console.log('Received data:', req.body);
     
     const document = await Document.findOne({
       where: {
@@ -456,7 +455,7 @@ exports.updateDocument = async (req, res) => {
       }
     });
 
-    console.log('Document găsit:', {
+    console.log('Document found:', {
       id: document?.id,
       originalName: document?.originalName,
       filename: document?.filename,
@@ -466,22 +465,22 @@ exports.updateDocument = async (req, res) => {
     if (!document) {
       return res.status(404).json({ 
         success: false,
-        message: 'Documentul nu a fost găsit',
+        message: 'Document not found',
         data: null
       });
     }
 
-    // Verificăm dacă statusul este valid
+    // Check if status is valid
     const validStatuses = ['pending', 'approved', 'rejected'];
     if (status && !validStatuses.includes(status)) {
       return res.status(400).json({
         success: false,
-        message: 'Status invalid. Statusurile valide sunt: pending, approved, rejected',
+        message: 'Invalid status. Valid statuses are: pending, approved, rejected',
         data: null
       });
     }
 
-    // Actualizăm documentul
+    // Update document
     const updateData = {};
     if (status) updateData.status = status;
     if (document_type) updateData.document_type = document_type;
@@ -491,7 +490,7 @@ exports.updateDocument = async (req, res) => {
 
     await document.update(updateData);
 
-    // Creăm o notificare pentru utilizator
+    // Create notification for user
     if (status) {
       const notificationType = status === 'approved' ? NOTIFICATION_TYPES.DOCUMENT_APPROVED : 
                              status === 'rejected' ? NOTIFICATION_TYPES.DOCUMENT_REJECTED : 
@@ -500,9 +499,9 @@ exports.updateDocument = async (req, res) => {
       await createNotification(
         document.user_id,
         notificationType,
-        `Documentul dumneavoastră de tip ${document.document_type} a fost ${status === 'approved' ? 'aprobat' : 
-                                                           status === 'rejected' ? 'respins' : 
-                                                           'actualizat'}${req.user.role === 'admin' ? ' de administrator' : ''}`,
+        `Your ${document.document_type} document has been ${status === 'approved' ? 'approved' : 
+                                                           status === 'rejected' ? 'rejected' : 
+                                                           'updated'}${req.user.role === 'admin' ? ' by administrator' : ''}`,
         document.id,
         req.body.admin_message || null,
         false
@@ -511,14 +510,14 @@ exports.updateDocument = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Documentul a fost actualizat cu succes',
+      message: 'Document updated successfully',
       data: document
     });
   } catch (error) {
-    console.error('Eroare la actualizarea documentului:', error);
+    console.error('Error updating document:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la actualizarea documentului',
+      message: 'Error updating document',
       error: error.message,
       data: null
     });
@@ -530,20 +529,20 @@ exports.deleteDocument = deleteDocument;
 exports.getUserDocuments = async (req, res) => {
   try {
     const userId = req.user.id;
-    console.log('Începe preluarea documentelor pentru utilizatorul:', userId);
+    console.log('Starting document retrieval for user:', userId);
     
     const documents = await Document.findAll({
       where: {
         user_id: userId,
         status: {
-          [Op.ne]: 'deleted' // Exclude documentele șterse
+          [Op.ne]: 'deleted' // Exclude deleted documents
         }
       },
       attributes: ['id', 'document_type', 'file_path', 'createdAt', 'status', 'filename', 'originalName', 'uploadDate'],
       order: [['createdAt', 'DESC']]
     });
 
-    console.log(`S-au găsit ${documents.length} documente active pentru utilizatorul ${userId}`);
+    console.log(`Found ${documents.length} active documents for user ${userId}`);
 
     const formattedDocuments = documents.map(doc => ({
       id: doc.id,
@@ -570,20 +569,20 @@ exports.getUserDocuments = async (req, res) => {
       }
     });
 
-    console.log('Statistici documente utilizator:', statusCounts);
+    console.log('User document statistics:', statusCounts);
 
     res.json({
       success: true,
-      message: documents.length === 0 ? 'Nu există documente încărcate' : 'Documentele au fost preluate cu succes',
+      message: documents.length === 0 ? 'No documents uploaded' : 'Documents retrieved successfully',
       data: formattedDocuments,
       total: documents.length,
       status: statusCounts
     });
   } catch (error) {
-    console.error('Eroare la obținerea documentelor utilizatorului:', error);
+    console.error('Error retrieving user documents:', error);
     res.status(500).json({
       success: false,
-      message: 'Eroare la obținerea documentelor',
+      message: 'Error retrieving documents',
       error: error.message,
       data: [],
       total: 0,
@@ -600,16 +599,16 @@ exports.checkDocumentDependencies = async (req, res) => {
   try {
     const documentId = req.params.id;
     
-    // Verificăm dacă documentul există
+    // Check if document exists
     const document = await Document.findByPk(documentId);
     if (!document) {
       return res.status(404).json({
         success: false,
-        message: 'Documentul nu a fost găsit'
+        message: 'Document not found'
       });
     }
 
-    // Verificăm dacă documentul este asociat cu vreo aplicație
+    // Check if document is associated with any application
     const application = await Application.findOne({
       include: [{
         model: Document,
@@ -621,13 +620,13 @@ exports.checkDocumentDependencies = async (req, res) => {
     res.json({
       success: true,
       hasDependencies: !!application,
-      message: application ? 'Documentul este asociat cu o aplicație' : 'Documentul nu are dependențe'
+      message: application ? 'Document is associated with an application' : 'Document has no dependencies'
     });
   } catch (error) {
-    console.error('Eroare la verificarea dependențelor documentului:', error);
+    console.error('Error checking document dependencies:', error);
     res.status(500).json({
       success: false,
-      message: 'Eroare la verificarea dependențelor documentului',
+      message: 'Error checking document dependencies',
       error: error.message
     });
   }

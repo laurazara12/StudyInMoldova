@@ -10,27 +10,27 @@ const createCheckoutSession = async (req, res) => {
     const { program_id, motivation_letter, document_ids } = req.body;
     const userId = req.user.id;
 
-    console.log('Începe crearea sesiunii de checkout pentru:', { program_id, userId });
+    console.log('Starting checkout session creation for:', { program_id, userId });
 
     if (!program_id || !motivation_letter || !document_ids) {
-      console.log('Câmpuri lipsă:', { program_id, motivation_letter, document_ids });
+      console.log('Missing fields:', { program_id, motivation_letter, document_ids });
       return res.status(400).json({
         success: false,
-        message: 'Toate câmpurile sunt obligatorii'
+        message: 'All fields are required'
       });
     }
 
-    // Verificăm dacă programul există
+    // Check if the program exists
     const program = await Program.findByPk(program_id);
     if (!program) {
-      console.log('Program negăsit:', program_id);
+      console.log('Program not found:', program_id);
       return res.status(404).json({
         success: false,
-        message: 'Programul nu a fost găsit'
+        message: 'Program not found'
       });
     }
 
-    // Verificăm dacă există deja o aplicație pentru acest program
+    // Check if there's already an application for this program
     const existingApplication = await Application.findOne({
       where: {
         user_id: userId,
@@ -40,14 +40,14 @@ const createCheckoutSession = async (req, res) => {
     });
 
     if (existingApplication) {
-      console.log('Aplicație existentă găsită:', existingApplication.id);
+      console.log('Existing application found:', existingApplication.id);
       return res.status(400).json({
         success: false,
-        message: 'Aveți deja o aplicație activă pentru acest program'
+        message: 'You already have an active application for this program'
       });
     }
 
-    // Creăm aplicația în starea draft
+    // Create application in draft state
     const application = await Application.create({
       program_id,
       university_id: program.university_id,
@@ -58,9 +58,9 @@ const createCheckoutSession = async (req, res) => {
       payment_status: 'unpaid'
     });
 
-    console.log('Aplicație creată:', application.id);
+    console.log('Application created:', application.id);
 
-    // Creăm sesiunea de checkout
+    // Create checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
@@ -68,8 +68,8 @@ const createCheckoutSession = async (req, res) => {
           price_data: {
             currency: 'ron',
             product_data: {
-              name: 'Taxă de aplicare',
-              description: `Taxă pentru procesarea aplicației la ${program.name}`
+              name: 'Application Fee',
+              description: `Fee for processing application to ${program.name}`
             },
             unit_amount: 1000, // 10.00 RON
           },
@@ -89,7 +89,7 @@ const createCheckoutSession = async (req, res) => {
       locale: 'ro'
     });
 
-    console.log('Sesiune Stripe creată:', session.id);
+    console.log('Stripe session created:', session.id);
 
     res.json({
       success: true,
@@ -97,10 +97,10 @@ const createCheckoutSession = async (req, res) => {
       session_id: session.id
     });
   } catch (error) {
-    console.error('Eroare la crearea sesiunii de checkout:', error);
+    console.error('Error creating checkout session:', error);
     res.status(500).json({
       success: false,
-      message: 'A apărut o eroare la procesarea plății. Vă rugăm să încercați din nou.'
+      message: 'An error occurred while processing the payment. Please try again.'
     });
   }
 };
@@ -110,18 +110,18 @@ const checkPaymentStatus = async (req, res) => {
     const { session_id } = req.body;
 
     if (!session_id) {
-      console.error('Session ID lipsă');
+      console.error('Missing Session ID');
       return res.status(400).json({
         success: false,
-        message: 'Session ID este obligatoriu'
+        message: 'Session ID is required'
       });
     }
 
-    console.log('Verificare status plată pentru sesiunea:', session_id);
+    console.log('Checking payment status for session:', session_id);
 
-    // Verificăm statusul sesiunii în Stripe
+    // Check session status in Stripe
     const session = await stripe.checkout.sessions.retrieve(session_id);
-    console.log('Sesiune Stripe găsită:', {
+    console.log('Stripe session found:', {
       id: session.id,
       payment_status: session.payment_status,
       payment_intent: session.payment_intent,
@@ -129,23 +129,23 @@ const checkPaymentStatus = async (req, res) => {
     });
 
     if (!session) {
-      console.error('Sesiune Stripe negăsită:', session_id);
+      console.error('Stripe session not found:', session_id);
       return res.status(404).json({
         success: false,
-        message: 'Sesiunea de plată nu a fost găsită'
+        message: 'Payment session not found'
       });
     }
 
-    // Verificăm metadata sesiunii
+    // Check session metadata
     if (!session.metadata || !session.metadata.application_id || !session.metadata.user_id) {
-      console.error('Metadata invalidă pentru sesiunea:', session_id);
+      console.error('Invalid metadata for session:', session_id);
       return res.status(400).json({
         success: false,
-        message: 'Metadata sesiunii este invalidă'
+        message: 'Session metadata is invalid'
       });
     }
 
-    // Găsim aplicația asociată
+    // Find associated application
     const application = await Application.findOne({
       where: {
         id: session.metadata.application_id,
@@ -154,14 +154,14 @@ const checkPaymentStatus = async (req, res) => {
     });
 
     if (!application) {
-      console.error('Aplicație negăsită pentru sesiunea:', session_id);
+      console.error('Application not found for session:', session_id);
       return res.status(404).json({
         success: false,
-        message: 'Aplicația nu a fost găsită'
+        message: 'Application not found'
       });
     }
 
-    console.log('Aplicație găsită:', {
+    console.log('Application found:', {
       id: application.id,
       status: application.status,
       payment_status: application.payment_status,
@@ -169,17 +169,17 @@ const checkPaymentStatus = async (req, res) => {
     });
 
     if (session.payment_status === 'paid') {
-      console.log('Statusul sesiunii Stripe este paid');
+      console.log('Stripe session status is paid');
       
       if (!session.payment_intent) {
-        console.error('Payment intent lipsă pentru sesiunea plătită:', session_id);
+        console.error('Missing payment intent for paid session:', session_id);
         return res.status(400).json({
           success: false,
-          message: 'Payment intent lipsă pentru sesiunea plătită'
+          message: 'Missing payment intent for paid session'
         });
       }
 
-      // Actualizăm statusul aplicației
+      // Update application status
       const updateData = {
         status: 'submitted',
         payment_status: 'paid',
@@ -187,10 +187,10 @@ const checkPaymentStatus = async (req, res) => {
         application_date: new Date()
       };
 
-      console.log('Actualizare aplicație cu datele:', updateData);
+      console.log('Updating application with data:', updateData);
       
       try {
-        // Verificăm dacă aplicația există și nu este deja plătită
+        // Check if application exists and is not already paid
         const existingApplication = await Application.findOne({
           where: {
             id: session.metadata.application_id,
@@ -200,7 +200,7 @@ const checkPaymentStatus = async (req, res) => {
         });
 
         if (existingApplication) {
-          console.log('Aplicația este deja plătită:', existingApplication.id);
+          console.log('Application is already paid:', existingApplication.id);
           return res.json({
             success: true,
             status: 'paid',
@@ -209,7 +209,7 @@ const checkPaymentStatus = async (req, res) => {
         }
 
         const updatedApplication = await application.update(updateData);
-        console.log('Aplicație actualizată:', {
+        console.log('Application updated:', {
           id: updatedApplication.id,
           status: updatedApplication.status,
           payment_status: updatedApplication.payment_status,
@@ -223,16 +223,16 @@ const checkPaymentStatus = async (req, res) => {
           application: updatedApplication
         });
       } catch (error) {
-        console.error('Eroare la actualizarea aplicației:', error);
+        console.error('Error updating application:', error);
         res.status(500).json({
           success: false,
-          message: 'Eroare la actualizarea statusului aplicației',
+          message: 'Error updating application status',
           error: error.message
         });
       }
     } else {
-      console.log('Statusul sesiunii Stripe nu este paid:', session.payment_status);
-      // Dacă plata nu a fost procesată, aplicația rămâne în starea draft
+      console.log('Stripe session status is not paid:', session.payment_status);
+      // If payment was not processed, application remains in draft state
       await application.update({
         status: 'draft',
         payment_status: 'unpaid'
@@ -245,10 +245,10 @@ const checkPaymentStatus = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error('Eroare la verificarea statusului plății:', error);
+    console.error('Error checking payment status:', error);
     res.status(500).json({
       success: false,
-      message: 'A apărut o eroare la verificarea statusului plății',
+      message: 'An error occurred while checking payment status',
       error: error.message
     });
   }

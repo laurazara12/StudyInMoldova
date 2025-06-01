@@ -6,58 +6,58 @@ const { Application } = require('../models');
 
 const auth = async (req, res, next) => {
   try {
-    console.log('=== Middleware Autentificare ===');
-    console.log('Headers primite:', req.headers);
+    console.log('=== Authentication Middleware ===');
+    console.log('Received headers:', req.headers);
     
     const token = req.headers.authorization?.split(' ')[1];
-    console.log('Token prezent:', !!token);
+    console.log('Token present:', !!token);
     
     if (!token) {
-      console.log('Token lipsă');
+      console.log('Missing token');
       return res.status(401).json({
         success: false,
-        message: 'Token lipsă'
+        message: 'Missing token'
       });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('Token decodat:', decoded);
+    console.log('Decoded token:', decoded);
     
     if (!decoded || !decoded.id) {
-      console.error('Token invalid sau lipsă ID în token');
+      console.error('Invalid token or missing ID in token');
       return res.status(401).json({
         success: false,
-        message: 'Token invalid'
+        message: 'Invalid token'
       });
     }
     
     const user = await User.findByPk(decoded.id);
-    console.log('Utilizator găsit:', !!user);
+    console.log('User found:', !!user);
     
     if (!user) {
-      console.log('Utilizator invalid');
+      console.log('Invalid user');
       return res.status(401).json({
         success: false,
-        message: 'Utilizator invalid'
+        message: 'Invalid user'
       });
     }
 
-    // Setăm utilizatorul în request
+    // Set user in request
     req.user = user;
     req.userId = user.id;
     req.userRole = user.role;
     
-    console.log('Autentificare reușită pentru:', {
+    console.log('Authentication successful for:', {
       id: user.id,
       role: user.role
     });
     
     next();
   } catch (error) {
-    console.error('Eroare la autentificare:', error);
+    console.error('Authentication error:', error);
     res.status(401).json({
       success: false,
-      message: 'Token invalid',
+      message: 'Invalid token',
       error: error.message
     });
   }
@@ -69,16 +69,16 @@ const adminAuth = async (req, res, next) => {
       if (req.user.role !== 'admin') {
         return res.status(403).json({
           success: false,
-          message: 'Acces interzis. Drepturi de administrator necesare.'
+          message: 'Access denied. Administrator rights required.'
         });
       }
       next();
     });
   } catch (error) {
-    console.error('Eroare la verificarea drepturilor de administrator:', error);
+    console.error('Error checking administrator rights:', error);
     res.status(500).json({
       success: false,
-      message: 'Eroare la verificarea drepturilor de administrator.'
+      message: 'Error checking administrator rights.'
     });
   }
 };
@@ -86,20 +86,20 @@ const adminAuth = async (req, res, next) => {
 const applicationAuth = async (req, res, next) => {
   try {
     await auth(req, res, () => {
-      console.log('Verificare acces aplicații:', {
+      console.log('Checking application access:', {
         userId: req.userId,
         userRole: req.userRole
       });
 
       if (req.userRole !== 'admin' && req.userRole !== 'student') {
-        console.log('Acces refuzat - rol invalid:', req.userRole);
+        console.log('Access denied - invalid role:', req.userRole);
         return res.status(403).json({
           success: false,
-          message: 'Acces interzis. Drepturi de administrator sau student necesare.'
+          message: 'Access denied. Administrator or student rights required.'
         });
       }
       
-      console.log('Acces permis pentru:', {
+      console.log('Access granted for:', {
         userId: req.userId,
         userRole: req.userRole
       });
@@ -107,23 +107,23 @@ const applicationAuth = async (req, res, next) => {
       next();
     });
   } catch (error) {
-    console.error('Eroare la verificarea drepturilor pentru aplicații:', error);
+    console.error('Error checking application rights:', error);
     res.status(500).json({
       success: false,
-      message: 'Eroare la verificarea drepturilor pentru aplicații.'
+      message: 'Error checking application rights.'
     });
   }
 };
 
-// Adăugăm un nou middleware pentru verificarea proprietății aplicației
+// Add a new middleware for checking application ownership
 const applicationOwnership = async (req, res, next) => {
   try {
-    // Adminii au acces la toate aplicațiile
+    // Admins have access to all applications
     if (req.userRole === 'admin') {
       return next();
     }
 
-    // Pentru studenți, verificăm dacă aplicația îi aparține
+    // For students, check if the application belongs to them
     const applicationId = req.params.id;
     const userId = req.userId;
 
@@ -132,23 +132,23 @@ const applicationOwnership = async (req, res, next) => {
     if (!application) {
       return res.status(404).json({
         success: false,
-        message: 'Aplicația nu a fost găsită.'
+        message: 'Application not found.'
       });
     }
 
     if (application.user_id !== userId) {
       return res.status(403).json({
         success: false,
-        message: 'Nu aveți permisiunea de a accesa această aplicație.'
+        message: 'You do not have permission to access this application.'
       });
     }
 
     next();
   } catch (error) {
-    console.error('Eroare la verificarea proprietății aplicației:', error);
+    console.error('Error checking application ownership:', error);
     res.status(500).json({
       success: false,
-      message: 'Eroare la verificarea proprietății aplicației.'
+      message: 'Error checking application ownership.'
     });
   }
 };

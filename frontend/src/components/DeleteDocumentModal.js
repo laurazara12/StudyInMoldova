@@ -17,10 +17,10 @@ const DeleteDocumentModal = ({ isOpen, onClose, document, onDelete }) => {
       setError(null);
 
       if (!document || !document.id) {
-        throw new Error('Document invalid sau lipsă');
+        throw new Error('Invalid or missing document');
       }
 
-      // Verificăm dacă documentul are toate câmpurile necesare
+      // Check if document has all required fields
       const documentData = {
         id: document.id,
         document_type: document.document_type || document.type,
@@ -31,7 +31,7 @@ const DeleteDocumentModal = ({ isOpen, onClose, document, onDelete }) => {
         status: document.status
       };
 
-      console.log('Încercare ștergere document:', documentData);
+      console.log('Attempting to delete document:', documentData);
 
       const response = await axios.delete(`${API_BASE_URL}/api/documents/${document.id}`, {
         headers: getAuthHeaders(),
@@ -42,31 +42,31 @@ const DeleteDocumentModal = ({ isOpen, onClose, document, onDelete }) => {
       });
 
       if (response.data.success) {
-        console.log('Document șters cu succes:', response.data);
+        console.log('Document successfully deleted:', response.data);
         onDelete(document);
         onClose();
         setShowConfirmation(false);
         setAdminMessage('');
       } else {
-        throw new Error(response.data.message || 'Eroare la ștergerea documentului');
+        throw new Error(response.data.message || 'Error deleting document');
       }
     } catch (error) {
-      console.error('Eroare la ștergerea documentului:', error);
-      let errorMessage = 'Eroare la ștergerea documentului';
+      console.error('Error deleting document:', error);
+      let errorMessage = 'Error deleting document';
       
       if (error.response) {
         switch (error.response.status) {
           case 404:
-            errorMessage = 'Documentul nu a fost găsit în baza de date';
+            errorMessage = 'Document not found in database';
             break;
           case 401:
-            errorMessage = 'Nu aveți permisiunea de a șterge acest document';
+            errorMessage = 'You do not have permission to delete this document';
             break;
           case 403:
-            errorMessage = 'Nu aveți permisiunea de a șterge acest document';
+            errorMessage = 'You do not have permission to delete this document';
             break;
           case 400:
-            errorMessage = error.response.data.message || 'Documentul nu poate fi șters';
+            errorMessage = error.response.data.message || 'Document cannot be deleted';
             break;
           default:
             errorMessage = error.response.data?.message || errorMessage;
@@ -98,16 +98,16 @@ const DeleteDocumentModal = ({ isOpen, onClose, document, onDelete }) => {
           <>
             <div className="modal-warning">
               <span className="warning-icon">⚠️</span>
-              <h3>Ștergere Document</h3>
+              <h3>Delete Document</h3>
             </div>
             <p className="modal-message">
-              Sunteți pe cale să ștergeți acest document. Doriți să adăugați un mesaj de notificare? (opțional)
+              You are about to delete this document. Would you like to add a notification message? (optional)
             </p>
             <div className="form-group">
               <textarea
                 value={adminMessage}
                 onChange={(e) => setAdminMessage(e.target.value)}
-                placeholder="Exemplu: Acest document a fost șters deoarece a încălcat politica X."
+                placeholder="Example: This document was deleted because it violated policy X."
                 rows="4"
               />
             </div>
@@ -118,14 +118,14 @@ const DeleteDocumentModal = ({ isOpen, onClose, document, onDelete }) => {
                 onClick={onClose}
                 disabled={isDeleting}
               >
-                Anulează
+                Cancel
               </button>
               <button 
                 className="next-button"
                 onClick={handleNext}
                 disabled={isDeleting}
               >
-                Următorul
+                Next
               </button>
             </div>
           </>
@@ -133,14 +133,14 @@ const DeleteDocumentModal = ({ isOpen, onClose, document, onDelete }) => {
           <>
             <div className="modal-warning">
               <span className="warning-icon">❓</span>
-              <h3>Confirmare Ștergere</h3>
+              <h3>Confirm Deletion</h3>
             </div>
             <p className="modal-message">
-              Sunteți sigur că doriți să ștergeți acest document?
+              Are you sure you want to delete this document?
             </p>
             {adminMessage && (
               <div className="admin-message-preview">
-                <p>Mesajul de notificare care va fi trimis utilizatorului:</p>
+                <p>Notification message that will be sent to the user:</p>
                 <p className="message-content">{adminMessage}</p>
               </div>
             )}
@@ -151,14 +151,14 @@ const DeleteDocumentModal = ({ isOpen, onClose, document, onDelete }) => {
                 onClick={handleBack}
                 disabled={isDeleting}
               >
-                Înapoi
+                Back
               </button>
               <button 
                 className="delete-button"
                 onClick={handleDelete}
                 disabled={isDeleting}
               >
-                {isDeleting ? 'Se șterge...' : 'Șterge'}
+                {isDeleting ? 'Deleting...' : 'Delete'}
               </button>
             </div>
           </>

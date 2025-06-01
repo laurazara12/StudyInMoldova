@@ -30,22 +30,22 @@ class ApplicationsSection {
       });
 
       if (!response.ok) {
-        throw new Error('Eroare la obținerea aplicațiilor');
+        throw new Error('Error fetching applications');
       }
 
       const result = await response.json();
       
       if (!result.success) {
-        throw new Error(result.message || 'Eroare la obținerea aplicațiilor');
+        throw new Error(result.message || 'Error fetching applications');
       }
 
-      // Verificăm dacă avem date valide
+      // Check if we have valid data
       if (!result.data || typeof result.data !== 'object') {
-        console.error('Format invalid al datelor:', result);
-        throw new Error('Format invalid al datelor primite de la server');
+        console.error('Invalid data format:', result);
+        throw new Error('Invalid data format received from server');
       }
 
-      // Inițializăm toate grupurile
+      // Initialize all groups
       this.applications = {
         drafts: [],
         pending: [],
@@ -54,12 +54,12 @@ class ApplicationsSection {
         withdrawn: []
       };
 
-      // Populăm grupurile cu datele primite
+      // Populate groups with received data
       Object.keys(this.applications).forEach(group => {
         if (Array.isArray(result.data[group])) {
           this.applications[group] = result.data[group];
         } else {
-          console.warn(`Grupul ${group} nu este un array valid:`, result.data[group]);
+          console.warn(`Group ${group} is not a valid array:`, result.data[group]);
           this.applications[group] = [];
         }
       });
@@ -76,9 +76,9 @@ class ApplicationsSection {
       this.message = result.message || '';
 
     } catch (error) {
-      console.error('Eroare la încărcarea aplicațiilor:', error);
+      console.error('Error loading applications:', error);
       this.error = error.message;
-      // Inițializăm cu array-uri goale în caz de eroare
+      // Initialize with empty arrays in case of error
       this.applications = {
         drafts: [],
         pending: [],

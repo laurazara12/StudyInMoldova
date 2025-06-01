@@ -172,7 +172,7 @@ const Programs = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        throw new Error('Trebuie să fiți autentificat pentru a salva programe');
+        throw new Error('You must be logged in to save programs');
       }
 
       const programIdInt = parseInt(programId);
@@ -192,23 +192,23 @@ const Programs = () => {
         setSavedPrograms(prev => [...prev, response.data.data]);
         setNotification({
           type: 'success',
-          message: 'Programul a fost salvat cu succes!'
+          message: 'Program saved successfully!'
         });
       }
     } catch (error) {
       console.error('Eroare la salvarea programului:', error);
       
-      if (error.response?.data?.message?.includes('deja salvat')) {
+      if (error.response?.data?.message?.includes('already saved')) {
         setNotification({
           type: 'info',
-          message: 'Programul este deja salvat!'
+          message: 'Program is already saved!'
         });
         return;
       }
       
       setNotification({
         type: 'error',
-        message: error.response?.data?.message || error.message || 'Eroare la salvarea programului'
+        message: error.response?.data?.message || error.message || 'Error saving program'
       });
     }
   };

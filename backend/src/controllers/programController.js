@@ -213,13 +213,13 @@ exports.createProgram = async (req, res) => {
 
 exports.updateProgram = async (req, res) => {
   try {
-    console.log('Date primite pentru actualizare:', req.body);
+    console.log('Received data for update:', req.body);
     
     const program = await Program.findByPk(req.params.id);
     if (!program) {
       return res.status(404).json({ 
         success: false,
-        message: 'Programul nu a fost găsit' 
+        message: 'Program not found' 
       });
     }
 
@@ -237,11 +237,11 @@ exports.updateProgram = async (req, res) => {
       application_deadline: req.body.application_deadline
     };
 
-    console.log('Date procesate pentru actualizare:', programData);
+    console.log('Processed data for update:', programData);
 
     await program.update(programData);
 
-    // Obținem programul actualizat cu toate relațiile
+    // Get updated program with all relationships
     const updatedProgram = await Program.findByPk(program.id, {
       include: [{
         model: University,
@@ -250,7 +250,7 @@ exports.updateProgram = async (req, res) => {
       }]
     });
 
-    // Formatăm datele pentru răspuns
+    // Format data for response
     const formattedProgram = {
       id: updatedProgram.id,
       name: updatedProgram.name || 'N/A',
@@ -278,14 +278,14 @@ exports.updateProgram = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Programul a fost actualizat cu succes',
+      message: 'Program updated successfully',
       data: formattedProgram
     });
   } catch (error) {
-    console.error('Eroare la actualizarea programului:', error);
+    console.error('Error updating program:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la actualizarea programului', 
+      message: 'Error updating program', 
       error: error.message 
     });
   }

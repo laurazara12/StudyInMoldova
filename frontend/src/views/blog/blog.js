@@ -112,7 +112,7 @@ const Blog = () => {
                 className={`category-tag ${selectedCategory === '' ? 'active' : ''}`}
                 onClick={() => handleCategoryClick('')}
               >
-                Toate categoriile
+                All categories
               </span>
               {categories.map(category => (
                 <span 
@@ -139,7 +139,7 @@ const Blog = () => {
                   {post.title}
                 </h2>
                 <p className="blog-date">
-                  {new Date(post.date).toLocaleDateString('ro-RO', {
+                  {new Date(post.date).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric'
@@ -152,7 +152,7 @@ const Blog = () => {
                   className="btn btn-primary"
                   onClick={() => handleReadMore(post.id)}
                 >
-                  Citește mai mult
+                  Read more
                 </button>
               </div>
             </article>

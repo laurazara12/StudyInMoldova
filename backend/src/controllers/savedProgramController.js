@@ -7,7 +7,7 @@ exports.saveProgram = async (req, res) => {
     if (!program_id) {
       return res.status(400).json({
         success: false,
-        message: 'ID-ul programului este obligatoriu',
+        message: 'Program ID is required',
         data: null
       });
     }
@@ -25,21 +25,21 @@ exports.saveProgram = async (req, res) => {
     if (!created) {
       return res.status(400).json({
         success: false,
-        message: 'Programul este deja salvat',
+        message: 'Program is already saved',
         data: null
       });
     }
 
     res.json({
       success: true,
-      message: 'Programul a fost salvat cu succes',
+      message: 'Program saved successfully',
       data: savedProgram
     });
   } catch (error) {
-    console.error('Eroare la salvarea programului:', error);
+    console.error('Error saving program:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la salvarea programului',
+      message: 'Error saving program',
       error: error.message,
       data: null
     });
@@ -75,7 +75,7 @@ exports.getSavedPrograms = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Programele salvate au fost preluate cu succes',
+      message: 'Saved programs retrieved successfully',
       data: savedPrograms.map(sp => ({
         id: sp.program.id,
         name: sp.program.name,
@@ -91,10 +91,10 @@ exports.getSavedPrograms = async (req, res) => {
       total: savedPrograms.length
     });
   } catch (error) {
-    console.error('Eroare la obținerea programelor salvate:', error);
+    console.error('Error getting saved programs:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la obținerea programelor salvate',
+      message: 'Error getting saved programs',
       error: error.message,
       data: [],
       total: 0
@@ -116,21 +116,21 @@ exports.unsaveProgram = async (req, res) => {
     if (!deleted) {
       return res.status(404).json({
         success: false,
-        message: 'Programul nu a fost găsit în lista de programe salvate',
+        message: 'Program not found in saved programs list',
         data: null
       });
     }
 
     res.json({
       success: true,
-      message: 'Programul a fost eliminat din lista de programe salvate',
+      message: 'Program removed from saved programs list',
       data: null
     });
   } catch (error) {
-    console.error('Eroare la eliminarea programului din lista de programe salvate:', error);
+    console.error('Error removing program from saved programs list:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la eliminarea programului din lista de programe salvate',
+      message: 'Error removing program from saved programs list',
       error: error.message,
       data: null
     });
@@ -151,13 +151,13 @@ exports.checkIfProgramSaved = async (req, res) => {
     res.json({ 
       success: true,
       data: { isSaved: !!savedProgram },
-      message: 'Verificare program salvat realizată cu succes'
+      message: 'Program saved status checked successfully'
     });
   } catch (error) {
-    console.error('Eroare la verificarea programului salvat:', error);
+    console.error('Error checking saved program status:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la verificarea programului salvat',
+      message: 'Error checking saved program status',
       error: error.message,
       data: null
     });
@@ -171,12 +171,12 @@ exports.saveMultiplePrograms = async (req, res) => {
     if (!Array.isArray(program_ids)) {
       return res.status(400).json({ 
         success: false,
-        message: 'program_ids trebuie să fie un array',
+        message: 'program_ids must be an array',
         data: null
       });
     }
 
-    // Verificăm dacă toate programele există
+    // Check if all programs exist
     const programs = await Program.findAll({
       where: { id: program_ids }
     });
@@ -184,12 +184,12 @@ exports.saveMultiplePrograms = async (req, res) => {
     if (programs.length !== program_ids.length) {
       return res.status(404).json({ 
         success: false,
-        message: 'Unele programe nu au fost găsite',
+        message: 'Some programs were not found',
         data: null
       });
     }
 
-    // Verificăm programele deja salvate
+    // Check already saved programs
     const existingSavedPrograms = await SavedProgram.findAll({
       where: { 
         user_id: req.user.id,
@@ -200,7 +200,7 @@ exports.saveMultiplePrograms = async (req, res) => {
     const existingProgramIds = existingSavedPrograms.map(sp => sp.program_id);
     const newProgramIds = program_ids.filter(id => !existingProgramIds.includes(id));
 
-    // Salvăm noile programe
+    // Save new programs
     const savedPrograms = await Promise.all(
       newProgramIds.map(program_id => 
         SavedProgram.create({
@@ -218,13 +218,13 @@ exports.saveMultiplePrograms = async (req, res) => {
         alreadySavedCount: existingSavedPrograms.length,
         savedPrograms
       },
-      message: 'Programe salvate cu succes'
+      message: 'Programs saved successfully'
     });
   } catch (error) {
-    console.error('Eroare la salvarea programelor:', error);
+    console.error('Error saving programs:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la salvarea programelor',
+      message: 'Error saving programs',
       error: error.message,
       data: null
     });

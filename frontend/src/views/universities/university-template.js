@@ -44,7 +44,7 @@ const UniversityTemplate = ({
         if (!isMounted) return;
         
         if (!universityData || !universityData.name) {
-          setError('Universitatea nu a fost găsită sau datele sunt incomplete');
+          setError('University not found or data is incomplete');
           return;
         }
         
@@ -116,7 +116,7 @@ const UniversityTemplate = ({
         <Navbar />
         <div className="university-body">
           <div className="loading-container">
-            <p>Se încarcă...</p>
+            <p>Loading...</p>
           </div>
         </div>
         <Footer />
@@ -130,10 +130,10 @@ const UniversityTemplate = ({
         <Navbar />
         <div className="university-body">
           <div className="error-container">
-            <h2>Eroare</h2>
+            <h2>Error</h2>
             <p>{error}</p>
             <button onClick={() => navigate('/universities')} className="back-button">
-              Înapoi la lista de universități
+              Back to universities list
             </button>
           </div>
         </div>
@@ -148,10 +148,10 @@ const UniversityTemplate = ({
         <Navbar />
         <div className="university-body">
           <div className="error-container">
-            <h2>Universitatea nu a fost găsită</h2>
-            <p>Nu am putut găsi universitatea căutată.</p>
+            <h2>University not found</h2>
+            <p>We couldn't find the requested university.</p>
             <button onClick={() => navigate('/universities')} className="back-button">
-              Înapoi la lista de universități
+              Back to universities list
             </button>
           </div>
         </div>
@@ -184,22 +184,22 @@ const UniversityTemplate = ({
       <div className="university-content">
         {/* Secțiunea Despre */}
         <section className="university-section">
-          <h3>Despre Universitate</h3>
+          <h3>About University</h3>
           <div className="about-content">
             <div className="about-text">
-              <p>{university.description || 'Nu există descriere disponibilă.'}</p>
+              <p>{university.description || 'No description available.'}</p>
               {university.tuition_fees && (
                 <div className="tuition-fees">
-                  <h4>Taxe de școlarizare (MDL/an):</h4>
+                  <h4>Tuition Fees (MDL/year):</h4>
                   <ul>
                     {university.tuition_fees.bachelor && (
-                      <li>Licență: {university.tuition_fees.bachelor} MDL</li>
+                      <li>Bachelor's: {university.tuition_fees.bachelor} MDL</li>
                     )}
                     {university.tuition_fees.master && (
-                      <li>Masterat: {university.tuition_fees.master} MDL</li>
+                      <li>Master's: {university.tuition_fees.master} MDL</li>
                     )}
                     {university.tuition_fees.phd && (
-                      <li>Doctorat: {university.tuition_fees.phd} MDL</li>
+                      <li>PhD: {university.tuition_fees.phd} MDL</li>
                     )}
                   </ul>
                 </div>
@@ -208,18 +208,18 @@ const UniversityTemplate = ({
             <div className="about-stats">
               <div className="stat-item">
                 <span className="stat-number">{programs.length || 'N/A'}</span>
-                <span className="stat-label">Programe de studii</span>
+                <span className="stat-label">Study Programs</span>
               </div>
               <div className="stat-item">
-                <span className="stat-number">{university.type === 'public' ? 'Publică' : 'Privată'}</span>
-                <span className="stat-label">Tip</span>
+                <span className="stat-number">{university.type === 'public' ? 'Public' : 'Private'}</span>
+                <span className="stat-label">Type</span>
               </div>
               <div className="stat-item">
                 <span className="stat-number">{university.location || 'N/A'}</span>
-                <span className="stat-label">Locație</span>
+                <span className="stat-label">Location</span>
               </div>
               <div className="stat-item">
-                <span className="stat-number">{university.contact_info?.email ? 'Disponibil' : 'N/A'}</span>
+                <span className="stat-number">{university.contact_info?.email ? 'Available' : 'N/A'}</span>
                 <span className="stat-label">Contact</span>
               </div>
             </div>
@@ -234,7 +234,7 @@ const UniversityTemplate = ({
 
         {/* Programe de studii */}
         <section className="university-section">
-          <h3>Programe de Studii</h3>
+          <h3>Study Programs</h3>
           {programs.length > 0 ? (
             <div className="programs-grid">
               {programs.map(program => {
@@ -245,13 +245,13 @@ const UniversityTemplate = ({
                     <p>{program.description}</p>
                     {details.tuitionFees && (
                       <div className="program-fees">
-                        <h5>Taxe de școlarizare:</h5>
-                        <p>{details.tuitionFees} MDL/an</p>
+                        <h5>Tuition Fees:</h5>
+                        <p>{details.tuitionFees} MDL/year</p>
                       </div>
                     )}
                     {details.specializations && details.specializations.length > 0 && (
                       <div className="program-specializations">
-                        <h5>Specializări:</h5>
+                        <h5>Specializations:</h5>
                         <ul>
                           {details.specializations.map(spec => (
                             <li key={spec.id}>{spec.name}</li>
@@ -264,7 +264,7 @@ const UniversityTemplate = ({
               })}
             </div>
           ) : (
-            <p>Nu există programe de studii disponibile momentan.</p>
+            <p>No study programs available at the moment.</p>
           )}
         </section>
 

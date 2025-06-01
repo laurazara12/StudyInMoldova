@@ -42,15 +42,15 @@ const statusColors = {
 };
 
 const statusLabels = {
-  draft: 'Ciornă',
-  pending: 'În așteptare',
-  under_review: 'În revizuire',
-  documents_needed: 'Documente necesare',
-  approved: 'Aprobată',
-  rejected: 'Respinsă',
-  withdrawn: 'Retrasă',
-  accepted: 'Acceptată',
-  enrolled: 'Înmatriculat'
+  draft: 'Draft',
+  pending: 'Pending',
+  under_review: 'Under Review',
+  documents_needed: 'Documents Needed',
+  approved: 'Approved',
+  rejected: 'Rejected',
+  withdrawn: 'Withdrawn',
+  accepted: 'Accepted',
+  enrolled: 'Enrolled'
 };
 
 const Applications = () => {
@@ -85,7 +85,7 @@ const Applications = () => {
       setApplications(data);
       setError(null);
     } catch (err) {
-      setError(err.message || 'Eroare la încărcarea aplicațiilor');
+      setError(err.message || 'Error loading applications');
     } finally {
       setLoading(false);
     }
@@ -122,7 +122,7 @@ const Applications = () => {
       setCancelReason('');
       setSelectedApplication(null);
     } catch (err) {
-      setError(err.message || 'Eroare la anularea aplicației');
+      setError(err.message || 'Error cancelling application');
     }
   };
 
@@ -142,7 +142,7 @@ const Applications = () => {
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
         <Typography variant="h4" component="h1">
-          Aplicațiile mele
+          My Applications
         </Typography>
         <Button
           variant="contained"
@@ -150,7 +150,7 @@ const Applications = () => {
           startIcon={<AddIcon />}
           onClick={handleCreateApplication}
         >
-          Aplicație nouă
+          New Application
         </Button>
       </Box>
 
@@ -168,15 +168,15 @@ const Applications = () => {
           scrollButtons="auto"
           sx={{ borderBottom: 1, borderColor: 'divider' }}
         >
-          <Tab label={`În așteptare (${getStatusCount('pending')})`} />
-          <Tab label={`În revizuire (${getStatusCount('under_review')})`} />
-          <Tab label={`Documente necesare (${getStatusCount('documents_needed')})`} />
-          <Tab label={`Aprobate (${getStatusCount('approved')})`} />
-          <Tab label={`Acceptate (${getStatusCount('accepted')})`} />
-          <Tab label={`Înmatriculate (${getStatusCount('enrolled')})`} />
-          <Tab label={`Respinse (${getStatusCount('rejected')})`} />
-          <Tab label={`Retrase (${getStatusCount('withdrawn')})`} />
-          <Tab label={`Ciorne (${getStatusCount('draft')})`} />
+          <Tab label={`Pending (${getStatusCount('pending')})`} />
+          <Tab label={`Under Review (${getStatusCount('under_review')})`} />
+          <Tab label={`Documents Needed (${getStatusCount('documents_needed')})`} />
+          <Tab label={`Approved (${getStatusCount('approved')})`} />
+          <Tab label={`Accepted (${getStatusCount('accepted')})`} />
+          <Tab label={`Enrolled (${getStatusCount('enrolled')})`} />
+          <Tab label={`Rejected (${getStatusCount('rejected')})`} />
+          <Tab label={`Withdrawn (${getStatusCount('withdrawn')})`} />
+          <Tab label={`Drafts (${getStatusCount('draft')})`} />
         </Tabs>
 
         <Box p={3}>
@@ -187,7 +187,7 @@ const Applications = () => {
             >
               {apps.length === 0 ? (
                 <Typography color="text.secondary" align="center" py={4}>
-                  Nu există aplicații în această categorie
+                  There are no applications in this category
                 </Typography>
               ) : (
                 apps.map((application) => (
@@ -220,7 +220,7 @@ const Applications = () => {
                         <Box>
                           <IconButton
                             onClick={() => handleViewApplication(application.id)}
-                            title="Vezi detalii"
+                            title="View details"
                           >
                             <ViewIcon />
                           </IconButton>
@@ -228,13 +228,13 @@ const Applications = () => {
                             <>
                               <IconButton
                                 onClick={() => handleEditApplication(application.id)}
-                                title="Editează"
+                                title="Edit"
                               >
                                 <EditIcon />
                               </IconButton>
                               <IconButton
                                 onClick={() => handleCancelClick(application)}
-                                title="Anulează"
+                                title="Cancel"
                                 color="error"
                               >
                                 <DeleteIcon />
@@ -253,29 +253,29 @@ const Applications = () => {
       </Paper>
 
       <Dialog open={cancelDialogOpen} onClose={() => setCancelDialogOpen(false)}>
-        <DialogTitle>Anulează aplicația</DialogTitle>
+        <DialogTitle>Cancel Application</DialogTitle>
         <DialogContent>
           <Typography gutterBottom>
-            Ești sigur că dorești să anulezi această aplicație?
+            Are you sure you want to cancel this application?
           </Typography>
           <TextField
             fullWidth
             multiline
             rows={4}
-            label="Motivul anulării"
+            label="Cancellation Reason"
             value={cancelReason}
             onChange={(e) => setCancelReason(e.target.value)}
             sx={{ mt: 2 }}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setCancelDialogOpen(false)}>Renunță</Button>
+          <Button onClick={() => setCancelDialogOpen(false)}>Dismiss</Button>
           <Button
             onClick={handleCancelConfirm}
             color="error"
             disabled={!cancelReason.trim()}
           >
-            Anulează
+            Cancel
           </Button>
         </DialogActions>
       </Dialog>

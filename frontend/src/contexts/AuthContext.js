@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
       const storedUser = localStorage.getItem('user');
       return storedUser ? JSON.parse(storedUser) : null;
     } catch (error) {
-      console.error('Eroare la parsarea datelor utilizatorului:', error);
+      console.error('Error parsing user data:', error);
       return null;
     }
   });
@@ -37,13 +37,13 @@ export const AuthProvider = ({ children }) => {
           return;
         }
 
-        // Actualizăm starea cu datele din localStorage
+        // Update state with data from localStorage
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
           setUser(JSON.parse(storedUser));
         }
       } catch (error) {
-        console.error('Eroare la verificarea autentificării:', error);
+        console.error('Error checking authentication:', error);
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         setToken(null);
@@ -59,7 +59,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (userData, token) => {
     try {
       if (!userData || !token) {
-        throw new Error('Date de autentificare incomplete');
+        throw new Error('Incomplete authentication data');
       }
 
       localStorage.setItem('token', token);
@@ -70,7 +70,7 @@ export const AuthProvider = ({ children }) => {
       
       return { user: userData, token };
     } catch (error) {
-      console.error('Eroare la autentificare:', error);
+      console.error('Login error:', error);
       throw error;
     }
   };
@@ -102,7 +102,7 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth trebuie folosit în interiorul unui AuthProvider');
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };

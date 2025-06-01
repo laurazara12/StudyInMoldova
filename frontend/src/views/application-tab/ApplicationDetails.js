@@ -67,15 +67,15 @@ const statusColors = {
 };
 
 const statusLabels = {
-  draft: 'Ciornă',
-  pending: 'În așteptare',
-  under_review: 'În revizuire',
-  documents_needed: 'Documente necesare',
-  approved: 'Aprobată',
-  rejected: 'Respinsă',
-  withdrawn: 'Retrasă',
-  accepted: 'Acceptată',
-  enrolled: 'Înmatriculat'
+  draft: 'Draft',
+  pending: 'Pending',
+  under_review: 'Under Review',
+  documents_needed: 'Documents Needed',
+  approved: 'Approved',
+  rejected: 'Rejected',
+  withdrawn: 'Withdrawn',
+  accepted: 'Accepted',
+  enrolled: 'Enrolled'
 };
 
 const statusIcons = {
@@ -111,7 +111,7 @@ const ApplicationDetails = () => {
       setApplication(data);
       setError(null);
     } catch (err) {
-      setError(err.message || 'Eroare la încărcarea aplicației');
+      setError(err.message || 'Error loading application');
     } finally {
       setLoading(false);
     }
@@ -134,7 +134,7 @@ const ApplicationDetails = () => {
       setCancelDialogOpen(false);
       setCancelReason('');
     } catch (err) {
-      setError(err.message || 'Eroare la anularea aplicației');
+      setError(err.message || 'Error cancelling application');
     }
   };
 
@@ -150,7 +150,7 @@ const ApplicationDetails = () => {
     return (
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Alert severity="error">
-          Aplicația nu a fost găsită
+          Application not found
         </Alert>
       </Container>
     );
@@ -162,7 +162,7 @@ const ApplicationDetails = () => {
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
         <Typography variant="h4" component="h1">
-          Detalii aplicație
+          Application Details
         </Typography>
         {['draft', 'pending'].includes(application.status) && (
           <Box>
@@ -172,7 +172,7 @@ const ApplicationDetails = () => {
               onClick={handleEdit}
               sx={{ mr: 1 }}
             >
-              Editează
+              Edit
             </Button>
             <Button
               variant="outlined"
@@ -180,7 +180,7 @@ const ApplicationDetails = () => {
               startIcon={<DeleteIcon />}
               onClick={handleCancel}
             >
-              Anulează
+              Cancel
             </Button>
           </Box>
         )}
@@ -225,21 +225,21 @@ const ApplicationDetails = () => {
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  Anul aplicării
+                  Application Year
                 </Typography>
                 <Typography>{application.application_year}</Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  Semestrul
+                  Semester
                 </Typography>
                 <Typography>
-                  {application.semester === 'fall' ? 'Toamnă' : 'Primăvară'}
+                  {application.semester === 'fall' ? 'Fall' : 'Spring'}
                 </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  Prioritate
+                  Priority
                 </Typography>
                 <Chip
                   label={application.is_urgent ? 'Urgent' : 'Normal'}
@@ -253,7 +253,7 @@ const ApplicationDetails = () => {
               <>
                 <Divider sx={{ my: 3 }} />
                 <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                  Note adiționale
+                  Additional Notes
                 </Typography>
                 <Typography>{application.notes}</Typography>
               </>
@@ -263,7 +263,7 @@ const ApplicationDetails = () => {
               <>
                 <Divider sx={{ my: 3 }} />
                 <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                  Note administrative
+                  Admin Notes
                 </Typography>
                 <Typography>{application.admin_notes}</Typography>
               </>
@@ -273,7 +273,7 @@ const ApplicationDetails = () => {
               <>
                 <Divider sx={{ my: 3 }} />
                 <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                  Motivul respingerii
+                  Rejection Reason
                 </Typography>
                 <Typography color="error">{application.rejection_reason}</Typography>
               </>
@@ -284,7 +284,7 @@ const ApplicationDetails = () => {
         <Grid item xs={12} md={4}>
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
-              Istoricul statusului
+              Status History
             </Typography>
             <Timeline>
               {application.status_history.map((history, index) => (
@@ -304,7 +304,7 @@ const ApplicationDetails = () => {
                     </Typography>
                     {history.changed_by && (
                       <Typography variant="caption" display="block" color="text.secondary">
-                        Modificat de: {history.changed_by}
+                        Modified by: {history.changed_by}
                       </Typography>
                     )}
                   </TimelineContent>
@@ -316,16 +316,16 @@ const ApplicationDetails = () => {
       </Grid>
 
       <Dialog open={cancelDialogOpen} onClose={() => setCancelDialogOpen(false)}>
-        <DialogTitle>Anulează aplicația</DialogTitle>
+        <DialogTitle>Cancel Application</DialogTitle>
         <DialogContent>
           <Typography gutterBottom>
-            Ești sigur că dorești să anulezi această aplicație?
+            Are you sure you want to cancel this application?
           </Typography>
           <TextField
             fullWidth
             multiline
             rows={4}
-            label="Motivul anulării"
+            label="Cancellation Reason"
             value={cancelReason}
             onChange={(e) => setCancelReason(e.target.value)}
             sx={{ mt: 2 }}
@@ -333,14 +333,14 @@ const ApplicationDetails = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setCancelDialogOpen(false)}>
-            Renunță
+            Dismiss
           </Button>
           <Button
             onClick={handleCancelConfirm}
             color="error"
             disabled={!cancelReason.trim()}
           >
-            Anulează
+            Cancel
           </Button>
         </DialogActions>
       </Dialog>

@@ -25,193 +25,193 @@ const ProfileTab = ({ userData, onProfileUpdate }) => {
   const [formErrors, setFormErrors] = useState({});
 
   const countries = [
-    'Afganistan',
-    'Africa de Sud',
+    'Afghanistan',
+    'South Africa',
     'Albania',
     'Algeria',
     'Andorra',
     'Angola',
-    'Antigua și Barbuda',
+    'Antigua and Barbuda',
     'Argentina',
     'Armenia',
     'Australia',
     'Austria',
-    'Azerbaidjan',
+    'Azerbaijan',
     'Bahamas',
     'Bahrain',
     'Bangladesh',
     'Barbados',
     'Belarus',
-    'Belgia',
+    'Belgium',
     'Belize',
     'Benin',
     'Bhutan',
-    'Birmania',
+    'Myanmar',
     'Bolivia',
-    'Bosnia și Herțegovina',
+    'Bosnia and Herzegovina',
     'Botswana',
-    'Brazilia',
+    'Brazil',
     'Brunei',
     'Bulgaria',
     'Burkina Faso',
     'Burundi',
-    'Cambodgia',
-    'Camerun',
+    'Cambodia',
+    'Cameroon',
     'Canada',
-    'Capul Verde',
-    'Cehia',
+    'Cape Verde',
+    'Czech Republic',
     'Chile',
     'China',
-    'Cipru',
-    'Coasta de Fildeș',
-    'Columbia',
-    'Comore',
+    'Cyprus',
+    'Ivory Coast',
+    'Colombia',
+    'Comoros',
     'Congo',
-    'Coreea de Nord',
-    'Coreea de Sud',
+    'North Korea',
+    'South Korea',
     'Costa Rica',
-    'Croația',
+    'Croatia',
     'Cuba',
-    'Danemarca',
+    'Denmark',
     'Djibouti',
     'Dominica',
     'Ecuador',
-    'Egipt',
+    'Egypt',
     'El Salvador',
-    'Elveția',
-    'Emiratele Arabe Unite',
-    'Eritreea',
+    'Switzerland',
+    'United Arab Emirates',
+    'Eritrea',
     'Estonia',
     'Eswatini',
-    'Etiopia',
+    'Ethiopia',
     'Fiji',
-    'Filipine',
-    'Finlanda',
-    'Franța',
+    'Philippines',
+    'Finland',
+    'France',
     'Gabon',
     'Gambia',
     'Georgia',
-    'Germania',
+    'Germany',
     'Ghana',
-    'Grecia',
+    'Greece',
     'Grenada',
     'Guatemala',
-    'Guineea',
-    'Guineea-Bissau',
-    'Guineea Ecuatorială',
+    'Guinea',
+    'Guinea-Bissau',
+    'Equatorial Guinea',
     'Guyana',
     'Haiti',
     'Honduras',
     'India',
-    'Indonezia',
-    'Iordania',
-    'Irak',
+    'Indonesia',
+    'Jordan',
+    'Iraq',
     'Iran',
-    'Irlanda',
-    'Islanda',
+    'Ireland',
+    'Iceland',
     'Israel',
-    'Italia',
+    'Italy',
     'Jamaica',
-    'Japonia',
-    'Kazahstan',
+    'Japan',
+    'Kazakhstan',
     'Kenya',
     'Kiribati',
-    'Kârgâzstan',
+    'Kyrgyzstan',
     'Kosovo',
-    'Kuweit',
+    'Kuwait',
     'Laos',
     'Lesotho',
-    'Letonia',
-    'Liban',
+    'Latvia',
+    'Lebanon',
     'Liberia',
-    'Libia',
+    'Libya',
     'Liechtenstein',
-    'Lituania',
-    'Luxemburg',
-    'Macedonia de Nord',
+    'Lithuania',
+    'Luxembourg',
+    'North Macedonia',
     'Madagascar',
     'Malawi',
     'Malaysia',
-    'Maldive',
+    'Maldives',
     'Mali',
     'Malta',
-    'Maroc',
-    'Marshall',
+    'Morocco',
+    'Marshall Islands',
     'Mauritania',
     'Mauritius',
-    'Mexic',
-    'Micronezia',
+    'Mexico',
+    'Micronesia',
     'Moldova',
     'Monaco',
     'Mongolia',
-    'Muntenegru',
-    'Mozambic',
+    'Montenegro',
+    'Mozambique',
     'Namibia',
     'Nauru',
     'Nepal',
     'Nicaragua',
     'Niger',
     'Nigeria',
-    'Norvegia',
-    'Noua Zeelandă',
+    'Norway',
+    'New Zealand',
     'Oman',
     'Pakistan',
     'Palau',
-    'Palestina',
+    'Palestine',
     'Panama',
-    'Papua Noua Guinee',
+    'Papua New Guinea',
     'Paraguay',
     'Peru',
-    'Polonia',
-    'Portugalia',
+    'Poland',
+    'Portugal',
     'Qatar',
-    'Regatul Unit',
-    'Republica Centrafricană',
-    'Republica Dominicană',
-    'România',
+    'United Kingdom',
+    'Central African Republic',
+    'Dominican Republic',
+    'Romania',
     'Rwanda',
-    'Rusia',
-    'Saint Kitts și Nevis',
+    'Russia',
+    'Saint Kitts and Nevis',
     'Saint Lucia',
-    'Saint Vincent și Grenadine',
+    'Saint Vincent and the Grenadines',
     'Samoa',
     'San Marino',
-    'São Tomé și Príncipe',
+    'São Tomé and Príncipe',
     'Senegal',
     'Serbia',
     'Seychelles',
     'Sierra Leone',
     'Singapore',
-    'Siria',
-    'Slovacia',
+    'Syria',
+    'Slovakia',
     'Slovenia',
-    'Solomon',
+    'Solomon Islands',
     'Somalia',
-    'Spania',
+    'Spain',
     'Sri Lanka',
-    'Statele Unite ale Americii',
+    'United States of America',
     'Sudan',
-    'Sudanul de Sud',
-    'Suedia',
-    'Surinam',
-    'Tadjikistan',
+    'South Sudan',
+    'Sweden',
+    'Suriname',
+    'Tajikistan',
     'Tanzania',
-    'Thailanda',
-    'Timorul de Est',
+    'Thailand',
+    'East Timor',
     'Togo',
     'Tonga',
-    'Trinidad și Tobago',
+    'Trinidad and Tobago',
     'Tunisia',
-    'Turcia',
+    'Turkey',
     'Turkmenistan',
     'Tuvalu',
-    'Ucraina',
+    'Ukraine',
     'Uganda',
-    'Ungaria',
+    'Hungary',
     'Uruguay',
     'Uzbekistan',
     'Vanuatu',
-    'Vatican',
+    'Vatican City',
     'Venezuela',
     'Vietnam',
     'Yemen',
@@ -221,49 +221,49 @@ const ProfileTab = ({ userData, onProfileUpdate }) => {
 
   const phoneCodes = [
     { code: '+373', country: 'Moldova' },
-    { code: '+40', country: 'România' },
-    { code: '+380', country: 'Ucraina' },
-    { code: '+7', country: 'Rusia' },
+    { code: '+40', country: 'Romania' },
+    { code: '+380', country: 'Ukraine' },
+    { code: '+7', country: 'Russia' },
     { code: '+375', country: 'Belarus' },
     { code: '+359', country: 'Bulgaria' },
     { code: '+381', country: 'Serbia' },
-    { code: '+385', country: 'Croația' },
+    { code: '+385', country: 'Croatia' },
     { code: '+386', country: 'Slovenia' },
-    { code: '+421', country: 'Slovacia' },
-    { code: '+420', country: 'Cehia' },
-    { code: '+48', country: 'Polonia' },
-    { code: '+36', country: 'Ungaria' },
+    { code: '+421', country: 'Slovakia' },
+    { code: '+420', country: 'Czech Republic' },
+    { code: '+48', country: 'Poland' },
+    { code: '+36', country: 'Hungary' },
     { code: '+43', country: 'Austria' },
-    { code: '+49', country: 'Germania' },
-    { code: '+33', country: 'Franța' },
-    { code: '+39', country: 'Italia' },
-    { code: '+34', country: 'Spania' },
-    { code: '+351', country: 'Portugalia' },
-    { code: '+30', country: 'Grecia' },
-    { code: '+90', country: 'Turcia' },
+    { code: '+49', country: 'Germany' },
+    { code: '+33', country: 'France' },
+    { code: '+39', country: 'Italy' },
+    { code: '+34', country: 'Spain' },
+    { code: '+351', country: 'Portugal' },
+    { code: '+30', country: 'Greece' },
+    { code: '+90', country: 'Turkey' },
     { code: '+995', country: 'Georgia' },
     { code: '+374', country: 'Armenia' },
-    { code: '+994', country: 'Azerbaidjan' },
-    { code: '+7', country: 'Kazahstan' },
-    { code: '+996', country: 'Kârgâzstan' },
-    { code: '+992', country: 'Tadjikistan' },
+    { code: '+994', country: 'Azerbaijan' },
+    { code: '+7', country: 'Kazakhstan' },
+    { code: '+996', country: 'Kyrgyzstan' },
+    { code: '+992', country: 'Tajikistan' },
     { code: '+998', country: 'Uzbekistan' },
-    { code: '+44', country: 'Regatul Unit' },
-    { code: '+1', country: 'Statele Unite și Canada' },
+    { code: '+44', country: 'United Kingdom' },
+    { code: '+1', country: 'United States and Canada' },
     { code: '+86', country: 'China' },
-    { code: '+81', country: 'Japonia' },
-    { code: '+82', country: 'Coreea de Sud' },
+    { code: '+81', country: 'Japan' },
+    { code: '+82', country: 'South Korea' },
     { code: '+91', country: 'India' },
     { code: '+61', country: 'Australia' },
-    { code: '+64', country: 'Noua Zeelandă' },
-    { code: '+27', country: 'Africa de Sud' },
-    { code: '+20', country: 'Egipt' },
-    { code: '+212', country: 'Maroc' },
+    { code: '+64', country: 'New Zealand' },
+    { code: '+27', country: 'South Africa' },
+    { code: '+20', country: 'Egypt' },
+    { code: '+212', country: 'Morocco' },
     { code: '+234', country: 'Nigeria' },
     { code: '+254', country: 'Kenya' },
-    { code: '+55', country: 'Brazilia' },
+    { code: '+55', country: 'Brazil' },
     { code: '+54', country: 'Argentina' },
-    { code: '+52', country: 'Mexic' }
+    { code: '+52', country: 'Mexico' }
   ];
 
   useEffect(() => {
@@ -325,18 +325,18 @@ const ProfileTab = ({ userData, onProfileUpdate }) => {
 
   const validateForm = () => {
     const errors = {};
-    if (!formData.name) errors.name = 'Numele este obligatoriu';
-    if (!formData.email) errors.email = 'Email-ul este obligatoriu';
-    if (!formData.phone) errors.phone = 'Telefonul este obligatoriu';
-    if (!formData.country_of_origin) errors.country_of_origin = 'Țara este obligatorie';
+    if (!formData.name) errors.name = 'Name is mandatory';
+    if (!formData.email) errors.email = 'Email is mandatory';
+    if (!formData.phone) errors.phone = 'Phone number is mandatory';
+    if (!formData.country_of_origin) errors.country_of_origin = 'Country is mandatory';
     
     if (formData.phone) {
       const phoneNumber = formData.phone.replace(/^0+/, '');
       if (phoneNumber.length < 8 || phoneNumber.length > 15) {
-        errors.phone = 'Numărul de telefon trebuie să aibă între 8 și 15 cifre';
+        errors.phone = 'Phone number must be between 8 and 15 digits';
       }
       if (!/^\d+$/.test(phoneNumber)) {
-        errors.phone = 'Numărul de telefon trebuie să conțină doar cifre';
+        errors.phone = 'Phone number must contain only digits';
       }
     }
     
@@ -368,7 +368,7 @@ const ProfileTab = ({ userData, onProfileUpdate }) => {
       );
 
       if (response.data?.success) {
-        toast.success('Profilul a fost actualizat cu succes');
+        toast.success('Profile updated successfully');
         setIsEditModalOpen(false);
         if (onProfileUpdate) {
           const updatedData = {
@@ -378,10 +378,10 @@ const ProfileTab = ({ userData, onProfileUpdate }) => {
           onProfileUpdate(updatedData);
         }
       } else {
-        throw new Error(response.data.message || 'Eroare la actualizarea profilului');
+        throw new Error(response.data.message || 'Error updating profile');
       }
     } catch (error) {
-      console.error('Eroare la actualizarea profilului:', error);
+      console.error('Error updating profile:', error);
       toast.error(handleApiError(error));
     } finally {
       setIsSubmitting(false);
@@ -400,12 +400,12 @@ const ProfileTab = ({ userData, onProfileUpdate }) => {
           >
             ×
           </button>
-          <h2>Editare Profil</h2>
+          <h2>Edit Profile</h2>
           <form onSubmit={handleSubmit}>
             <div className="form-section">
-              <h3>Informații Personale</h3>
+              <h3>Personal Information</h3>
               <div className="form-group">
-                <label>Nume Complet: <span className="required">*</span></label>
+                <label>Full Name: <span className="required">*</span></label>
                 <input
                   type="text"
                   name="name"
@@ -429,7 +429,7 @@ const ProfileTab = ({ userData, onProfileUpdate }) => {
                 {formErrors.email && <span className="error-message">{formErrors.email}</span>}
               </div>
               <div className="form-group">
-                <label>Telefon: <span className="required">*</span></label>
+                <label>Phone: <span className="required">*</span></label>
                 <div className="phone-input-group">
                   <select
                     name="phone_code"
@@ -448,14 +448,14 @@ const ProfileTab = ({ userData, onProfileUpdate }) => {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    placeholder="Număr de telefon"
+                    placeholder="Phone number"
                     className={formErrors.phone ? 'error' : ''}
                   />
                 </div>
                 {formErrors.phone && <span className="error-message">{formErrors.phone}</span>}
               </div>
               <div className="form-group">
-                <label>Țara: <span className="required">*</span></label>
+                <label>Country: <span className="required">*</span></label>
                 <select
                   name="country_of_origin"
                   value={formData.country_of_origin}
@@ -463,7 +463,7 @@ const ProfileTab = ({ userData, onProfileUpdate }) => {
                   className={formErrors.country_of_origin ? 'error' : ''}
                   required
                 >
-                  <option value="">Selectează țara</option>
+                  <option value="">Select country</option>
                   {countries.map((country) => (
                     <option key={country} value={country}>
                       {country}
@@ -475,9 +475,9 @@ const ProfileTab = ({ userData, onProfileUpdate }) => {
             </div>
 
             <div className="form-section">
-              <h3>Informații Academice</h3>
+              <h3>Academic Information</h3>
               <div className="form-group">
-                <label>Data Nașterii:</label>
+                <label>Date of Birth:</label>
                 <input
                   type="date"
                   name="date_of_birth"
@@ -486,7 +486,7 @@ const ProfileTab = ({ userData, onProfileUpdate }) => {
                 />
               </div>
               <div className="form-group">
-                <label>Naționalitate:</label>
+                <label>Nationality:</label>
                 <input
                   type="text"
                   name="nationality"
@@ -495,7 +495,7 @@ const ProfileTab = ({ userData, onProfileUpdate }) => {
                 />
               </div>
               <div className="form-group">
-                <label>Nivelul de Studiu Dorit:</label>
+                <label>Desired Study Level:</label>
                 <input
                   type="text"
                   name="desired_study_level"
@@ -504,7 +504,7 @@ const ProfileTab = ({ userData, onProfileUpdate }) => {
                 />
               </div>
               <div className="form-group">
-                <label>Domeniul Preferat:</label>
+                <label>Preferred Study Field:</label>
                 <input
                   type="text"
                   name="preferred_study_field"
@@ -513,7 +513,7 @@ const ProfileTab = ({ userData, onProfileUpdate }) => {
                 />
               </div>
               <div className="form-group">
-                <label>Anul Academic Dorit:</label>
+                <label>Desired Academic Year:</label>
                 <input
                   type="text"
                   name="desired_academic_year"
@@ -522,7 +522,7 @@ const ProfileTab = ({ userData, onProfileUpdate }) => {
                 />
               </div>
               <div className="form-group">
-                <label>Limba de Studiu Preferată:</label>
+                <label>Preferred Study Language:</label>
                 <input
                   type="text"
                   name="preferred_study_language"
@@ -531,7 +531,7 @@ const ProfileTab = ({ userData, onProfileUpdate }) => {
                 />
               </div>
               <div className="form-group">
-                <label>Buget Estimat (EUR):</label>
+                <label>Estimated Budget (EUR):</label>
                 <input
                   type="number"
                   name="estimated_budget"
@@ -540,7 +540,7 @@ const ProfileTab = ({ userData, onProfileUpdate }) => {
                 />
               </div>
               <div className="form-group">
-                <label>Preferințe Cazare:</label>
+                <label>Accommodation Preferences:</label>
                 <textarea
                   name="accommodation_preferences"
                   value={formData.accommodation_preferences}
@@ -555,7 +555,7 @@ const ProfileTab = ({ userData, onProfileUpdate }) => {
                 className="save-button"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Se salvează...' : 'Salvează Modificările'}
+                {isSubmitting ? 'Saving...' : 'Save Changes'}
               </button>
               <button 
                 type="button" 
@@ -563,7 +563,7 @@ const ProfileTab = ({ userData, onProfileUpdate }) => {
                 onClick={() => setIsEditModalOpen(false)}
                 disabled={isSubmitting}
               >
-                Anulează
+                Cancel
               </button>
             </div>
           </form>
@@ -576,63 +576,63 @@ const ProfileTab = ({ userData, onProfileUpdate }) => {
     <div className="profile-tab">
       <div className="profile-info">
         <div className="profile-header">
-        <h2>Informații Personale</h2>
+        <h2>Personal Information</h2>
         </div>
         <button 
             className="edit-button"
             onClick={() => setIsEditModalOpen(true)}
           >
-            Editează Profilul
+            Edit Profile
           </button>
           
         <div className="info-grid">
           <div className="info-item">
-            <label>Nume Complet:</label>
-            <span>{userData?.name || 'Nespecificat'}</span>
+            <label>Full Name:</label>
+            <span>{userData?.name || 'Not specified'}</span>
           </div>
           <div className="info-item">
             <label>Email:</label>
-            <span>{userData?.email || 'Nespecificat'}</span>
+            <span>{userData?.email || 'Not specified'}</span>
           </div>
           <div className="info-item">
-            <label>Telefon:</label>
-            <span>{userData?.phone || 'Nespecificat'}</span>
+            <label>Phone:</label>
+            <span>{userData?.phone || 'Not specified'}</span>
           </div>
           <div className="info-item">
-            <label>Data Nașterii:</label>
-            <span>{userData?.date_of_birth ? new Date(userData.date_of_birth).toLocaleDateString('ro-RO') : 'Nespecificată'}</span>
+            <label>Date of Birth:</label>
+            <span>{userData?.date_of_birth ? new Date(userData.date_of_birth).toLocaleDateString('en-US') : 'Not specified'}</span>
           </div>
           <div className="info-item">
-            <label>Țara de Origine:</label>
-            <span>{userData?.country_of_origin || 'Nespecificată'}</span>
+            <label>Country of Origin:</label>
+            <span>{userData?.country_of_origin || 'Not specified'}</span>
           </div>
           <div className="info-item">
-            <label>Naționalitate:</label>
-            <span>{userData?.nationality || 'Nespecificată'}</span>
+            <label>Nationality:</label>
+            <span>{userData?.nationality || 'Not specified'}</span>
           </div>
           <div className="info-item">
-            <label>Nivelul de Studiu Dorit:</label>
-            <span>{userData?.desired_study_level || 'Nespecificat'}</span>
+            <label>Desired Study Level:</label>
+            <span>{userData?.desired_study_level || 'Not specified'}</span>
           </div>
           <div className="info-item">
-            <label>Domeniul Preferat:</label>
-            <span>{userData?.preferred_study_field || 'Nespecificat'}</span>
+            <label>Preferred Study Field:</label>
+            <span>{userData?.preferred_study_field || 'Not specified'}</span>
           </div>
           <div className="info-item">
-            <label>Anul Academic Dorit:</label>
-            <span>{userData?.desired_academic_year || 'Nespecificat'}</span>
+            <label>Desired Academic Year:</label>
+            <span>{userData?.desired_academic_year || 'Not specified'}</span>
           </div>
           <div className="info-item">
-            <label>Limba de Studiu Preferată:</label>
-            <span>{userData?.preferred_study_language || 'Nespecificată'}</span>
+            <label>Preferred Study Language:</label>
+            <span>{userData?.preferred_study_language || 'Not specified'}</span>
           </div>
           <div className="info-item">
-            <label>Buget Estimat:</label>
-            <span>{userData?.estimated_budget ? `${userData.estimated_budget} EUR` : 'Nespecificat'}</span>
+            <label>Estimated Budget:</label>
+            <span>{userData?.estimated_budget ? `${userData.estimated_budget} EUR` : 'Not specified'}</span>
           </div>
           <div className="info-item">
-            <label>Preferințe Cazare:</label>
-            <span>{userData?.accommodation_preferences || 'Nespecificate'}</span>
+            <label>Accommodation Preferences:</label>
+            <span>{userData?.accommodation_preferences || 'Not specified'}</span>
           </div>
         </div>
       </div>

@@ -3,35 +3,35 @@ const logger = require('../utils/logger');
 const { Op } = require('sequelize');
 const { NOTIFICATION_TYPES } = require('../constants/notificationTypes');
 
-// Mesaje implicite pentru fiecare tip de notificare
+// Default messages for each notification type
 const DEFAULT_MESSAGES = {
-  [NOTIFICATION_TYPES.DOCUMENT_DELETED]: 'Documentul dumneavoastră a fost șters',
-  [NOTIFICATION_TYPES.DOCUMENT_REJECTED]: 'Documentul dumneavoastră a fost respins',
-  [NOTIFICATION_TYPES.DOCUMENT_APPROVED]: 'Documentul dumneavoastră a fost aprobat',
-  [NOTIFICATION_TYPES.DOCUMENT_UPDATED]: 'Documentul dumneavoastră a fost actualizat',
-  [NOTIFICATION_TYPES.DOCUMENT_EXPIRED]: 'Documentul dumneavoastră a expirat',
-  [NOTIFICATION_TYPES.NEW_DOCUMENT]: 'Un document nou a fost încărcat',
-  [NOTIFICATION_TYPES.NEW_APPLICATION]: 'O aplicație nouă a fost trimisă',
-  [NOTIFICATION_TYPES.APPLICATION_STATUS_CHANGED]: 'Statusul aplicației dumneavoastră a fost actualizat',
-  [NOTIFICATION_TYPES.APPLICATION_WITHDRAWN]: 'Aplicația dumneavoastră a fost retrasă',
-  [NOTIFICATION_TYPES.APPLICATION_APPROVED]: 'Aplicația dumneavoastră a fost aprobată',
-  [NOTIFICATION_TYPES.APPLICATION_REJECTED]: 'Aplicația dumneavoastră a fost respinsă',
-  [NOTIFICATION_TYPES.NEW_USER]: 'Un utilizator nou s-a înregistrat',
-  [NOTIFICATION_TYPES.USER_PROFILE_UPDATED]: 'Profilul utilizatorului a fost actualizat',
-  [NOTIFICATION_TYPES.USER_DOCUMENT_UPDATED]: 'Documentul utilizatorului a fost actualizat',
-  [NOTIFICATION_TYPES.ADMIN_ACTION_REQUIRED]: 'Este necesară o acțiune administrativă',
-  [NOTIFICATION_TYPES.ADMIN_REVIEW_REQUIRED]: 'Este necesară o revizuire administrativă',
-  [NOTIFICATION_TYPES.ADMIN_DOCUMENT_REVIEW]: 'Este necesară revizuirea unui document',
-  [NOTIFICATION_TYPES.ADMIN_APPLICATION_REVIEW]: 'Este necesară revizuirea unei aplicații',
-  [NOTIFICATION_TYPES.DEADLINE]: 'Aveți un termen limită care se apropie',
-  [NOTIFICATION_TYPES.TEAM]: 'Aveți o activitate nouă în echipa dumneavoastră',
-  [NOTIFICATION_TYPES.SYSTEM]: 'Notificare de sistem'
+  [NOTIFICATION_TYPES.DOCUMENT_DELETED]: 'Your document has been deleted',
+  [NOTIFICATION_TYPES.DOCUMENT_REJECTED]: 'Your document has been rejected',
+  [NOTIFICATION_TYPES.DOCUMENT_APPROVED]: 'Your document has been approved',
+  [NOTIFICATION_TYPES.DOCUMENT_UPDATED]: 'Your document has been updated',
+  [NOTIFICATION_TYPES.DOCUMENT_EXPIRED]: 'Your document has expired',
+  [NOTIFICATION_TYPES.NEW_DOCUMENT]: 'A new document has been uploaded',
+  [NOTIFICATION_TYPES.NEW_APPLICATION]: 'A new application has been submitted',
+  [NOTIFICATION_TYPES.APPLICATION_STATUS_CHANGED]: 'Your application status has been updated',
+  [NOTIFICATION_TYPES.APPLICATION_WITHDRAWN]: 'Your application has been withdrawn',
+  [NOTIFICATION_TYPES.APPLICATION_APPROVED]: 'Your application has been approved',
+  [NOTIFICATION_TYPES.APPLICATION_REJECTED]: 'Your application has been rejected',
+  [NOTIFICATION_TYPES.NEW_USER]: 'A new user has registered',
+  [NOTIFICATION_TYPES.USER_PROFILE_UPDATED]: 'User profile has been updated',
+  [NOTIFICATION_TYPES.USER_DOCUMENT_UPDATED]: 'User document has been updated',
+  [NOTIFICATION_TYPES.ADMIN_ACTION_REQUIRED]: 'Administrative action required',
+  [NOTIFICATION_TYPES.ADMIN_REVIEW_REQUIRED]: 'Administrative review required',
+  [NOTIFICATION_TYPES.ADMIN_DOCUMENT_REVIEW]: 'Document review required',
+  [NOTIFICATION_TYPES.ADMIN_APPLICATION_REVIEW]: 'Application review required',
+  [NOTIFICATION_TYPES.DEADLINE]: 'You have an approaching deadline',
+  [NOTIFICATION_TYPES.TEAM]: 'You have new team activity',
+  [NOTIFICATION_TYPES.SYSTEM]: 'System notification'
 };
 
-// Creează o notificare
+// Create a notification
 const createNotification = async (userId, type, message, documentId = null, adminMessage = null, isAdminNotification = false) => {
   try {
-    console.log('Începe crearea notificării:', {
+    console.log('Starting notification creation:', {
       userId,
       type,
       message,
@@ -40,28 +40,28 @@ const createNotification = async (userId, type, message, documentId = null, admi
     });
 
     if (!NOTIFICATION_TYPES[type]) {
-      console.error('Tip de notificare invalid:', type);
+      console.error('Invalid notification type:', type);
       throw new Error(`Invalid notification type: ${type}`);
     }
 
-    // Verifică dacă documentul există dacă este specificat
+    // Check if document exists if specified
     if (documentId) {
       const document = await Document.findByPk(documentId);
       if (!document) {
-        console.error('Document negăsit:', documentId);
+        console.error('Document not found:', documentId);
         throw new Error('The specified document does not exist');
       }
     }
 
-    // Calculează data de expirare
+    // Calculate expiration date
     const expiresAt = calculateExpirationDate(type);
-    console.log('Data de expirare calculată:', expiresAt);
+    console.log('Calculated expiration date:', expiresAt);
 
-    // Dacă este o notificare administrativă, o creăm pentru toți adminii
+    // If it's an admin notification, create it for all admins
     if (isAdminNotification) {
-      console.log('Creare notificare administrativă');
+      console.log('Creating admin notification');
       const admins = await User.findAll({ where: { role: 'admin' } });
-      console.log('Admini găsiți:', admins.length);
+      console.log('Admins found:', admins.length);
       
       const notifications = await Promise.all(
         admins.map(admin => 
@@ -79,12 +79,12 @@ const createNotification = async (userId, type, message, documentId = null, admi
           })
         )
       );
-      console.log('Notificări administrative create:', notifications.length);
+      console.log('Admin notifications created:', notifications.length);
       return notifications;
     }
 
-    // Pentru notificări normale, creăm doar pentru utilizatorul specificat
-    console.log('Creare notificare pentru utilizator:', userId);
+    // For normal notifications, create only for the specified user
+    console.log('Creating notification for user:', userId);
     const notification = await Notification.create({
       user_id: userId,
       type,
@@ -98,7 +98,7 @@ const createNotification = async (userId, type, message, documentId = null, admi
       is_admin_notification: false
     });
 
-    console.log('Notificare creată cu succes:', {
+    console.log('Notification created successfully:', {
       notificationId: notification.id,
       userId,
       type
@@ -106,7 +106,7 @@ const createNotification = async (userId, type, message, documentId = null, admi
 
     return notification;
   } catch (error) {
-    console.error('Eroare la crearea notificării:', {
+    console.error('Error creating notification:', {
       error: error.message,
       userId,
       type,
@@ -116,23 +116,23 @@ const createNotification = async (userId, type, message, documentId = null, admi
   }
 };
 
-// Calculează data de expirare în funcție de tipul notificării
+// Calculate expiration date based on notification type
 const calculateExpirationDate = (type) => {
   const now = new Date();
   switch (type) {
     case NOTIFICATION_TYPES.DEADLINE:
-      return new Date(now.setDate(now.getDate() + 1)); // Expiră peste 24 de ore
+      return new Date(now.setDate(now.getDate() + 1)); // Expires in 24 hours
     case NOTIFICATION_TYPES.TEAM:
-      return new Date(now.setDate(now.getDate() + 7)); // Expiră peste 7 zile
+      return new Date(now.setDate(now.getDate() + 7)); // Expires in 7 days
     case NOTIFICATION_TYPES.ADMIN_ACTION_REQUIRED:
     case NOTIFICATION_TYPES.ADMIN_REVIEW_REQUIRED:
-      return new Date(now.setDate(now.getDate() + 3)); // Expiră peste 3 zile
+      return new Date(now.setDate(now.getDate() + 3)); // Expires in 3 days
     default:
-      return new Date(now.setDate(now.getDate() + 30)); // Expiră peste 30 de zile
+      return new Date(now.setDate(now.getDate() + 30)); // Expires in 30 days
   }
 };
 
-// Calculează prioritatea notificării
+// Calculate notification priority
 const calculatePriority = (type) => {
   switch (type) {
     case NOTIFICATION_TYPES.DEADLINE:
@@ -151,67 +151,67 @@ const calculatePriority = (type) => {
   }
 };
 
-// Obține titlul notificării în funcție de tip
+// Get notification title based on type
 const getNotificationTitle = (type) => {
   switch (type) {
     case NOTIFICATION_TYPES.DOCUMENT_DELETED:
-      return 'Document șters';
+      return 'Document deleted';
     case NOTIFICATION_TYPES.DOCUMENT_REJECTED:
-      return 'Document respins';
+      return 'Document rejected';
     case NOTIFICATION_TYPES.DOCUMENT_APPROVED:
-      return 'Document aprobat';
+      return 'Document approved';
     case NOTIFICATION_TYPES.DOCUMENT_UPDATED:
-      return 'Document actualizat';
+      return 'Document updated';
     case NOTIFICATION_TYPES.DOCUMENT_EXPIRED:
-      return 'Document expirat';
+      return 'Document expired';
     case NOTIFICATION_TYPES.NEW_DOCUMENT:
-      return 'Document nou';
+      return 'New document';
     case NOTIFICATION_TYPES.NEW_APPLICATION:
-      return 'Aplicație nouă';
+      return 'New application';
     case NOTIFICATION_TYPES.APPLICATION_STATUS_CHANGED:
-      return 'Status aplicație actualizat';
+      return 'Application status updated';
     case NOTIFICATION_TYPES.APPLICATION_WITHDRAWN:
-      return 'Aplicație retrasă';
+      return 'Application withdrawn';
     case NOTIFICATION_TYPES.APPLICATION_APPROVED:
-      return 'Aplicație aprobată';
+      return 'Application approved';
     case NOTIFICATION_TYPES.APPLICATION_REJECTED:
-      return 'Aplicație respinsă';
+      return 'Application rejected';
     case NOTIFICATION_TYPES.NEW_USER:
-      return 'Utilizator nou';
+      return 'New user';
     case NOTIFICATION_TYPES.USER_PROFILE_UPDATED:
-      return 'Profil actualizat';
+      return 'Profile updated';
     case NOTIFICATION_TYPES.USER_DOCUMENT_UPDATED:
-      return 'Document utilizator actualizat';
+      return 'User document updated';
     case NOTIFICATION_TYPES.ADMIN_ACTION_REQUIRED:
-      return 'Acțiune administrativă necesară';
+      return 'Administrative action required';
     case NOTIFICATION_TYPES.ADMIN_REVIEW_REQUIRED:
-      return 'Revizuire administrativă necesară';
+      return 'Administrative review required';
     case NOTIFICATION_TYPES.ADMIN_DOCUMENT_REVIEW:
-      return 'Revizuire document necesară';
+      return 'Document review required';
     case NOTIFICATION_TYPES.ADMIN_APPLICATION_REVIEW:
-      return 'Revizuire aplicație necesară';
+      return 'Application review required';
     case NOTIFICATION_TYPES.DEADLINE:
-      return 'Termen limită';
+      return 'Deadline';
     case NOTIFICATION_TYPES.TEAM:
-      return 'Activitate echipă';
+      return 'Team activity';
     case NOTIFICATION_TYPES.SYSTEM:
-      return 'Notificare sistem';
+      return 'System notification';
     default:
-      return 'Notificare nouă';
+      return 'New notification';
   }
 };
 
-// Obține notificările unui utilizator
+// Get user notifications
 const getUserNotifications = async (userId, userRole) => {
   try {
-    console.log('Începe getUserNotifications pentru:', { userId, userRole });
+    console.log('Starting getUserNotifications for:', { userId, userRole });
 
     if (!userId) {
-      console.error('ID utilizator lipsă în getUserNotifications');
-      throw new Error('ID utilizator lipsă');
+      console.error('Missing user ID in getUserNotifications');
+      throw new Error('Missing user ID');
     }
 
-    // Șterge notificările expirate
+    // Delete expired notifications
     const deletedCount = await Notification.destroy({
       where: {
         user_id: userId,
@@ -220,7 +220,7 @@ const getUserNotifications = async (userId, userRole) => {
         }
       }
     });
-    console.log('Notificări expirate șterse:', deletedCount);
+    console.log('Expired notifications deleted:', deletedCount);
 
     let whereClause = {
       expires_at: {
@@ -228,14 +228,14 @@ const getUserNotifications = async (userId, userRole) => {
       }
     };
 
-    // Dacă utilizatorul este admin, returnează notificările personale și cele administrative
+    // If user is admin, return personal and administrative notifications
     if (userRole === 'admin') {
       whereClause = {
         ...whereClause,
         [Op.or]: [
-          { user_id: userId }, // Notificările personale
+          { user_id: userId }, // Personal notifications
           { 
-            is_admin_notification: true, // Notificările pentru admini
+            is_admin_notification: true, // Admin notifications
             type: {
               [Op.in]: [
                 NOTIFICATION_TYPES.ADMIN_ACTION_REQUIRED,
@@ -251,15 +251,15 @@ const getUserNotifications = async (userId, userRole) => {
         ]
       };
     } else {
-      // Pentru utilizatori normali, returnează doar notificările personale
+      // For normal users, return only personal notifications
       whereClause = {
         ...whereClause,
         user_id: userId,
-        is_admin_notification: false // Exclude notificările administrative
+        is_admin_notification: false // Exclude admin notifications
       };
     }
 
-    console.log('Clauza WHERE pentru notificări:', whereClause);
+    console.log('WHERE clause for notifications:', whereClause);
 
     const notifications = await Notification.findAll({
       where: whereClause,
@@ -275,9 +275,9 @@ const getUserNotifications = async (userId, userRole) => {
       limit: 50
     });
 
-    console.log('Notificări găsite:', notifications.length);
+    console.log('Notifications found:', notifications.length);
 
-    // Transformă rezultatele în formatul așteptat de frontend
+    // Transform results into frontend expected format
     const formattedNotifications = notifications.map(notification => ({
       id: notification.id,
       user_id: notification.user_id,
@@ -298,12 +298,12 @@ const getUserNotifications = async (userId, userRole) => {
 
     return formattedNotifications;
   } catch (error) {
-    console.error('Eroare la obținerea notificărilor:', error);
+    console.error('Error getting notifications:', error);
     throw error;
   }
 };
 
-// Marchează o notificare ca citită
+// Mark notification as read
 const markAsRead = async (notificationId, userId) => {
   try {
     const notification = await Notification.findOne({
@@ -314,18 +314,18 @@ const markAsRead = async (notificationId, userId) => {
     });
 
     if (!notification) {
-      throw new Error('Notificarea nu a fost găsită');
+      throw new Error('Notification not found');
     }
 
     await notification.update({ is_read: true });
     return true;
   } catch (error) {
-    console.error('Eroare la marcarea notificării ca citită:', error);
+    console.error('Error marking notification as read:', error);
     throw error;
   }
 };
 
-// Marchează toate notificările ca citite
+// Mark all notifications as read
 const markAllAsRead = async (userId) => {
   try {
     await Notification.update(
@@ -339,12 +339,12 @@ const markAllAsRead = async (userId) => {
     );
     return true;
   } catch (error) {
-    console.error('Eroare la marcarea tuturor notificărilor ca citite:', error);
+    console.error('Error marking all notifications as read:', error);
     throw error;
   }
 };
 
-// Șterge o notificare
+// Delete notification
 const deleteNotification = async (notificationId, userId) => {
   try {
     const notification = await Notification.findOne({
@@ -355,21 +355,21 @@ const deleteNotification = async (notificationId, userId) => {
     });
 
     if (!notification) {
-      throw new Error('Notificarea nu a fost găsită');
+      throw new Error('Notification not found');
     }
 
     await notification.destroy();
     return true;
   } catch (error) {
-    console.error('Eroare la ștergerea notificării:', error);
+    console.error('Error deleting notification:', error);
     throw error;
   }
 };
 
-// Obține toate notificările
+// Get all notifications
 const getAllNotifications = async (req, res) => {
   try {
-    console.log('Începe getAllNotifications pentru:', {
+    console.log('Starting getAllNotifications for:', {
       userId: req.user.id,
       userRole: req.user.role
     });
@@ -381,16 +381,16 @@ const getAllNotifications = async (req, res) => {
       data: notifications
     });
   } catch (error) {
-    console.error('Eroare la obținerea notificărilor:', error);
+    console.error('Error getting notifications:', error);
     res.status(500).json({
       success: false,
-      message: 'Eroare la obținerea notificărilor',
+      message: 'Error retrieving notifications',
       error: error.message
     });
   }
 };
 
-// Obține o notificare după ID
+// Get notification by ID
 const getNotificationById = async (req, res) => {
   try {
     const notification = await Notification.findOne({
@@ -403,21 +403,21 @@ const getNotificationById = async (req, res) => {
     if (!notification) {
       return res.status(404).json({ 
         success: false,
-        message: 'Notificarea nu a fost găsită',
+        message: 'Notification not found',
         data: null
       });
     }
     
     res.json({
       success: true,
-      message: 'Notificarea a fost preluată cu succes',
+      message: 'Notification retrieved successfully',
       data: notification
     });
   } catch (error) {
     console.error('Error getting notification:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la preluarea notificării',
+      message: 'Error retrieving notification',
       error: error.message,
       data: null
     });
@@ -438,14 +438,14 @@ exports.createNotification = async (req, res) => {
     
     res.status(201).json({
       success: true,
-      message: 'Notificarea a fost creată cu succes',
+      message: 'Notification created successfully',
       data: notification
     });
   } catch (error) {
     console.error('Error creating notification:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la crearea notificării',
+      message: 'Error creating notification',
       error: error.message,
       data: null
     });
@@ -464,7 +464,7 @@ exports.markAsRead = async (req, res) => {
     if (!notification) {
       return res.status(404).json({ 
         success: false,
-        message: 'Notificarea nu a fost găsită',
+        message: 'Notification not found',
         data: null
       });
     }
@@ -474,14 +474,14 @@ exports.markAsRead = async (req, res) => {
     
     res.json({
       success: true,
-      message: 'Notificarea a fost marcată ca citită',
+      message: 'Notification marked as read',
       data: notification
     });
   } catch (error) {
     console.error('Error marking notification as read:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Eroare la marcarea notificării ca citită',
+      message: 'Error marking notification as read',
       error: error.message,
       data: null
     });
@@ -509,7 +509,7 @@ exports.deleteNotification = async (req, res) => {
   }
 };
 
-// Creează o notificare pentru un utilizator
+// Create notification for a user
 const createUserNotification = async (userId, type, message, documentId = null) => {
   try {
     const notification = await createNotification(
@@ -518,7 +518,7 @@ const createUserNotification = async (userId, type, message, documentId = null) 
       message,
       documentId,
       null,
-      false // Nu este o notificare administrativă
+      false // Not an admin notification
     );
 
     logger.info('User notification created successfully', {
@@ -538,16 +538,16 @@ const createUserNotification = async (userId, type, message, documentId = null) 
   }
 };
 
-// Creează o notificare administrativă
+// Create admin notification
 const createAdminNotification = async (type, message, documentId = null, adminMessage = null) => {
   try {
     const notifications = await createNotification(
-      null, // Nu avem nevoie de userId pentru notificări administrative
+      null, // No need for userId for admin notifications
       type,
       message,
       documentId,
       adminMessage,
-      true // Este o notificare administrativă
+      true // It's an admin notification
     );
 
     logger.info('Admin notification created successfully', {

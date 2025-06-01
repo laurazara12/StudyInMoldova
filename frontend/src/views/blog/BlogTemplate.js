@@ -12,13 +12,13 @@ const BlogTemplate = ({ post }) => {
       <>
         <Navbar />
         <div className="blog-container" style={{ color: 'var(--dl-color-theme-neutral-dark)' }}>
-          <h1 style={{ fontFamily: 'Montserrat, sans-serif' }}>Articolul nu a fost găsit</h1>
+          <h1 style={{ fontFamily: 'Montserrat, sans-serif' }}>Article not found</h1>
           <button 
             className="btn btn-primary" 
             onClick={() => navigate('/blog')}
             style={{ fontFamily: 'Open Sans, sans-serif' }}
           >
-            Înapoi la Blog
+            Back to Blog
           </button>
         </div>
         <Footer />
@@ -39,13 +39,13 @@ const BlogTemplate = ({ post }) => {
               onClick={() => navigate('/blog')}
               style={{ fontFamily: 'Open Sans, sans-serif', fontSize: '0.9rem' }}
             >
-              ← Înapoi la Blog
+              ← Back to Blog
             </button>
             <h1 style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '2rem' }}>{title}</h1>
             <div className="blog-post-meta">
               <span className="category-tag" style={{ fontFamily: 'Open Sans, sans-serif', fontSize: '0.8rem' }}>{category}</span>
               <span style={{ fontFamily: 'Open Sans, sans-serif', fontSize: '0.8rem' }}>
-                {new Date(date).toLocaleDateString('ro-RO', {
+                {new Date(date).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric'

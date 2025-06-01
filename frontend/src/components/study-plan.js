@@ -60,10 +60,10 @@ const StudyPlan = ({ userData, onUpdate }) => {
         onUpdate(response.data.user);
         setIsEditing(false);
       } else {
-        setError('Nu s-a putut actualiza planul de studii');
+        setError('Could not update study plan');
       }
     } catch (err) {
-      setError('A apărut o eroare la salvarea planului de studii');
+      setError('An error occurred while saving the study plan');
       console.error('Error updating study plan:', err);
     } finally {
       setLoading(false);
@@ -98,7 +98,7 @@ const StudyPlan = ({ userData, onUpdate }) => {
               onChange={handleChange}
               required
             >
-              <option value="">Selectează...</option>
+              <option value="">Select...</option>
               {options.map(option => (
                 <option key={option.value} value={option.value}>
                   {option.label}
@@ -125,7 +125,7 @@ const StudyPlan = ({ userData, onUpdate }) => {
     return (
       <div className="info-item">
         <label>{label}</label>
-        <span>{formData[name] || 'Nespecificat'}</span>
+        <span>{formData[name] || 'Not specified'}</span>
       </div>
     );
   };
@@ -133,7 +133,7 @@ const StudyPlan = ({ userData, onUpdate }) => {
   return (
     <div className="study-plan-section">
       <div className="section-header">
-        <h2>Planul meu de studii</h2>
+        <h2>My Study Plan</h2>
         <div className="progress-container">
           <div className="progress-bar">
             <div 
@@ -141,14 +141,14 @@ const StudyPlan = ({ userData, onUpdate }) => {
               style={{ width: `${calculateProgress()}%` }}
             />
           </div>
-          <span className="progress-text">{calculateProgress()}% completat</span>
+          <span className="progress-text">{calculateProgress()}% completed</span>
         </div>
         {!isEditing && (
           <button 
             className="edit-button"
             onClick={() => setIsEditing(true)}
           >
-            Editează planul
+            Edit Plan
           </button>
         )}
       </div>
@@ -159,16 +159,16 @@ const StudyPlan = ({ userData, onUpdate }) => {
         <form onSubmit={handleSubmit} className="study-plan-form">
           <div className="form-section">
             <h3>
-              <FaGraduationCap /> Obiective de studii
+              <FaGraduationCap /> Study Objectives
             </h3>
-            {renderField('Nivel de studii dorit', 'desired_study_level', 'select', [
-              { value: 'Bachelor', label: 'Licență' },
+            {renderField('Desired Study Level', 'desired_study_level', 'select', [
+              { value: 'Bachelor', label: 'Bachelor' },
               { value: 'Master', label: 'Master' },
-              { value: 'PhD', label: 'Doctorat' }
+              { value: 'PhD', label: 'PhD' }
             ])}
-            {renderField('Domeniu preferat', 'preferred_study_field')}
-            {renderField('An academic dorit', 'desired_academic_year')}
-            {renderField('Obiective de studiu', 'study_goals', 'textarea')}
+            {renderField('Preferred Field', 'preferred_study_field')}
+            {renderField('Desired Academic Year', 'desired_academic_year')}
+            {renderField('Study Goals', 'study_goals', 'textarea')}
           </div>
 
           <div className="form-section">
@@ -230,12 +230,12 @@ const StudyPlan = ({ userData, onUpdate }) => {
         <div className="study-plan-info">
           <div className="info-section">
             <h3>
-              <FaGraduationCap /> Obiective de studii
+              <FaGraduationCap /> Study Objectives
             </h3>
-            {renderField('Nivel de studii dorit', 'desired_study_level')}
-            {renderField('Domeniu preferat', 'preferred_study_field')}
-            {renderField('An academic dorit', 'desired_academic_year')}
-            {renderField('Obiective de studiu', 'study_goals')}
+            {renderField('Desired Study Level', 'desired_study_level')}
+            {renderField('Preferred Field', 'preferred_study_field')}
+            {renderField('Desired Academic Year', 'desired_academic_year')}
+            {renderField('Study Goals', 'study_goals')}
           </div>
 
           <div className="info-section">

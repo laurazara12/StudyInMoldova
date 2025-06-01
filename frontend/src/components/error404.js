@@ -10,7 +10,7 @@ const Error404 = (props) => {
       <div className="error404-max-width thq-section-max-width">
         <div className="error404-container2">
           <div className="error404-container3">
-            <h2 className="error404-text1 thq-heading-2">Oooops!</h2>
+            <h2 className="error404-text1 thq-heading-2">Oops!</h2>
             <p className="error404-text2 thq-body-large">
               {props.content1 ?? (
                 <Fragment>

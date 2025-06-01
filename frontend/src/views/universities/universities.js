@@ -44,9 +44,7 @@ const Universities = () => {
         return;
       }
       
-      // Verificăm și procesăm datele pentru a ne asigura că taxele sunt corecte
       const processedData = data.map(uni => {
-        // Convertim taxele la numere dacă nu sunt deja
         const tuitionFees = uni.tuition_fees || {};
         const processedFees = {
           bachelor: typeof tuitionFees.bachelor === 'number' ? tuitionFees.bachelor : 
@@ -83,7 +81,7 @@ const Universities = () => {
   useEffect(() => {
     let filtered = [...universities];
 
-    // Aplicăm filtrele
+
     if (searchTerm) {
       filtered = filtered.filter(uni => 
         uni.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -125,7 +123,6 @@ const Universities = () => {
       });
     }
 
-    // Aplicăm sortarea
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'name':
@@ -172,7 +169,7 @@ const Universities = () => {
       <div className="universities-container">
         <Navbar />
         <div className="universities-loading">
-          <p>Se încarcă universitățile...</p>
+          <p>Loading universities...</p>
         </div>
         <Footer />
       </div>
@@ -184,10 +181,10 @@ const Universities = () => {
       <div className="universities-container">
         <Navbar />
         <div className="universities-error">
-          <p>Eroare: {error}</p>
-          <p>Vă rugăm să verificați conexiunea la internet și să reîncercați.</p>
+          <p>Error: {error}</p>
+          <p>Please check your internet connection and try again.</p>
           <button onClick={handleRetry} className="retry-button">
-            Reîncearcă
+            Retry
           </button>
         </div>
         <Footer />
@@ -198,13 +195,13 @@ const Universities = () => {
   return (
     <div className="universities-container">
       <Helmet>
-        <title>Universități - Study In Moldova</title>
-        <meta property="og:title" content="Universități - Study In Moldova" />
+        <title>Universities - Study In Moldova</title>
+        <meta property="og:title" content="Universities - Study In Moldova" />
       </Helmet>
       <Navbar />
       <div className="universities-header">
-        <h1>Universități din Moldova</h1>
-        <p className="universities-description">Descoperă universitățile de top din Moldova care oferă educație de calitate pentru studenții internaționali.</p>
+        <h1>Universities in Moldova</h1>
+        <p className="universities-description">Discover top universities in Moldova offering quality education for international students.</p>
       </div>
       <div className="universities-content">
         <div className="filter-section universities-filter">
@@ -319,7 +316,7 @@ const Universities = () => {
             className="search-button"
             onClick={() => setFilteredUniversities([...filteredUniversities])}
           >
-            Caută
+            Search
           </button>
         </div>
         
@@ -332,7 +329,7 @@ const Universities = () => {
               />
             ))
           ) : (
-            <p>Nu s-au găsit universități care să corespundă criteriilor selectate.</p>
+            <p>No universities found matching the selected criteria.</p>
           )}
         </div>
       </div>

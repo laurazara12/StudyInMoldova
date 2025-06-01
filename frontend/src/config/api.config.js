@@ -1,19 +1,19 @@
-// Configurare API
+// API Configuration
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
 
-console.log('=== Configurare API ===');
+console.log('=== API Configuration ===');
 console.log('API Base URL:', API_BASE_URL);
 console.log('Environment:', process.env.NODE_ENV);
 console.log('REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
 
-// Funcție pentru verificarea token-ului
+// Function for token verification
 export const verifyToken = async () => {
-  console.log('=== Verificare Token ===');
+  console.log('=== Token Verification ===');
   const token = localStorage.getItem('token');
-  console.log('Token prezent:', !!token);
+  console.log('Token present:', !!token);
 
   if (!token) {
-    console.log('Token lipsă');
+    console.log('Token missing');
     return false;
   }
 
@@ -26,37 +26,37 @@ export const verifyToken = async () => {
     });
 
     if (!response.ok) {
-      console.log('Token invalid sau expirat');
+      console.log('Invalid or expired token');
       await clearUserData();
       return false;
     }
 
     const data = await response.json();
     if (!data.success || !data.user) {
-      console.log('Date utilizator invalide');
+      console.log('Invalid user data');
       await clearUserData();
       return false;
     }
 
-    // Actualizăm datele utilizatorului în localStorage
+    // Update user data in localStorage
     localStorage.setItem('user', JSON.stringify(data.user));
-    console.log('Token valid, utilizator autentificat');
+    console.log('Valid token, user authenticated');
     return true;
   } catch (error) {
-    console.error('Eroare la verificarea token-ului:', error);
+    console.error('Error verifying token:', error);
     await clearUserData();
     return false;
   }
 };
 
-// Funcție pentru obținerea header-urilor de autentificare
+// Function for getting authentication headers
 export const getAuthHeaders = () => {
   const token = localStorage.getItem('token');
-  console.log('=== Obținere Headers ===');
-  console.log('Token prezent:', !!token);
+  console.log('=== Getting Headers ===');
+  console.log('Token present:', !!token);
   
   if (!token) {
-    console.log('Token lipsă pentru headers');
+    console.log('Token missing for headers');
     return {
       'Content-Type': 'application/json'
     };
@@ -67,17 +67,17 @@ export const getAuthHeaders = () => {
     'Content-Type': 'application/json'
   };
   
-  console.log('Headers generate:', headers);
+  console.log('Generated headers:', headers);
   return headers;
 };
 
-// Funcție pentru gestionarea erorilor API
+// Function for handling API errors
 export const handleApiError = (error) => {
-  console.error('Eroare API:', error);
+  console.error('API Error:', error);
 
   if (error.response) {
-    // Serverul a răspuns cu un status de eroare
-    console.error('Detalii eroare:', {
+    // Server responded with an error status
+    console.error('Error details:', {
       status: error.response.status,
       statusText: error.response.statusText,
       data: error.response.data
@@ -85,30 +85,30 @@ export const handleApiError = (error) => {
 
     switch (error.response.status) {
       case 401:
-        // Token invalid sau expirat
+        // Invalid or expired token
         clearUserData();
-        return 'Sesiunea a expirat. Vă rugăm să vă autentificați din nou.';
+        return 'Session expired. Please log in again.';
       
       case 403:
-        return 'Nu aveți permisiunea de a accesa această resursă.';
+        return 'You do not have permission to access this resource.';
       
       case 404:
-        return 'Resursa solicitată nu a fost găsită.';
+        return 'The requested resource was not found.';
       
       case 500:
-        return 'A apărut o eroare pe server. Vă rugăm să încercați din nou mai târziu.';
+        return 'A server error occurred. Please try again later.';
       
       default:
-        return error.response.data?.message || 'A apărut o eroare în timpul procesării cererii.';
+        return error.response.data?.message || 'An error occurred while processing the request.';
     }
   } else if (error.request) {
-    // Cererea a fost făcută dar nu s-a primit răspuns
-    console.error('Nu s-a primit răspuns de la server:', error.request);
-    return 'Nu s-a putut conecta la server. Verificați conexiunea la internet.';
+    // Request was made but no response received
+    console.error('No response from server:', error.request);
+    return 'Could not connect to server. Please check your internet connection.';
   } else {
-    // A apărut o eroare la configurarea cererii
-    console.error('Eroare la configurarea cererii:', error.message);
-    return 'A apărut o eroare în timpul comunicării cu serverul.';
+    // Error occurred while setting up the request
+    console.error('Error setting up request:', error.message);
+    return 'An error occurred while communicating with the server.';
   }
 };
 
@@ -121,10 +121,10 @@ export const setNavigationCallback = (callback) => {
 };
 
 export const clearUserData = async () => {
-  console.log('Ștergere date utilizator');
+  console.log('Clearing user data');
   localStorage.removeItem('token');
   localStorage.removeItem('user');
-  // Nu mai redirecționăm automat aici
+  // No longer automatically redirecting here
   return true;
 };
 

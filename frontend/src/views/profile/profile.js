@@ -9,7 +9,7 @@ import Notifications from '../../components/notifications';
 import { FaUser, FaGraduationCap, FaFileAlt, FaClipboardList, FaBookmark, FaBell } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 
-// Lazy loading pentru componente
+// Lazy loading for components
 const ProfileTab = lazy(() => import('./profile-tabs/profile-tab'));
 const PlanYourStudiesTab = lazy(() => import('./profile-tabs/plan-your-studies-tab'));
 const DocumentsTab = lazy(() => import('./profile-tabs/documents-tab'));
@@ -17,57 +17,57 @@ const ApplicationsTab = lazy(() => import('./profile-tabs/application-tab'));
 const SavedProgramsTab = lazy(() => import('./profile-tabs/saved-programs-tab'));
 const NotificationsTab = lazy(() => import('./profile-tabs/notifications-tab'));
 
-// Component de încărcare
+// Loading component
 const LoadingComponent = () => (
   <div className="loading-container">
     <div className="loading-spinner"></div>
-    <p>Se încarcă...</p>
+    <p>Loading...</p>
   </div>
 );
 
-// Component pentru navigarea profilului
+// Profile navigation component
 const ProfileNavigation = ({ activeTab, onTabChange }) => (
   <nav className="profile-nav">
     <button 
       className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`}
       onClick={() => onTabChange('profile')}
     >
-      <FaUser /> Profilul Meu
+      <FaUser /> My Profile
     </button>
     <button 
       className={`tab-button ${activeTab === 'studies' ? 'active' : ''}`}
       onClick={() => onTabChange('studies')}
     >
-      <FaGraduationCap /> Planifică Studiile
+      <FaGraduationCap /> Plan Your Studies
     </button>
     <button 
       className={`tab-button ${activeTab === 'documents' ? 'active' : ''}`}
       onClick={() => onTabChange('documents')}
     >
-      <FaFileAlt /> Documente
+      <FaFileAlt /> Documents
     </button>
     <button 
       className={`tab-button ${activeTab === 'applications' ? 'active' : ''}`}
       onClick={() => onTabChange('applications')}
     >
-      <FaClipboardList /> Aplicații
+      <FaClipboardList /> Applications
     </button>
     <button 
       className={`tab-button ${activeTab === 'saved-programs' ? 'active' : ''}`}
       onClick={() => onTabChange('saved-programs')}
     >
-      <FaBookmark /> Programe Salvate
+      <FaBookmark /> Saved Programs
     </button>
     <button 
       className={`tab-button ${activeTab === 'notifications' ? 'active' : ''}`}
       onClick={() => onTabChange('notifications')}
     >
-      <FaBell /> Notificări
+      <FaBell /> Notifications
     </button>
   </nav>
 );
 
-// Component pentru conținutul profilului
+// Profile content component
 const ProfileContent = ({ activeTab, userData, onProfileUpdate }) => (
   <div className="profile-content">
     <Suspense fallback={<LoadingComponent />}>
@@ -81,12 +81,12 @@ const ProfileContent = ({ activeTab, userData, onProfileUpdate }) => (
   </div>
 );
 
-// Component pentru formularul de editare
+// Edit profile form component
 const EditProfileForm = ({ formData, handleChange, handleSubmit, loading, onClose }) => (
   <div className="edit-modal">
     <div className="edit-modal-content">
       <div className="modal-header">
-        <h2>Editează Profilul</h2>
+        <h2>Edit Profile</h2>
         <button 
           className="btn btn-secondary"
           onClick={onClose}
@@ -96,7 +96,7 @@ const EditProfileForm = ({ formData, handleChange, handleSubmit, loading, onClos
       </div>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label>Nume Complet:</label>
+          <label>Full Name:</label>
           <input
             type="text"
             name="full_name"
@@ -106,7 +106,7 @@ const EditProfileForm = ({ formData, handleChange, handleSubmit, loading, onClos
           />
         </div>
         <div className="form-group">
-          <label>Telefon:</label>
+          <label>Phone:</label>
           <input
             type="tel"
             name="phone"
@@ -115,7 +115,7 @@ const EditProfileForm = ({ formData, handleChange, handleSubmit, loading, onClos
           />
         </div>
         <div className="form-group">
-          <label>Data Nașterii:</label>
+          <label>Date of Birth:</label>
           <input
             type="date"
             name="date_of_birth"
@@ -124,7 +124,7 @@ const EditProfileForm = ({ formData, handleChange, handleSubmit, loading, onClos
           />
         </div>
         <div className="form-group">
-          <label>Țara de Origine:</label>
+          <label>Country of Origin:</label>
           <input
             type="text"
             name="country_of_origin"
@@ -133,7 +133,7 @@ const EditProfileForm = ({ formData, handleChange, handleSubmit, loading, onClos
           />
         </div>
         <div className="form-group">
-          <label>Naționalitate:</label>
+          <label>Nationality:</label>
           <input
             type="text"
             name="nationality"
@@ -142,20 +142,20 @@ const EditProfileForm = ({ formData, handleChange, handleSubmit, loading, onClos
           />
         </div>
         <div className="form-group">
-          <label>Nivelul de Studiu Dorit:</label>
+          <label>Desired Study Level:</label>
           <select
             name="desired_study_level"
             value={formData.desired_study_level}
             onChange={handleChange}
           >
-            <option value="">Selectează nivelul</option>
-            <option value="bachelor">Licență</option>
+            <option value="">Select level</option>
+            <option value="bachelor">Bachelor</option>
             <option value="master">Master</option>
-            <option value="doctorate">Doctorat</option>
+            <option value="doctorate">Doctorate</option>
           </select>
         </div>
         <div className="form-group">
-          <label>Domeniul Preferat:</label>
+          <label>Preferred Field of Study:</label>
           <input
             type="text"
             name="preferred_study_field"
@@ -164,7 +164,7 @@ const EditProfileForm = ({ formData, handleChange, handleSubmit, loading, onClos
           />
         </div>
         <div className="form-group">
-          <label>Anul Academic Dorit:</label>
+          <label>Desired Academic Year:</label>
           <input
             type="text"
             name="desired_academic_year"
@@ -173,20 +173,20 @@ const EditProfileForm = ({ formData, handleChange, handleSubmit, loading, onClos
           />
         </div>
         <div className="form-group">
-          <label>Limba de Studiu Preferată:</label>
+          <label>Preferred Study Language:</label>
           <select
             name="preferred_study_language"
             value={formData.preferred_study_language}
             onChange={handleChange}
           >
-            <option value="">Selectează limba</option>
-            <option value="romanian">Română</option>
-            <option value="english">Engleză</option>
-            <option value="russian">Rusă</option>
+            <option value="">Select language</option>
+            <option value="romanian">Romanian</option>
+            <option value="english">English</option>
+            <option value="russian">Russian</option>
           </select>
         </div>
         <div className="form-group">
-          <label>Buget Estimat (EUR):</label>
+          <label>Estimated Budget (EUR):</label>
           <input
             type="number"
             name="estimated_budget"
@@ -196,22 +196,22 @@ const EditProfileForm = ({ formData, handleChange, handleSubmit, loading, onClos
           />
         </div>
         <div className="form-group">
-          <label>Preferințe Cazare:</label>
+          <label>Accommodation Preferences:</label>
           <select
             name="accommodation_preferences"
             value={formData.accommodation_preferences}
             onChange={handleChange}
           >
-            <option value="">Selectează preferința</option>
-            <option value="dormitory">Cămin Studențesc</option>
-            <option value="apartment">Apartament Privat</option>
+            <option value="">Select preference</option>
+            <option value="dormitory">Student Dormitory</option>
+            <option value="apartment">Private Apartment</option>
             <option value="hostel">Hostel</option>
           </select>
         </div>
         <div className="form-actions">
           <button type="submit" className="btn btn-primary" disabled={loading}>
             <i className="fas fa-save"></i>
-            {loading ? 'Se salvează...' : 'Salvează'}
+            {loading ? 'Saving...' : 'Save'}
           </button>
         </div>
       </form>
@@ -246,13 +246,13 @@ const Profile = () => {
     localStorage.setItem('activeProfileTab', activeTab);
   }, [activeTab]);
 
-  // Verificare autentificare și încărcare date utilizator
+  // Check authentication and load user data
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
-          console.log('Token lipsă - redirecționare către autentificare');
+          console.log('Missing token - redirecting to login');
           navigate('/sign-in');
           return;
         }
@@ -261,7 +261,7 @@ const Profile = () => {
         const response = await axios.get(`${API_BASE_URL}/api/users/profile`, { headers });
 
         if (!response.data?.success) {
-          throw new Error('Date utilizator invalide');
+          throw new Error('Invalid user data');
         }
 
         const userData = response.data.data;
@@ -272,7 +272,7 @@ const Profile = () => {
         }));
         setError(null);
       } catch (err) {
-        console.error('Eroare la încărcarea datelor utilizator:', err);
+        console.error('Error loading user data:', err);
         setError(handleApiError(err));
         if (err.response?.status === 401) {
           navigate('/sign-in');
@@ -311,12 +311,12 @@ const Profile = () => {
         const updatedUserData = response.data.data;
         setUserData(updatedUserData);
         setIsEditing(false);
-        toast.success('Profilul a fost actualizat cu succes!');
+        toast.success('Profile updated successfully!');
       } else {
-        throw new Error('Răspuns invalid de la server');
+        throw new Error('Invalid server response');
       }
     } catch (error) {
-      console.error('Eroare la actualizarea profilului:', error);
+      console.error('Error updating profile:', error);
       toast.error(handleApiError(error));
     } finally {
       setLoading(false);

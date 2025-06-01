@@ -3,13 +3,13 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY, {
 });
 const { Application } = require('../models');
 
-// Crearea unui payment intent
+// Create a payment intent
 const createPaymentIntent = async (req, res) => {
   try {
     const { applicationId } = req.body;
-    const amount = 3000; // 30 EUR în bani (Stripe folosește cea mai mică unitate)
+    const amount = 3000; // 30 EUR in cents (Stripe uses the smallest unit)
 
-    // Verificăm dacă aplicația există și aparține utilizatorului
+    // Check if the application exists and belongs to the user
     const application = await Application.findOne({
       where: {
         id: applicationId,
@@ -20,11 +20,11 @@ const createPaymentIntent = async (req, res) => {
     if (!application) {
       return res.status(404).json({
         success: false,
-        message: 'Aplicația nu a fost găsită'
+        message: 'Application not found'
       });
     }
 
-    // Creăm payment intent în Stripe
+    // Create payment intent in Stripe
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       currency: 'eur',
@@ -42,22 +42,22 @@ const createPaymentIntent = async (req, res) => {
       clientSecret: paymentIntent.client_secret
     });
   } catch (error) {
-    console.error('Eroare la crearea payment intent:', error);
+    console.error('Error creating payment intent:', error);
     res.status(500).json({
       success: false,
-      message: 'A apărut o eroare la procesarea plății'
+      message: 'An error occurred while processing the payment'
     });
   }
 };
 
-// Confirmarea plății
+// Confirm payment
 const confirmPayment = async (req, res) => {
   try {
     const { paymentMethodId, applicationId } = req.body;
 
-    console.log('Începe confirmarea plății pentru:', { paymentMethodId, applicationId });
+    console.log('Starting payment confirmation for:', { paymentMethodId, applicationId });
 
-    // Verificăm dacă aplicația există și aparține utilizatorului
+    // Check if the application exists and belongs to the user
     const application = await Application.findOne({
       where: {
         id: applicationId,
@@ -66,29 +66,29 @@ const confirmPayment = async (req, res) => {
     });
 
     if (!application) {
-      console.error('Aplicație negăsită:', { applicationId, userId: req.user.id });
+      console.error('Application not found:', { applicationId, userId: req.user.id });
       return res.status(404).json({
         success: false,
-        message: 'Aplicația nu a fost găsită'
+        message: 'Application not found'
       });
     }
 
-    console.log('Aplicație găsită:', {
+    console.log('Application found:', {
       id: application.id,
       status: application.status,
       payment_status: application.payment_status
     });
 
-    // Confirmăm plata în Stripe
+    // Confirm payment in Stripe
     const paymentIntent = await stripe.paymentIntents.confirm(paymentMethodId);
-    console.log('Payment Intent confirmat:', {
+    console.log('Payment Intent confirmed:', {
       id: paymentIntent.id,
       status: paymentIntent.status,
       amount: paymentIntent.amount
     });
 
     if (paymentIntent.status === 'succeeded') {
-      // Actualizăm statusul aplicației
+      // Update application status
       const updateData = {
         status: 'submitted',
         payment_status: 'paid',
@@ -96,11 +96,11 @@ const confirmPayment = async (req, res) => {
         application_date: new Date()
       };
 
-      console.log('Actualizare aplicație cu datele:', updateData);
+      console.log('Updating application with data:', updateData);
       
       try {
         const updatedApplication = await application.update(updateData);
-        console.log('Aplicație actualizată:', {
+        console.log('Application updated:', {
           id: updatedApplication.id,
           status: updatedApplication.status,
           payment_status: updatedApplication.payment_status,
@@ -110,36 +110,36 @@ const confirmPayment = async (req, res) => {
 
         res.json({
           success: true,
-          message: 'Plata a fost procesată cu succes',
+          message: 'Payment processed successfully',
           application: updatedApplication
         });
       } catch (error) {
-        console.error('Eroare la actualizarea aplicației:', error);
+        console.error('Error updating application:', error);
         res.status(500).json({
           success: false,
-          message: 'Eroare la actualizarea statusului aplicației',
+          message: 'Error updating application status',
           error: error.message
         });
       }
     } else {
-      console.log('Plata nu a fost procesată cu succes:', paymentIntent.status);
+      console.log('Payment not processed successfully:', paymentIntent.status);
       res.status(400).json({
         success: false,
-        message: 'Plata nu a putut fi procesată',
+        message: 'Payment could not be processed',
         status: paymentIntent.status
       });
     }
   } catch (error) {
-    console.error('Eroare la confirmarea plății:', error);
+    console.error('Error confirming payment:', error);
     res.status(500).json({
       success: false,
-      message: 'A apărut o eroare la procesarea plății',
+      message: 'An error occurred while processing the payment',
       error: error.message
     });
   }
 };
 
-// Verificarea plății
+// Verify payment
 const verifyPayment = async (req, res) => {
   try {
     const { paymentMethodId, applicationId } = req.body;
@@ -147,29 +147,29 @@ const verifyPayment = async (req, res) => {
     if (!paymentMethodId || !applicationId) {
       return res.status(400).json({
         success: false,
-        message: 'ID-ul metodei de plată și ID-ul aplicației sunt obligatorii'
+        message: 'Payment method ID and application ID are required'
       });
     }
 
-    // Verificăm statusul plății
+    // Check payment status
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentMethodId);
 
     if (paymentIntent.status === 'succeeded') {
       return res.json({
         success: true,
-        message: 'Plata a fost verificată cu succes'
+        message: 'Payment verified successfully'
       });
     } else {
       return res.status(400).json({
         success: false,
-        message: 'Plata nu a fost procesată cu succes'
+        message: 'Payment was not processed successfully'
       });
     }
   } catch (error) {
-    console.error('Eroare la verificarea plății:', error);
+    console.error('Error verifying payment:', error);
     return res.status(500).json({
       success: false,
-      message: 'A apărut o eroare la verificarea plății'
+      message: 'An error occurred while verifying the payment'
     });
   }
 };

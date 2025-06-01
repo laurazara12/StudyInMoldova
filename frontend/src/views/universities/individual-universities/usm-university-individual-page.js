@@ -5,142 +5,142 @@ import './usm-university-individual-page.css'
 const USMUniversityIndividualPage = () => {
   const customSections = [
     <div key="usm-about" className="usm-section usm-about">
-      <h2>Despre Universitate</h2>
+      <h2>About University</h2>
       <div className="about-content">
         <div className="about-text">
-          <p>Fondată la 1 octombrie 1946, USM este prima instituție de învățământ superior cu statut de universitate din Republica Moldova. Inițial, a funcționat cu 320 de studenți și 35 de cadre didactice în 5 facultăți.</p>
-          <p>În prezent, USM are aproximativ 11.000 de studenți și oferă peste 100 de programe de studii de licență și masterat, în cadrul a 11 facultăți și 4 școli doctorale.</p>
-          <p>Universitatea este recunoscută pentru promovarea libertății academice, pluralismului de opinii și calității în pregătirea specialiștilor de înaltă calificare.</p>
+          <p>Founded on October 1, 1946, USM is the first higher education institution with university status in the Republic of Moldova. Initially, it operated with 320 students and 35 teaching staff in 5 faculties.</p>
+          <p>Currently, USM has approximately 11,000 students and offers over 100 undergraduate and master's programs across 11 faculties and 4 doctoral schools.</p>
+          <p>The university is recognized for promoting academic freedom, pluralism of opinions, and quality in training highly qualified specialists.</p>
         </div>
         <div className="about-stats">
           <div className="stat-item">
-            <span className="stat-number">11.000+</span>
-            <span className="stat-label">Studenți</span>
+            <span className="stat-number">11,000+</span>
+            <span className="stat-label">Students</span>
           </div>
           <div className="stat-item">
             <span className="stat-number">100+</span>
-            <span className="stat-label">Programe de studii</span>
+            <span className="stat-label">Study Programs</span>
           </div>
           <div className="stat-item">
             <span className="stat-number">11</span>
-            <span className="stat-label">Facultăți</span>
+            <span className="stat-label">Faculties</span>
           </div>
           <div className="stat-item">
             <span className="stat-number">4</span>
-            <span className="stat-label">Școli doctorale</span>
+            <span className="stat-label">Doctoral Schools</span>
           </div>
         </div>
       </div>
     </div>,
     <div key="usm-faculties" className="usm-section usm-faculties">
-      <h2>Facultăți</h2>
+      <h2>Faculties</h2>
       <div className="faculties-grid">
-        <div className="faculty-card">Facultatea de Biologie și Geoștiințe</div>
-        <div className="faculty-card">Facultatea de Chimie și Tehnologie Chimică</div>
-        <div className="faculty-card">Facultatea de Drept</div>
-        <div className="faculty-card">Facultatea de Jurnalism și Științe ale Comunicării</div>
-        <div className="faculty-card">Facultatea de Fizică și Inginerie</div>
-        <div className="faculty-card">Facultatea de Istorie și Filosofie</div>
-        <div className="faculty-card">Facultatea de Matematică și Informatică</div>
-        <div className="faculty-card">Facultatea de Litere</div>
-        <div className="faculty-card">Facultatea de Științe Economice</div>
-        <div className="faculty-card">Facultatea de Psihologie, Științe ale Educației, Sociologie și Asistență Socială</div>
-        <div className="faculty-card">Facultatea de Relații Internaționale, Științe Politice și Administrative</div>
+        <div className="faculty-card">Faculty of Biology and Geosciences</div>
+        <div className="faculty-card">Faculty of Chemistry and Chemical Technology</div>
+        <div className="faculty-card">Faculty of Law</div>
+        <div className="faculty-card">Faculty of Journalism and Communication Sciences</div>
+        <div className="faculty-card">Faculty of Physics and Engineering</div>
+        <div className="faculty-card">Faculty of History and Philosophy</div>
+        <div className="faculty-card">Faculty of Mathematics and Computer Science</div>
+        <div className="faculty-card">Faculty of Letters</div>
+        <div className="faculty-card">Faculty of Economic Sciences</div>
+        <div className="faculty-card">Faculty of Psychology, Educational Sciences, Sociology and Social Work</div>
+        <div className="faculty-card">Faculty of International Relations, Political and Administrative Sciences</div>
       </div>
     </div>,
     <div key="usm-mission" className="usm-section usm-mission">
-      <h2>Misiune și Obiective</h2>
+      <h2>Mission and Objectives</h2>
       <div className="mission-grid">
         <div className="mission-card">
-          <h3>Formarea cadrelor</h3>
-          <p>Formarea cadrelor de înaltă calificare pentru economia națională, capabile să activeze în condițiile în schimbare ale vieții și economiei de piață.</p>
+          <h3>Staff Training</h3>
+          <p>Training highly qualified staff for the national economy, capable of working in the changing conditions of life and market economy.</p>
         </div>
         <div className="mission-card">
-          <h3>Cercetare științifică</h3>
-          <p>Organizarea și desfășurarea de cercetări științifice fundamentale și aplicative, orientate spre soluționarea problemelor actuale socio-economice.</p>
+          <h3>Scientific Research</h3>
+          <p>Organization and development of fundamental and applied scientific research, oriented towards solving current socio-economic problems.</p>
         </div>
         <div className="mission-card">
-          <h3>Valori și dezvoltare</h3>
-          <p>Promovarea valorilor generale umane și naționale, formarea profilului etic și civic al tineretului studios.</p>
+          <h3>Values and Development</h3>
+          <p>Promoting general human and national values, forming the ethical and civic profile of young students.</p>
         </div>
         <div className="mission-card">
-          <h3>Calitate și integrare</h3>
-          <p>Asigurarea calității învățământului superior și integrarea în spațiul european al învățământului superior și de cercetare.</p>
+          <h3>Quality and Integration</h3>
+          <p>Ensuring the quality of higher education and integration into the European space of higher education and research.</p>
         </div>
       </div>
     </div>,
     <div key="usm-cooperation" className="usm-section usm-cooperation">
-      <h2>Cooperare Internațională</h2>
+      <h2>International Cooperation</h2>
       <div className="cooperation-grid">
         <div className="cooperation-card">
-          <h3>Asociația Internațională a Universităților (IAU)</h3>
-          <p>Membră activă din 1992</p>
+          <h3>International Association of Universities (IAU)</h3>
+          <p>Active member since 1992</p>
         </div>
         <div className="cooperation-card">
-          <h3>Agenția Universitară a Francofoniei (AUF)</h3>
-          <p>Colaborare în proiecte educaționale</p>
+          <h3>Francophone University Agency (AUF)</h3>
+          <p>Collaboration in educational projects</p>
         </div>
         <div className="cooperation-card">
-          <h3>Asociația Euroasiatică a Universităților (AEU)</h3>
-          <p>Schimburi academice și cercetare</p>
+          <h3>Eurasian Universities Association (AEU)</h3>
+          <p>Academic exchanges and research</p>
         </div>
         <div className="cooperation-card">
-          <h3>Consorțiul CUMRU</h3>
-          <p>Cooperare regională cu universități din România și Ucraina</p>
+          <h3>CUMRU Consortium</h3>
+          <p>Regional cooperation with universities from Romania and Ukraine</p>
         </div>
         <div className="cooperation-card">
-          <h3>Consorțiul Universitaria</h3>
-          <p>Membră din 2018</p>
+          <h3>Universitaria Consortium</h3>
+          <p>Member since 2018</p>
         </div>
       </div>
     </div>,
     <div key="usm-achievements" className="usm-section usm-achievements">
-      <h2>Recunoaștere și Premii</h2>
+      <h2>Recognition and Awards</h2>
       <div className="achievements-timeline">
         <div className="achievement-item">
           <span className="year">2001</span>
-          <p>Prima instituție de învățământ superior acreditată la nivel național</p>
+          <p>First higher education institution accredited at national level</p>
         </div>
         <div className="achievement-item">
           <span className="year">2011</span>
-          <p>Decorată cu "Ordinul Republicii" pentru merite deosebite</p>
+          <p>Awarded the "Order of the Republic" for outstanding merits</p>
         </div>
         <div className="achievement-item">
           <span className="year">2013</span>
-          <p>Clasare constantă pe primul loc în topul universităților din Republica Moldova</p>
+          <p>Consistent ranking in first place among universities in the Republic of Moldova</p>
         </div>
       </div>
     </div>,
     <div key="usm-facilities" className="usm-section usm-facilities">
-      <h2>Facilități</h2>
+      <h2>Facilities</h2>
       <div className="facilities-grid">
         <div className="facility-card">
           <span className="facility-icon">🏛️</span>
-          <h3>6 blocuri de învățământ</h3>
+          <h3>6 teaching blocks</h3>
         </div>
         <div className="facility-card">
           <span className="facility-icon">🏠</span>
-          <h3>10 cămine studențești</h3>
+          <h3>10 student dormitories</h3>
         </div>
         <div className="facility-card">
           <span className="facility-icon">📚</span>
-          <h3>Bibliotecă universitară</h3>
+          <h3>University library</h3>
         </div>
         <div className="facility-card">
           <span className="facility-icon">🏋️</span>
-          <h3>Palat al Sporturilor</h3>
+          <h3>Sports Palace</h3>
         </div>
         <div className="facility-card">
           <span className="facility-icon">🎭</span>
-          <h3>Casă de Cultură</h3>
+          <h3>Culture House</h3>
         </div>
         <div className="facility-card">
           <span className="facility-icon">🍽️</span>
-          <h3>Cantine</h3>
+          <h3>Cafeterias</h3>
         </div>
         <div className="facility-card">
           <span className="facility-icon">🏕️</span>
-          <h3>Baze de practică și agrement</h3>
+          <h3>Practice and recreation bases</h3>
         </div>
       </div>
     </div>
@@ -175,13 +175,13 @@ const USMUniversityIndividualPage = () => {
       }
       afterHero={
         <div className="usm-announcement">
-          Programe de schimb internațional disponibile pentru anul academic 2024-2025
+          International exchange programs available for academic year 2024-2025
         </div>
       }
       afterPrograms={
         <div className="usm-special-programs">
-          <h3>Programe speciale de studii în limba engleză</h3>
-          <p>Descoperă oportunitățile de studiu în limba engleză la USM</p>
+          <h3>Special study programs in English</h3>
+          <p>Discover study opportunities in English at USM</p>
         </div>
       }
     />

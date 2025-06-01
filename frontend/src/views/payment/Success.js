@@ -16,7 +16,7 @@ const Success = () => {
     const paymentIntentClientSecret = searchParams.get('payment_intent_client_secret');
 
     if (!sessionId && !paymentIntent) {
-      setError('Nu s-au găsit parametrii necesari pentru verificarea plății');
+      setError('Required payment verification parameters not found');
       setStatus('error');
       return;
     }
@@ -59,11 +59,11 @@ const Success = () => {
             setStatus('pending');
           }
         } else {
-          throw new Error(response.data.message || 'Eroare la verificarea statusului plății');
+          throw new Error(response.data.message || 'Error checking payment status');
         }
       } catch (error) {
-        console.error('Eroare la verificarea statusului plății:', error);
-        setError(error.response?.data?.message || 'A apărut o eroare la verificarea statusului plății');
+        console.error('Error checking payment status:', error);
+        setError(error.response?.data?.message || 'An error occurred while checking payment status');
         setStatus('error');
       }
     };
@@ -79,7 +79,7 @@ const Success = () => {
     return (
       <div className="payment-status">
         <div className="loading-spinner"></div>
-        <p>Se verifică statusul plății...</p>
+        <p>Checking payment status...</p>
       </div>
     );
   }
@@ -88,10 +88,10 @@ const Success = () => {
     return (
       <div className="payment-status error">
         <i className="fas fa-exclamation-circle"></i>
-        <h2>Eroare</h2>
-        <p>{error || 'A apărut o eroare la procesarea plății'}</p>
+        <h2>Error</h2>
+        <p>{error || 'An error occurred while processing the payment'}</p>
         <button onClick={handleContinue} className="btn-primary">
-          Înapoi la profil
+          Back to Profile
         </button>
       </div>
     );
@@ -101,10 +101,10 @@ const Success = () => {
     return (
       <div className="payment-status pending">
         <i className="fas fa-clock"></i>
-        <h2>Plata în procesare</h2>
-        <p>Plata dvs. este în curs de procesare. Vă rugăm să așteptați...</p>
+        <h2>Payment Processing</h2>
+        <p>Your payment is being processed. Please wait...</p>
         <button onClick={handleContinue} className="btn-primary">
-          Înapoi la profil
+          Back to Profile
         </button>
       </div>
     );
@@ -113,8 +113,8 @@ const Success = () => {
   return (
     <div className="payment-status success">
       <i className="fas fa-check-circle"></i>
-      <h2>Plată reușită!</h2>
-      <p>Plata a fost procesată cu succes. Veți fi redirecționat către pagina de profil...</p>
+      <h2>Payment Successful!</h2>
+      <p>Payment has been processed successfully. You will be redirected to your profile page...</p>
     </div>
   );
 };

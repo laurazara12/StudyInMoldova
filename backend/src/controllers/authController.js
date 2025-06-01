@@ -8,7 +8,7 @@ exports.verifyToken = async (req, res, next) => {
     if (!token) {
       return res.status(401).json({ 
         success: false,
-        message: 'Token lipsă',
+        message: 'Missing token',
         data: null
       });
     }
@@ -19,7 +19,7 @@ exports.verifyToken = async (req, res, next) => {
     if (!user) {
       return res.status(401).json({ 
         success: false,
-        message: 'Utilizator invalid',
+        message: 'Invalid user',
         data: null
       });
     }
@@ -27,10 +27,10 @@ exports.verifyToken = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    console.error('Eroare la verificarea token-ului:', error);
+    console.error('Error verifying token:', error);
     res.status(401).json({ 
       success: false,
-      message: 'Token invalid',
+      message: 'Invalid token',
       data: null
     });
   }
@@ -41,7 +41,7 @@ exports.checkRole = (roles) => {
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({ 
         success: false,
-        message: 'Acces interzis',
+        message: 'Access denied',
         data: null
       });
     }
@@ -56,7 +56,7 @@ exports.refreshToken = async (req, res) => {
     if (!token) {
       return res.status(401).json({ 
         success: false,
-        message: 'Token lipsă',
+        message: 'Missing token',
         data: null
       });
     }
@@ -67,7 +67,7 @@ exports.refreshToken = async (req, res) => {
     if (!user) {
       return res.status(401).json({ 
         success: false,
-        message: 'Utilizator invalid',
+        message: 'Invalid user',
         data: null
       });
     }
@@ -80,7 +80,7 @@ exports.refreshToken = async (req, res) => {
 
     res.json({ 
       success: true,
-      message: 'Token reînnoit cu succes',
+      message: 'Token refreshed successfully',
       data: {
         token: newToken,
         user: {
@@ -92,10 +92,10 @@ exports.refreshToken = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Eroare la reînnoirea token-ului:', error);
+    console.error('Error refreshing token:', error);
     res.status(401).json({ 
       success: false,
-      message: 'Token invalid',
+      message: 'Invalid token',
       data: null
     });
   }

@@ -26,19 +26,19 @@ const DocumentCounter = ({ documents = [], documentTypes = [] }) => {
     <div className="document-counter">
       <div className="document-stats">
         <div className="document-stat">
-          <span className="stat-label">Documente încărcate</span>
+          <span className="stat-label">Uploaded Documents</span>
           <span className="stat-value">{getUploadedDocumentsCount()}/{getTotalDocumentsCount()}</span>
         </div>
         <div className="document-stat">
-          <span className="stat-label">În așteptare</span>
+          <span className="stat-label">Pending</span>
           <span className="stat-value status-pending">{getPendingDocumentsCount()}</span>
         </div>
         <div className="document-stat">
-          <span className="stat-label">Aprobate</span>
+          <span className="stat-label">Approved</span>
           <span className="stat-value status-approved">{getApprovedDocumentsCount()}</span>
         </div>
         <div className="document-stat">
-          <span className="stat-label">Respinse</span>
+          <span className="stat-label">Rejected</span>
           <span className="stat-value status-rejected">{getRejectedDocumentsCount()}</span>
         </div>
       </div>

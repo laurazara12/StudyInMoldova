@@ -169,9 +169,9 @@ const Navbar = (props) => {
             </Link>
             {isAuthenticated && isAdmin && (
               <>
-                <Link to="/admin/users" className="navbar-text21" onClick={toggleMenu}>Utilizatori</Link>
-                <Link to="/admin/documents" className="navbar-text22" onClick={toggleMenu}>Documente</Link>
-                <Link to="/admin/applications" className="navbar-text23" onClick={toggleMenu}>Aplicații</Link>
+                <Link to="/admin/users" className="navbar-text21" onClick={toggleMenu}>Users</Link>
+                <Link to="/admin/documents" className="navbar-text22" onClick={toggleMenu}>Documents</Link>
+                <Link to="/admin/applications" className="navbar-text23" onClick={toggleMenu}>Applications</Link>
                 <Link to="/admin/notifications" className="navbar-text24" onClick={toggleMenu}>
                   <FaBell />
                   {unreadNotifications > 0 && (
@@ -234,17 +234,17 @@ const Navbar = (props) => {
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">
-              <h2>Confirmare Deconectare</h2>
+              <h2>Confirm Logout</h2>
             </div>
             <div className="modal-body">
-              <p>Sigur doriți să vă deconectați?</p>
+              <p>Are you sure you want to logout?</p>
             </div>
             <div className="modal-buttons">
               <button className="cancel-button" onClick={cancelLogout}>
-                Anulează
+                Cancel
               </button>
               <button className="confirm-button" onClick={confirmLogout}>
-                Da, deconectează-mă
+                Yes, logout
               </button>
             </div>
           </div>

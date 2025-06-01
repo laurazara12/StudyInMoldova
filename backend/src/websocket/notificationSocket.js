@@ -4,98 +4,98 @@ const { User } = require('../models');
 
 const wss = new WebSocket.Server({ noServer: true });
 
-// Stocare conexiuni active
+// Store active connections
 const connections = new Map();
 
-// Configurare reconectare
-const RECONNECT_INTERVAL = 5000; // 5 secunde
+// Reconnection configuration
+const RECONNECT_INTERVAL = 5000; // 5 seconds
 const MAX_RECONNECT_ATTEMPTS = 5;
 
-// Funcție pentru autentificarea conexiunii WebSocket
+// Function for WebSocket connection authentication
 const authenticateWebSocket = async (token) => {
   try {
     if (!token) {
-      console.error('Token lipsă pentru WebSocket');
+      console.error('Missing token for WebSocket');
       return null;
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'temporary_secret');
     if (!decoded || !decoded.id) {
-      console.error('Token invalid sau lipsesc datele utilizatorului');
+      console.error('Invalid token or missing user data');
       return null;
     }
 
     const user = await User.findByPk(decoded.id);
     if (!user) {
-      console.error('Utilizator negăsit pentru WebSocket');
+      console.error('User not found for WebSocket');
       return null;
     }
 
     return user;
   } catch (error) {
-    console.error('Eroare la autentificarea WebSocket:', error);
+    console.error('WebSocket authentication error:', error);
     return null;
   }
 };
 
-// Funcție pentru gestionarea reconectării
+// Function for handling reconnection
 const handleReconnect = (ws, userId, attempt = 1) => {
   if (attempt > MAX_RECONNECT_ATTEMPTS) {
-    console.error('Numărul maxim de încercări de reconectare a fost atins');
-    ws.close(1000, 'Numărul maxim de încercări de reconectare a fost atins');
+    console.error('Maximum reconnection attempts reached');
+    ws.close(1000, 'Maximum reconnection attempts reached');
     return;
   }
 
   setTimeout(() => {
     if (ws.readyState === WebSocket.CLOSED) {
-      console.log(`Încercare reconectare ${attempt} pentru utilizatorul ${userId}`);
-      // Implementare logică de reconectare aici
+      console.log(`Reconnection attempt ${attempt} for user ${userId}`);
+      // Implement reconnection logic here
     }
   }, RECONNECT_INTERVAL * attempt);
 };
 
-// Gestionare conexiuni WebSocket
+// Handle WebSocket connections
 wss.on('connection', (ws, request) => {
   const user = request.user;
   if (!user) {
-    console.error('Utilizator lipsă în request');
-    ws.close(1008, 'Utilizator neautentificat');
+    console.error('Missing user in request');
+    ws.close(1008, 'Unauthenticated user');
     return;
   }
 
   const userId = user.id;
-  console.log('Nouă conexiune WebSocket stabilită pentru utilizatorul:', userId);
+  console.log('New WebSocket connection established for user:', userId);
 
-  // Stocare conexiune
+  // Store connection
   if (!connections.has(userId)) {
     connections.set(userId, new Set());
   }
   connections.get(userId).add(ws);
 
-  // Trimite mesaj de confirmare
+  // Send confirmation message
   ws.send(JSON.stringify({
     type: 'connection_established',
-    message: 'Conexiune WebSocket stabilită cu succes'
+    message: 'WebSocket connection successfully established'
   }));
 
-  // Gestionare mesaje primite
+  // Handle received messages
   ws.on('message', async (message) => {
     try {
       const data = JSON.parse(message);
-      console.log('Mesaj primit de la utilizatorul', userId, ':', data);
+      console.log('Message received from user', userId, ':', data);
 
       if (data.type === 'mark_read' && data.notificationId) {
-        // Implementare marcare notificare ca citită
-        // TODO: Implementare logica pentru marcarea notificării ca citită
+        // Implement marking notification as read
+        // TODO: Implement logic for marking notification as read
       }
     } catch (error) {
-      console.error('Eroare la procesarea mesajului:', error);
+      console.error('Error processing message:', error);
     }
   });
 
-  // Gestionare închidere conexiune
+  // Handle connection close
   ws.on('close', (code, reason) => {
-    console.log(`Conexiune WebSocket închisă pentru utilizatorul ${userId}. Cod: ${code}, Motiv: ${reason}`);
+    console.log(`WebSocket connection closed for user ${userId}. Code: ${code}, Reason: ${reason}`);
     const userConnections = connections.get(userId);
     if (userConnections) {
       userConnections.delete(ws);
@@ -104,20 +104,20 @@ wss.on('connection', (ws, request) => {
       }
     }
     
-    // Încearcă reconectarea dacă închiderea nu a fost intenționată
+    // Try to reconnect if the closure was not intentional
     if (code !== 1000) {
       handleReconnect(ws, userId);
     }
   });
 
-  // Gestionare erori
+  // Handle errors
   ws.on('error', (error) => {
-    console.error('Eroare WebSocket pentru utilizatorul', userId, ':', error);
-    // Încearcă reconectarea în caz de eroare
+    console.error('WebSocket error for user', userId, ':', error);
+    // Try to reconnect in case of error
     handleReconnect(ws, userId);
   });
 
-  // Ping pentru a menține conexiunea activă
+  // Ping to keep connection alive
   const pingInterval = setInterval(() => {
     if (ws.readyState === WebSocket.OPEN) {
       ws.ping();
@@ -129,7 +129,7 @@ wss.on('connection', (ws, request) => {
   });
 });
 
-// Funcție pentru trimiterea unei notificări către un utilizator specific
+// Function for sending a notification to a specific user
 const sendNotification = (userId, notification) => {
   const userConnections = connections.get(userId);
   if (userConnections) {
@@ -145,7 +145,7 @@ const sendNotification = (userId, notification) => {
   }
 };
 
-// Funcție pentru broadcast unei notificări către toți utilizatorii
+// Function for broadcasting a notification to all users
 const broadcastNotification = (notification) => {
   const message = JSON.stringify({
     type: 'new_notification',

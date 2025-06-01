@@ -21,7 +21,6 @@ import Profile from './views/profile/profile';
 import Universities from './views/universities/universities';
 import Programs from './views/programs/programs';
 import LivingInMoldova from './views/living/living-in-moldova';
-import PlanYourStudies from './views/planning/plan';
 import Blog from './views/blog/blog';
 import BlogPost from './views/blog/BlogPost';
 import NotFound from './views/error/not-found';
@@ -77,7 +76,6 @@ function App() {
               <Route path="/universities" element={<Universities />} />
               <Route path="/programs" element={<Programs />} />
               <Route path="/living-in-moldova" element={<LivingInMoldova />} />
-              <Route path="/plan-your-studies" element={<PlanYourStudies />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:id" element={<BlogPost />} />
               <Route path="/help-you-choose-AI" element={<HelpYouChoose />} />

@@ -36,19 +36,19 @@ const PlanYourStudies = ({ userData }) => {
   const validateField = (name, value) => {
     switch (name) {
       case 'desired_study_level':
-        return value ? '' : 'Nivelul de studiu este obligatoriu';
+        return value ? '' : 'Study level is required';
       case 'preferred_study_field':
-        return value ? '' : 'Domeniul de studiu este obligatoriu';
+        return value ? '' : 'Study field is required';
       case 'desired_academic_year':
-        return value ? '' : 'Anul academic este obligatoriu';
+        return value ? '' : 'Academic year is required';
       case 'preferred_study_language':
-        return value ? '' : 'Limba de studiu este obligatorie';
+        return value ? '' : 'Study language is required';
       case 'estimated_budget':
-        if (!value) return 'Bugetul este obligatoriu';
-        if (isNaN(value) || Number(value) <= 0) return 'Bugetul trebuie să fie un număr pozitiv';
+        if (!value) return 'Budget is required';
+        if (isNaN(value) || Number(value) <= 0) return 'Budget must be a positive number';
         return '';
       case 'accommodation_preferences':
-        return value ? '' : 'Preferințele de cazare sunt obligatorii';
+        return value ? '' : 'Accommodation preferences are required';
       default:
         return '';
     }
@@ -114,7 +114,7 @@ const PlanYourStudies = ({ userData }) => {
 
   const handleEditStudyPlan = async () => {
     if (!validateForm()) {
-      toast.error('Vă rugăm să completați toate câmpurile obligatorii corect');
+      toast.error('Please fill in all required fields correctly');
       return;
     }
 
@@ -141,11 +141,11 @@ const PlanYourStudies = ({ userData }) => {
           updateProfile(updatedUserData);
         }
         
-        toast.success('Planul de studii a fost actualizat cu succes!');
+        toast.success('Study plan updated successfully!');
       }
     } catch (error) {
       console.error('Error updating study plan:', error);
-      toast.error('A apărut o eroare la actualizarea planului de studii.');
+      toast.error('An error occurred while updating the study plan.');
     }
   };
 
@@ -153,16 +153,16 @@ const PlanYourStudies = ({ userData }) => {
     const recommendations = [];
     
     const fields = [
-      { name: 'phone', text: 'Adăugați numărul de telefon' },
-      { name: 'date_of_birth', text: 'Adăugați data nașterii' },
-      { name: 'country_of_origin', text: 'Adăugați țara de origine' },
-      { name: 'nationality', text: 'Adăugați naționalitatea' },
-      { name: 'desired_study_level', text: 'Selectați nivelul de studiu dorit' },
-      { name: 'preferred_study_field', text: 'Adăugați domeniul de studiu preferat' },
-      { name: 'desired_academic_year', text: 'Selectați anul academic dorit' },
-      { name: 'preferred_study_language', text: 'Selectați limba de studiu preferată' },
-      { name: 'estimated_budget', text: 'Adăugați bugetul estimat' },
-      { name: 'accommodation_preferences', text: 'Adăugați preferințele de cazare' }
+      { name: 'phone', text: 'Add phone number' },
+      { name: 'date_of_birth', text: 'Add date of birth' },
+      { name: 'country_of_origin', text: 'Add country of origin' },
+      { name: 'nationality', text: 'Add nationality' },
+      { name: 'desired_study_level', text: 'Select desired study level' },
+      { name: 'preferred_study_field', text: 'Add preferred study field' },
+      { name: 'desired_academic_year', text: 'Select desired academic year' },
+      { name: 'preferred_study_language', text: 'Select preferred study language' },
+      { name: 'estimated_budget', text: 'Add estimated budget' },
+      { name: 'accommodation_preferences', text: 'Add accommodation preferences' }
     ];
 
     fields.forEach(field => {
@@ -195,7 +195,7 @@ const PlanYourStudies = ({ userData }) => {
       <div className="plan-your-studies">
         <div className="loading-container">
           <div className="loading-spinner"></div>
-          <p>Se încarcă datele...</p>
+          <p>Loading data...</p>
         </div>
       </div>
     );
@@ -212,12 +212,12 @@ const PlanYourStudies = ({ userData }) => {
                 style={{ width: `${calculateProfileProgress()}%` }}
               ></div>
             </div>
-            <span className="progress-text">{calculateProfileProgress()}% Complet</span>
+            <span className="progress-text">{calculateProfileProgress()}% Completed</span>
           </div>
           
           {calculateProfileProgress() < 100 && (
             <div className="profile-recommendations">
-              <h3>Recomandări pentru completarea profilului</h3>
+              <h3>Recommendations for completing the profile</h3>
               <ul>
                 {getProfileRecommendations().map((recommendation, index) => (
                   <li key={index} className={recommendation.completed ? 'completed' : ''}>
@@ -231,56 +231,56 @@ const PlanYourStudies = ({ userData }) => {
         </div>
 
         <div className="study-plan-section">
-          <h2>Planificați-vă Studiile</h2>
+          <h2>Plan Your Studies</h2>
           <div className="study-plan-details">
             <div className={`study-plan-field ${isFieldComplete('desired_study_level') ? 'completed' : ''}`}>
               <label>
-                Nivelul de Studiu Dorit:
+                Desired Study Level:
                 {isFieldComplete('desired_study_level') && <span className="checkmark">✓</span>}
               </label>
-              <span>{userData?.desired_study_level || 'Nespecificat'}</span>
+              <span>{userData?.desired_study_level || 'Not specified'}</span>
             </div>
             <div className={`study-plan-field ${isFieldComplete('preferred_study_field') ? 'completed' : ''}`}>
               <label>
-                Domeniul de Studiu Preferat:
+                Preferred Study Field:
                 {isFieldComplete('preferred_study_field') && <span className="checkmark">✓</span>}
               </label>
-              <span>{userData?.preferred_study_field || 'Nespecificat'}</span>
+              <span>{userData?.preferred_study_field || 'Not specified'}</span>
             </div>
             <div className={`study-plan-field ${isFieldComplete('desired_academic_year') ? 'completed' : ''}`}>
               <label>
-                Anul Academic Dorit:
+                Desired Academic Year:
                 {isFieldComplete('desired_academic_year') && <span className="checkmark">✓</span>}
               </label>
-              <span>{userData?.desired_academic_year || 'Nespecificat'}</span>
+              <span>{userData?.desired_academic_year || 'Not specified'}</span>
             </div>
             <div className={`study-plan-field ${isFieldComplete('preferred_study_language') ? 'completed' : ''}`}>
               <label>
-                Limba de Studiu Preferată:
+                Preferred Study Language:
                 {isFieldComplete('preferred_study_language') && <span className="checkmark">✓</span>}
               </label>
-              <span>{userData?.preferred_study_language || 'Nespecificată'}</span>
+              <span>{userData?.preferred_study_language || 'Not specified'}</span>
             </div>
             <div className={`study-plan-field ${isFieldComplete('estimated_budget') ? 'completed' : ''}`}>
               <label>
-                Buget Estimat:
+                Estimated Budget:
                 {isFieldComplete('estimated_budget') && <span className="checkmark">✓</span>}
               </label>
-              <span>{userData?.estimated_budget ? `${userData.estimated_budget} EUR` : 'Nespecificat'}</span>
+              <span>{userData?.estimated_budget ? `${userData.estimated_budget} EUR` : 'Not specified'}</span>
             </div>
             <div className={`study-plan-field ${isFieldComplete('accommodation_preferences') ? 'completed' : ''}`}>
               <label>
-                Preferințe Cazare:
+                Accommodation Preferences:
                 {isFieldComplete('accommodation_preferences') && <span className="checkmark">✓</span>}
               </label>
-              <span>{userData?.accommodation_preferences || 'Nespecificate'}</span>
+              <span>{userData?.accommodation_preferences || 'Not specified'}</span>
             </div>
           </div>
           <button 
             className="edit-study-plan-button"
             onClick={() => setIsEditing(true)}
           >
-            Editează Planul de Studii
+            Edit Study Plan
           </button>
         </div>
       </div>
@@ -288,33 +288,33 @@ const PlanYourStudies = ({ userData }) => {
       {isEditing && (
         <div className="edit-study-plan-modal">
           <div className="modal-content">
-            <h2>Editează Planul de Studii</h2>
+            <h2>Edit Study Plan</h2>
             <form onSubmit={(e) => { e.preventDefault(); handleEditStudyPlan(); }}>
               <div className="form-group">
-                <label>Nivelul de Studiu Dorit: <span className="required">*</span></label>
+                <label>Desired Study Level: <span className="required">*</span></label>
                 <select
                   name="desired_study_level"
                   value={formData.desired_study_level}
                   onChange={handleChange}
                   className={formErrors.desired_study_level ? 'error' : ''}
                 >
-                  <option value="">Selectați Nivelul</option>
-                  <option value="Bachelor">Licență</option>
+                  <option value="">Select Level</option>
+                  <option value="Bachelor">Bachelor</option>
                   <option value="Master">Master</option>
-                  <option value="PhD">Doctorat</option>
+                  <option value="PhD">PhD</option>
                 </select>
                 {formErrors.desired_study_level && (
                   <span className="error-message">{formErrors.desired_study_level}</span>
                 )}
               </div>
               <div className="form-group">
-                <label>Domeniul de Studiu Preferat: <span className="required">*</span></label>
+                <label>Preferred Study Field: <span className="required">*</span></label>
                 <input
                   type="text"
                   name="preferred_study_field"
                   value={formData.preferred_study_field}
                   onChange={handleChange}
-                  placeholder="Introduceți domeniul de studiu"
+                  placeholder="Enter study field"
                   className={formErrors.preferred_study_field ? 'error' : ''}
                 />
                 {formErrors.preferred_study_field && (
@@ -322,13 +322,13 @@ const PlanYourStudies = ({ userData }) => {
                 )}
               </div>
               <div className="form-group">
-                <label>Anul Academic Dorit: <span className="required">*</span></label>
+                <label>Desired Academic Year: <span className="required">*</span></label>
                 <input
                   type="text"
                   name="desired_academic_year"
                   value={formData.desired_academic_year}
                   onChange={handleChange}
-                  placeholder="Introduceți anul academic"
+                  placeholder="Enter academic year"
                   className={formErrors.desired_academic_year ? 'error' : ''}
                 />
                 {formErrors.desired_academic_year && (
@@ -336,30 +336,30 @@ const PlanYourStudies = ({ userData }) => {
                 )}
               </div>
               <div className="form-group">
-                <label>Limba de Studiu Preferată: <span className="required">*</span></label>
+                <label>Preferred Study Language: <span className="required">*</span></label>
                 <select
                   name="preferred_study_language"
                   value={formData.preferred_study_language}
                   onChange={handleChange}
                   className={formErrors.preferred_study_language ? 'error' : ''}
                 >
-                  <option value="">Selectați Limba</option>
-                  <option value="English">Engleză</option>
-                  <option value="Romanian">Română</option>
-                  <option value="Russian">Rusă</option>
+                  <option value="">Select Language</option>
+                  <option value="English">English</option>
+                  <option value="Romanian">Romanian</option>
+                  <option value="Russian">Russian</option>
                 </select>
                 {formErrors.preferred_study_language && (
                   <span className="error-message">{formErrors.preferred_study_language}</span>
                 )}
               </div>
               <div className="form-group">
-                <label>Buget Estimat (EUR): <span className="required">*</span></label>
+                <label>Estimated Budget (EUR): <span className="required">*</span></label>
                 <input
                   type="number"
                   name="estimated_budget"
                   value={formData.estimated_budget}
                   onChange={handleChange}
-                  placeholder="Introduceți bugetul"
+                  placeholder="Enter budget"
                   min="0"
                   className={formErrors.estimated_budget ? 'error' : ''}
                 />
@@ -368,30 +368,30 @@ const PlanYourStudies = ({ userData }) => {
                 )}
               </div>
               <div className="form-group">
-                <label>Preferințe Cazare: <span className="required">*</span></label>
+                <label>Accommodation Preferences: <span className="required">*</span></label>
                 <select
                   name="accommodation_preferences"
                   value={formData.accommodation_preferences}
                   onChange={handleChange}
                   className={formErrors.accommodation_preferences ? 'error' : ''}
                 >
-                  <option value="">Selectați Preferința</option>
-                  <option value="Dormitory">Cămin</option>
-                  <option value="Private Apartment">Apartament Privat</option>
-                  <option value="Shared Apartment">Apartament Partajat</option>
+                  <option value="">Select Preference</option>
+                  <option value="Dormitory">Dormitory</option>
+                  <option value="Private Apartment">Private Apartment</option>
+                  <option value="Shared Apartment">Shared Apartment</option>
                 </select>
                 {formErrors.accommodation_preferences && (
                   <span className="error-message">{formErrors.accommodation_preferences}</span>
                 )}
               </div>
               <div className="modal-buttons">
-                <button type="submit" className="save-button">Salvează</button>
+                <button type="submit" className="save-button">Save</button>
                 <button 
                   type="button" 
                   className="cancel-button"
                   onClick={() => setIsEditing(false)}
                 >
-                  Anulează
+                  Cancel
                 </button>
               </div>
             </form>

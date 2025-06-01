@@ -1,158 +1,158 @@
 import axios from 'axios';
 import { API_BASE_URL, getAuthHeaders } from '../config/api.config';
 
-// Configurare Axios
+// Axios Configuration
 export const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json'
   },
-  timeout: 10000 // timeout de 10 secunde
+  timeout: 10000 // 10 second timeout
 });
 
-// Interceptor pentru cereri
+// Request Interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
     const headers = getAuthHeaders();
-    console.log('=== Interceptor Request ===');
-    console.log('Headers generate:', headers);
+    console.log('=== Request Interceptor ===');
+    console.log('Generated headers:', headers);
     
     config.headers = {
       ...config.headers,
       ...headers
     };
     
-    console.log('=== Începem cererea ===');
-    console.log('URL complet:', `${config.baseURL}${config.url}`);
-    console.log('Metodă:', config.method?.toUpperCase());
+    console.log('=== Starting Request ===');
+    console.log('Full URL:', `${config.baseURL}${config.url}`);
+    console.log('Method:', config.method?.toUpperCase());
     console.log('Headers:', JSON.stringify(config.headers, null, 2));
     if (config.data) {
       console.log('Data:', JSON.stringify(config.data, null, 2));
     }
 
-    // Verificăm dacă URL-ul este valid
+    // Check if URL is valid
     if (!config.url) {
-      console.error('URL invalid:', config.url);
-      return Promise.reject(new Error('URL invalid'));
+      console.error('Invalid URL:', config.url);
+      return Promise.reject(new Error('Invalid URL'));
     }
 
-    // Verificăm dacă baseURL este setat
+    // Check if baseURL is set
     if (!config.baseURL) {
-      console.error('baseURL lipsă');
-      return Promise.reject(new Error('baseURL lipsă'));
+      console.error('Missing baseURL');
+      return Promise.reject(new Error('Missing baseURL'));
     }
 
     return config;
   },
   (error) => {
-    console.error('=== Eroare la cerere ===');
-    console.error('Nume eroare:', error.name);
-    console.error('Mesaj eroare:', error.message);
+    console.error('=== Request Error ===');
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
     console.error('Stack trace:', error.stack);
     console.error('Config:', error.config);
     return Promise.reject(error);
   }
 );
 
-// Interceptor pentru răspunsuri
+// Response Interceptor
 axiosInstance.interceptors.response.use(
   (response) => {
-    console.log('=== Răspuns primit ===');
+    console.log('=== Response Received ===');
     console.log('URL:', `${response.config.baseURL}${response.config.url}`);
     console.log('Status:', response.status);
     console.log('Status Text:', response.statusText);
     console.log('Headers:', JSON.stringify(response.headers, null, 2));
     console.log('Data:', JSON.stringify(response.data, null, 2));
 
-    // Verificăm dacă răspunsul este valid
+    // Check if response is valid
     if (!response.data) {
-      console.error('Răspuns fără date');
-      return Promise.reject(new Error('Răspuns invalid: lipsesc datele'));
+      console.error('Response without data');
+      return Promise.reject(new Error('Invalid response: missing data'));
     }
 
     return response;
   },
   (error) => {
-    console.error('=== Eroare la răspuns ===');
-    console.error('URL:', error.config ? `${error.config.baseURL}${error.config.url}` : 'Necunoscut');
-    console.error('Metodă:', error.config?.method?.toUpperCase() || 'Necunoscută');
+    console.error('=== Response Error ===');
+    console.error('URL:', error.config ? `${error.config.baseURL}${error.config.url}` : 'Unknown');
+    console.error('Method:', error.config?.method?.toUpperCase() || 'Unknown');
     console.error('Config:', error.config);
     
     if (error.response) {
-      // Serverul a răspuns cu un status de eroare
+      // Server responded with an error status
       console.error('Status:', error.response.status);
       console.error('Status Text:', error.response.statusText);
-      console.error('Data răspuns:', JSON.stringify(error.response.data, null, 2));
+      console.error('Response Data:', JSON.stringify(error.response.data, null, 2));
       console.error('Headers:', JSON.stringify(error.response.headers, null, 2));
       
       if (error.response.status === 401) {
-        // Token invalid sau expirat
-        console.error('Token invalid sau expirat. Redirecționare către pagina de autentificare...');
+        // Invalid or expired token
+        console.error('Invalid or expired token. Redirecting to login page...');
         localStorage.removeItem('token');
         window.location.href = '/sign-in';
-        return Promise.reject(new Error('Sesiunea a expirat. Vă rugăm să vă autentificați din nou.'));
+        return Promise.reject(new Error('Session expired. Please log in again.'));
       }
       
-      return Promise.reject(new Error(error.response.data.message || 'A apărut o eroare la comunicarea cu serverul.'));
+      return Promise.reject(new Error(error.response.data.message || 'An error occurred while communicating with the server.'));
     } else if (error.request) {
-      // Cererea a fost făcută dar nu s-a primit răspuns
-      console.error('Nu s-a primit răspuns de la server');
-      console.error('Configurare cerere:', JSON.stringify(error.config, null, 2));
+      // Request was made but no response received
+      console.error('No response from server');
+      console.error('Request configuration:', JSON.stringify(error.config, null, 2));
       console.error('Request:', error.request);
-      return Promise.reject(new Error('Nu s-a putut comunica cu serverul. Vă rugăm să verificați conexiunea la internet.'));
+      return Promise.reject(new Error('Could not communicate with server. Please check your internet connection.'));
     } else {
-      // Eroare la configurarea cererii
-      console.error('Eroare la configurarea cererii:', error.message);
+      // Error occurred while setting up the request
+      console.error('Error setting up request:', error.message);
       console.error('Stack trace:', error.stack);
-      return Promise.reject(new Error('A apărut o eroare la procesarea cererii.'));
+      return Promise.reject(new Error('An error occurred while processing the request.'));
     }
   }
 );
 
-// Funcție pentru încărcarea unei universități după slug
+// Function to load a university by slug
 export const getUniversityBySlug = async (slug) => {
   try {
     if (!slug) {
-      throw new Error('Slug-ul universității este obligatoriu');
+      throw new Error('University slug is required');
     }
-    console.log('Încărcare universitate după slug:', slug);
+    console.log('Loading university by slug:', slug);
     const response = await axiosInstance.get(`/api/universities/${slug}`);
     
     if (!response.data || !response.data.success) {
-      throw new Error(response.data?.message || 'Universitatea nu a fost găsită');
+      throw new Error(response.data?.message || 'University not found');
     }
     
     return response.data.data;
   } catch (error) {
-    console.error('Eroare la încărcarea universității:', error);
-    throw new Error(error.response?.data?.message || 'Universitatea nu a fost găsită');
+    console.error('Error loading university:', error);
+    throw new Error(error.response?.data?.message || 'University not found');
   }
 };
 
-// Funcție pentru încărcarea programelor de studiu pentru o universitate
+// Function to load study programs for a university
 export const getUniversityPrograms = async (universityId) => {
   try {
     const response = await axiosInstance.get(`/api/universities/${universityId}/programs`);
     
     if (!response.data || !response.data.success) {
-      console.error('Răspuns invalid:', response);
+      console.error('Invalid response:', response);
       return [];
     }
     
     return Array.isArray(response.data.data) ? response.data.data : [];
   } catch (error) {
-    console.error('Eroare la încărcarea programelor de studiu:', error);
-    throw new Error(error.response?.data?.message || 'Nu s-au putut încărca programele de studiu');
+    console.error('Error loading study programs:', error);
+    throw new Error(error.response?.data?.message || 'Could not load study programs');
   }
 };
 
-// Funcție pentru încărcarea detaliilor unui program de studiu
+// Function to load program details
 export const getProgramDetails = async (programId) => {
   try {
     const response = await axiosInstance.get(`/api/programs/${programId}`);
     
     if (!response.data || !response.data.success) {
-      console.error('Răspuns invalid:', response);
+      console.error('Invalid response:', response);
       return {};
     }
     
@@ -160,79 +160,79 @@ export const getProgramDetails = async (programId) => {
     return {
       ...programData,
       tuition_fees: programData.tuition_fees || null,
-      specializations: [] // Inițializăm cu array gol, va fi populat separat
+      specializations: [] // Initialize with empty array, will be populated separately
     };
   } catch (error) {
-    console.error('Eroare la încărcarea detaliilor programului:', error);
-    throw new Error(error.response?.data?.message || 'Nu s-au putut încărca detaliile programului');
+    console.error('Error loading program details:', error);
+    throw new Error(error.response?.data?.message || 'Could not load program details');
   }
 };
 
-// Funcție pentru încărcarea specializărilor unui program
+// Function to load program specializations
 export const getProgramSpecializations = async (programId) => {
   try {
     const response = await axiosInstance.get(`/api/programs/${programId}/specializations`);
-    // Verificăm dacă răspunsul este HTML și returnăm array gol în acest caz
+    // Check if response is HTML and return empty array in this case
     if (typeof response.data === 'string' && response.data.includes('<!DOCTYPE html>')) {
-      console.warn('Răspuns HTML primit pentru specializări, returnăm array gol');
+      console.warn('HTML response received for specializations, returning empty array');
       return [];
     }
     return Array.isArray(response.data) ? response.data : 
            response.data.data ? response.data.data : [];
   } catch (error) {
-    console.error('Eroare la încărcarea specializărilor:', error);
-    return []; // Returnăm array gol în caz de eroare
+    console.error('Error loading specializations:', error);
+    return []; // Return empty array in case of error
   }
 };
 
-// Funcție pentru încărcarea taxelor de școlarizare pentru un program
+// Function to load tuition fees for a program
 export const getProgramTuitionFees = async (programId) => {
   try {
     const response = await axiosInstance.get(`/api/programs/${programId}/tuition-fees`);
-    // Verificăm dacă răspunsul este HTML și returnăm obiect gol în acest caz
+    // Check if response is HTML and return empty object in this case
     if (typeof response.data === 'string' && response.data.includes('<!DOCTYPE html>')) {
-      console.warn('Răspuns HTML primit pentru taxe, returnăm obiect gol');
+      console.warn('HTML response received for fees, returning empty object');
       return { amount: null, currency: 'MDL' };
     }
     return response.data.data || response.data || { amount: null, currency: 'MDL' };
   } catch (error) {
-    console.error('Eroare la încărcarea taxelor de școlarizare:', error);
-    return { amount: null, currency: 'MDL' }; // Returnăm obiect gol în caz de eroare
+    console.error('Error loading tuition fees:', error);
+    return { amount: null, currency: 'MDL' }; // Return empty object in case of error
   }
 };
 
-// Funcție pentru încărcarea tuturor universităților
+// Function to load all universities
 export const getAllUniversities = async () => {
   try {
-    console.log('=== Începe încărcarea universităților ===');
+    console.log('=== Starting universities loading ===');
     const response = await axiosInstance.get('/api/universities');
-    console.log('Răspuns brut de la server:', response.data);
+    console.log('Raw server response:', response.data);
     
     if (!response.data) {
-      console.error('Răspuns fără date');
-      throw new Error('Nu s-au primit date de la server');
+      console.error('Response without data');
+      throw new Error('No data received from server');
     }
 
-    // Verificăm dacă răspunsul are formatul corect
+    // Check if response has correct format
     if (!response.data.success) {
-      console.error('Răspuns fără succes:', response.data);
-      throw new Error(response.data.message || 'Eroare la preluarea universităților');
+      console.error('Unsuccessful response:', response.data);
+      throw new Error(response.data.message || 'Error fetching universities');
     }
 
-    // Extragem datele din răspuns
+    // Extract data from response
     const universitiesData = response.data.data;
 
-    // Verificăm dacă datele sunt un array
+    // Check if data is an array
     if (!Array.isArray(universitiesData)) {
-      console.error('Datele nu sunt un array:', universitiesData);
-      throw new Error('Format invalid al datelor primite');
+      console.error('Data is not an array:', universitiesData);
+      throw new Error('Invalid data format received');
     }
 
-    // Procesăm datele pentru a ne asigura că au formatul corect
+    // Process data to ensure correct format
     const processedData = universitiesData.map(uni => {
-      console.log('Procesare universitate:', uni);
+      console.log('Processing university:', uni);
       
-      // Convertim taxele la numere
+      // Convert fees to numbers
       const tuitionFees = uni.tuition_fees || {};
       const processedFees = {
         bachelor: tuitionFees.bachelor ? parseFloat(tuitionFees.bachelor) : null,
@@ -254,11 +254,11 @@ export const getAllUniversities = async () => {
       };
     });
 
-    console.log('Toate universitățile procesate:', processedData);
+    console.log('All universities processed:', processedData);
     return processedData;
   } catch (error) {
-    console.error('Eroare la încărcarea universităților:', error);
-    throw new Error(error.response?.data?.message || 'Eroare la încărcarea universităților');
+    console.error('Error loading universities:', error);
+    throw new Error(error.response?.data?.message || 'Error loading universities');
   }
 };
 
@@ -268,13 +268,13 @@ const universityService = {
       const response = await axiosInstance.get(`/api/universities/${id}`);
       
       if (!response.data || !response.data.success) {
-        throw new Error(response.data?.message || 'Nu am putut încărca datele universității');
+        throw new Error(response.data?.message || 'Could not load university data');
       }
       
       return response.data.data;
     } catch (error) {
-      console.error('Eroare la obținerea universității:', error);
-      throw new Error(error.response?.data?.message || 'Nu am putut încărca datele universității');
+      console.error('Error getting university:', error);
+      throw new Error(error.response?.data?.message || 'Could not load university data');
     }
   },
 
@@ -283,13 +283,13 @@ const universityService = {
       const response = await axiosInstance.post('/api/universities', universityData);
       
       if (!response.data || !response.data.success) {
-        throw new Error(response.data?.message || 'Nu am putut crea universitatea');
+        throw new Error(response.data?.message || 'Could not create university');
       }
       
       return response.data.data;
     } catch (error) {
-      console.error('Eroare la crearea universității:', error);
-      throw new Error(error.response?.data?.message || 'Nu am putut crea universitatea');
+      console.error('Error creating university:', error);
+      throw new Error(error.response?.data?.message || 'Could not create university');
     }
   },
 
@@ -298,13 +298,13 @@ const universityService = {
       const response = await axiosInstance.put(`/api/universities/${id}`, universityData);
       
       if (!response.data || !response.data.success) {
-        throw new Error(response.data?.message || 'Nu am putut actualiza universitatea');
+        throw new Error(response.data?.message || 'Could not update university');
       }
       
       return response.data.data;
     } catch (error) {
-      console.error('Eroare la actualizarea universității:', error);
-      throw new Error(error.response?.data?.message || 'Nu am putut actualiza universitatea');
+      console.error('Error updating university:', error);
+      throw new Error(error.response?.data?.message || 'Could not update university');
     }
   },
 
@@ -313,13 +313,13 @@ const universityService = {
       const response = await axiosInstance.delete(`/api/universities/${id}`);
       
       if (!response.data || !response.data.success) {
-        throw new Error(response.data?.message || 'Nu am putut șterge universitatea');
+        throw new Error(response.data?.message || 'Could not delete university');
       }
       
       return response.data.data;
     } catch (error) {
-      console.error('Eroare la ștergerea universității:', error);
-      throw new Error(error.response?.data?.message || 'Nu am putut șterge universitatea');
+      console.error('Error deleting university:', error);
+      throw new Error(error.response?.data?.message || 'Could not delete university');
     }
   }
 };
