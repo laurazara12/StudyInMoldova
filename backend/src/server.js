@@ -18,7 +18,7 @@ const universitiesRouter = require('./routes/universities');
 const programsRouter = require('./routes/programRoutes');
 const authRouter = require('./routes/auth');
 const documentsRouter = require('./routes/documents');
-const notificationRoutes = require('./routes/notificationRoutes');
+const notificationsRouter = require('./routes/notifications');
 const savedProgramRoutes = require('./routes/savedProgramRoutes');
 const applicationsRouter = require('./routes/applications');
 const helpYouChooseRoutes = require('./routes/helpYouChooseRoutes');
@@ -28,6 +28,8 @@ const { wss, authenticateWebSocket } = require('./websocket/notificationSocket')
 const WebSocket = require('ws');
 const jwt = require('jsonwebtoken');
 const userRoutes = require('./routes/userRoutes');
+const authRoutes = require('./routes/auth');
+const documentRoutes = require('./routes/documents');
 
 const app = express();
 const server = http.createServer(app);
@@ -60,12 +62,12 @@ if (!fs.existsSync(uploadsDir)) {
 }
 
 // Configure API routes in the correct order
+app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/auth', authRouter);
-app.use('/api/notifications', notificationRoutes);
+app.use('/api/documents', documentRoutes);
+app.use('/api/notifications', notificationsRouter);
 app.use('/api/universities', universitiesRouter);
 app.use('/api/programs', programsRouter);
-app.use('/api/documents', documentsRouter);
 app.use('/api/saved-programs', savedProgramRoutes);
 app.use('/api/applications', upload.none(), applicationsRouter);
 app.use('/api/help-you-choose', helpYouChooseRoutes);
@@ -149,8 +151,9 @@ app.use((req, res) => {
 // Handle WebSocket upgrade
 server.on('upgrade', async (request, socket, head) => {
   try {
-    // Extract token from authorization header
-    const token = request.headers['sec-websocket-protocol']?.split(',')[0]?.trim();
+    // Extract token from protocol
+    const protocols = request.headers['sec-websocket-protocol'];
+    const token = protocols ? protocols.split(',')[0].trim() : null;
     
     if (!token) {
       console.error('Missing token for WebSocket');

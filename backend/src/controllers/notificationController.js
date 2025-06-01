@@ -10,6 +10,7 @@ const DEFAULT_MESSAGES = {
   [NOTIFICATION_TYPES.DOCUMENT_APPROVED]: 'Your document has been approved',
   [NOTIFICATION_TYPES.DOCUMENT_UPDATED]: 'Your document has been updated',
   [NOTIFICATION_TYPES.DOCUMENT_EXPIRED]: 'Your document has expired',
+  [NOTIFICATION_TYPES.DOCUMENT_UPLOADED]: 'Your document has been uploaded successfully',
   [NOTIFICATION_TYPES.NEW_DOCUMENT]: 'A new document has been uploaded',
   [NOTIFICATION_TYPES.NEW_APPLICATION]: 'A new application has been submitted',
   [NOTIFICATION_TYPES.APPLICATION_STATUS_CHANGED]: 'Your application status has been updated',
@@ -164,6 +165,8 @@ const getNotificationTitle = (type) => {
       return 'Document updated';
     case NOTIFICATION_TYPES.DOCUMENT_EXPIRED:
       return 'Document expired';
+    case NOTIFICATION_TYPES.DOCUMENT_UPLOADED:
+      return 'Document uploaded';
     case NOTIFICATION_TYPES.NEW_DOCUMENT:
       return 'New document';
     case NOTIFICATION_TYPES.NEW_APPLICATION:
@@ -282,12 +285,15 @@ const getUserNotifications = async (userId, userRole) => {
       id: notification.id,
       user_id: notification.user_id,
       type: notification.type,
+      title: notification.title || getNotificationTitle(notification.type),
       message: notification.message,
       admin_message: notification.admin_message,
       is_read: notification.is_read,
       is_admin_notification: notification.is_admin_notification,
       priority: notification.priority,
       expires_at: notification.expires_at,
+      created_at: notification.createdAt,
+      updated_at: notification.updatedAt,
       document: notification.document ? {
         id: notification.document.id,
         type: notification.document.document_type,
@@ -296,7 +302,11 @@ const getUserNotifications = async (userId, userRole) => {
       } : null
     }));
 
-    return formattedNotifications;
+    return {
+      success: true,
+      data: formattedNotifications,
+      total: formattedNotifications.length
+    };
   } catch (error) {
     console.error('Error getting notifications:', error);
     throw error;
@@ -576,6 +586,48 @@ const VALID_NOTIFICATION_TYPES = [
   NOTIFICATION_TYPES.APPLICATION_WITHDRAWN
 ];
 
+// Create test notifications
+const createTestNotifications = async (userId) => {
+  try {
+    const notifications = [
+      {
+        type: NOTIFICATION_TYPES.NEW_DOCUMENT,
+        message: 'Un document nou a fost încărcat',
+        priority: 'medium'
+      },
+      {
+        type: NOTIFICATION_TYPES.DOCUMENT_APPROVED,
+        message: 'Documentul dumneavoastră a fost aprobat',
+        priority: 'high'
+      },
+      {
+        type: NOTIFICATION_TYPES.ADMIN_ACTION_REQUIRED,
+        message: 'Acțiune administrativă necesară',
+        priority: 'high'
+      }
+    ];
+
+    for (const notification of notifications) {
+      await Notification.create({
+        user_id: userId,
+        type: notification.type,
+        title: getNotificationTitle(notification.type),
+        message: notification.message,
+        is_read: false,
+        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+        priority: notification.priority,
+        is_admin_notification: notification.type.includes('ADMIN_')
+      });
+    }
+
+    console.log('Test notifications created successfully');
+    return true;
+  } catch (error) {
+    console.error('Error creating test notifications:', error);
+    return false;
+  }
+};
+
 module.exports = {
   createNotification,
   createUserNotification,
@@ -587,5 +639,6 @@ module.exports = {
   NOTIFICATION_TYPES,
   VALID_NOTIFICATION_TYPES,
   getAllNotifications,
-  getNotificationById
+  getNotificationById,
+  createTestNotifications
 }; 

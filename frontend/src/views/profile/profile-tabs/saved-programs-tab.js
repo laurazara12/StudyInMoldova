@@ -13,7 +13,7 @@ const SavedProgramsTab = ({ userData }) => {
   const [programToDelete, setProgramToDelete] = useState(null);
 
   useEffect(() => {
-    if (userData) {
+    if (userData) {<button class="remove-button">Elimină</button>
       fetchSavedPrograms();
     }
   }, [userData]);
@@ -109,7 +109,7 @@ const SavedProgramsTab = ({ userData }) => {
               <div className="program-header">
                 <h3>{program.name || 'N/A'}</h3>
                 <button
-                  className="remove-button"
+                  className="btn1"
                   onClick={() => handleRemoveSavedProgram(program.id)}
                 >
                   Elimină

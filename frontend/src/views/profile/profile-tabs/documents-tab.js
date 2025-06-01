@@ -70,7 +70,6 @@ const DocumentsTab = ({ userData }) => {
         documentsData = response.data.documents;
       }
 
-      // Filter deleted documents and ensure all required properties are present
       const processedDocuments = documentsData
         .filter(doc => doc && doc.status !== 'deleted')
         .map(doc => ({
@@ -95,21 +94,28 @@ const DocumentsTab = ({ userData }) => {
   const handleFileSelect = (docTypeId) => {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = '.pdf,.jpg,.jpeg,.png';
+    input.accept = '.pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx';
     
     input.onchange = (e) => {
       const file = e.target.files[0];
       if (file) {
-        // Check file size (10MB)
         if (file.size > 10 * 1024 * 1024) {
           toast.error('File is too large. Maximum allowed size is 10MB.');
           return;
         }
 
-        // Check file type
-        const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+        const allowedTypes = [
+          'application/pdf',
+          'image/jpeg',
+          'image/jpg',
+          'image/png',
+          'application/msword',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'application/vnd.ms-excel',
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        ];
         if (!allowedTypes.includes(file.type)) {
-          toast.error('Unsupported file type. Only PDF, JPG, JPEG and PNG files are accepted.');
+          toast.error('Unsupported file type. Only PDF, JPG, JPEG, PNG, DOC, DOCX, XLS and XLSX files are accepted.');
           return;
         }
         
@@ -191,7 +197,7 @@ const DocumentsTab = ({ userData }) => {
           }
         }));
 
-        // Reload all documents to ensure we have the latest data
+
         await fetchDocuments();
 
         toast.success('Document uploaded successfully');

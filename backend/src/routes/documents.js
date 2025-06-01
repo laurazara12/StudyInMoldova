@@ -60,8 +60,9 @@ const errorHandler = (err, req, res, next) => {
 // Middleware pentru validarea documentelor
 const validateDocument = async (req, res, next) => {
   try {
-    console.log('Validare document - Request body:', JSON.stringify(req.body, null, 2));
-    console.log('Validare document - Request file:', req.file ? {
+    console.log('=== Începe validarea documentului ===');
+    console.log('Request body:', JSON.stringify(req.body, null, 2));
+    console.log('Request file:', req.file ? {
       originalname: req.file.originalname,
       mimetype: req.file.mimetype,
       size: req.file.size,
@@ -69,6 +70,7 @@ const validateDocument = async (req, res, next) => {
     } : 'Nu există fișier');
     
     const { document_type } = req.body;
+    console.log('Tip document:', document_type);
     
     if (!document_type) {
       console.error('Tipul documentului lipsește din request body');
@@ -89,6 +91,8 @@ const validateDocument = async (req, res, next) => {
     }
 
     const validTypes = ['passport', 'diploma', 'transcript', 'cv', 'other', 'photo', 'medical', 'insurance'];
+    console.log('Tip document valid:', validTypes.includes(document_type));
+    
     if (!validTypes.includes(document_type)) {
       console.error('Tip de document invalid:', document_type);
       return res.status(400).json({
@@ -99,6 +103,7 @@ const validateDocument = async (req, res, next) => {
     }
 
     // Verifică dimensiunea fișierului
+    console.log('Dimensiune fișier:', req.file.size);
     if (req.file.size > 10 * 1024 * 1024) { // 10MB
       console.error('Fișier prea mare:', req.file.size);
       return res.status(400).json({
@@ -119,6 +124,11 @@ const validateDocument = async (req, res, next) => {
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     ];
 
+    console.log('Verificare tip fișier:', {
+      mimetype: req.file.mimetype,
+      isAllowed: allowedMimeTypes.includes(req.file.mimetype)
+    });
+
     if (!allowedMimeTypes.includes(req.file.mimetype)) {
       console.error('Tip de fișier neacceptat:', req.file.mimetype);
       return res.status(400).json({
@@ -136,10 +146,22 @@ const validateDocument = async (req, res, next) => {
         size: req.file.size
       }
     });
+    console.log('=== Validare document finalizată cu succes ===');
 
     next();
   } catch (error) {
-    console.error('Eroare la validarea documentului:', error);
+    console.error('=== Eroare la validarea documentului ===');
+    console.error('Detalii eroare:', {
+      message: error.message,
+      stack: error.stack,
+      document_type: req.body?.document_type,
+      file: req.file ? {
+        originalname: req.file.originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size
+      } : 'Nu există fișier'
+    });
+    
     // Dacă există un fișier încărcat și apare o eroare, îl ștergem
     if (req.file && fs.existsSync(req.file.path)) {
       try {
@@ -678,12 +700,49 @@ router.post('/upload',
       });
 
       if (existingDocument) {
-        // Șterge fișierul vechi
-        const oldFilePath = path.join(uploadsDir, existingDocument.file_path);
-        if (fs.existsSync(oldFilePath)) {
-          fs.unlinkSync(oldFilePath);
+        try {
+          // Șterge fișierul vechi
+          const oldFilePath = path.join(uploadsDir, existingDocument.file_path);
+          if (fs.existsSync(oldFilePath)) {
+            fs.unlinkSync(oldFilePath);
+          }
+          
+          // Actualizează documentul existent în loc să-l ștergem
+          await existingDocument.update({
+            file_path: path.join(req.user.id.toString(), req.file.filename),
+            filename: req.file.filename,
+            originalName: req.file.originalname,
+            status: 'pending',
+            uploaded: true,
+            uploadDate: new Date()
+          });
+
+          // Adăugăm notificare pentru actualizarea documentului
+          await createNotification(
+            req.user.id,
+            NOTIFICATION_TYPES.DOCUMENT_UPDATED,
+            `Documentul dumneavoastră de tip ${documentType} a fost actualizat`,
+            existingDocument.id
+          );
+
+          return res.status(200).json({
+            success: true,
+            message: 'Document actualizat cu succes',
+            document: {
+              id: existingDocument.id,
+              document_type: existingDocument.document_type,
+              status: existingDocument.status,
+              uploaded: existingDocument.uploaded,
+              uploadDate: existingDocument.uploadDate
+            }
+          });
+        } catch (error) {
+          console.error('Eroare la actualizarea documentului existent:', error);
+          if (fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+          }
+          throw error;
         }
-        await existingDocument.destroy();
       }
 
       // Creează documentul nou
@@ -699,10 +758,10 @@ router.post('/upload',
       });
 
       // Adăugăm notificare pentru încărcarea documentului
-      await createDocumentNotification(
+      await createNotification(
         req.user.id,
-        NOTIFICATION_TYPES.DOCUMENT_UPLOADED,
-        documentType,
+        NOTIFICATION_TYPES.NEW_DOCUMENT,
+        `Documentul dumneavoastră de tip ${documentType} a fost încărcat cu succes`,
         document.id
       );
 

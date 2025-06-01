@@ -29,7 +29,7 @@ function Notifications() {
     }
 
     try {
-      const wsUrl = `${process.env.REACT_APP_WS_URL || 'ws://localhost:4000/ws'}`;
+      const wsUrl = `${process.env.REACT_APP_WS_URL || 'ws://localhost:4000'}`;
       const socket = new WebSocket(wsUrl, [token]);
 
       socket.onopen = () => {
@@ -61,15 +61,15 @@ function Notifications() {
         toast.error('Error connecting to notification server');
       };
 
-      socket.onclose = () => {
-        console.log('WebSocket connection closed');
+      socket.onclose = (event) => {
+        console.log('WebSocket connection closed:', event.code, event.reason);
         setWsConnected(false);
         
-        if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+        if (event.code !== 1000 && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
           setTimeout(() => {
             setReconnectAttempts(prev => prev + 1);
             connectWebSocket();
-          }, 5000);
+          }, 5000 * (reconnectAttempts + 1)); // Exponential backoff
         }
       };
 

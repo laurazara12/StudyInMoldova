@@ -25,6 +25,7 @@ module.exports = (sequelize) => {
           'document_rejected',
           'document_updated',
           'document_expired',
+          'document_uploaded',
           'deadline',
           'team',
           'new_user',

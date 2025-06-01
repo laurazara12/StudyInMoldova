@@ -40,21 +40,6 @@
   margin: 0;
 }
 
-.remove-button {
-  background: #e74c3c;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-}
-
-.remove-button:hover {
-  background: #c0392b;
-}
-
 .program-details {
   display: flex;
   flex-direction: column;

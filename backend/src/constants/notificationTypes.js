@@ -5,6 +5,7 @@ const NOTIFICATION_TYPES = {
   DOCUMENT_UPDATED: 'document_updated',
   DOCUMENT_EXPIRED: 'document_expired',
   NEW_DOCUMENT: 'new_document',
+  DOCUMENT_UPLOADED: 'document_uploaded',
   NEW_APPLICATION: 'new_application',
   APPLICATION_STATUS_CHANGED: 'application_status_changed',
   APPLICATION_WITHDRAWN: 'application_withdrawn',
