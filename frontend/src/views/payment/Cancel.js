@@ -11,10 +11,10 @@ const Cancel = () => {
       <h2>Payment Cancelled</h2>
       <p>The payment has been cancelled. You can try again whenever you want.</p>
       <div className="button-group">
-        <button onClick={() => navigate('/profile')} className="btn-secondary">
+        <button onClick={() => navigate('/profile')} className="btn2">
           Back to Profile
         </button>
-        <button onClick={() => navigate('/application')} className="btn-primary">
+        <button onClick={() => navigate('/application')} className="btn1">
           Try Again
         </button>
       </div>

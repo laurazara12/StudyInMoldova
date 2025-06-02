@@ -13,7 +13,7 @@ const SavedProgramsTab = ({ userData }) => {
   const [programToDelete, setProgramToDelete] = useState(null);
 
   useEffect(() => {
-    if (userData) {<button class="remove-button">Elimină</button>
+    if (userData) {
       fetchSavedPrograms();
     }
   }, [userData]);
@@ -27,7 +27,7 @@ const SavedProgramsTab = ({ userData }) => {
         headers: getAuthHeaders()
       });
       
-      console.log('Răspuns programe salvate:', response.data);
+      console.log('Saved programs response:', response.data);
       
       if (response.data?.data) {
         setSavedPrograms(response.data.data);
@@ -35,7 +35,7 @@ const SavedProgramsTab = ({ userData }) => {
         setSavedPrograms([]);
       }
     } catch (error) {
-      console.error('Eroare la preluarea programelor salvate:', error);
+      console.error('Error fetching saved programs:', error);
       
       if (error.response?.status === 401) {
         navigate('/sign-in');
@@ -66,12 +66,12 @@ const SavedProgramsTab = ({ userData }) => {
         setSavedPrograms(prev => prev.filter(p => p.id !== programToDelete));
         setNotification({
           type: 'success',
-          message: 'Programul a fost eliminat cu succes!'
+          message: 'Your document has been successfully uploaded'
         });
       }
     } catch (error) {
-      console.error('Eroare la eliminarea programului:', error);
-      setError('A apărut o eroare la eliminarea programului. Vă rugăm să încercați din nou.');
+      console.error('Error removing program:', error);
+      setError('An error occurred while removing the program. Please try again.');
     } finally {
       setShowDeleteConfirmation(false);
       setProgramToDelete(null);
@@ -86,7 +86,7 @@ const SavedProgramsTab = ({ userData }) => {
   if (loading) {
     return (
       <div className="saved-programs-section">
-        <div className="loading">Se încarcă programele salvate...</div>
+        <div className="loading">Loading saved programs...</div>
       </div>
     );
   }
@@ -101,7 +101,7 @@ const SavedProgramsTab = ({ userData }) => {
 
   return (
     <div className="saved-programs-section">
-      <h2>Programe Salvate</h2>
+      <h2>Saved Programs</h2>
       {savedPrograms.length > 0 ? (
         <div className="programs-grid">
           {savedPrograms.map((program) => (
@@ -112,44 +112,44 @@ const SavedProgramsTab = ({ userData }) => {
                   className="btn1"
                   onClick={() => handleRemoveSavedProgram(program.id)}
                 >
-                  Elimină
+                  Remove
                 </button>
               </div>
               <div className="program-details">
-                <p><strong>Universitate:</strong> {program.university?.name || 'N/A'}</p>
-                <p><strong>Facultate:</strong> {program.faculty || 'N/A'}</p>
-                <p><strong>Grad:</strong> {program.degree_type || program.degree || 'N/A'}</p>
-                <p><strong>Credite:</strong> {program.credits || 'N/A'}</p>
-                <p><strong>Limbă:</strong> {program.language || 'N/A'}</p>
-                <p><strong>Durată:</strong> {program.duration ? `${program.duration} ani` : 'N/A'}</p>
-                <p><strong>Taxă de școlarizare:</strong> {program.tuition_fees ? `${program.tuition_fees} EUR` : 'N/A'}</p>
+                <p><strong>University:</strong> {program.university?.name || 'N/A'}</p>
+                <p><strong>Faculty:</strong> {program.faculty || 'N/A'}</p>
+                <p><strong>Degree:</strong> {program.degree_type || program.degree || 'N/A'}</p>
+                <p><strong>Credits:</strong> {program.credits || 'N/A'}</p>
+                <p><strong>Language:</strong> {program.language || 'N/A'}</p>
+                <p><strong>Duration:</strong> {program.duration ? `${program.duration} years` : 'N/A'}</p>
+                <p><strong>Tuition Fee:</strong> {program.tuition_fees ? `${program.tuition_fees} EUR` : 'N/A'}</p>
               </div>
             </div>
           ))}
         </div>
       ) : (
         <div className="no-programs-message">
-          <p>Nu aveți programe salvate.</p>
+          <p>You don't have any saved programs.</p>
         </div>
       )}
 
       {showDeleteConfirmation && (
         <div className="confirmation-modal">
           <div className="confirmation-content">
-            <h3>Confirmare ștergere</h3>
-            <p>Ești sigur că vrei să elimini acest program din lista ta?</p>
-            <div className="confirmation-buttons">
+            <h3>Delete Confirmation</h3>
+            <p>Are you sure you want to remove this program from your list?</p>
+            <div style={{ gap: '10px', display: 'flex' }}>
               <button 
-                className="btn btn-secondary" 
+                className="btn2" 
                 onClick={cancelDeleteProgram}
               >
-                Anulează
+                Cancel
               </button>
               <button 
-                className="btn btn-primary" 
+                className="btn1" 
                 onClick={confirmDeleteProgram}
               >
-                Elimină
+                Remove
               </button>
             </div>
           </div>

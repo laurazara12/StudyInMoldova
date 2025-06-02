@@ -60,19 +60,22 @@ const ApplicationsTab = () => {
         throw new Error('Invalid data format received: data is not an array');
       }
 
-      console.log('Processed applications:', applicationsData);
-      setApplications(applicationsData);
-      setFilteredApplications(applicationsData);
+      // Filtrează doar aplicațiile plătite
+      const paidApplications = applicationsData.filter(app => app.is_paid === true);
+      console.log('Processed paid applications:', paidApplications);
+      setApplications(paidApplications);
+      setFilteredApplications(paidApplications);
 
-      // Actualizăm statisticile
-      if (response.data.status) {
-        setStatistics({
-          totalApplications: response.data.total || applicationsData.length,
-          pendingApplications: response.data.status.pending || 0,
-          approvedApplications: response.data.status.sent || 0,
-          rejectedApplications: response.data.status.rejected || 0
-        });
-      }
+      // Actualizăm statisticile doar pentru aplicațiile plătite
+      const stats = {
+        totalApplications: paidApplications.length,
+        pendingApplications: paidApplications.filter(app => app.status === 'pending').length,
+        approvedApplications: paidApplications.filter(app => app.status === 'approved').length,
+        rejectedApplications: paidApplications.filter(app => app.status === 'rejected').length,
+        underReviewApplications: paidApplications.filter(app => app.status === 'under_review').length
+      };
+
+      setStatistics(stats);
 
     } catch (error) {
       console.error('Error loading applications:', error);
@@ -185,7 +188,7 @@ const ApplicationsTab = () => {
             <input
               type="text"
               className="search-input"
-              placeholder="Search by user name or program..."
+              placeholder="Caută după nume utilizator sau program..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -200,15 +203,15 @@ const ApplicationsTab = () => {
               onChange={(e) => setFilterApplicationStatus(e.target.value)}
               className="filter-select"
             >
-              <option value="all">All statuses</option>
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-              <option value="under_review">Under Review</option>
+              <option value="all">Toate statusurile</option>
+              <option value="pending">În așteptare</option>
+              <option value="approved">Aprobate</option>
+              <option value="rejected">Respinse</option>
+              <option value="under_review">În revizuire</option>
             </select>
           </div>
           <div className="filter-group">
-            <label>Date:</label>
+            <label>Data:</label>
             <div className="date-range-inputs">
               <input 
                 type="date" 
@@ -216,7 +219,7 @@ const ApplicationsTab = () => {
                 value={filterApplicationDateRange?.start || ''} 
                 onChange={e => setFilterApplicationDateRange({...filterApplicationDateRange, start: e.target.value})} 
               />
-              <span>to</span>
+              <span>până la</span>
               <input 
                 type="date" 
                 className="date-input" 
@@ -234,13 +237,13 @@ const ApplicationsTab = () => {
               setFilteredApplications(applications);
             }}
           >
-            Reset Filters
+            Resetează filtrele
           </button>
           <button 
             className="search-button"
             onClick={handleSearch}
           >
-            Search
+            Caută
           </button>
         </div>
       </div>
@@ -260,7 +263,7 @@ const ApplicationsTab = () => {
       {loading ? (
         <div className="loading-container">
           <div className="loading-spinner"></div>
-          <p>Loading applications...</p>
+          <p>Se încarcă aplicațiile...</p>
         </div>
       ) : (
         <div className="applications-table-container">
@@ -268,12 +271,12 @@ const ApplicationsTab = () => {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>User</th>
+                <th>Utilizator</th>
                 <th>Program</th>
-                <th>University</th>
-                <th>Application Date</th>
+                <th>Universitate</th>
+                <th>Data aplicării</th>
                 <th>Status</th>
-                <th>Actions</th>
+                <th>Acțiuni</th>
               </tr>
             </thead>
             <tbody>
@@ -281,18 +284,18 @@ const ApplicationsTab = () => {
                 <tr key={app.id}>
                   <td>{app.id}</td>
                   <td>
-                    <span className="user-name">{app.user_name || `User ID: ${app.user_id}`}</span>
+                    <span className="user-name">{app.user_name || `ID Utilizator: ${app.user_id}`}</span>
                   </td>
                   <td>{app.program?.name || 'N/A'}</td>
                   <td>{app.program?.university?.name || 'N/A'}</td>
                   <td>{formatDate(app.created_at)}</td>
                   <td>
                     <span className={`status-badge status-${app.status}`}>
-                      {app.status === 'pending' ? 'Pending' :
-                       app.status === 'approved' ? 'Approved' :
-                       app.status === 'rejected' ? 'Rejected' :
-                       app.status === 'under_review' ? 'Under Review' :
-                       app.status === 'withdrawn' ? 'Withdrawn' :
+                      {app.status === 'pending' ? 'În așteptare' :
+                       app.status === 'approved' ? 'Aprobată' :
+                       app.status === 'rejected' ? 'Respinsă' :
+                       app.status === 'under_review' ? 'În revizuire' :
+                       app.status === 'withdrawn' ? 'Retrasă' :
                        app.status.charAt(0).toUpperCase() + app.status.slice(1)}
                     </span>
                   </td>
@@ -302,13 +305,13 @@ const ApplicationsTab = () => {
                         className="btn1"
                         onClick={() => handleViewApplication(app)}
                       >
-                        <i className="fas fa-eye"></i> View
+                        <i className="fas fa-eye"></i> Vizualizare
                       </button>
                       <button 
                         className="btn-grey"
                         onClick={() => handleEditApplication(app)}
                       >
-                        <i className="fas fa-edit"></i> Edit
+                        <i className="fas fa-edit"></i> Editare
                       </button>
                     </div>
                   </td>

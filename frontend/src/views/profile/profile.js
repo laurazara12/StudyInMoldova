@@ -102,7 +102,6 @@ const EditProfileForm = ({ formData, handleChange, handleSubmit, loading, onClos
             name="full_name"
             value={formData.full_name}
             onChange={handleChange}
-            required
           />
         </div>
         <div className="form-group">

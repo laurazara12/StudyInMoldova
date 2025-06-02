@@ -188,20 +188,24 @@ const UsersTab = () => {
 
   const handleDeleteUser = async (userId) => {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/api/users/${userId}`, {
+      const response = await axios.delete(`${API_BASE_URL}/api/auth/users/${userId}`, {
         headers: getAuthHeaders()
       });
 
-      if (response.data.success) {
-        await loadUsers();
-        setSuccessMessage('User was successfully deleted!');
+      // Verificăm dacă răspunsul este de succes (200 sau 204)
+      if (response.status === 200 || response.status === 204) {
+        // Actualizăm lista de utilizatori
+        setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
+        setFilteredUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
+        setSuccessMessage('Utilizatorul a fost șters cu succes!');
+        setDeleteConfirmation(null);
         setTimeout(() => setSuccessMessage(''), 3000);
       } else {
-        throw new Error(response.data.message || 'Error deleting user');
+        throw new Error(response.data?.message || 'Eroare la ștergerea utilizatorului');
       }
     } catch (error) {
-      console.error('Error deleting user:', error);
-      setError('An error occurred while deleting the user. Please try again.');
+      console.error('Eroare la ștergerea utilizatorului:', error);
+      setError('A apărut o eroare la ștergerea utilizatorului. Vă rugăm să încercați din nou.');
       setTimeout(() => setError(null), 5000);
     }
   };

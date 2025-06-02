@@ -116,7 +116,7 @@ const DocumentsTab = () => {
           filename: document.filename,
           originalName: document.originalName,
           user_id: document.user_id,
-          admin_message: 'Documentul dumneavoastră a fost aprobat de administrator.'
+          admin_message: 'Your document has been approved by the administrator.'
         },
         { headers: getAuthHeaders() }
       );
@@ -172,7 +172,7 @@ const DocumentsTab = () => {
           filename: document.filename,
           originalName: document.originalName,
           user_id: document.user_id,
-          admin_message: 'Documentul dumneavoastră a fost respins de administrator.'
+          admin_message: 'Your document has been rejected by the administrator.'
         },
         { headers: getAuthHeaders() }
       );

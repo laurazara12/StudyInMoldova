@@ -12,13 +12,13 @@ const ApplicationTab = () => {
   const [showApplicationDetails, setShowApplicationDetails] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [programs, setPrograms] = useState([]);
-  const [userRole, setUserRole] = useState('user'); // 'user' sau 'admin'
-  const [userDocuments, setUserDocuments] = useState([]); // Lista documentelor utilizatorului
+  const [userRole, setUserRole] = useState('user'); // 'user' or 'admin'
+  const [userDocuments, setUserDocuments] = useState([]); // List of user documents
   const [newApplication, setNewApplication] = useState({
     program_id: '',
     motivation_letter: '',
-    selectedDocuments: [], // Documente selectate din lista existentă
-    is_paid: false, // Starea plății
+    selectedDocuments: [], // Documents selected from existing list
+    is_paid: false, // Payment status
     errors: {
       program: '',
       documents: '',
@@ -33,7 +33,7 @@ const ApplicationTab = () => {
     loadPrograms();
     checkUserRole();
     loadUserDocuments();
-    loadSavedPrograms(); // Adăugăm încărcarea programelor salvate
+    loadSavedPrograms(); // Add loading of saved programs
   }, []);
 
   const checkUserRole = async () => {
@@ -45,7 +45,7 @@ const ApplicationTab = () => {
         setUserRole('admin');
       }
     } catch (error) {
-      console.error('Eroare la verificarea rolului:', error);
+      console.error('Error checking role:', error);
     }
   };
 
@@ -58,7 +58,7 @@ const ApplicationTab = () => {
         setPrograms(response.data.data);
       }
     } catch (error) {
-      console.error('Eroare la încărcarea programelor:', error);
+      console.error('Error loading programs:', error);
     }
   };
 
@@ -74,31 +74,35 @@ const ApplicationTab = () => {
       });
 
       if (!response.data || !response.data.success) {
-        throw new Error('Nu s-au primit date valide de la server');
+        throw new Error('No valid data received from server');
       }
 
       const applicationsData = response.data.data;
       
       if (!Array.isArray(applicationsData)) {
-        console.error('Date invalide primite:', applicationsData);
-        throw new Error('Format invalid al datelor primite: datele nu sunt un array');
+        console.error('Invalid data received:', applicationsData);
+        throw new Error('Invalid data format: data is not an array');
       }
 
-      // Asigurăm-ne că fiecare aplicație are toate câmpurile necesare
+      // Ensure each application has all required fields
       const processedApplications = applicationsData.map(app => ({
         ...app,
         documents: app.documents || [],
         program: app.program || {},
         created_at: app.created_at || new Date().toISOString(),
         status: app.status || 'draft',
-        is_paid: app.is_paid || false
+        is_paid: app.payment_status === 'paid' || app.is_paid || false,
+        payment_status: app.payment_status || 'unpaid',
+        payment_date: app.payment_date || null,
+        payment_amount: app.payment_amount || null,
+        payment_currency: app.payment_currency || null
       }));
 
-      console.log('Aplicații procesate:', processedApplications);
+      console.log('Processed applications:', processedApplications);
       setApplications(processedApplications);
     } catch (error) {
-      console.error('Eroare la încărcarea aplicațiilor:', error);
-      setError('A apărut o eroare la încărcarea aplicațiilor. Vă rugăm să încercați din nou.');
+      console.error('Error loading applications:', error);
+      setError('An error occurred while loading applications. Please try again.');
       setApplications([]);
     } finally {
       setLoading(false);
@@ -114,7 +118,7 @@ const ApplicationTab = () => {
         setUserDocuments(response.data.data);
       }
     } catch (error) {
-      console.error('Eroare la încărcarea documentelor:', error);
+      console.error('Error loading documents:', error);
     }
   };
 
@@ -127,7 +131,7 @@ const ApplicationTab = () => {
         setSavedPrograms(response.data.data);
       }
     } catch (error) {
-      console.error('Eroare la încărcarea programelor salvate:', error);
+      console.error('Error loading saved programs:', error);
     }
   };
 
@@ -167,9 +171,30 @@ const ApplicationTab = () => {
   };
 
   const handleSubmitApplication = async (applicationId) => {
+    console.log('Starting submission for application:', applicationId);
     const application = applications.find(app => app.id === applicationId);
     
-    if (!validateForSubmission(application)) {
+    if (!application) {
+      console.error('Application not found:', applicationId);
+      setError('Application not found');
+      return;
+    }
+
+    console.log('Found application:', application);
+
+    if (!application.is_paid) {
+      console.error('Application not paid:', application);
+      setError('You cannot submit the application without paying the application fee. Please make the payment first.');
+      return;
+    }
+
+    if (!application.program_id || !application.motivation_letter || !application.documents || application.documents.length === 0) {
+      console.error('Missing required fields:', {
+        program_id: application.program_id,
+        has_motivation_letter: !!application.motivation_letter,
+        documents_count: application.documents?.length
+      });
+      setError('Please make sure all required fields are filled and documents are attached before submitting.');
       return;
     }
 
@@ -177,20 +202,27 @@ const ApplicationTab = () => {
       setLoading(true);
       setError(null);
 
-      const response = await axios.patch(
+      console.log('Sending submission request to:', `${API_BASE_URL}/api/applications/${applicationId}/status`);
+      
+      const response = await axios.put(
         `${API_BASE_URL}/api/applications/${applicationId}/status`,
         {
-          status: 'submitted'
+          status: 'submitted',
+          notes: 'Application submitted by user'
         },
         {
-          headers: getAuthHeaders()
+          headers: {
+            ...getAuthHeaders(),
+            'Content-Type': 'application/json'
+          }
         }
       );
+
+      console.log('Submission response:', response.data);
 
       if (response.data.success) {
         setSuccessMessage('Application submitted successfully!');
         setShowApplicationDetails(false);
-        setSelectedApplication(null);
         await loadUserApplications();
       } else {
         throw new Error(response.data.message || 'Error submitting application');
@@ -259,18 +291,18 @@ const ApplicationTab = () => {
     }
   };
 
-  // Modificăm useEffect-ul pentru a gestiona selecția documentelor
+  // Modify useEffect to handle document selection
   useEffect(() => {
     if (showCreateForm && selectedApplication) {
-      console.log('Formular deschis cu datele:', {
+      console.log('Form opened with data:', {
         selectedApplication,
         newApplication
       });
 
-      // Selectăm automat documentele existente
+      // Automatically select existing documents
       if (selectedApplication.documents && selectedApplication.documents.length > 0) {
         const documentIds = selectedApplication.documents.map(doc => doc.id);
-        console.log('Documente existente pentru selecție:', documentIds);
+        console.log('Existing documents for selection:', documentIds);
         
         setNewApplication(prev => ({
           ...prev,
@@ -291,23 +323,10 @@ const ApplicationTab = () => {
       setLoading(true);
       setError(null);
 
-      if (!selectedApplication) {
-        const existingApplication = applications.find(app => 
-          app.program_id === parseInt(newApplication.program_id)
-        );
-
-        if (existingApplication) {
-          setError(`You already have an application for this program (${existingApplication.program?.name}). You can edit the existing one.`);
-          setLoading(false);
-          return;
-        }
-      }
-
       const applicationData = {
         program_id: newApplication.program_id ? parseInt(newApplication.program_id) : selectedApplication?.program_id,
         motivation_letter: newApplication.motivation_letter || selectedApplication?.motivation_letter || '',
-        status: selectedApplication?.status || 'draft',
-        application_date: selectedApplication?.created_at || new Date().toISOString(),
+        status: 'draft',
         document_ids: newApplication.selectedDocuments.length > 0 
           ? newApplication.selectedDocuments.map(id => parseInt(id))
           : selectedApplication?.documents?.map(doc => parseInt(doc.id)) || [],
@@ -363,17 +382,13 @@ const ApplicationTab = () => {
       }
     } catch (error) {
       console.error('Error:', error);
-      if (error.response?.data?.message?.includes('already exists')) {
-        setError('You already have an application for this program. Please edit the existing one.');
-      } else {
-        setError(error.response?.data?.message || (selectedApplication ? 'An error occurred while updating the application' : 'An error occurred while creating the application'));
-      }
+      setError(error.response?.data?.message || (selectedApplication ? 'An error occurred while updating the application' : 'An error occurred while creating the application'));
     } finally {
       setLoading(false);
     }
   };
 
-  // Modificăm și partea de render pentru documente
+  // Modify the render part for documents
   const renderDocumentsSection = () => (
     <div className="form-group">
       <label>Required Documents: <span className="required">*</span></label>
@@ -418,7 +433,7 @@ const ApplicationTab = () => {
     </div>
   );
 
-  // Modificăm funcția toggleDocumentSelection pentru a adăuga log-uri
+  // Modify toggleDocumentSelection function to add logs
   const toggleDocumentSelection = (docId) => {
     console.log('Toggle document:', docId);
     setNewApplication(prev => {
@@ -442,8 +457,19 @@ const ApplicationTab = () => {
 
   const handleUpdateApplicationStatus = async (applicationId, newStatus, adminNotes = '') => {
     try {
+      // Check if application ID is valid
+      if (!applicationId || isNaN(parseInt(applicationId))) {
+        throw new Error('Invalid application ID');
+      }
+
       setLoading(true);
       setError(null);
+
+      console.log('Starting status update:', {
+        applicationId,
+        newStatus,
+        adminNotes
+      });
 
       const response = await axios.patch(
         `${API_BASE_URL}/api/applications/${applicationId}/status`,
@@ -452,21 +478,40 @@ const ApplicationTab = () => {
           notes: adminNotes
         },
         {
-          headers: getAuthHeaders()
+          headers: {
+            ...getAuthHeaders(),
+            'Content-Type': 'application/json'
+          }
         }
       );
 
-      if (response.data.success) {
+      console.log('Server response:', response.data);
+
+      if (response.data && response.data.success) {
         setSuccessMessage('Application status updated successfully!');
         setShowApplicationDetails(false);
         setSelectedApplication(null);
         await loadUserApplications();
       } else {
-        throw new Error(response.data.message || 'Error updating status');
+        throw new Error(response.data?.message || 'Error updating status');
       }
     } catch (error) {
       console.error('Error updating status:', error);
-      setError(error.response?.data?.message || 'An error occurred while updating the status');
+      
+      // Check error type and display specific message
+      if (error.response) {
+        if (error.response.status === 404) {
+          setError('Application not found. Please refresh the page.');
+        } else if (error.response.status === 403) {
+          setError('You do not have permission to update this application.');
+        } else {
+          setError(error.response.data?.message || 'An error occurred while updating the application status.');
+        }
+      } else if (error.request) {
+        setError('Could not communicate with the server. Please check your internet connection.');
+      } else {
+        setError(error.message || 'An unexpected error occurred.');
+      }
     } finally {
       setLoading(false);
     }
@@ -589,24 +634,30 @@ const ApplicationTab = () => {
       setLoading(true);
       setError(null);
 
-      const response = await axios.delete(
+      const deleteResponse = await axios.delete(
         `${API_BASE_URL}/api/applications/${applicationId}`,
         {
           headers: getAuthHeaders()
         }
       );
 
-      if (response.data.success) {
+      if (deleteResponse.data.success) {
         setSuccessMessage('Application deleted successfully!');
         setShowApplicationDetails(false);
         setSelectedApplication(null);
         await loadUserApplications();
       } else {
-        throw new Error(response.data.message || 'Error deleting application');
+        throw new Error(deleteResponse.data.message || 'Error deleting application');
       }
     } catch (error) {
       console.error('Error deleting application:', error);
-      setError(error.response?.data?.message || 'An error occurred while deleting the application');
+      if (error.response?.status === 404) {
+        setError('Application not found. It may have been already deleted.');
+      } else if (error.response?.status === 500) {
+        setError('This application cannot be deleted because it has associated records (documents, payments, etc.). Please withdraw the application instead.');
+      } else {
+        setError(error.response?.data?.message || 'An error occurred while deleting the application');
+      }
     } finally {
       setLoading(false);
     }
@@ -626,12 +677,9 @@ const ApplicationTab = () => {
       setLoading(true);
       setError(null);
 
-      const response = await axios.patch(
-        `${API_BASE_URL}/api/applications/${applicationId}/status`,
-        {
-          status: 'withdrawn',
-          notes: 'Application withdrawn by user'
-        },
+      const response = await axios.put(
+        `${API_BASE_URL}/api/applications/${applicationId}/withdraw`,
+        {},
         {
           headers: getAuthHeaders()
         }
@@ -668,31 +716,33 @@ const ApplicationTab = () => {
       setLoading(true);
       setError(null);
 
-      let paymentData = {};
-
-      if (selectedApplication) {
-        paymentData = {
-          program_id: parseInt(selectedApplication.program_id),
-          motivation_letter: selectedApplication.motivation_letter || '',
-          document_ids: selectedApplication.documents?.map(doc => parseInt(doc.id)) || []
-        };
-      } else {
-        paymentData = {
-          program_id: newApplication.program_id ? parseInt(newApplication.program_id) : null,
-          motivation_letter: newApplication.motivation_letter || '',
-          document_ids: newApplication.selectedDocuments.map(id => parseInt(id))
-        };
+      // Check if we have a selected application
+      if (!selectedApplication) {
+        throw new Error('Please select an application before proceeding with payment');
       }
 
-      if (!paymentData.program_id) {
-        throw new Error('Program is required');
+      // Check if application exists and is not already paid
+      if (selectedApplication.is_paid) {
+        throw new Error('This application has already been paid');
       }
 
-      if (!paymentData.motivation_letter) {
-        throw new Error('Motivation letter is required');
+      console.log('Starting payment process for application:', selectedApplication.id);
+
+      // Find selected program from programs list
+      const selectedProgram = programs.find(p => p.id === selectedApplication.program_id);
+      if (!selectedProgram) {
+        throw new Error('Selected program not found');
       }
 
-      console.log('Payment data sent:', paymentData);
+      const paymentData = {
+        application_id: selectedApplication.id,
+        program_id: selectedApplication.program_id,
+        amount: selectedProgram.tuition_fees,
+        motivation_letter: selectedApplication.motivation_letter || '',
+        document_ids: selectedApplication.documents?.map(doc => doc.id) || []
+      };
+
+      console.log('Payment data:', paymentData);
 
       const response = await axios.post(
         `${API_BASE_URL}/api/payments/create-checkout-session`,
@@ -705,12 +755,26 @@ const ApplicationTab = () => {
         }
       );
 
-      if (response.data.success) {
-        localStorage.setItem('currentPaymentSession', response.data.session_id);
-        window.location.href = response.data.url;
-      } else {
+      console.log('Server response for payment session:', response.data);
+
+      if (!response.data) {
+        throw new Error('No response received from server');
+      }
+
+      if (!response.data.success) {
         throw new Error(response.data.message || 'Error creating payment session');
       }
+
+      if (!response.data.url) {
+        throw new Error('Payment URL missing from server response');
+      }
+
+      // Save payment session ID and application ID
+      localStorage.setItem('currentPaymentSession', response.data.session_id);
+      localStorage.setItem('paymentApplicationId', selectedApplication.id);
+      
+      console.log('Redirecting to payment page:', response.data.url);
+      window.location.href = response.data.url;
     } catch (error) {
       console.error('Error processing payment:', error);
       setError(error.response?.data?.message || error.message || 'An error occurred while processing the payment');
@@ -719,17 +783,74 @@ const ApplicationTab = () => {
     }
   };
 
-  // Verificăm dacă avem un parametru de plată în URL
+  // Modify effect for processing payment platform response
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const paymentStatus = urlParams.get('payment');
     
     if (paymentStatus === 'success') {
-      setSuccessMessage('Payment processed successfully!');
-      // Reîncărcăm aplicațiile pentru a actualiza starea plății
-      loadUserApplications();
+      const applicationId = localStorage.getItem('paymentApplicationId');
+      if (applicationId) {
+        const processPaymentSuccess = async () => {
+          try {
+            // Validate ID
+            if (!applicationId || isNaN(parseInt(applicationId))) {
+              throw new Error('Invalid application ID');
+            }
+
+            // Check current application status
+            const response = await axios.get(
+              `${API_BASE_URL}/api/applications/${applicationId}`,
+              {
+                headers: getAuthHeaders()
+              }
+            );
+
+            if (!response.data || !response.data.success) {
+              throw new Error('Could not verify application status');
+            }
+
+            const application = response.data.data;
+            
+            // Check if application is already paid
+            if (application.is_paid) {
+              setSuccessMessage('Payment has already been processed successfully!');
+            } else {
+              setSuccessMessage('Payment processed successfully!');
+            }
+
+            // Clear localStorage and URL
+            localStorage.removeItem('paymentApplicationId');
+            localStorage.removeItem('currentPaymentSession');
+            window.history.replaceState({}, document.title, window.location.pathname);
+            
+            // Reload applications to reflect new state
+            await loadUserApplications();
+            
+            // Close details modal if open
+            setShowApplicationDetails(false);
+            setSelectedApplication(null);
+
+          } catch (error) {
+            console.error('Error processing payment:', error);
+            setError('An error occurred while verifying payment status. Please contact support.');
+          }
+        };
+        
+        processPaymentSuccess();
+      }
     } else if (paymentStatus === 'canceled') {
-      setError('Plata a fost anulată. Puteți încerca din nou.');
+      const applicationId = localStorage.getItem('paymentApplicationId');
+      if (applicationId) {
+        console.log('Payment canceled for application:', applicationId);
+        
+        // Clear localStorage and URL
+        localStorage.removeItem('paymentApplicationId');
+        localStorage.removeItem('currentPaymentSession');
+        window.history.replaceState({}, document.title, window.location.pathname);
+        
+        setError('Payment was canceled. You can try again.');
+      }
     }
   }, []);
 
@@ -741,6 +862,7 @@ const ApplicationTab = () => {
           <button 
             className="btn1"
             onClick={() => setShowCreateForm(true)}
+            style={{ margin: '20px 0' }}
           >
             <i className="fas fa-plus"></i> Create New Application
           </button>
@@ -825,24 +947,20 @@ const ApplicationTab = () => {
                   </td>
                   <td>
                     <span className={`payment-status ${app.is_paid ? 'paid' : 'unpaid'}`}>
-                      {app.is_paid ? (
-                        <i className="fas fa-check-circle"></i>
-                      ) : (
-                        <i className="fas fa-times-circle"></i>
-                      )}
                       {app.is_paid ? 'Paid' : 'Unpaid'}
                     </span>
                   </td>
                   <td>
                     <button 
-                      className="btn-view"
+                      className="btn2"
                       onClick={() => handleViewApplication(app)}
+                      style={{ marginRight: '10px' }}
                     >
                       <i className="fas fa-eye"></i> View
                     </button>
                     {canEditApplication(app) && (
                       <button 
-                        className="btn-edit"
+                        className="btn1"
                         onClick={() => handleEditApplication(app)}
                       >
                         <i className="fas fa-edit"></i> Edit
@@ -916,29 +1034,6 @@ const ApplicationTab = () => {
 
               {renderDocumentsSection()}
 
-              <div className="form-group">
-                <label>Application Payment:</label>
-                <div className="payment-section">
-                  {newApplication.is_paid ? (
-                    <div className="payment-status success">
-                      <i className="fas fa-check-circle"></i> Payment completed
-                    </div>
-                  ) : (
-                    <div className="payment-status">
-                      <p>Application fee: 100 MDL</p>
-                      <button
-                        type="button"
-                        className="btn-pay"
-                        onClick={handlePayment}
-                        disabled={loading}
-                      >
-                        <i className="fas fa-credit-card"></i> Pay now
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-
               <div className="form-info">
                 <p><span className="required">*</span> Required fields</p>
               </div>
@@ -946,14 +1041,14 @@ const ApplicationTab = () => {
               <div className="button-group">
                 <button 
                   type="submit" 
-                  className="btn-submit"
+                  className="btn1"
                 >
                   {selectedApplication ? 'Update Application' : 'Save Application'}
                 </button>
-                {selectedApplication && selectedApplication.status === 'draft' && selectedApplication.is_paid && (
+                {selectedApplication && selectedApplication.status === 'draft' && (
                   <button
                     type="button"
-                    className="btn-submit-application"
+                    className="btn1"
                     onClick={() => {
                       if (!selectedApplication.is_paid) {
                         setError('You need to pay the application fee to submit the application');
@@ -961,7 +1056,14 @@ const ApplicationTab = () => {
                       }
                       handleSubmitApplication(selectedApplication.id);
                     }}
-                    disabled={!selectedApplication.program_id || !selectedApplication.motivation_letter || !selectedApplication.documents || selectedApplication.documents.length === 0}
+                    disabled={
+                      !selectedApplication.program_id || 
+                      !selectedApplication.motivation_letter || 
+                      !selectedApplication.documents || 
+                      selectedApplication.documents.length === 0 ||
+                      !selectedApplication.is_paid ||
+                      loading
+                    }
                   >
                     <i className="fas fa-paper-plane"></i> Submit Application
                     {!selectedApplication.is_paid && (
@@ -971,7 +1073,7 @@ const ApplicationTab = () => {
                 )}
                 <button
                   type="button"
-                  className="btn-cancel"
+                  className="btn2"
                   onClick={() => {
                     setShowCreateForm(false);
                     setNewApplication({
@@ -1011,29 +1113,22 @@ const ApplicationTab = () => {
               <p>
                 <strong>Payment Status:</strong>
                 <span className={`payment-status ${selectedApplication.is_paid ? 'paid' : 'unpaid'}`}>
-                  {selectedApplication.is_paid ? (
-                    <i className="fas fa-check-circle"></i>
-                  ) : (
-                    <i className="fas fa-times-circle"></i>
-                  )}
                   {selectedApplication.is_paid ? 'Paid' : 'Unpaid'}
                 </span>
               </p>
               
-              {selectedApplication.motivation_letter && (
-                <div className="motivation-letter-section">
-                  <h3>Motivation Letter</h3>
-                  <div className="motivation-letter-content">
-                    <p>{selectedApplication.motivation_letter}</p>
-                  </div>
+              <div className="motivation-letter-section">
+                <h3>Motivation Letter</h3>
+                <div className="motivation-letter-content">
+                  <p>{selectedApplication.motivation_letter || 'No motivation letter provided'}</p>
                 </div>
-              )}
+              </div>
 
-              {selectedApplication.documents && selectedApplication.documents.length > 0 && (
-                <div className="documents-section">
-                  <h3>Uploaded Documents</h3>
-                  <div className="documents-list">
-                    {selectedApplication.documents.map((doc, index) => (
+              <div className="documents-section">
+                <h3>Attached Documents</h3>
+                <div className="documents-list">
+                  {selectedApplication.documents && selectedApplication.documents.length > 0 ? (
+                    selectedApplication.documents.map((doc, index) => (
                       <div key={index} className="document-item">
                         <div className="document-info">
                           <span className="document-type">
@@ -1049,17 +1144,19 @@ const ApplicationTab = () => {
                             href={doc.url} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="btn-view-document"
+                            className="btn2"
                           >
                             <i className="fas fa-eye"></i> View
                           </a>
                           <span className="document-name">{doc.originalName || doc.filename}</span>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    ))
+                  ) : (
+                    <p className="no-documents">No documents attached</p>
+                  )}
                 </div>
-              )}
+              </div>
 
               {selectedApplication.notes && (
                 <div className="admin-notes">
@@ -1073,7 +1170,7 @@ const ApplicationTab = () => {
               <div className="action-buttons">
                 {!selectedApplication.is_paid && canEditApplication(selectedApplication) && (
                   <button
-                    className="btn-pay"
+                    className="btn1"
                     onClick={() => handlePayment()}
                     disabled={loading}
                   >
@@ -1083,7 +1180,7 @@ const ApplicationTab = () => {
                 
                 {canDeleteApplication(selectedApplication) && (
                   <button
-                    className="btn-delete"
+                    className="btn2"
                     onClick={() => handleDeleteApplication(selectedApplication.id)}
                   >
                     <i className="fas fa-trash"></i> Delete Application
@@ -1092,7 +1189,7 @@ const ApplicationTab = () => {
                 
                 {canEditApplication(selectedApplication) && (
                   <button
-                    className="btn-edit"
+                    className="btn1"
                     onClick={() => handleEditApplication(selectedApplication)}
                   >
                     <i className="fas fa-edit"></i> Edit Application
@@ -1101,7 +1198,7 @@ const ApplicationTab = () => {
 
                 {selectedApplication.status === 'draft' && (
                   <button
-                    className="btn-submit-application"
+                    className="btn1"
                     onClick={() => {
                       if (!selectedApplication.is_paid) {
                         setError('You need to pay the application fee to submit the application');
@@ -1109,7 +1206,14 @@ const ApplicationTab = () => {
                       }
                       handleSubmitApplication(selectedApplication.id);
                     }}
-                    disabled={!selectedApplication.program_id || !selectedApplication.motivation_letter || !selectedApplication.documents || selectedApplication.documents.length === 0}
+                    disabled={
+                      !selectedApplication.program_id || 
+                      !selectedApplication.motivation_letter || 
+                      !selectedApplication.documents || 
+                      selectedApplication.documents.length === 0 ||
+                      !selectedApplication.is_paid ||
+                      loading
+                    }
                   >
                     <i className="fas fa-paper-plane"></i> Submit Application
                     {!selectedApplication.is_paid && (
@@ -1120,7 +1224,7 @@ const ApplicationTab = () => {
                 
                 {canWithdrawApplication(selectedApplication) && (
                   <button
-                    className="btn-withdraw"
+                    className="btn2"
                     onClick={() => handleWithdrawApplication(selectedApplication.id)}
                   >
                     <i className="fas fa-undo"></i> Withdraw Application
@@ -1146,7 +1250,7 @@ const ApplicationTab = () => {
                   </div>
                   <div className="button-group">
                     <button
-                      className="btn-approve"
+                      className="btn1"
                       onClick={() => handleUpdateApplicationStatus(
                         selectedApplication.id,
                         'approved',
@@ -1156,7 +1260,7 @@ const ApplicationTab = () => {
                       Approve
                     </button>
                     <button
-                      className="btn-reject"
+                      className="btn2"
                       onClick={() => handleUpdateApplicationStatus(
                         selectedApplication.id,
                         'rejected',
@@ -1166,7 +1270,7 @@ const ApplicationTab = () => {
                       Reject
                     </button>
                     <button
-                      className="btn-review"
+                      className="btn2"
                       onClick={() => handleUpdateApplicationStatus(
                         selectedApplication.id,
                         'under_review',
@@ -1186,7 +1290,7 @@ const ApplicationTab = () => {
                 setSelectedApplication(null);
               }}
             >
-              Close
+              <i className="fas fa-times"></i>
             </button>
           </div>
         </div>

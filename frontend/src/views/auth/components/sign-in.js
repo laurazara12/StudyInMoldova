@@ -9,7 +9,6 @@ import { getCloudinaryImageUrl } from '../../../config/cloudinary'
 
 const SignIn = (props) => {
   const [email, setEmail] = useState(() => {
-    // Try to retrieve saved email from localStorage
     return localStorage.getItem('lastEmail') || '';
   });
   const [password, setPassword] = useState('');

@@ -15,75 +15,6 @@
   border-bottom: 2px solid #eee;
 }
 
-/* Butoane */
-.btn-create {
-  background-color: #28a745;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: background-color 0.3s;
-}
-
-.btn-create:hover {
-  background-color: #218838;
-}
-
-.btn-view {
-  background-color: #17a2b8;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: background-color 0.3s;
-}
-
-.btn-view:hover {
-  background-color: #138496;
-}
-
-.btn-delete {
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: background-color 0.3s;
-}
-
-.btn-delete:hover {
-  background-color: #c82333;
-}
-
-.btn-withdraw {
-  background-color: #ffc107;
-  color: #212529;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: background-color 0.3s;
-}
-
-.btn-withdraw:hover {
-  background-color: #e0a800;
-}
-
 /* Tabel */
 .applications-table-container {
   background-color: white;
@@ -119,43 +50,45 @@
   padding: 4px 8px;
   border-radius: 12px;
   font-size: var(--dl-font-size-small);
-  font-weight: 500;
+  font-weight: 400;
   display: inline-block;
+  text-align: center;
+  min-width: 100px;
 }
 
 .status-draft {
-  background-color: #6c757d;
-  color: white;
+  background-color: #f3f4f6;
+  color: #4b5563;
 }
 
 .status-submitted {
-  background-color: #17a2b8;
-  color: white;
+  background-color: #e6f4ea;
+  color: #1e7e34;
 }
 
 .status-under-review {
-  background-color: #ffc107;
-  color: #212529;
+  background-color: #fef3c7;
+  color: #92400e;
 }
 
 .status-approved {
-  background-color: #28a745;
-  color: white;
+  background-color: #dcfce7;
+  color: #166534;
 }
 
 .status-rejected {
-  background-color: #dc3545;
-  color: white;
+  background-color: #fee2e2;
+  color: #991b1b;
 }
 
 .status-withdrawn {
-  background-color: #6c757d;
-  color: white;
+  background-color: #f3f4f6;
+  color: #4b5563;
 }
 
 .status-unknown {
-  background-color: #6c757d;
-  color: white;
+  background-color: #f3f4f6;
+  color: #4b5563;
 }
 
 /* Modal */
@@ -677,7 +610,7 @@
   align-items: center;
   gap: 5px;
   padding: 4px 8px;
-  border-radius: 4px;
+  border-radius: 20px;
   font-size: 0.9em;
 }
 
@@ -716,71 +649,6 @@
 
 .btn-pay i {
   font-size: 1.1em;
-}
-
-/* Stiluri pentru butoanele de acțiune */
-.action-buttons {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 20px;
-}
-
-.action-buttons button {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: 4px;
-  border: none;
-  cursor: pointer;
-  font-size: 0.9em;
-  transition: all 0.3s;
-}
-
-.action-buttons button i {
-  font-size: 1.1em;
-}
-
-.btn-edit {
-  background-color: #2196f3;
-  color: white;
-}
-
-.btn-edit:hover {
-  background-color: #1976d2;
-}
-
-.btn-submit {
-  background-color: #4caf50;
-  color: white;
-}
-
-.btn-submit:hover {
-  background-color: #388e3c;
-}
-
-.btn-submit:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-
-.btn-withdraw {
-  background-color: #ff9800;
-  color: white;
-}
-
-.btn-withdraw:hover {
-  background-color: #f57c00;
-}
-
-.btn-delete {
-  background-color: #f44336;
-  color: white;
-}
-
-.btn-delete:hover {
-  background-color: #d32f2f;
 }
 
 /* Stiluri pentru tabel */

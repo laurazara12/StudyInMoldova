@@ -231,10 +231,10 @@ const UniversityPresentation = ({ university }) => {
           </div>
         </div>
         <div className="university-actions">
-          <button onClick={handleViewDetails} className="btn btn-secondary btn-small">
+          <button onClick={handleViewDetails} className="btn1">
             View Details
           </button>
-          <a href={`mailto:${university.contactEmail || ''}`} className="btn btn-primary btn-small">
+          <a href={`mailto:${university.contactEmail || ''}`} className="btn2">
             Contact University
           </a>
         </div>

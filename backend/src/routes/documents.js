@@ -721,7 +721,7 @@ router.post('/upload',
           await createNotification(
             req.user.id,
             NOTIFICATION_TYPES.DOCUMENT_UPDATED,
-            `Documentul dumneavoastră de tip ${documentType} a fost actualizat`,
+            `Your ${documentType} document has been updated`,
             existingDocument.id
           );
 
@@ -761,7 +761,7 @@ router.post('/upload',
       await createNotification(
         req.user.id,
         NOTIFICATION_TYPES.DOCUMENT_UPLOADED,
-        `Documentul dumneavoastră de tip ${documentType} a fost încărcat cu succes`,
+        `Your ${documentType} document has been successfully uploaded`,
         document.id
       );
 
@@ -1327,11 +1327,11 @@ router.post('/cleanup', auth, async (req, res) => {
 async function createDocumentNotification(userId, type, documentType, documentId, additionalInfo = {}) {
   try {
     const messages = {
-      [NOTIFICATION_TYPES.DOCUMENT_UPDATED]: `Documentul dumneavoastră de tip ${documentType} a fost actualizat`,
-      [NOTIFICATION_TYPES.DOCUMENT_DELETED]: `Documentul dumneavoastră de tip ${documentType} a fost șters`,
-      [NOTIFICATION_TYPES.DOCUMENT_UPLOADED]: `Documentul dumneavoastră de tip ${documentType} a fost încărcat cu succes`,
-      [NOTIFICATION_TYPES.DOCUMENT_APPROVED]: `Documentul dumneavoastră de tip ${documentType} a fost aprobat`,
-      [NOTIFICATION_TYPES.DOCUMENT_REJECTED]: `Documentul dumneavoastră de tip ${documentType} a fost respins`
+      [NOTIFICATION_TYPES.DOCUMENT_UPDATED]: `Your ${documentType} document has been updated`,
+      [NOTIFICATION_TYPES.DOCUMENT_DELETED]: `Your ${documentType} document has been deleted`,
+      [NOTIFICATION_TYPES.DOCUMENT_UPLOADED]: `Your ${documentType} document has been successfully uploaded`,
+      [NOTIFICATION_TYPES.DOCUMENT_APPROVED]: `Your ${documentType} document has been approved`,
+      [NOTIFICATION_TYPES.DOCUMENT_REJECTED]: `Your ${documentType} document has been rejected`
     };
 
     const message = additionalInfo.customMessage || messages[type];

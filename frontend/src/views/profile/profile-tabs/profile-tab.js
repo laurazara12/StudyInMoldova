@@ -314,7 +314,7 @@ const ProfileTab = ({ userData, onProfileUpdate }) => {
       ...prev,
       [name]: value
     }));
-    // Ștergem eroarea pentru câmpul modificat
+    
     if (formErrors[name]) {
       setFormErrors(prev => ({
         ...prev,

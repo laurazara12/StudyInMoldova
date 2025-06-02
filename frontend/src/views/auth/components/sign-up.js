@@ -29,6 +29,11 @@ const SignUp = (props) => {
       return;
     }
 
+    if (password.length < 6) {
+      setErrorMessage('Password must be at least 6 characters long.');
+      return;
+    }
+
     try {
       const response = await fetch('http://localhost:4000/api/auth/register', {
         method: 'POST',
@@ -38,8 +43,7 @@ const SignUp = (props) => {
         body: JSON.stringify({
           name,
           email,
-          password,
-          termsAccepted
+          password
         }),
       });
 
@@ -48,12 +52,22 @@ const SignUp = (props) => {
       if (response.ok && data.success) {
         setSuccessMessage('Registration successful!');
         setErrorMessage('');
-        navigate('/sign-in');
+        // Clear form
+        setName('');
+        setEmail('');
+        setPassword('');
+        setConfirmPassword('');
+        setTermsAccepted(false);
+        // Redirect to sign in page after 2 seconds
+        setTimeout(() => {
+          navigate('/sign-in');
+        }, 2000);
       } else {
         setErrorMessage(data.message || 'An error occurred during registration.');
         setSuccessMessage('');
       }
     } catch (error) {
+      console.error('Registration error:', error);
       setErrorMessage('Network error. Please check your connection and try again.');
       setSuccessMessage('');
     }

@@ -252,8 +252,7 @@ const NotificationsTab = ({ userData }) => {
 
   return (
     <div className="notifications-container">
-      <div className="notifications-header">
-        <h3>Notifications</h3>
+
         <div className="notifications-filters">
           <button 
             className={`tab-button ${filter === 'all' ? 'active' : ''}`}
@@ -292,7 +291,6 @@ const NotificationsTab = ({ userData }) => {
             Expired
           </button>
         </div>
-      </div>
 
       {unreadCount > 0 && (
         <button 
