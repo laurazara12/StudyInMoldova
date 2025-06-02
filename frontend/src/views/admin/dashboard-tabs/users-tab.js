@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { getAuthHeaders, API_BASE_URL } from '../../../config/api.config';
 import axios from 'axios';
-import DeleteDocumentModal from '../../../components/DeleteDocumentModal';
+import DeleteDocumentModal from './components/DeleteDocumentModal';
 
 const UsersTab = () => {
   const [users, setUsers] = useState([]);

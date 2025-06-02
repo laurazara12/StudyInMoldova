@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { API_BASE_URL, getAuthHeaders, handleApiError } from '../../../config/api.config';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
-import DocumentCounter from '../../../components/document-counter';
+import DocumentCounter from './components/document-counter';
 import './documents-tab.css';
 
 const documentTypes = [

@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import Navbar from '../../components/navbar';
 import Footer from '../../components/footer';
-import FilterSection from '../../components/filter-section';
+import FilterSection from './components/filter-section';
 import UniversityPresentation from './components/university-presentation';
 import { getAllUniversities } from '../../services/universityService';
 import './universities.css';

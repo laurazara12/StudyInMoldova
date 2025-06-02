@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_BASE_URL, getAuthHeaders } from '../../../config/api.config';
-import DeleteDocumentModal from '../../../components/DeleteDocumentModal';
+import DeleteDocumentModal from './components/DeleteDocumentModal';
 import { FaCheckCircle, FaTimesCircle, FaTrash, FaEdit, FaClock, FaUsers, FaUserPlus, FaFileUpload, FaFileAlt, FaShieldAlt } from 'react-icons/fa';
 
 const DocumentsTab = () => {

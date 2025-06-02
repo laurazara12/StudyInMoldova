@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { API_BASE_URL, getAuthHeaders } from '../config/api.config';
+import { API_BASE_URL, getAuthHeaders } from '../../../../config/api.config';
 import './DeleteDocumentModal.css';
 
 const DeleteDocumentModal = ({ isOpen, onClose, document, onDelete }) => {
