@@ -20,10 +20,9 @@ import SignUp from './views/auth/sign-up';
 import Profile from './views/profile/profile';
 import Universities from './views/universities/universities';
 import Programs from './views/programs/programs';
-import LivingInMoldova from './views/living/living-in-moldova';
+import LivingInMoldova from './views/living-in-moldova/living-in-moldova';
 import Blog from './views/blog/blog';
 import BlogPost from './views/blog/BlogPost';
-import NotFound from './views/error/not-found';
 import Dashboard from './views/admin/dashboard';
 import TransportationGuide from './views/living/transportation-guide';
 import ProfileAdmin from './views/admin/profile-admin';
@@ -110,7 +109,7 @@ function App() {
               <Route path="/faq" element={<FAQ />} />
               <Route path="/payment/success" element={<Success />} />
               <Route path="/payment/cancel" element={<Cancel />} />
-              <Route path="*" element={<NotFound />} />
+              <Route path="*" element={<Error404Page />} />
             </Routes>
           </div>
         </NavigationProvider>
