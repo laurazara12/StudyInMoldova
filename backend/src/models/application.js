@@ -35,6 +35,30 @@ module.exports = (sequelize) => {
       type: DataTypes.DATE,
       allowNull: true,
       defaultValue: DataTypes.NOW
+    },
+    payment_status: {
+      type: DataTypes.ENUM('unpaid', 'paid', 'failed'),
+      defaultValue: 'unpaid'
+    },
+    payment_id: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    payment_date: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+    payment_amount: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: true
+    },
+    payment_currency: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    is_paid: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
     }
   }, {
     tableName: 'applications',

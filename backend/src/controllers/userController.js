@@ -79,7 +79,23 @@ const login = async (email, password) => {
 
 const register = async (name, email, password) => {
   try {
-    // Check email format
+    // Basic validations
+    if (!name || !email || !password) {
+      return {
+        success: false,
+        message: 'All fields are required'
+      };
+    }
+
+    // Name validation
+    if (name.trim().length < 2) {
+      return {
+        success: false,
+        message: 'Name must be at least 2 characters long'
+      };
+    }
+
+    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
       return {
@@ -88,7 +104,16 @@ const register = async (name, email, password) => {
       };
     }
 
-    const existingUser = await User.findOne({ where: { email } });
+    // Password validation
+    if (password.length < 6) {
+      return {
+        success: false,
+        message: 'Password must be at least 6 characters long'
+      };
+    }
+
+    // Check if email already exists
+    const existingUser = await User.findOne({ where: { email: email.trim() } });
     
     if (existingUser) {
       return {
@@ -97,15 +122,19 @@ const register = async (name, email, password) => {
       };
     }
 
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
     
+    // Create user
     const user = await User.create({
-      name,
-      email,
+      name: name.trim(),
+      email: email.trim(),
       password: hashedPassword,
-      role: 'user'
+      role: 'user',
+      status: 'active'
     });
 
+    // Generate token
     const token = jwt.sign(
       { id: user.id, role: user.role },
       process.env.JWT_SECRET,
@@ -115,19 +144,20 @@ const register = async (name, email, password) => {
     return {
       success: true,
       message: 'Registration successful',
-      data: {
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role
-        },
-        token
-      }
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role
+      },
+      token
     };
   } catch (error) {
     console.error('Registration error:', error);
-    throw error;
+    return {
+      success: false,
+      message: 'An error occurred during registration'
+    };
   }
 };
 

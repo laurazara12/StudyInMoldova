@@ -1,6 +1,7 @@
 const { Application, Program, User, Document, University, Notification, SavedProgram } = require('../models');
 const { NOTIFICATION_TYPES } = require('../constants/notificationTypes');
 const { Op } = require('sequelize');
+const stripe = require('stripe');
 
 exports.createApplication = async (req, res) => {
   try {
@@ -41,7 +42,10 @@ exports.createApplication = async (req, res) => {
     const existingApplication = await Application.findOne({
       where: {
         user_id: userId,
-        program_id: program_id
+        program_id: program_id,
+        status: {
+          [Op.notIn]: ['withdrawn', 'rejected']
+        }
       }
     });
 
@@ -52,7 +56,7 @@ exports.createApplication = async (req, res) => {
       });
       return res.status(400).json({
         success: false,
-        message: 'You already have an application for this program'
+        message: 'Aveți deja o aplicație activă pentru acest program'
       });
     }
 
@@ -430,22 +434,40 @@ exports.updateApplicationStatus = async (req, res) => {
     if (!application) {
       return res.status(404).json({
         success: false,
-        message: 'Application not found'
+        message: 'Aplicația nu a fost găsită'
       });
     }
 
-    await application.update({ status });
+    // Verificăm dacă se încearcă marcarea aplicației ca "submitted" fără plată
+    if (status === 'submitted') {
+      if (!application.is_paid || application.payment_status !== 'paid') {
+        return res.status(400).json({
+          success: false,
+          message: 'Nu puteți trimite aplicația fără a plăti taxa de aplicare'
+        });
+      }
+    }
+
+    // Actualizăm statusul aplicației
+    await application.update({ 
+      status,
+      // Dacă aplicația este marcată ca "submitted", ne asigurăm că și statusul plății este corect
+      ...(status === 'submitted' && {
+        is_paid: true,
+        payment_status: 'paid'
+      })
+    });
 
     res.json({
       success: true,
-      message: 'Application status updated successfully',
+      message: 'Statusul aplicației a fost actualizat cu succes',
       data: application
     });
   } catch (error) {
-    console.error('Error updating application status:', error);
+    console.error('Eroare la actualizarea statusului aplicației:', error);
     res.status(500).json({
       success: false,
-      message: 'Error updating application status',
+      message: 'Eroare la actualizarea statusului aplicației',
       error: error.message
     });
   }
@@ -491,5 +513,78 @@ exports.deleteApplication = async (req, res) => {
       message: 'Error deleting application',
       error: error.message
     });
+  }
+};
+
+const verifyPayment = async (sessionId) => {
+  try {
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    console.log('Stripe session details:', {
+      id: session.id,
+      payment_status: session.payment_status,
+      payment_intent: session.payment_intent,
+      payment_intent_status: session.payment_intent?.status,
+      metadata: session.metadata,
+      customer: session.customer,
+      amount_total: session.amount_total,
+      currency: session.currency
+    });
+
+    const application = await Application.findByPk(session.metadata.application_id);
+    console.log('Application found:', {
+      id: application.id,
+      status: application.status,
+      payment_status: application.payment_status,
+      payment_id: application.payment_id
+    });
+
+    const paymentVerification = {
+      payment_status: session.payment_status,
+      payment_intent_status: session.payment_intent?.status,
+      session_status: session.status,
+      isPaymentSuccessful: session.payment_status === 'paid' && session.payment_intent?.status === 'succeeded',
+      amount_paid: session.amount_total,
+      currency: session.currency
+    };
+    console.log('Payment verification:', paymentVerification);
+
+    if (paymentVerification.isPaymentSuccessful) {
+      console.log('Payment confirmed in Stripe');
+      
+      // Actualizăm aplicația doar dacă plata a fost confirmată
+      await application.update({
+        status: 'submitted',
+        payment_status: 'paid',
+        payment_id: session.payment_intent
+      });
+
+      const response = {
+        success: true,
+        status: 'paid',
+        message: 'Plata a fost procesată cu succes și aplicația a fost trimisă',
+        application: application,
+        paymentDetails: {
+          amount: session.amount_total / 100,
+          currency: session.currency,
+          payment_date: new Date(),
+          payment_method: 'card',
+          status: session.payment_status,
+          payment_intent_status: session.payment_intent?.status
+        }
+      };
+      console.log('Sending response:', response);
+      return response;
+    } else {
+      console.log('Payment not confirmed in Stripe');
+      return {
+        success: false,
+        status: session.payment_status,
+        message: 'Plata nu a fost confirmată. Vă rugăm să încercați din nou.',
+        application: application
+      };
+    }
+  } catch (error) {
+    console.error('Error verifying payment:', error);
+    throw error;
   }
 }; 

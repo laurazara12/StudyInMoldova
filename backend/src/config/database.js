@@ -152,7 +152,7 @@ async function safeSync(force = false) {
           name: 'Test User',
           email: 'user@example.com',
           password: '123',
-          role: 'student',
+          role: 'user',
           status: 'active'
         });
         console.log('Utilizatorul de test a fost creat');

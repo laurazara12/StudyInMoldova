@@ -91,11 +91,11 @@ const applicationAuth = async (req, res, next) => {
         userRole: req.userRole
       });
 
-      if (req.userRole !== 'admin' && req.userRole !== 'student') {
+      if (req.userRole !== 'admin' && req.userRole !== 'user') {
         console.log('Access denied - invalid role:', req.userRole);
         return res.status(403).json({
           success: false,
-          message: 'Access denied. Administrator or student rights required.'
+          message: 'Access denied. Administrator or user rights required.'
         });
       }
       
@@ -123,7 +123,7 @@ const applicationOwnership = async (req, res, next) => {
       return next();
     }
 
-    // For students, check if the application belongs to them
+    // For users, check if the application belongs to them
     const applicationId = req.params.id;
     const userId = req.userId;
 

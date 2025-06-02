@@ -31,7 +31,7 @@ async function resetTestUser() {
         email: testEmail,
         password: hashedPassword,
         name: 'Test User',
-        role: 'student',
+        role: 'user',
         status: 'active'
       });
       console.log('Utilizatorul de test a fost creat cu succes.');
