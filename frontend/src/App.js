@@ -25,7 +25,6 @@ import Blog from './views/blog/blog';
 import BlogPost from './views/blog/BlogPost';
 import Dashboard from './views/admin/dashboard';
 import TransportationGuide from './views/living/transportation-guide';
-import ProfileAdmin from './views/admin/profile-admin';
 import Error404Page from './views/error/error404-page';
 import UniversityTemplate from './views/universities/university-template';
 import Contact from './views/contact/contact';
@@ -84,21 +83,13 @@ function App() {
               <Route 
                 path="/profile" 
                 element={
-                  <ProtectedRoute>
+                  <PrivateRoute requiredRole="user">
                     <Profile />
-                  </ProtectedRoute>
+                  </PrivateRoute>
                 } 
               />
-              <Route path="/admin-profile" element={
-                <PrivateRoute requiredRole="admin">
-                  <ProfileAdmin />
-                </PrivateRoute>
-              } />
-              <Route path="/dashboard" element={
-                <PrivateRoute requiredRole="admin">
-                  <Dashboard />
-                </PrivateRoute>
-              } />
+              <Route path="/dashboard" element={<PrivateRoute requiredRole="admin"><Dashboard /></PrivateRoute>} />
+              <Route path="/admin/*" element={<PrivateRoute requiredRole="admin"><Dashboard /></PrivateRoute>} />
               <Route path="/living-in-moldova/transportation-guide" element={<TransportationGuide />} />
               <Route path="/error404-page" element={<Error404Page />} />
               <Route path="/contact" element={<Contact />} />

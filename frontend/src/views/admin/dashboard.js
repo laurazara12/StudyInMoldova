@@ -12,7 +12,6 @@ import NotificationsTab from './dashboard-tabs/notifications-tab';
 import './dashboard.css';
 import '../../style.css';
 import { API_BASE_URL, getAuthHeaders, handleApiError } from '../../config/api.config';
-import { FaBell } from 'react-icons/fa';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState(() => {
@@ -72,7 +71,7 @@ const Dashboard = () => {
                   className={`tab-button ${activeTab === 'notifications' ? 'active' : ''}`}
                   onClick={() => handleTabChange('notifications')}
                 >
-                  <FaBell /> Notifications
+                  Notifications
                 </button>
               </nav>
             </div>

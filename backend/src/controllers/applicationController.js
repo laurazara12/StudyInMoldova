@@ -56,7 +56,7 @@ exports.createApplication = async (req, res) => {
       });
       return res.status(400).json({
         success: false,
-        message: 'Aveți deja o aplicație activă pentru acest program'
+        message: 'You already have an active application for this program'
       });
     }
 
@@ -434,7 +434,7 @@ exports.updateApplicationStatus = async (req, res) => {
     if (!application) {
       return res.status(404).json({
         success: false,
-        message: 'Aplicația nu a fost găsită'
+        message: 'Application not found'
       });
     }
 
@@ -443,7 +443,7 @@ exports.updateApplicationStatus = async (req, res) => {
       if (!application.is_paid || application.payment_status !== 'paid') {
         return res.status(400).json({
           success: false,
-          message: 'Nu puteți trimite aplicația fără a plăti taxa de aplicare'
+          message: 'You cannot submit the application without paying the application fee'
         });
       }
     }
@@ -460,14 +460,14 @@ exports.updateApplicationStatus = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Statusul aplicației a fost actualizat cu succes',
+      message: 'Application status has been successfully updated',
       data: application
     });
   } catch (error) {
-    console.error('Eroare la actualizarea statusului aplicației:', error);
+    console.error('Error updating application status:', error);
     res.status(500).json({
       success: false,
-      message: 'Eroare la actualizarea statusului aplicației',
+      message: 'Error updating application status',
       error: error.message
     });
   }
@@ -561,7 +561,7 @@ const verifyPayment = async (sessionId) => {
       const response = {
         success: true,
         status: 'paid',
-        message: 'Plata a fost procesată cu succes și aplicația a fost trimisă',
+        message: 'Payment has been processed successfully and the application has been submitted',
         application: application,
         paymentDetails: {
           amount: session.amount_total / 100,
@@ -579,7 +579,7 @@ const verifyPayment = async (sessionId) => {
       return {
         success: false,
         status: session.payment_status,
-        message: 'Plata nu a fost confirmată. Vă rugăm să încercați din nou.',
+        message: 'Payment was not confirmed. Please try again.',
         application: application
       };
     }

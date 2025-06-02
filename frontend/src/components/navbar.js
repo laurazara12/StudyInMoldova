@@ -3,45 +3,14 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import './navbar.css'
 import { useAuth } from '../contexts/AuthContext'
-import { FaBell } from 'react-icons/fa'
 import { API_BASE_URL, getAuthHeaders } from '../config/api.config'
 
 const Navbar = (props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, user, logout } = useAuth();
-
-  useEffect(() => {
-    if (isAuthenticated && user && user.role === 'admin') {
-      const fetchNotifications = async () => {
-        try {
-          const response = await fetch(`${API_BASE_URL}/api/notifications`, {
-            headers: getAuthHeaders()
-          });
-          if (response.ok) {
-            const data = await response.json();
-            if (Array.isArray(data)) {
-              const unread = data.filter(n => !n.is_read && n.is_admin_notification).length;
-              setUnreadNotifications(unread);
-            } else {
-              console.error('Format invalid al datelor primite:', data);
-              setUnreadNotifications(0);
-            }
-          }
-        } catch (error) {
-          console.error('Eroare la încărcarea notificărilor:', error);
-          setUnreadNotifications(0);
-        }
-      };
-
-      fetchNotifications();
-      const interval = setInterval(fetchNotifications, 30000);
-      return () => clearInterval(interval);
-    }
-  }, [isAuthenticated, user]);
 
   const handleLogout = () => {
     setShowLogoutConfirm(true);
@@ -101,11 +70,6 @@ const Navbar = (props) => {
                     <button className="navbar-login1 button">
                       <Link to="/dashboard" className={`navbar-navlink1 ${location.pathname === '/dashboard' ? 'active' : ''}`}>
                         Dashboard
-                      </Link>
-                    </button>
-                    <button className="navbar-login1 button">
-                      <Link to="/admin-profile" className={`navbar-navlink1 ${location.pathname === '/admin-profile' ? 'active' : ''}`}>
-                        Admin Profile
                       </Link>
                     </button>
                   </>
@@ -172,12 +136,6 @@ const Navbar = (props) => {
                 <Link to="/admin/users" className="navbar-text21" onClick={toggleMenu}>Users</Link>
                 <Link to="/admin/documents" className="navbar-text22" onClick={toggleMenu}>Documents</Link>
                 <Link to="/admin/applications" className="navbar-text23" onClick={toggleMenu}>Applications</Link>
-                <Link to="/admin/notifications" className="navbar-text24" onClick={toggleMenu}>
-                  <FaBell />
-                  {unreadNotifications > 0 && (
-                    <span className="notification-badge">{unreadNotifications}</span>
-                  )}
-                </Link>
               </>
             )}
           </nav>
@@ -189,11 +147,6 @@ const Navbar = (props) => {
                     <button className="navbar-login2 button">
                       <Link to="/dashboard" className="navbar-navlink3" onClick={toggleMenu}>
                         Dashboard
-                      </Link>
-                    </button>
-                    <button className="navbar-login2 button">
-                      <Link to="/admin-profile" className="navbar-navlink3" onClick={toggleMenu}>
-                        Admin Profile
                       </Link>
                     </button>
                   </>

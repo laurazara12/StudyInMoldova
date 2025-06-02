@@ -13,7 +13,7 @@ const createCheckoutSession = async (req, res) => {
 
     console.log('Starting checkout session creation for:', { application_id, program_id, userId });
 
-    // Verificăm dacă avem o aplicație existentă
+    // Check if we have an existing application
     let application;
     if (application_id) {
       application = await Application.findOne({
@@ -27,32 +27,32 @@ const createCheckoutSession = async (req, res) => {
         console.log('Application not found:', application_id);
         return res.status(404).json({
           success: false,
-          message: 'Aplicația nu a fost găsită'
+          message: 'Application not found'
         });
       }
 
       if (application.status === 'withdrawn') {
-        console.log('Cannot process payment for withdrawn application:', application_id);
+        console.log('Cannot process payment for a withdrawn application:', application_id);
         return res.status(400).json({
           success: false,
-          message: 'Nu se poate procesa plata pentru o aplicație retrasă'
+          message: 'Cannot process payment for a withdrawn application'
         });
       }
 
       if (application.is_paid) {
-        console.log('Application already paid:', application_id);
+        console.log('This application has already been paid:', application_id);
         return res.status(400).json({
           success: false,
-          message: 'Această aplicație a fost deja plătită'
+          message: 'This application has already been paid'
         });
       }
     } else {
-      // Dacă nu avem o aplicație existentă, verificăm dacă avem toate câmpurile necesare
+      // If we don't have an existing application, check if we have all required fields
       if (!program_id || !motivation_letter || !document_ids) {
-        console.log('Missing fields:', { program_id, motivation_letter, document_ids });
+        console.log('All fields are required:', { program_id, motivation_letter, document_ids });
         return res.status(400).json({
           success: false,
-          message: 'Toate câmpurile sunt obligatorii'
+          message: 'All fields are required'
         });
       }
 
@@ -62,11 +62,11 @@ const createCheckoutSession = async (req, res) => {
         console.log('Program not found:', program_id);
         return res.status(404).json({
           success: false,
-          message: 'Programul nu a fost găsit'
+          message: 'Program not found'
         });
       }
 
-      // Verificăm dacă există deja o aplicație activă pentru acest program
+      // Check if there is already an active application for this program
       const existingApplication = await Application.findOne({
         where: {
           program_id,
@@ -78,10 +78,10 @@ const createCheckoutSession = async (req, res) => {
       });
 
       if (existingApplication) {
-        console.log('Active application already exists for this program:', program_id);
+        console.log('You already have an active application for this program. You need to withdraw the previous application before applying again.', program_id);
         return res.status(400).json({
           success: false,
-          message: 'Aveți deja o aplicație activă pentru acest program. Trebuie să retrageți aplicația anterioară înainte de a aplica din nou.'
+          message: 'You already have an active application for this program. You need to withdraw the previous application before applying again.'
         });
       }
 
@@ -110,7 +110,7 @@ const createCheckoutSession = async (req, res) => {
               currency: 'eur',
               product_data: {
                 name: 'Application Fee',
-                description: `Taxă pentru procesarea aplicației`
+                description: `Application processing fee`
               },
               unit_amount: 3000, // 30.00 EUR
             },
@@ -136,7 +136,7 @@ const createCheckoutSession = async (req, res) => {
 
       console.log('Stripe session created:', session.id);
 
-      // Verificăm dacă sesiunea a fost creată cu succes
+      // Check if the session was created successfully
       const retrievedSession = await stripe.checkout.sessions.retrieve(session.id);
       if (!retrievedSession) {
         throw new Error('Could not verify session creation');
@@ -152,10 +152,10 @@ const createCheckoutSession = async (req, res) => {
       throw new Error(`Stripe error: ${stripeError.message}`);
     }
   } catch (error) {
-    console.error('Error creating checkout session:', error);
+    console.error('An error occurred while processing the payment. Please try again.', error);
     res.status(500).json({
       success: false,
-      message: 'A apărut o eroare la procesarea plății. Vă rugăm să încercați din nou.',
+      message: 'An error occurred while processing the payment. Please try again.',
       error: error.message
     });
   }
@@ -175,7 +175,7 @@ const checkPaymentStatus = async (req, res) => {
 
     console.log('Checking payment status for session:', sessionId);
 
-    // Verificăm sesiunea în Stripe
+    // Check the session in Stripe
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
       expand: ['payment_intent', 'customer', 'line_items']
     });
@@ -199,7 +199,7 @@ const checkPaymentStatus = async (req, res) => {
       currency: session.currency
     });
 
-    // Verificăm metadata sesiunii
+    // Check session metadata
     if (!session.metadata?.application_id || !session.metadata?.user_id) {
       console.error('Invalid metadata for session:', sessionId);
       return res.status(400).json({
@@ -208,7 +208,7 @@ const checkPaymentStatus = async (req, res) => {
       });
     }
 
-    // Găsim aplicația asociată
+    // Find the associated application
     const application = await Application.findOne({
       where: {
         id: session.metadata.application_id,
@@ -228,7 +228,7 @@ const checkPaymentStatus = async (req, res) => {
       console.log('Cannot update payment status for withdrawn application:', application.id);
       return res.status(400).json({
         success: false,
-        message: 'Nu se poate actualiza statusul plății pentru o aplicație retrasă'
+        message: 'Cannot update payment status for a withdrawn application'
       });
     }
 
@@ -239,7 +239,7 @@ const checkPaymentStatus = async (req, res) => {
       payment_id: application.payment_id
     });
 
-    // Verificăm dacă aplicația este deja plătită
+    // Check if the application is already paid
     if (application.payment_status === 'paid' && application.is_paid) {
       console.log('Application is already paid:', application.id);
       return res.json({
@@ -249,7 +249,7 @@ const checkPaymentStatus = async (req, res) => {
       });
     }
 
-    // Verificăm statusul plății în Stripe
+    // Check payment status in Stripe
     const isPaymentSuccessful = session.payment_status === 'paid' && 
                               session.payment_intent?.status === 'succeeded' &&
                               session.status === 'complete';
@@ -267,7 +267,7 @@ const checkPaymentStatus = async (req, res) => {
       console.log('Payment confirmed in Stripe');
       
       try {
-        // Actualizăm statusul plății și aplicației doar dacă plata este confirmată
+        // Update payment status and application only if payment is confirmed
         const updateData = {
           payment_status: 'paid',
           payment_id: session.payment_intent.id,
@@ -287,7 +287,7 @@ const checkPaymentStatus = async (req, res) => {
         await application.reload();
         console.log('Application after reload:', application.toJSON());
         
-        // Verificăm dacă actualizarea a fost reușită
+        // Verify update was successful
         if (!application.is_paid || application.payment_status !== 'paid') {
           console.error('Update verification failed:', {
             is_paid: application.is_paid,
@@ -299,7 +299,7 @@ const checkPaymentStatus = async (req, res) => {
         const responseData = {
           success: true,
           status: 'paid',
-          message: 'Plata a fost procesată cu succes și aplicația a fost trimisă',
+          message: 'Payment processed successfully and application submitted',
           application: application.toJSON(),
           paymentDetails: {
             amount: session.amount_total / 100,
@@ -315,7 +315,7 @@ const checkPaymentStatus = async (req, res) => {
         return res.json(responseData);
       } catch (updateError) {
         console.error('Error updating application:', updateError);
-        // Resetăm aplicația la starea draft în caz de eroare
+        // Reset application to draft state in case of error
         await application.update({
           status: 'draft',
           payment_status: 'unpaid',
@@ -333,7 +333,7 @@ const checkPaymentStatus = async (req, res) => {
         payment_intent_status: session.payment_intent?.status
       });
       
-      // Dacă plata nu a fost procesată, aplicația rămâne în starea draft și unpaid
+      // If payment was not processed, application remains in draft and unpaid
       const updateData = {
         status: 'draft',
         payment_status: 'unpaid',
@@ -351,7 +351,7 @@ const checkPaymentStatus = async (req, res) => {
         return res.json({
           success: false,
           status: session.payment_status || 'pending',
-          message: 'Plata nu a fost confirmată. Aplicația a fost resetată la starea draft.',
+          message: 'Payment not confirmed. Application reset to draft state.',
           application: application.toJSON(),
           payment_details: {
             status: session.payment_status,
@@ -364,7 +364,7 @@ const checkPaymentStatus = async (req, res) => {
       }
     }
   } catch (error) {
-    console.error('Error checking payment status:', error);
+    console.error('An error occurred while checking payment status:', error);
     res.status(500).json({
       success: false,
       message: 'An error occurred while checking payment status',
@@ -380,7 +380,7 @@ const withdrawApplication = async (req, res) => {
 
     console.log('Începe retragerea aplicației:', { application_id, userId });
 
-    // Verificăm dacă aplicația există și aparține utilizatorului
+    // Check if the application exists and belongs to the user
     const application = await Application.findOne({
       where: {
         id: application_id,
@@ -396,7 +396,7 @@ const withdrawApplication = async (req, res) => {
       });
     }
 
-    // Verificăm dacă aplicația poate fi retrasă
+    // Check if the application can be withdrawn
     if (application.status === 'withdrawn') {
       console.log('Aplicația este deja retrasă:', application_id);
       return res.status(400).json({
@@ -413,7 +413,7 @@ const withdrawApplication = async (req, res) => {
       });
     }
 
-    // Actualizăm statusul aplicației
+    // Update application status
     const updateData = {
       status: 'withdrawn',
       withdrawn_date: new Date()

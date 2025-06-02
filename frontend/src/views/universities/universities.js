@@ -26,7 +26,7 @@ const Universities = () => {
   
   // Opțiuni pentru filtre
   const typeOptions = ['Public', 'Private'];
-  const locationOptions = ['Chișinău', 'Bălți', 'Cahul', 'Comrat'];
+  const locationOptions = ['Chisinau', 'Balti', 'Cahul', 'Comrat'];
 
   const fetchUniversities = async () => {
     try {
@@ -61,12 +61,12 @@ const Universities = () => {
         };
       });
       
-      console.log('Date procesate pentru afișare:', processedData);
+      console.log('Processed data for display:', processedData);
       setUniversities(processedData);
       setFilteredUniversities(processedData);
     } catch (error) {
-      console.error('Eroare la încărcarea universităților:', error);
-      setError(error.message || 'Nu s-au putut încărca universitățile');
+      console.error('Error loading universities:', error);
+      setError(error.message || 'Could not load universities');
       setUniversities([]);
       setFilteredUniversities([]);
     } finally {
@@ -225,8 +225,8 @@ const Universities = () => {
               onChange={(e) => setFilterLocation(e.target.value)}
             >
               <option value="">All Locations</option>
-              <option value="Chișinău">Chișinău</option>
-              <option value="Bălți">Bălți</option>
+              <option value="Chisinau">Chisinau</option>
+              <option value="Balti">Balti</option>
               <option value="Cahul">Cahul</option>
               <option value="Comrat">Comrat</option>
             </select>

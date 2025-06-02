@@ -122,14 +122,14 @@ const NotificationsTab = ({ userData }) => {
     try {
       console.log('Starting to mark notification as read:', notificationId);
       
-      // Verificăm dacă notificarea există
+      // Check if notification exists
       const notification = notifications.find(n => n.id === notificationId);
       if (!notification) {
         console.error('Notification not found:', notificationId);
         return;
       }
 
-      // Verificăm dacă notificarea este deja marcată ca citită
+      // Check if notification is already marked as read
       if (notification.is_read || notification.read) {
         console.log('Notification is already marked as read:', notificationId);
         return;
@@ -211,7 +211,7 @@ const NotificationsTab = ({ userData }) => {
     
     const now = new Date();
     const expiresAt = calculateExpirationDate(notification);
-    const isRead = notification.is_read || notification.read; // Verificăm ambele proprietăți
+    const isRead = notification.is_read || notification.read; // Check both properties
     
     let shouldShow = true;
     switch (filter) {

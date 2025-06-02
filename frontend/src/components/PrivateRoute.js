@@ -10,7 +10,19 @@ const PrivateRoute = ({ children, requiredRole }) => {
   }
 
   if (requiredRole && user.role !== requiredRole) {
-    return <Navigate to="/" />
+    if (user.role === 'admin') {
+      return <Navigate to="/dashboard" />
+    } else {
+      return <Navigate to="/profile" />
+    }
+  }
+
+  if (user.role !== 'admin' && window.location.pathname.startsWith('/admin')) {
+    return <Navigate to="/profile" />
+  }
+
+  if (user.role === 'admin' && !window.location.pathname.startsWith('/admin') && window.location.pathname !== '/dashboard') {
+    return <Navigate to="/dashboard" />
   }
 
   return children

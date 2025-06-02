@@ -25,7 +25,7 @@ const FeatureLocations = (props) => {
                   <span className="feature-locations-text20">
                     Moldova is not a big country, and while there are
                     universities in other cities, most opportunities for higher
-                    education can be found in the capital city, Chișinău.
+                    education can be found in the capital city, Chisinau.
                   </span>
                 </Fragment>
               )}
@@ -36,7 +36,7 @@ const FeatureLocations = (props) => {
           <div className="feature-locations-container2">
             <img
               alt={props.location1ImageAlt}
-              src="/images/dorin-seremet-_atwwma7pyw-unsplash-1400w.jpg"
+              src="https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599121/pexels-anaghan-km-177642992-11351622-1400w_cwfhbp.jpg"
               className="feature-locations-image1 thq-img-ratio-16-9"
             />
             <h3 className="feature-locations-text12 thq-heading-3">
@@ -70,7 +70,7 @@ const FeatureLocations = (props) => {
           <div className="feature-locations-container4">
             <img
               alt={props.location2ImageAlt}
-              src="/images/balti_town_hall-1400w.jpg"
+              src="https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599120/balti_town_hall-1400w_ywraqr.jpg"
               className="feature-locations-image2 thq-img-ratio-16-9"
             />
             <h3 className="feature-locations-text14 thq-heading-3">
@@ -84,8 +84,8 @@ const FeatureLocations = (props) => {
               {props.location2Description ?? (
                 <Fragment>
                   <span className="feature-locations-text19">
-                    If Chișinău is not your cup of tea, for sure there are a
-                    couple other options that you might find interesting. 
+                    If Chisinau is not your cup of tea, for sure there are a
+                    couple other options that you might find interesting.
                   </span>
                 </Fragment>
               )}

@@ -102,11 +102,11 @@ function Notifications() {
   useEffect(() => {
     const fetchUserRole = async () => {
       try {
-        console.log('Începe încărcarea rolului utilizatorului...');
+        console.log('Starting user role loading...');
         const token = localStorage.getItem('token');
         
         if (!token) {
-          console.error('Token lipsă');
+          console.error('Missing token');
           setUserRole(null);
           return;
         }
@@ -121,7 +121,7 @@ function Notifications() {
           credentials: 'include'
         });
 
-        console.log('Răspuns primit:', response.status);
+        console.log('Response received:', response.status);
         console.log('Headers:', response.headers);
 
         const contentType = response.headers.get('content-type');
@@ -135,8 +135,8 @@ function Notifications() {
 
         if (!contentType || !contentType.includes('application/json')) {
           const text = await response.text();
-          console.error('Răspuns invalid:', text);
-          throw new Error('Răspunsul nu este în format JSON');
+          console.error('Invalid response:', text);
+          throw new Error('Response is not in JSON format');
         }
 
         const data = await response.json();
@@ -146,11 +146,11 @@ function Notifications() {
           console.log('Rolul utilizatorului a fost setat:', data.data.role);
           setUserRole(data.data.role);
         } else {
-          console.error('Structură invalidă a răspunsului:', data);
+          console.error('Invalid response structure:', data);
           setUserRole(null);
         }
       } catch (error) {
-        console.error('Eroare la încărcarea rolului:', error);
+        console.error('Error loading role:', error);
         setUserRole(null);
       }
     };
@@ -196,7 +196,7 @@ function Notifications() {
         
         setNotifications(processedNotifications);
       } catch (err) {
-        console.error('Eroare detaliată la încărcarea notificărilor:', err);
+        console.error('Detailed error loading notifications:', err);
         setError(err.message || 'Could not load notifications. Please try again later.');
       } finally {
         setLoading(false);
@@ -325,7 +325,7 @@ function Notifications() {
       });
       
       if (!response.ok) {
-        throw new Error('Nu s-a putut marca notificarea ca citită');
+        throw new Error('Could not mark notification as read');
       }
 
       setNotifications(prevNotifications =>
@@ -336,7 +336,7 @@ function Notifications() {
         )
       );
     } catch (err) {
-      console.error('Eroare la marcarea notificării:', err);
+      console.error('Error marking notification:', err);
     }
   };
 
@@ -348,14 +348,14 @@ function Notifications() {
       });
       
       if (!response.ok) {
-        throw new Error('Nu s-au putut marca toate notificările ca citite');
+        throw new Error('Could not mark all notifications as read');
       }
 
       setNotifications(prevNotifications =>
         prevNotifications.map(notification => ({ ...notification, is_read: true }))
       );
     } catch (err) {
-      console.error('Eroare la marcarea tuturor notificărilor:', err);
+      console.error('Error marking all notifications:', err);
     }
   };
 

@@ -6,7 +6,6 @@ import Footer from '../../components/footer';
 import './profile.css';
 import { API_BASE_URL, getAuthHeaders, handleApiError } from '../../config/api.config';
 import Notifications from '../../components/notifications';
-import { FaUser, FaGraduationCap, FaFileAlt, FaClipboardList, FaBookmark, FaBell } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 
 // Lazy loading for components
@@ -32,37 +31,37 @@ const ProfileNavigation = ({ activeTab, onTabChange }) => (
       className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`}
       onClick={() => onTabChange('profile')}
     >
-      <FaUser /> My Profile
+      My Profile
     </button>
     <button 
       className={`tab-button ${activeTab === 'studies' ? 'active' : ''}`}
       onClick={() => onTabChange('studies')}
     >
-      <FaGraduationCap /> Plan Your Studies
+      Plan Your Studies
     </button>
     <button 
       className={`tab-button ${activeTab === 'documents' ? 'active' : ''}`}
       onClick={() => onTabChange('documents')}
     >
-      <FaFileAlt /> Documents
+      Documents
     </button>
     <button 
       className={`tab-button ${activeTab === 'applications' ? 'active' : ''}`}
       onClick={() => onTabChange('applications')}
     >
-      <FaClipboardList /> Applications
+      Applications
     </button>
     <button 
       className={`tab-button ${activeTab === 'saved-programs' ? 'active' : ''}`}
       onClick={() => onTabChange('saved-programs')}
     >
-      <FaBookmark /> Saved Programs
+      Saved Programs
     </button>
     <button 
       className={`tab-button ${activeTab === 'notifications' ? 'active' : ''}`}
       onClick={() => onTabChange('notifications')}
     >
-      <FaBell /> Notifications
+      Notifications
     </button>
   </nav>
 );
