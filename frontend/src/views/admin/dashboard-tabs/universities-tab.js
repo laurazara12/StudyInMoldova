@@ -107,13 +107,45 @@ const UniversitiesTab = () => {
   const handleAddUniversity = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/universities`, newUniversity, {
+      // Pregătim datele pentru trimitere
+      const universityData = {
+        ...newUniversity,
+        tuitionFees: {
+          bachelor: newUniversity.tuitionFees.bachelor || null,
+          master: newUniversity.tuitionFees.master || null,
+          phd: newUniversity.tuitionFees.phd || null
+        }
+      };
+
+      console.log('Sending university data:', universityData);
+
+      const response = await axios.post(`${API_BASE_URL}/api/universities`, universityData, {
         headers: getAuthHeaders()
       });
 
       if (response.data.success) {
         setUniversities(prev => [...prev, response.data.data]);
         setShowAddUniversityForm(false);
+        setNewUniversity({
+          name: '',
+          type: 'Public',
+          description: '',
+          location: '',
+          imageUrl: '',
+          website: '',
+          ranking: '',
+          tuitionFees: {
+            bachelor: '',
+            master: '',
+            phd: ''
+          },
+          programs: [],
+          contactInfo: {
+            email: '',
+            phone: '',
+            address: ''
+          }
+        });
         setSuccessMessage('University was successfully added!');
         setTimeout(() => setSuccessMessage(''), 3000);
       }
@@ -130,6 +162,36 @@ const UniversitiesTab = () => {
 
   const handleDeleteUniversity = (universityId) => {
     setDeleteConfirmation(universityId);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      const response = await axios.delete(`${API_BASE_URL}/api/universities/${deleteConfirmation}`, {
+        headers: getAuthHeaders()
+      });
+
+      if (response.data.success) {
+        await loadUniversities();
+        setSuccessMessage('University was successfully deleted!');
+        setTimeout(() => setSuccessMessage(''), 3000);
+      } else {
+        throw new Error(response.data.message || 'Error deleting university');
+      }
+    } catch (error) {
+      console.error('Error deleting university:', error);
+      if (error.response?.data?.message?.includes('foreign key constraint')) {
+        setError('Cannot delete the university because it has associated programs. Please delete the programs first.');
+      } else {
+        setError(error.response?.data?.message || 'Error deleting university');
+      }
+      setTimeout(() => setError(null), 5000);
+    } finally {
+      setDeleteConfirmation(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteConfirmation(null);
   };
 
   const handleEditUniversityChange = (e) => {
@@ -244,7 +306,8 @@ const UniversitiesTab = () => {
   const handleSearch = () => {
     const filtered = universities.filter(university => {
       const matchesSearch = searchTerm === '' || 
-        university.name.toLowerCase().includes(searchTerm.toLowerCase());
+        university.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        university.description?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesType = !filterType || university.type === filterType;
       const matchesLocation = !filterLocation || university.location === filterLocation;
       return matchesSearch && matchesType && matchesLocation;
@@ -268,120 +331,134 @@ const UniversitiesTab = () => {
 
   return (
     <div className="universities-tab">
-      <div className="filter-section universities-filter">
-        <div className="filter-group">
-          <label>Type:</label>
-          <select 
-            className="filter-select"
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
-          >
-            <option value="">All Types</option>
-            <option value="public">Public</option>
-            <option value="private">Private</option>
-          </select>
-        </div>
-        <div className="filter-group">
-          <label>Location:</label>
-          <select 
-            className="filter-select"
-            value={filterLocation}
-            onChange={(e) => setFilterLocation(e.target.value)}
-          >
-            <option value="">All Locations</option>
-            <option value="Chișinău">Chișinău</option>
-            <option value="Bălți">Bălți</option>
-            <option value="Cahul">Cahul</option>
-            <option value="Comrat">Comrat</option>
-          </select>
-        </div>
-        <div className="filter-group">
-          <label>Ranking Range:</label>
-          <div className="range-inputs">
+      <div className="dashboard-filters">
+        <div className="search-box">
+          <div className="search-input-wrapper">
             <input
-              type="number"
-              placeholder="Min"
-              className="range-input"
-              value={filterRanking.min}
-              onChange={(e) => setFilterRanking({...filterRanking, min: e.target.value})}
-            />
-            <span>to</span>
-            <input
-              type="number"
-              placeholder="Max"
-              className="range-input"
-              value={filterRanking.max}
-              onChange={(e) => setFilterRanking({...filterRanking, max: e.target.value})}
+              type="text"
+              className="search-input"
+              placeholder="Caută după nume sau descriere..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </div>
-        <div className="filter-group">
-          <label>Tuition Fee Range:</label>
-          <div className="range-inputs">
-            <input
-              type="number"
-              placeholder="Min"
-              className="range-input"
-              value={filterTuitionFee.min}
-              onChange={(e) => setFilterTuitionFee({...filterTuitionFee, min: e.target.value})}
-            />
-            <span>to</span>
-            <input
-              type="number"
-              placeholder="Max"
-              className="range-input"
-              value={filterTuitionFee.max}
-              onChange={(e) => setFilterTuitionFee({...filterTuitionFee, max: e.target.value})}
-            />
+
+        <div className="filter-section universities-filter">
+          <div className="filter-group">
+            <label>Type:</label>
+            <select 
+              className="filter-select"
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+            >
+              <option value="">All Types</option>
+              <option value="public">Public</option>
+              <option value="private">Private</option>
+            </select>
           </div>
-        </div>
-        <div className="filter-group">
-          <label>Date:</label>
-          <div className="date-range-inputs">
-            <input
-              type="date"
-              className="date-input"
-              value={filterUniversityDateRange.start}
-              onChange={(e) => setFilterUniversityDateRange({...filterUniversityDateRange, start: e.target.value})}
-            />
-            <span>to</span>
-            <input
-              type="date"
-              className="date-input"
-              value={filterUniversityDateRange.end}
-              onChange={(e) => setFilterUniversityDateRange({...filterUniversityDateRange, end: e.target.value})}
-            />
+          <div className="filter-group">
+            <label>Location:</label>
+            <select 
+              className="filter-select"
+              value={filterLocation}
+              onChange={(e) => setFilterLocation(e.target.value)}
+            >
+              <option value="">All Locations</option>
+              <option value="Chișinău">Chișinău</option>
+              <option value="Bălți">Bălți</option>
+              <option value="Cahul">Cahul</option>
+              <option value="Comrat">Comrat</option>
+            </select>
           </div>
-        </div>
-        <div className="filter-group">
-          <label>Sort:</label>
-          <select 
-            className="filter-select"
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
+          <div className="filter-group">
+            <label>Ranking Range:</label>
+            <div className="range-inputs">
+              <input
+                type="number"
+                placeholder="Min"
+                className="range-input"
+                value={filterRanking.min}
+                onChange={(e) => setFilterRanking({...filterRanking, min: e.target.value})}
+              />
+              <span>to</span>
+              <input
+                type="number"
+                placeholder="Max"
+                className="range-input"
+                value={filterRanking.max}
+                onChange={(e) => setFilterRanking({...filterRanking, max: e.target.value})}
+              />
+            </div>
+          </div>
+          <div className="filter-group">
+            <label>Tuition Fee Range:</label>
+            <div className="range-inputs">
+              <input
+                type="number"
+                placeholder="Min"
+                className="range-input"
+                value={filterTuitionFee.min}
+                onChange={(e) => setFilterTuitionFee({...filterTuitionFee, min: e.target.value})}
+              />
+              <span>to</span>
+              <input
+                type="number"
+                placeholder="Max"
+                className="range-input"
+                value={filterTuitionFee.max}
+                onChange={(e) => setFilterTuitionFee({...filterTuitionFee, max: e.target.value})}
+              />
+            </div>
+          </div>
+          <div className="filter-group">
+            <label>Date:</label>
+            <div className="date-range-inputs">
+              <input
+                type="date"
+                className="date-input"
+                value={filterUniversityDateRange.start}
+                onChange={(e) => setFilterUniversityDateRange({...filterUniversityDateRange, start: e.target.value})}
+              />
+              <span>to</span>
+              <input
+                type="date"
+                className="date-input"
+                value={filterUniversityDateRange.end}
+                onChange={(e) => setFilterUniversityDateRange({...filterUniversityDateRange, end: e.target.value})}
+              />
+            </div>
+          </div>
+          <div className="filter-group">
+            <label>Sort:</label>
+            <select 
+              className="filter-select"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="name">Name (A-Z)</option>
+              <option value="name_desc">Name (Z-A)</option>
+              <option value="location">Location (A-Z)</option>
+              <option value="type">Type (A-Z)</option>
+              <option value="ranking">Ranking (Low-High)</option>
+              <option value="ranking_desc">Ranking (High-Low)</option>
+              <option value="tuition">Tuition Fee (Low-High)</option>
+              <option value="tuition_desc">Tuition Fee (High-Low)</option>
+            </select>
+          </div>
+          <button 
+            className="clear-filters-button"
+            onClick={handleClearFilters}
           >
-            <option value="name">Name (A-Z)</option>
-            <option value="name_desc">Name (Z-A)</option>
-            <option value="location">Location (A-Z)</option>
-            <option value="type">Type (A-Z)</option>
-            <option value="ranking">Ranking (Low-High)</option>
-            <option value="ranking_desc">Ranking (High-Low)</option>
-            <option value="tuition">Tuition Fee (Low-High)</option>
-            <option value="tuition_desc">Tuition Fee (High-Low)</option>
-          </select>
+            Clear Filters
+          </button>
+          <button 
+            className="search-button"
+            onClick={handleSearch}
+          >
+            Search
+          </button>
         </div>
-        <button 
-          className="clear-filters-button"
-          onClick={handleClearFilters}
-        >
-          Clear Filters
-        </button>
-        <button 
-          className="search-button"
-          onClick={handleSearch}
-        >
-          Search
-        </button>
       </div>
 
       <div className="dashboard-actions">
@@ -431,15 +508,27 @@ const UniversitiesTab = () => {
                   <td>{university.name || 'N/A'}</td>
                   <td>{university.type || 'N/A'}</td>
                   <td>{university.location || 'N/A'}</td>
-                  <td>{university.ranking || 'N/A'}</td>
+                  <td>
+                    {(() => {
+                      const truncateText = (text) => {
+                        if (!text) return 'N/A';
+                        return text.length > 15 ? `${text.substring(0, 15)}...` : text;
+                      };
+                      return truncateText(university.ranking);
+                    })()}
+                  </td>
                   <td>
                     {(() => {
                       const fees = university.tuitionFees || university.tuition_fees || {};
+                      const truncateText = (text) => {
+                        if (!text) return 'N/A';
+                        return text.length > 15 ? `${text.substring(0, 15)}...` : text;
+                      };
                       return (
                         <div>
-                          <div>Bachelor: {fees.bachelor ? `${fees.bachelor} EUR` : 'N/A'}</div>
-                          <div>Master: {fees.master ? `${fees.master} EUR` : 'N/A'}</div>
-                          <div>PhD: {fees.phd ? `${fees.phd} EUR` : 'N/A'}</div>
+                          <div>Bachelor: {truncateText(fees.bachelor)}</div>
+                          <div>Master: {truncateText(fees.master)}</div>
+                          <div>PhD: {truncateText(fees.phd)}</div>
                         </div>
                       );
                     })()}
@@ -951,6 +1040,29 @@ const UniversitiesTab = () => {
                 onClick={handleCloseViewModal}
               >
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteConfirmation && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Delete Confirmation</h2>
+            <p>Are you sure you want to delete this university? This action will also delete all associated programs.</p>
+            <div className="modal-buttons">
+              <button 
+                className="btn-grey-2"
+                onClick={handleCancelDelete}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn-delete"
+                onClick={handleConfirmDelete}
+              >
+                Delete
               </button>
             </div>
           </div>
