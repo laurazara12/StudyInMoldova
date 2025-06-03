@@ -11,7 +11,6 @@ const UniversityPresentation = ({ university }) => {
   }
 
   const handleImageError = (e) => {
-    // Use fallback image from Cloudinary when image fails to load
     e.target.src = 'https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599121/dorin-seremet-_atwwma7pyw-unsplash-1400w_w6dekv.jpg';
     e.target.onerror = null;
   };
@@ -181,6 +180,12 @@ const UniversityPresentation = ({ university }) => {
               {university.name}
             </Link>
           </h2>
+          {university.location && (
+            <div className="university-location">
+              <i className="fas fa-map-marker-alt"></i>
+              <span>{university.location}</span>
+            </div>
+          )}
         </div>
         <p className="university-description-small">{university.description}</p>
         {university.website && (
@@ -206,26 +211,34 @@ const UniversityPresentation = ({ university }) => {
             </div>
           </div>
           <div className="university-details-col">
-            <h3 className="university-details-title-small">Tuition Fees (2023)</h3>
+            <h3 className="university-details-title-small">Tuition Fees</h3>
             <ul className="tuition-fees tuition-fees-small">
-              {university.tuition_fees && (
+              {university.tuition_fees ? (
                 <>
-                  {university.tuition_fees.bachelor ? (
-                    <li>Bachelor's: {university.tuition_fees.bachelor}</li>
-                  ) : (
-                    <li>Bachelor's: Information being updated</li>
-                  )}
-                  {university.tuition_fees.master ? (
-                    <li>Master's: {university.tuition_fees.master}</li>
-                  ) : (
-                    <li>Master's: Information being updated</li>
-                  )}
-                  {university.tuition_fees.phd ? (
-                    <li>PhD: {university.tuition_fees.phd}</li>
-                  ) : (
-                    <li>PhD: Information being updated</li>
-                  )}
+                  <li>
+                    <span className="fee-label">Bachelor's:</span>
+                    <span className="fee-value">
+                      {university.tuition_fees.bachelor || 'N/A'}
+                    </span>
+                  </li>
+                  <li>
+                    <span className="fee-label">Master's:</span>
+                    <span className="fee-value">
+                      {university.tuition_fees.master || 'N/A'}
+                    </span>
+                  </li>
+                  <li>
+                    <span className="fee-label">PhD:</span>
+                    <span className="fee-value">
+                      {university.tuition_fees.phd || 'N/A'}
+                    </span>
+                  </li>
                 </>
+              ) : (
+                <li className="no-fees-info">
+                  <i className="fas fa-info-circle"></i>
+                  <span>Tuition fees information is currently unavailable</span>
+                </li>
               )}
             </ul>
           </div>

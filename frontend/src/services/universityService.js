@@ -232,12 +232,12 @@ export const getAllUniversities = async () => {
     const processedData = universitiesData.map(uni => {
       console.log('Processing university:', uni);
       
-      // Convert fees to numbers
+      // Keep fees as text
       const tuitionFees = uni.tuition_fees || {};
       const processedFees = {
-        bachelor: tuitionFees.bachelor ? parseFloat(tuitionFees.bachelor) : null,
-        master: tuitionFees.master ? parseFloat(tuitionFees.master) : null,
-        phd: tuitionFees.phd ? parseFloat(tuitionFees.phd) : null
+        bachelor: tuitionFees.bachelor || '',
+        master: tuitionFees.master || '',
+        phd: tuitionFees.phd || ''
       };
       
       return {

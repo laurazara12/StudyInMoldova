@@ -47,12 +47,9 @@ const Universities = () => {
       const processedData = data.map(uni => {
         const tuitionFees = uni.tuition_fees || {};
         const processedFees = {
-          bachelor: typeof tuitionFees.bachelor === 'number' ? tuitionFees.bachelor : 
-                   tuitionFees.bachelor ? parseFloat(tuitionFees.bachelor) : null,
-          master: typeof tuitionFees.master === 'number' ? tuitionFees.master :
-                 tuitionFees.master ? parseFloat(tuitionFees.master) : null,
-          phd: typeof tuitionFees.phd === 'number' ? tuitionFees.phd :
-               tuitionFees.phd ? parseFloat(tuitionFees.phd) : null
+          bachelor: tuitionFees.bachelor || '',
+          master: tuitionFees.master || '',
+          phd: tuitionFees.phd || ''
         };
         
         return {
