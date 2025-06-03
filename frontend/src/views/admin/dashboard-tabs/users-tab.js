@@ -319,7 +319,7 @@ const UsersTab = () => {
             Reset Filters
           </button>
           <button 
-            className="search-button"
+            className="clear-filters-button"
             onClick={() => {
               const filtered = users.filter(user => {
                 const matchesSearch = searchTerm === '' || 
@@ -381,41 +381,21 @@ const UsersTab = () => {
                     <td>
                       <span className={getDocumentStatusClass(docStatus?.diploma?.status || 'missing')}>
                         {getDocumentStatusText(docStatus?.diploma || { exists: false, status: 'missing' })}
-                        {docStatus?.diploma?.uploadDate && (
-                          <span className="upload-date">
-                            ({formatDate(docStatus.diploma.uploadDate)})
-                          </span>
-                        )}
                       </span>
                     </td>
                     <td>
                       <span className={getDocumentStatusClass(docStatus?.transcript?.status || 'missing')}>
                         {getDocumentStatusText(docStatus?.transcript || { exists: false, status: 'missing' })}
-                        {docStatus?.transcript?.uploadDate && (
-                          <span className="upload-date">
-                            ({formatDate(docStatus.transcript.uploadDate)})
-                          </span>
-                        )}
                       </span>
                     </td>
                     <td>
                       <span className={getDocumentStatusClass(docStatus?.passport?.status || 'missing')}>
                         {getDocumentStatusText(docStatus?.passport || { exists: false, status: 'missing' })}
-                        {docStatus?.passport?.uploadDate && (
-                          <span className="upload-date">
-                            ({formatDate(docStatus.passport.uploadDate)})
-                          </span>
-                        )}
                       </span>
                     </td>
                     <td>
                       <span className={getDocumentStatusClass(docStatus?.photo?.status || 'missing')}>
                         {getDocumentStatusText(docStatus?.photo || { exists: false, status: 'missing' })}
-                        {docStatus?.photo?.uploadDate && (
-                          <span className="upload-date">
-                            ({formatDate(docStatus.photo.uploadDate)})
-                          </span>
-                        )}
                       </span>
                     </td>
                     <td>
@@ -430,7 +410,7 @@ const UsersTab = () => {
                           className="btn2"
                           onClick={() => handleViewDocuments(user)}
                         >
-                          <i className="fas fa-file"></i> View Documents
+                          <i className="fas fa-file"></i> View Docs
                         </button>
                         <button 
                           className="btn-delete"

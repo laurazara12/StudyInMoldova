@@ -39,9 +39,20 @@ module.exports = (sequelize) => {
       type: DataTypes.JSON,
       allowNull: true,
       defaultValue: {
-        bachelor: null,
-        master: null,
-        phd: null
+        bachelor: '',
+        master: '',
+        phd: ''
+      },
+      get() {
+        const rawValue = this.getDataValue('tuition_fees');
+        return rawValue || {
+          bachelor: '',
+          master: '',
+          phd: ''
+        };
+      },
+      set(value) {
+        this.setDataValue('tuition_fees', value);
       }
     },
     contact_info: {
@@ -71,9 +82,9 @@ module.exports = (sequelize) => {
         // Asigurăm că taxele de studii sunt în formatul corect
         if (!university.tuition_fees) {
           university.tuition_fees = {
-            bachelor: null,
-            master: null,
-            phd: null
+            bachelor: '',
+            master: '',
+            phd: ''
           };
         }
         
@@ -92,7 +103,8 @@ module.exports = (sequelize) => {
   University.associate = (models) => {
     University.hasMany(models.Program, {
       foreignKey: 'university_id',
-      as: 'programs'
+      as: 'programs',
+      onDelete: 'CASCADE'
     });
   };
 

@@ -97,14 +97,14 @@ router.post('/', auth, async (req, res) => {
       type: req.body.type,
       description: req.body.description || '',
       location: req.body.location,
-      image_url: req.body.image_url || req.body.imageUrl || '', // Acceptăm imaginea din request
+      image_url: req.body.image_url || req.body.imageUrl || '',
       website: req.body.website || '',
       ranking: req.body.ranking || '',
       slug: slug,
       tuition_fees: {
-        bachelor: req.body.tuition_fees?.bachelor || req.body.tuitionFees?.bachelor || null,
-        master: req.body.tuition_fees?.master || req.body.tuitionFees?.master || null,
-        phd: req.body.tuition_fees?.phd || req.body.tuitionFees?.phd || null
+        bachelor: req.body.tuitionFees?.bachelor || '',
+        master: req.body.tuitionFees?.master || '',
+        phd: req.body.tuitionFees?.phd || ''
       },
       contact_info: {
         email: req.body.contactInfo?.email || null,
@@ -119,7 +119,11 @@ router.post('/', auth, async (req, res) => {
     const university = await University.create(universityData);
     console.log('University created successfully:', JSON.stringify(university, null, 2));
     
-    res.status(201).json(university);
+    res.status(201).json({
+      success: true,
+      data: university,
+      message: 'University created successfully'
+    });
   } catch (error) {
     console.error('Error creating university:', {
       message: error.message,
@@ -155,18 +159,39 @@ router.put('/:id', auth, async (req, res) => {
 
 router.delete('/:id', auth, async (req, res) => {
   try {
-    const deleted = await University.destroy({
-      where: { id: req.params.id }
+    const university = await University.findByPk(req.params.id, {
+      include: [{
+        model: Program,
+        as: 'programs'
+      }]
     });
     
-    if (!deleted) {
-      return res.status(404).json({ message: 'University not found' });
+    if (!university) {
+      return res.status(404).json({
+        success: false,
+        message: 'University not found'
+      });
     }
+
+    // Delete all associated programs first
+    if (university.programs && university.programs.length > 0) {
+      await Promise.all(university.programs.map(program => program.destroy()));
+    }
+
+    // Then delete the university
+    await university.destroy();
     
-    res.status(204).send();
+    res.json({
+      success: true,
+      message: 'University and associated programs were successfully deleted'
+    });
   } catch (error) {
     console.error('Error deleting university:', error);
-    res.status(500).json({ message: 'Error deleting university' });
+    res.status(500).json({
+      success: false,
+      message: 'Error deleting university',
+      error: error.message
+    });
   }
 });
 

@@ -17,9 +17,9 @@ exports.getAllUniversities = async (req, res) => {
       // Process tuition fees
       const tuitionFees = universityData.tuition_fees || {};
       const processedFees = {
-        bachelor: tuitionFees.bachelor ? parseFloat(tuitionFees.bachelor) : null,
-        master: tuitionFees.master ? parseFloat(tuitionFees.master) : null,
-        phd: tuitionFees.phd ? parseFloat(tuitionFees.phd) : null
+        bachelor: tuitionFees.bachelor || '',
+        master: tuitionFees.master || '',
+        phd: tuitionFees.phd || ''
       };
       
       // Process contact information
@@ -127,9 +127,9 @@ exports.createUniversity = async (req, res) => {
       ranking: req.body.ranking || '',
       slug: slug,
       tuition_fees: {
-        bachelor: req.body.tuitionFees?.bachelor || null,
-        master: req.body.tuitionFees?.master || null,
-        phd: req.body.tuitionFees?.phd || null
+        bachelor: req.body.tuitionFees?.bachelor || '',
+        master: req.body.tuitionFees?.master || '',
+        phd: req.body.tuitionFees?.phd || ''
       },
       contact_info: {
         email: req.body.contactInfo?.email || null,
@@ -180,16 +180,16 @@ exports.updateUniversity = async (req, res) => {
       location: req.body.location,
       image_url: req.body.image_url || '',
       website: req.body.website || '',
-      ranking: req.body.ranking ? parseInt(req.body.ranking) : null,
+      ranking: req.body.ranking || '',
       tuition_fees: {
-        bachelor: req.body.tuition_fees?.bachelor ? parseFloat(req.body.tuition_fees.bachelor) : null,
-        master: req.body.tuition_fees?.master ? parseFloat(req.body.tuition_fees.master) : null,
-        phd: req.body.tuition_fees?.phd ? parseFloat(req.body.tuition_fees.phd) : null
+        bachelor: req.body.tuition_fees?.bachelor || req.body.tuitionFees?.bachelor || '',
+        master: req.body.tuition_fees?.master || req.body.tuitionFees?.master || '',
+        phd: req.body.tuition_fees?.phd || req.body.tuitionFees?.phd || ''
       },
       contact_info: {
-        email: req.body.contact_info?.email || null,
-        phone: req.body.contact_info?.phone || null,
-        address: req.body.contact_info?.address || null
+        email: req.body.contact_info?.email || req.body.contactInfo?.email || null,
+        phone: req.body.contact_info?.phone || req.body.contactInfo?.phone || null,
+        address: req.body.contact_info?.address || req.body.contactInfo?.address || null
       }
     };
 

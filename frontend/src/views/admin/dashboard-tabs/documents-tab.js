@@ -333,7 +333,7 @@ const DocumentsTab = () => {
             Reset Filters
           </button>
           <button 
-            className="search-button"
+            className="clear-filters-button"
             onClick={handleSearch}
           >
             Search

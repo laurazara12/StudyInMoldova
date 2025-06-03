@@ -102,7 +102,7 @@ const ApplicationsTab = () => {
       // Verificăm dacă aplicația există în lista locală
       const application = applications.find(app => app && app.id === applicationId);
       if (!application) {
-        setError('Aplicația nu a fost găsită');
+        setError('Application not found');
         return;
       }
 
@@ -135,7 +135,7 @@ const ApplicationsTab = () => {
         setSelectedApplication(null);
         
         // Afișăm mesaj de succes
-        setSuccessMessage('Statusul aplicației a fost actualizat cu succes!');
+        setSuccessMessage('Application status was successfully updated!');
         setTimeout(() => setSuccessMessage(''), 3000);
       } else {
         throw new Error(response.data.message || 'Error updating application status');
@@ -154,7 +154,7 @@ const ApplicationsTab = () => {
     try {
       const date = new Date(dateString);
       if (isNaN(date.getTime())) return 'Invalid Date';
-      return date.toLocaleDateString('ro-RO', {
+      return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
@@ -188,7 +188,7 @@ const ApplicationsTab = () => {
             <input
               type="text"
               className="search-input"
-              placeholder="Caută după nume utilizator sau program..."
+              placeholder="Search by user name or program..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -203,15 +203,15 @@ const ApplicationsTab = () => {
               onChange={(e) => setFilterApplicationStatus(e.target.value)}
               className="filter-select"
             >
-              <option value="all">Toate statusurile</option>
-              <option value="pending">În așteptare</option>
-              <option value="approved">Aprobate</option>
-              <option value="rejected">Respinse</option>
-              <option value="under_review">În revizuire</option>
+              <option value="all">All Statuses</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+              <option value="under_review">Under Review</option>
             </select>
           </div>
           <div className="filter-group">
-            <label>Data:</label>
+            <label>Date:</label>
             <div className="date-range-inputs">
               <input 
                 type="date" 
@@ -219,7 +219,7 @@ const ApplicationsTab = () => {
                 value={filterApplicationDateRange?.start || ''} 
                 onChange={e => setFilterApplicationDateRange({...filterApplicationDateRange, start: e.target.value})} 
               />
-              <span>până la</span>
+              <span>to</span>
               <input 
                 type="date" 
                 className="date-input" 
@@ -237,13 +237,13 @@ const ApplicationsTab = () => {
               setFilteredApplications(applications);
             }}
           >
-            Resetează filtrele
+            Reset Filters
           </button>
           <button 
-            className="search-button"
+            className="clear-filters-button"
             onClick={handleSearch}
           >
-            Caută
+            Search
           </button>
         </div>
       </div>
@@ -263,7 +263,7 @@ const ApplicationsTab = () => {
       {loading ? (
         <div className="loading-container">
           <div className="loading-spinner"></div>
-          <p>Se încarcă aplicațiile...</p>
+          <p>Loading applications...</p>
         </div>
       ) : (
         <div className="applications-table-container">
@@ -271,12 +271,12 @@ const ApplicationsTab = () => {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Utilizator</th>
+                <th>User</th>
                 <th>Program</th>
-                <th>Universitate</th>
-                <th>Data aplicării</th>
+                <th>University</th>
+                <th>Application Date</th>
                 <th>Status</th>
-                <th>Acțiuni</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -284,18 +284,18 @@ const ApplicationsTab = () => {
                 <tr key={app.id}>
                   <td>{app.id}</td>
                   <td>
-                    <span className="user-name">{app.user_name || `ID Utilizator: ${app.user_id}`}</span>
+                    <span className="user-name">{app.user_name || `User ID: ${app.user_id}`}</span>
                   </td>
                   <td>{app.program?.name || 'N/A'}</td>
                   <td>{app.program?.university?.name || 'N/A'}</td>
                   <td>{formatDate(app.created_at)}</td>
                   <td>
                     <span className={`status-badge status-${app.status}`}>
-                      {app.status === 'pending' ? 'În așteptare' :
-                       app.status === 'approved' ? 'Aprobată' :
-                       app.status === 'rejected' ? 'Respinsă' :
-                       app.status === 'under_review' ? 'În revizuire' :
-                       app.status === 'withdrawn' ? 'Retrasă' :
+                      {app.status === 'pending' ? 'Pending' :
+                       app.status === 'approved' ? 'Approved' :
+                       app.status === 'rejected' ? 'Rejected' :
+                       app.status === 'under_review' ? 'Under Review' :
+                       app.status === 'withdrawn' ? 'Withdrawn' :
                        app.status.charAt(0).toUpperCase() + app.status.slice(1)}
                     </span>
                   </td>
@@ -305,13 +305,13 @@ const ApplicationsTab = () => {
                         className="btn1"
                         onClick={() => handleViewApplication(app)}
                       >
-                        <i className="fas fa-eye"></i> Vizualizare
+                        <i className="fas fa-eye"></i> View
                       </button>
                       <button 
                         className="btn-grey"
                         onClick={() => handleEditApplication(app)}
                       >
-                        <i className="fas fa-edit"></i> Editare
+                        <i className="fas fa-edit"></i> Edit
                       </button>
                     </div>
                   </td>

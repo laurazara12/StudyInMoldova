@@ -453,7 +453,7 @@ const UniversitiesTab = () => {
             Clear Filters
           </button>
           <button 
-            className="search-button"
+            className="clear-filters-button"
             onClick={handleSearch}
           >
             Search
@@ -1025,8 +1025,9 @@ const UniversitiesTab = () => {
                       alt={`${viewingUniversity.name} campus`}
                       onError={(e) => {
                         e.target.onerror = null;
-                        e.target.src = '/images/placeholder-university.jpg';
+                        e.target.src = 'https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599121/dorin-seremet-_atwwma7pyw-unsplash-1400w_w6dekv.jpg';
                       }}
+                      style={{ maxWidth: '100%', height: 'auto' }}
                     />
                   </div>
                 </div>

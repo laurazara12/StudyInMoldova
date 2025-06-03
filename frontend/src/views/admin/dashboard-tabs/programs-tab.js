@@ -13,6 +13,7 @@ const ProgramsTab = () => {
   const [editingProgram, setEditingProgram] = useState(null);
   const [viewingProgram, setViewingProgram] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState(null);
   const [newProgram, setNewProgram] = useState({
     name: '',
     description: '',
@@ -158,32 +159,33 @@ const ProgramsTab = () => {
     setShowEditProgramForm(true);
   };
 
-  const handleDeleteProgram = async (programId) => {
+  const handleDeleteProgram = (programId) => {
+    setDeleteConfirmation(programId);
+  };
+
+  const handleConfirmDelete = async () => {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/api/programs/${programId}`, {
+      const response = await axios.delete(`${API_BASE_URL}/api/programs/${deleteConfirmation}`, {
         headers: getAuthHeaders()
       });
 
-      console.log('Delete program response:', response.data);
-
-      if (response.data && (response.data.success || response.data.message === 'Program deleted successfully')) {
+      if (response.data.success) {
         await loadPrograms();
-        setSuccessMessage('Program was successfully deleted!');
+        setSuccessMessage('Programul a fost șters cu succes!');
         setTimeout(() => setSuccessMessage(''), 3000);
       } else {
-        throw new Error(response.data.message || 'Error deleting program');
+        throw new Error(response.data.message || 'Eroare la ștergerea programului');
       }
     } catch (error) {
       console.error('Error deleting program:', error);
-      if (error.message === 'Program deleted successfully') {
-        await loadPrograms();
-        setSuccessMessage('Program was successfully deleted!');
-        setTimeout(() => setSuccessMessage(''), 3000);
-      } else {
-        setError('An error occurred while deleting the program. Please try again.');
-        setTimeout(() => setError(null), 5000);
-      }
+      setError(error.response?.data?.message || 'Eroare la ștergerea programului');
+    } finally {
+      setDeleteConfirmation(null);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteConfirmation(null);
   };
 
   const handleUpdateProgram = async (e) => {
@@ -345,7 +347,7 @@ const ProgramsTab = () => {
             Reset Filters
           </button>
           <button 
-            className="search-button"
+            className="clear-filters-button"
             onClick={handleSearch}
           >
             Search
@@ -856,6 +858,29 @@ const ProgramsTab = () => {
                 onClick={handleCloseViewModal}
               >
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteConfirmation && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Confirmare ștergere</h2>
+            <p>Sigur doriți să ștergeți acest program? Această acțiune va șterge și toate aplicațiile asociate.</p>
+            <div className="modal-buttons">
+              <button 
+                className="btn-grey-2"
+                onClick={handleCancelDelete}
+              >
+                Anulează
+              </button>
+              <button 
+                className="btn-delete"
+                onClick={handleConfirmDelete}
+              >
+                Șterge
               </button>
             </div>
           </div>

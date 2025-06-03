@@ -57,7 +57,8 @@ module.exports = (sequelize) => {
       references: {
         model: 'universities',
         key: 'id'
-      }
+      },
+      onDelete: 'CASCADE'
     }
   }, {
     timestamps: true,
@@ -68,11 +69,20 @@ module.exports = (sequelize) => {
   Program.associate = (models) => {
     Program.belongsTo(models.University, {
       foreignKey: 'university_id',
-      as: 'university'
+      as: 'university',
+      onDelete: 'CASCADE'
     });
+    
     Program.hasMany(models.Application, {
       foreignKey: 'program_id',
-      as: 'applications'
+      as: 'applications',
+      onDelete: 'CASCADE'
+    });
+    
+    Program.hasMany(models.SavedProgram, {
+      foreignKey: 'program_id',
+      as: 'savedPrograms',
+      onDelete: 'CASCADE'
     });
   };
 

@@ -89,6 +89,19 @@ h1{
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: #f5f5f5;
+  overflow: hidden;
+}
+
+.university-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.university-image img:hover {
+  transform: scale(1.05);
 }
 
 .university-content {
@@ -252,7 +265,7 @@ h1{
   margin-top: 0.5rem;
   display: flex;
   gap: 1.5rem;
-  justify-content: flex-start;
+  justify-content: center;
   padding-top: 0;
   border-top: none;
 }
@@ -375,7 +388,6 @@ h1{
     height: 220px;
     margin: 1rem 0 0 0;
     border-radius: 12px 12px 0 0;
-    object-position: center;
   }
   .university-content {
     padding: 1.2rem;
@@ -391,23 +403,18 @@ h1{
   }
 }
 
-.university-card-small-font {
-  font-size: 0.68rem !important;
-}
 .university-title-small {
-  font-size: 1rem !important;
+
   font-weight: 700;
   margin-bottom: 0.2rem;
-  color: #111 !important;
+
 }
 .university-description-small {
-  font-size: 0.78rem !important;
+
   margin-bottom: 0.4rem;
   color: #222;
 }
 .university-link-small {
-  font-size: 0.7rem !important;
-  color: #333 !important;
   display: inline;
   word-break: break-all;
   margin-bottom: 0;
@@ -418,7 +425,6 @@ h1{
   text-decoration: none;
 }
 .university-link-small:hover {
-  color: #333 !important;
   text-decoration: none;
 }
 .university-details-title-small {
@@ -448,13 +454,11 @@ h1{
   color: #666;
 }
 .tuition-fees-small {
-  font-size: 0.65rem !important;
   line-height: 1.2;
   margin-bottom: 0.2rem;
   pointer-events: none;
 }
 .tuition-fees-small li {
-  font-size: 0.65rem !important;
   margin-bottom: 0.1rem;
   pointer-events: none;
 }
