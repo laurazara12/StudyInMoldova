@@ -10,6 +10,12 @@ const UniversityPresentation = ({ university }) => {
     return <div className="university-card">Loading...</div>;
   }
 
+  const getFirstSentence = (text) => {
+    if (!text) return '';
+    const firstSentence = text.match(/^[^.!?]+[.!?]/);
+    return firstSentence ? firstSentence[0] + '...' : text;
+  };
+
   const handleImageError = (e) => {
     e.target.src = 'https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599121/dorin-seremet-_atwwma7pyw-unsplash-1400w_w6dekv.jpg';
     e.target.onerror = null;
@@ -181,25 +187,17 @@ const UniversityPresentation = ({ university }) => {
             </Link>
           </h2>
           {university.location && (
-            <div className="university-location">
-              <i className="fas fa-map-marker-alt"></i>
-              <span>{university.location}</span>
-            </div>
+            <span className="university-type">{university.location}</span>
           )}
         </div>
-        <p className="university-description-small">{university.description}</p>
-        {university.website && (
-          <div className="university-link-wrapper">
-            <a href={university.website} className="university-link-small" target="_blank" rel="noopener noreferrer">{university.website}</a>
-          </div>
-        )}
+        <p className="university-description-small">{getFirstSentence(university.description)}</p>
         <div className="university-details-row">
           <div className="university-details-col">
             <h3 className="university-details-title-small">University Ranking</h3>
             <div className="university-ranking-small">
               {console.log('University ranking for', university.name, ':', university.ranking)}
               {university.ranking && university.ranking !== '' ? (
-                <div className="ranking-value" style={{ color: '#FF9800', fontWeight: '600' }}>
+                <div className="ranking-value">
                   {university.ranking}
                 </div>
               ) : (
@@ -209,6 +207,14 @@ const UniversityPresentation = ({ university }) => {
                 </div>
               )}
             </div>
+            {university.website && (
+              <>
+                <h3 className="university-details-title-small">Website</h3>
+                <div className="university-link-wrapper">
+                  <a href={university.website} className="university-link-small" target="_blank" rel="noopener noreferrer">{university.website}</a>
+                </div>
+              </>
+            )}
           </div>
           <div className="university-details-col">
             <h3 className="university-details-title-small">Tuition Fees</h3>

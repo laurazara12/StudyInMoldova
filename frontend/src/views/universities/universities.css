@@ -116,7 +116,6 @@ h1{
 }
 
 .university-content h2 {
-  margin: 0 0 1rem 0;
   color: #222;
   font-size: 2.3rem;
   font-weight: 800;
@@ -408,7 +407,7 @@ h1{
 }
 .university-link-small {
   font-size: 0.7rem !important;
-  color: #e65103 !important;
+  color: #333 !important;
   display: inline;
   word-break: break-all;
   margin-bottom: 0;
@@ -416,17 +415,23 @@ h1{
   background: none;
   border: none;
   max-width: 100%;
+  text-decoration: none;
+}
+.university-link-small:hover {
+  color: #333 !important;
+  text-decoration: none;
 }
 .university-details-title-small {
-  font-size: 0.75rem !important;
+  color: var(--dl-color-theme-primary1);
+  font-size: 0.9rem;
+  margin: 0 0 0.5rem 0;
   font-weight: 600;
-  margin-bottom: 0.1rem;
-  color: #444 !important;
 }
 .university-ranking-small {
   font-size: var(--dl-font-size-small);
   color: #666;
   margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
 }
 .ranking-value {
   font-weight: 500;
@@ -446,16 +451,18 @@ h1{
   font-size: 0.65rem !important;
   line-height: 1.2;
   margin-bottom: 0.2rem;
+  pointer-events: none;
 }
 .tuition-fees-small li {
   font-size: 0.65rem !important;
   margin-bottom: 0.1rem;
+  pointer-events: none;
 }
-.btn-small {
-  font-size: 0.7rem !important;
-  padding: 0.4rem 1.2rem !important;
-  border-radius: 18px !important;
+.tuition-fees-small li:hover {
+  background: none !important;
+  transform: none !important;
 }
+
 
 @media (max-width: 768px) {
   .filter-section {
