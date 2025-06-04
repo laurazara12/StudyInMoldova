@@ -1,0 +1,137 @@
+{
+  "title": "Living in Moldova",
+  "subtitle": "Discover the charm of student life in Moldova - from affordable living to rich cultural experiences",
+  "sections": {
+    "currency": {
+      "title": "Currency & Cost of Living",
+      "aboutCurrency": "About Moldovan Currency:",
+      "currencyInfo": [
+        "Official currency: Moldovan Leu (MDL)",
+        "Current exchange rates (approximate):",
+        "  - 1 EUR ≈ 19.5 MDL",
+        "  - 1 USD ≈ 17.8 MDL",
+        "  - 1 GBP ≈ 22.5 MDL"
+      ],
+      "monthlyBudget": "Monthly Budget Breakdown (in EUR):",
+      "budgetItems": [
+        "A place to stay: around €150-€300",
+        "Food and groceries: about €200-€300",
+        "Getting around: roughly €20-€30",
+        "Utilities (water, electricity): around €50-€80",
+        "Fun and entertainment: about €50-€100"
+      ],
+      "tip": "💡 Total monthly budget: approximately €500-€800 (this is just a guide - your actual costs may vary)",
+      "links": {
+        "universityCosts": "Check University Costs →",
+        "programFees": "Explore Program Fees →"
+      }
+    },
+    "accommodation": {
+      "title": "Accommodation",
+      "options": "You have several options for where to live:",
+      "optionsList": [
+        "Student dorms: around €50-€100/month (most budget-friendly)",
+        "Private apartments: about €200-€400/month (more privacy)",
+        "Shared apartments: roughly €150-€250/month (good balance)"
+      ],
+      "popularAreas": "Popular areas for students:",
+      "areasList": [
+        "Centru (city center) - Close to everything, including universities",
+        "Botanica - Quiet and peaceful, great for studying",
+        "Râșcani - Budget-friendly and well-connected by public transport"
+      ],
+      "tip": "🏠 Pro tip: Start with university accommodation - it's easier to find private housing once you're here and know the city better",
+      "links": {
+        "usmHousing": "USM Student Housing Info →",
+        "utmHousing": "UTM Student Housing Info →"
+      }
+    },
+    "transportation": {
+      "title": "Transportation",
+      "intro": "Getting around is easy and affordable:",
+      "options": [
+        "Bus rides: about €0.30 each",
+        "Trolleybus: around €0.30 per ride",
+        "Monthly pass: roughly €10-€15 (best value)",
+        "Taxi rides: starting from €1.50"
+      ],
+      "apps": "Handy apps to download:",
+      "appsList": [
+        "Yandex.Taxi - The most popular taxi app here",
+        "Uber - Also available in Chișinău",
+        "Google Maps - Great for planning your routes"
+      ],
+      "tip": "🚌 Good news: Students get special discounts on monthly passes!",
+      "links": {
+        "transportGuide": "Chișinău Transport Guide →"
+      }
+    },
+    "food": {
+      "title": "Food & Dining",
+      "localFavorites": "Try these local favorites:",
+      "favoritesList": [
+        "Mămăligă (cornmeal porridge) - A traditional staple",
+        "Plăcinte (savory pastries) - Perfect for quick meals",
+        "Sarmale (stuffed cabbage rolls) - A must-try!",
+        "Zeamă (chicken soup) - Great for cold days"
+      ],
+      "budgetOptions": "Budget-friendly options:",
+      "budgetList": [
+        "Student cafeterias: around €2-€4 per meal",
+        "Local restaurants: about €5-€10 per meal",
+        "Weekly groceries: roughly €30-€50"
+      ],
+      "tip": "🛒 Shopping tip: Look for student discounts at supermarkets like Linella, Nr. 1, and Kaufland",
+      "links": {
+        "cuisine": "Discover Moldovan Cuisine →"
+      }
+    },
+    "healthcare": {
+      "title": "Healthcare & Insurance",
+      "importantInfo": "Important things to know:",
+      "infoList": [
+        "Health insurance is required for all students",
+        "Insurance costs: around €50-€150 per year",
+        "Most medical services are covered"
+      ],
+      "helpPlaces": "Where to get help:",
+      "helpList": [
+        "Your university's medical center",
+        "Public hospitals in the city",
+        "Private clinics (if needed)"
+      ],
+      "tip": "🏥 Remember: Always keep your insurance card with you - you never know when you might need it",
+      "links": {
+        "insuranceHelp": "Get Help with Insurance →"
+      }
+    },
+    "culture": {
+      "title": "Culture & Language",
+      "languages": "Languages you'll hear:",
+      "languagesList": [
+        "Romanian is the official language",
+        "Russian is widely spoken",
+        "English is common in academic settings"
+      ],
+      "experiences": "Fun cultural experiences:",
+      "experiencesList": [
+        "Wine festivals (especially in September)",
+        "Traditional music events",
+        "Local markets - great for fresh produce"
+      ],
+      "tip": "🌍 Pro tip: Learning a few basic Romanian phrases will make your daily life much easier!",
+      "links": {
+        "languageCourses": "Find Language Courses →",
+        "culturalEvents": "Explore Cultural Events →"
+      }
+    }
+  },
+  "contact": {
+    "title": "Need More Information?",
+    "text": "Have questions about life in Moldova? We're here to help! Whether you need advice about accommodation, transportation, or daily life, our team is ready to assist you. We can also help with university applications and visa requirements.",
+    "buttons": {
+      "getInTouch": "Get in Touch",
+      "planStudies": "Plan Your Studies"
+    }
+  }
+} 

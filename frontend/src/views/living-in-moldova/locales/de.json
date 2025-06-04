@@ -1,0 +1,137 @@
+{
+  "title": "Leben in Moldawien",
+  "subtitle": "Entdecken Sie den Charme des Studentenlebens in Moldawien - von erschwinglichen Lebenshaltungskosten bis hin zu reichen kulturellen Erfahrungen",
+  "sections": {
+    "currency": {
+      "title": "Währung und Lebenshaltungskosten",
+      "aboutCurrency": "Über die moldauische Währung:",
+      "currencyInfo": [
+        "Offizielle Währung: Moldauischer Leu (MDL)",
+        "Aktuelle Wechselkurse (ungefähr):",
+        "  - 1 EUR ≈ 19.5 MDL",
+        "  - 1 USD ≈ 17.8 MDL",
+        "  - 1 GBP ≈ 22.5 MDL"
+      ],
+      "monthlyBudget": "Monatliches Budget (in EUR):",
+      "budgetItems": [
+        "Unterkunft: etwa €150-€300",
+        "Lebensmittel und Einkäufe: etwa €200-€300",
+        "Transport: etwa €20-€30",
+        "Nebenkosten (Wasser, Strom): etwa €50-€80",
+        "Freizeit und Unterhaltung: etwa €50-€100"
+      ],
+      "tip": "💡 Gesamtmonatsbudget: etwa €500-€800 (dies ist nur ein Richtwert - Ihre tatsächlichen Kosten können variieren)",
+      "links": {
+        "universityCosts": "Universitätskosten prüfen →",
+        "programFees": "Programmgebühren erkunden →"
+      }
+    },
+    "accommodation": {
+      "title": "Unterkunft",
+      "options": "Sie haben mehrere Unterkunftsmöglichkeiten:",
+      "optionsList": [
+        "Studentenwohnheime: etwa €50-€100/Monat (am günstigsten)",
+        "Private Apartments: etwa €200-€400/Monat (mehr Privatsphäre)",
+        "Wohngemeinschaften: etwa €150-€250/Monat (guter Kompromiss)"
+      ],
+      "popularAreas": "Beliebte Gegenden für Studenten:",
+      "areasList": [
+        "Centru (Stadtzentrum) - Nahe an allem, einschließlich Universitäten",
+        "Botanica - Ruhig und friedlich, ideal zum Studieren",
+        "Râșcani - Günstig und gut an den öffentlichen Nahverkehr angebunden"
+      ],
+      "tip": "🏠 Pro-Tipp: Beginnen Sie mit der Universitätsunterkunft - es ist einfacher, private Unterkünfte zu finden, wenn Sie vor Ort sind und die Stadt besser kennen",
+      "links": {
+        "usmHousing": "USM Studentenwohnheim-Info →",
+        "utmHousing": "UTM Studentenwohnheim-Info →"
+      }
+    },
+    "transportation": {
+      "title": "Transport",
+      "intro": "Fortbewegung ist einfach und erschwinglich:",
+      "options": [
+        "Busfahrten: etwa €0.30 pro Fahrt",
+        "Oberleitungsbus: etwa €0.30 pro Fahrt",
+        "Monatskarte: etwa €10-€15 (bester Wert)",
+        "Taxifahrten: ab €1.50"
+      ],
+      "apps": "Nützliche Apps zum Herunterladen:",
+      "appsList": [
+        "Yandex.Taxi - Die beliebteste Taxi-App hier",
+        "Uber - Auch in Chișinău verfügbar",
+        "Google Maps - Ideal für die Routenplanung"
+      ],
+      "tip": "🚌 Gute Nachricht: Studenten erhalten spezielle Rabatte auf Monatskarten!",
+      "links": {
+        "transportGuide": "Chișinău Transport-Guide →"
+      }
+    },
+    "food": {
+      "title": "Essen & Gastronomie",
+      "localFavorites": "Probieren Sie diese lokalen Spezialitäten:",
+      "favoritesList": [
+        "Mămăligă (Maisbrei) - Ein traditionelles Grundnahrungsmittel",
+        "Plăcinte (herzhafte Pasteten) - Perfekt für schnelle Mahlzeiten",
+        "Sarmale (gefüllte Kohlrouladen) - Ein Muss!",
+        "Zeamă (Hühnersuppe) - Ideal für kalte Tage"
+      ],
+      "budgetOptions": "Budgetfreundliche Optionen:",
+      "budgetList": [
+        "Studentencafeterias: etwa €2-€4 pro Mahlzeit",
+        "Lokale Restaurants: etwa €5-€10 pro Mahlzeit",
+        "Wöchentliche Einkäufe: etwa €30-€50"
+      ],
+      "tip": "🛒 Einkaufstipp: Achten Sie auf Studentenrabatte in Supermärkten wie Linella, Nr. 1 und Kaufland",
+      "links": {
+        "cuisine": "Moldauische Küche entdecken →"
+      }
+    },
+    "healthcare": {
+      "title": "Gesundheit & Versicherung",
+      "importantInfo": "Wichtige Informationen:",
+      "infoList": [
+        "Krankenversicherung ist für alle Studenten Pflicht",
+        "Versicherungskosten: etwa €50-€150 pro Jahr",
+        "Die meisten medizinischen Leistungen sind abgedeckt"
+      ],
+      "helpPlaces": "Wo Sie Hilfe bekommen:",
+      "helpList": [
+        "Das medizinische Zentrum Ihrer Universität",
+        "Öffentliche Krankenhäuser in der Stadt",
+        "Private Kliniken (falls nötig)"
+      ],
+      "tip": "🏥 Denken Sie daran: Halten Sie Ihre Versicherungskarte immer bei sich - man weiß nie, wann man sie brauchen könnte",
+      "links": {
+        "insuranceHelp": "Hilfe bei der Versicherung →"
+      }
+    },
+    "culture": {
+      "title": "Kultur & Sprache",
+      "languages": "Sprachen, die Sie hören werden:",
+      "languagesList": [
+        "Rumänisch ist die Amtssprache",
+        "Russisch wird weit verbreitet gesprochen",
+        "Englisch ist im akademischen Umfeld üblich"
+      ],
+      "experiences": "Unterhaltsame kulturelle Erfahrungen:",
+      "experiencesList": [
+        "Weinfeste (besonders im September)",
+        "Traditionelle Musikveranstaltungen",
+        "Lokale Märkte - ideal für frische Produkte"
+      ],
+      "tip": "🌍 Pro-Tipp: Das Lernen einiger grundlegender rumänischer Phrasen wird Ihr tägliches Leben viel einfacher machen!",
+      "links": {
+        "languageCourses": "Sprachkurse finden →",
+        "culturalEvents": "Kulturelle Veranstaltungen erkunden →"
+      }
+    }
+  },
+  "contact": {
+    "title": "Brauchen Sie Mehr Informationen?",
+    "text": "Haben Sie Fragen zum Leben in Moldawien? Wir sind hier, um zu helfen! Ob Sie Ratschläge zu Unterkunft, Transport oder dem täglichen Leben benötigen, unser Team steht Ihnen zur Verfügung. Wir können Ihnen auch bei Universitätsbewerbungen und Visaanforderungen helfen.",
+    "buttons": {
+      "getInTouch": "Kontaktieren Sie uns",
+      "planStudies": "Studium planen"
+    }
+  }
+} 

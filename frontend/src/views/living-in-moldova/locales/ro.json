@@ -1,0 +1,137 @@
+{
+  "title": "Viața în Moldova",
+  "subtitle": "Descoperă farmecul vieții de student în Moldova - de la costuri accesibile la experiențe culturale bogate",
+  "sections": {
+    "currency": {
+      "title": "Monedă și Costul Vieții",
+      "aboutCurrency": "Despre moneda moldovenească:",
+      "currencyInfo": [
+        "Moneda oficială: Leu moldovenesc (MDL)",
+        "Rate de schimb actuale (aproximative):",
+        "  - 1 EUR ≈ 19.5 MDL",
+        "  - 1 USD ≈ 17.8 MDL",
+        "  - 1 GBP ≈ 22.5 MDL"
+      ],
+      "monthlyBudget": "Buget lunar (în EUR):",
+      "budgetItems": [
+        "Cazare: aproximativ €150-€300",
+        "Alimente și cumpărături: aproximativ €200-€300",
+        "Transport: aproximativ €20-€30",
+        "Utilități (apă, electricitate): aproximativ €50-€80",
+        "Distracție și divertisment: aproximativ €50-€100"
+      ],
+      "tip": "💡 Buget lunar total: aproximativ €500-€800 (acesta este doar un ghid - costurile reale pot varia)",
+      "links": {
+        "universityCosts": "Verifică Costurile Universităților →",
+        "programFees": "Explorează Taxele Programelor →"
+      }
+    },
+    "accommodation": {
+      "title": "Cazare",
+      "options": "Ai mai multe opțiuni de cazare:",
+      "optionsList": [
+        "Cămine studențești: aproximativ €50-€100/lună (cea mai economică)",
+        "Apartamente private: aproximativ €200-€400/lună (mai multă intimitate)",
+        "Apartamente împărțite: aproximativ €150-€250/lună (un bun echilibru)"
+      ],
+      "popularAreas": "Zone populare pentru studenți:",
+      "areasList": [
+        "Centru - Aproape de tot, inclusiv universități",
+        "Botanica - Liniștit și pașnic, perfect pentru studiu",
+        "Râșcani - Economic și bine conectat prin transport public"
+      ],
+      "tip": "🏠 Sfat: Începe cu cazarea universitară - este mai ușor să găsești cazare privată odată ce ești aici și cunoști orașul mai bine",
+      "links": {
+        "usmHousing": "Informații Cazare USM →",
+        "utmHousing": "Informații Cazare UTM →"
+      }
+    },
+    "transportation": {
+      "title": "Transport",
+      "intro": "Deplasarea este ușoară și accesibilă:",
+      "options": [
+        "Autobuz: aproximativ €0.30 per călătorie",
+        "Troleibuz: aproximativ €0.30 per călătorie",
+        "Abonament lunar: aproximativ €10-€15 (cea mai bună valoare)",
+        "Taxi: începând de la €1.50"
+      ],
+      "apps": "Aplicații utile de descărcat:",
+      "appsList": [
+        "Yandex.Taxi - Cea mai populară aplicație de taxi aici",
+        "Uber - Disponibil și în Chișinău",
+        "Google Maps - Excelent pentru planificarea rutelor"
+      ],
+      "tip": "🚌 Veste bună: Studenții beneficiază de reduceri speciale la abonamentele lunare!",
+      "links": {
+        "transportGuide": "Ghid Transport Chișinău →"
+      }
+    },
+    "food": {
+      "title": "Mâncare și Restaurante",
+      "localFavorites": "Încearcă aceste preparate locale:",
+      "favoritesList": [
+        "Mămăligă - Un aliment tradițional de bază",
+        "Plăcinte - Perfecte pentru mese rapide",
+        "Sarmale - Trebuie să le încerci!",
+        "Zeamă - Perfectă pentru zilele reci"
+      ],
+      "budgetOptions": "Opțiuni buget:",
+      "budgetList": [
+        "Cantine studențești: aproximativ €2-€4 per masă",
+        "Restaurante locale: aproximativ €5-€10 per masă",
+        "Cumpărături săptămânale: aproximativ €30-€50"
+      ],
+      "tip": "🛒 Sfat pentru cumpărături: Caută reduceri pentru studenți la supermarketurile precum Linella, Nr. 1 și Kaufland",
+      "links": {
+        "cuisine": "Descoperă Bucătăria Moldovenească →"
+      }
+    },
+    "healthcare": {
+      "title": "Sănătate și Asigurări",
+      "importantInfo": "Informații importante:",
+      "infoList": [
+        "Asigurarea medicală este obligatorie pentru toți studenții",
+        "Costuri asigurare: aproximativ €50-€150 pe an",
+        "Majoritatea serviciilor medicale sunt acoperite"
+      ],
+      "helpPlaces": "Unde poți găsi ajutor:",
+      "helpList": [
+        "Centrul medical al universității tale",
+        "Spitale publice din oraș",
+        "Clinicile private (dacă este necesar)"
+      ],
+      "tip": "🏥 Reține: Păstrează-ți întotdeauna cardul de asigurare la tine - nu știi niciodată când ai putea avea nevoie de el",
+      "links": {
+        "insuranceHelp": "Obține Ajutor cu Asigurarea →"
+      }
+    },
+    "culture": {
+      "title": "Cultură și Limbă",
+      "languages": "Limbi pe care le vei auzi:",
+      "languagesList": [
+        "Româna este limba oficială",
+        "Rusa este vorbită pe scară largă",
+        "Engleza este comună în mediul academic"
+      ],
+      "experiences": "Experiențe culturale distractive:",
+      "experiencesList": [
+        "Festivaluri de vin (în special în septembrie)",
+        "Evenimente de muzică tradițională",
+        "Piețe locale - perfecte pentru produse proaspete"
+      ],
+      "tip": "🌍 Sfat: Învățarea câtorva fraze de bază în română îți va face viața de zi cu zi mult mai ușoară!",
+      "links": {
+        "languageCourses": "Găsește Cursuri de Limbă →",
+        "culturalEvents": "Explorează Evenimente Culturale →"
+      }
+    }
+  },
+  "contact": {
+    "title": "Ai Nevoie de Mai Multe Informații?",
+    "text": "Ai întrebări despre viața în Moldova? Suntem aici să te ajutăm! Fie că ai nevoie de sfaturi despre cazare, transport sau viața de zi cu zi, echipa noastră este gata să te asiste. De asemenea, te putem ajuta cu aplicațiile la universități și cerințele pentru viză.",
+    "buttons": {
+      "getInTouch": "Contactează-ne",
+      "planStudies": "Planifică-ți Studiile"
+    }
+  }
+} 

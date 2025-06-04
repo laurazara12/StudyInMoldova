@@ -1,0 +1,137 @@
+{
+  "title": "Vivre en Moldavie",
+  "subtitle": "Découvrez le charme de la vie étudiante en Moldavie - du coût de la vie abordable aux riches expériences culturelles",
+  "sections": {
+    "currency": {
+      "title": "Monnaie et Coût de la Vie",
+      "aboutCurrency": "À propos de la monnaie moldave :",
+      "currencyInfo": [
+        "Monnaie officielle : Leu moldave (MDL)",
+        "Taux de change actuels (approximatifs) :",
+        "  - 1 EUR ≈ 19.5 MDL",
+        "  - 1 USD ≈ 17.8 MDL",
+        "  - 1 GBP ≈ 22.5 MDL"
+      ],
+      "monthlyBudget": "Budget mensuel (en EUR) :",
+      "budgetItems": [
+        "Logement : environ €150-€300",
+        "Nourriture et courses : environ €200-€300",
+        "Transport : environ €20-€30",
+        "Services publics (eau, électricité) : environ €50-€80",
+        "Loisirs et divertissements : environ €50-€100"
+      ],
+      "tip": "💡 Budget mensuel total : environ €500-€800 (ceci est juste un guide - vos coûts réels peuvent varier)",
+      "links": {
+        "universityCosts": "Vérifier les Coûts Universitaires →",
+        "programFees": "Explorer les Frais de Programme →"
+      }
+    },
+    "accommodation": {
+      "title": "Logement",
+      "options": "Vous avez plusieurs options de logement :",
+      "optionsList": [
+        "Résidences universitaires : environ €50-€100/mois (le plus économique)",
+        "Appartements privés : environ €200-€400/mois (plus d'intimité)",
+        "Colocations : environ €150-€250/mois (bon équilibre)"
+      ],
+      "popularAreas": "Zones populaires pour les étudiants :",
+      "areasList": [
+        "Centru (centre-ville) - Proche de tout, y compris des universités",
+        "Botanica - Calme et paisible, idéal pour étudier",
+        "Râșcani - Économique et bien desservi par les transports publics"
+      ],
+      "tip": "🏠 Conseil : Commencez par le logement universitaire - il est plus facile de trouver un logement privé une fois sur place et quand vous connaissez mieux la ville",
+      "links": {
+        "usmHousing": "Info Logement USM →",
+        "utmHousing": "Info Logement UTM →"
+      }
+    },
+    "transportation": {
+      "title": "Transport",
+      "intro": "Se déplacer est facile et abordable :",
+      "options": [
+        "Bus : environ €0.30 par trajet",
+        "Trolleybus : environ €0.30 par trajet",
+        "Pass mensuel : environ €10-€15 (meilleur rapport qualité-prix)",
+        "Taxi : à partir de €1.50"
+      ],
+      "apps": "Applications utiles à télécharger :",
+      "appsList": [
+        "Yandex.Taxi - L'application de taxi la plus populaire ici",
+        "Uber - Également disponible à Chișinău",
+        "Google Maps - Parfait pour planifier vos itinéraires"
+      ],
+      "tip": "🚌 Bonne nouvelle : Les étudiants bénéficient de réductions spéciales sur les passes mensuels !",
+      "links": {
+        "transportGuide": "Guide des Transports de Chișinău →"
+      }
+    },
+    "food": {
+      "title": "Nourriture et Restauration",
+      "localFavorites": "Essayez ces plats locaux :",
+      "favoritesList": [
+        "Mămăligă (bouillie de maïs) - Un aliment traditionnel de base",
+        "Plăcinte (pâtisseries salées) - Parfaites pour les repas rapides",
+        "Sarmale (rouleaux de chou farcis) - À ne pas manquer !",
+        "Zeamă (soupe au poulet) - Parfaite pour les jours froids"
+      ],
+      "budgetOptions": "Options économiques :",
+      "budgetList": [
+        "Cafétérias étudiantes : environ €2-€4 par repas",
+        "Restaurants locaux : environ €5-€10 par repas",
+        "Courses hebdomadaires : environ €30-€50"
+      ],
+      "tip": "🛒 Conseil shopping : Cherchez les réductions étudiantes dans les supermarchés comme Linella, Nr. 1 et Kaufland",
+      "links": {
+        "cuisine": "Découvrir la Cuisine Moldave →"
+      }
+    },
+    "healthcare": {
+      "title": "Santé et Assurance",
+      "importantInfo": "Informations importantes :",
+      "infoList": [
+        "L'assurance maladie est obligatoire pour tous les étudiants",
+        "Coûts de l'assurance : environ €50-€150 par an",
+        "La plupart des services médicaux sont couverts"
+      ],
+      "helpPlaces": "Où obtenir de l'aide :",
+      "helpList": [
+        "Le centre médical de votre université",
+        "Les hôpitaux publics de la ville",
+        "Les cliniques privées (si nécessaire)"
+      ],
+      "tip": "🏥 N'oubliez pas : Gardez toujours votre carte d'assurance avec vous - on ne sait jamais quand on pourrait en avoir besoin",
+      "links": {
+        "insuranceHelp": "Obtenir de l'Aide pour l'Assurance →"
+      }
+    },
+    "culture": {
+      "title": "Culture et Langue",
+      "languages": "Langues que vous entendrez :",
+      "languagesList": [
+        "Le roumain est la langue officielle",
+        "Le russe est largement parlé",
+        "L'anglais est courant dans le milieu universitaire"
+      ],
+      "experiences": "Expériences culturelles amusantes :",
+      "experiencesList": [
+        "Festivals du vin (surtout en septembre)",
+        "Événements de musique traditionnelle",
+        "Marchés locaux - parfaits pour les produits frais"
+      ],
+      "tip": "🌍 Conseil : Apprendre quelques phrases de base en roumain rendra votre vie quotidienne beaucoup plus facile !",
+      "links": {
+        "languageCourses": "Trouver des Cours de Langue →",
+        "culturalEvents": "Explorer les Événements Culturels →"
+      }
+    }
+  },
+  "contact": {
+    "title": "Besoin de Plus d'Informations ?",
+    "text": "Vous avez des questions sur la vie en Moldavie ? Nous sommes là pour vous aider ! Que vous ayez besoin de conseils sur le logement, les transports ou la vie quotidienne, notre équipe est prête à vous assister. Nous pouvons également vous aider avec les candidatures universitaires et les exigences de visa.",
+    "buttons": {
+      "getInTouch": "Nous Contacter",
+      "planStudies": "Planifier vos Études"
+    }
+  }
+} 

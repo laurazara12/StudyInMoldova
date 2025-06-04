@@ -1,167 +1,164 @@
 import React from 'react';
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from 'react-helmet';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import Navbar from '../../components/navbar';
 import Footer from '../../components/footer';
 import './living-in-moldova.css';
 
 const LivingInMoldova = () => {
+  const { t } = useTranslation('livingInMoldova');
+
   return (
     <div className="living-in-moldova-container">
       <Helmet>
-        <title>Living in Moldova - Study In Moldova</title>
-        <meta property="og:title" content="Living in Moldova - Study In Moldova" />
+        <title>{t('title')} | StudyInMoldova</title>
+        <meta name="description" content={t('subtitle')} />
       </Helmet>
       <Navbar rootClassName="navbar-root-class-name" />
       <div className="living-in-moldova-header">
         <div className="living-in-moldova-header-content">
-          <h1>Living in Moldova</h1>
-          <p>Discover the charm of student life in Moldova - from affordable living to rich cultural experiences</p>
+          <h1>{t('title')}</h1>
+          <p>{t('subtitle')}</p>
         </div>
       </div>
       <div className="living-in-moldova-content">
         <div className="living-in-moldova-grid">
           <div className="living-in-moldova-card">
-            <h2 className="living-in-moldova-card-title">Currency & Cost of Living</h2>
+            <h2 className="living-in-moldova-card-title">{t('sections.currency.title')}</h2>
             <div className="living-in-moldova-card-content">
-              <span>About Moldovan Currency:</span>
-              <span>• Official currency: Moldovan Leu (MDL)</span>
-              <span>• Current exchange rates (approximate):</span>
-              <span>  - 1 EUR ≈ 19.5 MDL</span>
-              <span>  - 1 USD ≈ 17.8 MDL</span>
-              <span>  - 1 GBP ≈ 22.5 MDL</span>
-              <span>Monthly Budget Breakdown (in EUR):</span>
-              <span>• A place to stay: around €150-€300</span>
-              <span>• Food and groceries: about €200-€300</span>
-              <span>• Getting around: roughly €20-€30</span>
-              <span>• Utilities (water, electricity): around €50-€80</span>
-              <span>• Fun and entertainment: about €50-€100</span>
+              <span>{t('sections.currency.aboutCurrency')}</span>
+              {t('sections.currency.currencyInfo', { returnObjects: true }).map((info, index) => (
+                <span key={index}>{info}</span>
+              ))}
+              <span>{t('sections.currency.monthlyBudget')}</span>
+              {t('sections.currency.budgetItems', { returnObjects: true }).map((item, index) => (
+                <span key={index}>{item}</span>
+              ))}
               <div className="living-in-moldova-tip">
-                💡 Total monthly budget: approximately €500-€800 (this is just a guide - your actual costs may vary)
+                {t('sections.currency.tip')}
               </div>
               <div className="living-in-moldova-links">
-                <Link to="/universities" className="living-in-moldova-link">Check University Costs →</Link>
-                <Link to="/programs" className="living-in-moldova-link">Explore Program Fees →</Link>
+                <Link to="/universities" className="living-in-moldova-link">{t('sections.currency.links.universityCosts')}</Link>
+                <Link to="/programs" className="living-in-moldova-link">{t('sections.currency.links.programFees')}</Link>
               </div>
             </div>
           </div>
 
           <div className="living-in-moldova-card">
-            <h2 className="living-in-moldova-card-title">Accommodation</h2>
+            <h2 className="living-in-moldova-card-title">{t('sections.accommodation.title')}</h2>
             <div className="living-in-moldova-card-content">
-              <span>You have several options for where to live:</span>
-              <span>• Student dorms: around €50-€100/month (most budget-friendly)</span>
-              <span>• Private apartments: about €200-€400/month (more privacy)</span>
-              <span>• Shared apartments: roughly €150-€250/month (good balance)</span>
-              <span>Popular areas for students:</span>
-              <span>• Centru (city center) - Close to everything, including universities</span>
-              <span>• Botanica - Quiet and peaceful, great for studying</span>
-              <span>• Râșcani - Budget-friendly and well-connected by public transport</span>
+              <span>{t('sections.accommodation.options')}</span>
+              {t('sections.accommodation.optionsList', { returnObjects: true }).map((option, index) => (
+                <span key={index}>{option}</span>
+              ))}
+              <span>{t('sections.accommodation.popularAreas')}</span>
+              {t('sections.accommodation.areasList', { returnObjects: true }).map((area, index) => (
+                <span key={index}>{area}</span>
+              ))}
               <div className="living-in-moldova-tip">
-                🏠 Pro tip: Start with university accommodation - it's easier to find private housing once you're here and know the city better
+                {t('sections.accommodation.tip')}
               </div>
               <div className="living-in-moldova-links">
-                <Link to="/universities/usm-university-individual-page" className="living-in-moldova-link">USM Student Housing Info →</Link>
-                <Link to="/universities/utm-university-individual-page" className="living-in-moldova-link">UTM Student Housing Info →</Link>
+                <Link to="/universities/usm-university-individual-page" className="living-in-moldova-link">{t('sections.accommodation.links.usmHousing')}</Link>
+                <Link to="/universities/utm-university-individual-page" className="living-in-moldova-link">{t('sections.accommodation.links.utmHousing')}</Link>
               </div>
             </div>
           </div>
 
           <div className="living-in-moldova-card">
-            <h2 className="living-in-moldova-card-title">Transportation</h2>
+            <h2 className="living-in-moldova-card-title">{t('sections.transportation.title')}</h2>
             <div className="living-in-moldova-card-content">
-              <span>Getting around is easy and affordable:</span>
-              <span>• Bus rides: about €0.30 each</span>
-              <span>• Trolleybus: around €0.30 per ride</span>
-              <span>• Monthly pass: roughly €10-€15 (best value)</span>
-              <span>• Taxi rides: starting from €1.50</span>
-              <span>Handy apps to download:</span>
-              <span>• Yandex.Taxi - The most popular taxi app here</span>
-              <span>• Uber - Also available in Chișinău</span>
-              <span>• Google Maps - Great for planning your routes</span>
+              <span>{t('sections.transportation.intro')}</span>
+              {t('sections.transportation.options', { returnObjects: true }).map((option, index) => (
+                <span key={index}>{option}</span>
+              ))}
+              <span>{t('sections.transportation.apps')}</span>
+              {t('sections.transportation.appsList', { returnObjects: true }).map((app, index) => (
+                <span key={index}>{app}</span>
+              ))}
               <div className="living-in-moldova-tip">
-                🚌 Good news: Students get special discounts on monthly passes!
+                {t('sections.transportation.tip')}
               </div>
               <div className="living-in-moldova-links">
-                <Link to="/living-in-moldova/transportation-guide" className="living-in-moldova-link">Chișinău Transport Guide →</Link>
+                <Link to="/living-in-moldova/transportation-guide" className="living-in-moldova-link">{t('sections.transportation.links.transportGuide')}</Link>
               </div>
             </div>
           </div>
 
           <div className="living-in-moldova-card">
-            <h2 className="living-in-moldova-card-title">Food & Dining</h2>
+            <h2 className="living-in-moldova-card-title">{t('sections.food.title')}</h2>
             <div className="living-in-moldova-card-content">
-              <span>Try these local favorites:</span>
-              <span>• Mămăligă (cornmeal porridge) - A traditional staple</span>
-              <span>• Plăcinte (savory pastries) - Perfect for quick meals</span>
-              <span>• Sarmale (stuffed cabbage rolls) - A must-try!</span>
-              <span>• Zeamă (chicken soup) - Great for cold days</span>
-              <span>Budget-friendly options:</span>
-              <span>• Student cafeterias: around €2-€4 per meal</span>
-              <span>• Local restaurants: about €5-€10 per meal</span>
-              <span>• Weekly groceries: roughly €30-€50</span>
+              <span>{t('sections.food.localFavorites')}</span>
+              {t('sections.food.favoritesList', { returnObjects: true }).map((favorite, index) => (
+                <span key={index}>{favorite}</span>
+              ))}
+              <span>{t('sections.food.budgetOptions')}</span>
+              {t('sections.food.budgetList', { returnObjects: true }).map((option, index) => (
+                <span key={index}>{option}</span>
+              ))}
               <div className="living-in-moldova-tip">
-                🛒 Shopping tip: Look for student discounts at supermarkets like Linella, Nr. 1, and Kaufland
+                {t('sections.food.tip')}
               </div>
               <div className="living-in-moldova-links">
-                <a href="https://www.moldova.travel/en/things-to-do/food-and-drink" target="_blank" rel="noopener noreferrer" className="living-in-moldova-link">Discover Moldovan Cuisine →</a>
+                <a href="https://www.moldova.travel/en/things-to-do/food-and-drink" target="_blank" rel="noopener noreferrer" className="living-in-moldova-link">{t('sections.food.links.cuisine')}</a>
               </div>
             </div>
           </div>
 
           <div className="living-in-moldova-card">
-            <h2 className="living-in-moldova-card-title">Healthcare & Insurance</h2>
+            <h2 className="living-in-moldova-card-title">{t('sections.healthcare.title')}</h2>
             <div className="living-in-moldova-card-content">
-              <span>Important things to know:</span>
-              <span>• Health insurance is required for all students</span>
-              <span>• Insurance costs: around €50-€150 per year</span>
-              <span>• Most medical services are covered</span>
-              <span>Where to get help:</span>
-              <span>• Your university's medical center</span>
-              <span>• Public hospitals in the city</span>
-              <span>• Private clinics (if needed)</span>
+              <span>{t('sections.healthcare.importantInfo')}</span>
+              {t('sections.healthcare.infoList', { returnObjects: true }).map((info, index) => (
+                <span key={index}>{info}</span>
+              ))}
+              <span>{t('sections.healthcare.helpPlaces')}</span>
+              {t('sections.healthcare.helpList', { returnObjects: true }).map((place, index) => (
+                <span key={index}>{place}</span>
+              ))}
               <div className="living-in-moldova-tip">
-                🏥 Remember: Always keep your insurance card with you - you never know when you might need it
+                {t('sections.healthcare.tip')}
               </div>
               <div className="living-in-moldova-links">
-                <Link to="/contact" className="living-in-moldova-link">Get Help with Insurance →</Link>
+                <Link to="/contact" className="living-in-moldova-link">{t('sections.healthcare.links.insuranceHelp')}</Link>
               </div>
             </div>
           </div>
 
           <div className="living-in-moldova-card">
-            <h2 className="living-in-moldova-card-title">Culture & Language</h2>
+            <h2 className="living-in-moldova-card-title">{t('sections.culture.title')}</h2>
             <div className="living-in-moldova-card-content">
-              <span>Languages you'll hear:</span>
-              <span>• Romanian is the official language</span>
-              <span>• Russian is widely spoken</span>
-              <span>• English is common in academic settings</span>
-              <span>Fun cultural experiences:</span>
-              <span>• Wine festivals (especially in September)</span>
-              <span>• Traditional music events</span>
-              <span>• Local markets - great for fresh produce</span>
+              <span>{t('sections.culture.languages')}</span>
+              {t('sections.culture.languagesList', { returnObjects: true }).map((language, index) => (
+                <span key={index}>{language}</span>
+              ))}
+              <span>{t('sections.culture.experiences')}</span>
+              {t('sections.culture.experiencesList', { returnObjects: true }).map((experience, index) => (
+                <span key={index}>{experience}</span>
+              ))}
               <div className="living-in-moldova-tip">
-                🌍 Pro tip: Learning a few basic Romanian phrases will make your daily life much easier!
+                {t('sections.culture.tip')}
               </div>
               <div className="living-in-moldova-links">
-                <Link to="/programs" className="living-in-moldova-link">Find Language Courses →</Link>
-                <a href="https://www.moldova.travel/en/things-to-do/culture" target="_blank" rel="noopener noreferrer" className="living-in-moldova-link">Explore Cultural Events →</a>
+                <Link to="/programs" className="living-in-moldova-link">{t('sections.culture.links.languageCourses')}</Link>
+                <a href="https://www.moldova.travel/en/things-to-do/culture" target="_blank" rel="noopener noreferrer" className="living-in-moldova-link">{t('sections.culture.links.culturalEvents')}</a>
               </div>
             </div>
           </div>
         </div>
 
         <div className="living-in-moldova-contact">
-          <h2 className="living-in-moldova-contact-title">Need More Information?</h2>
+          <h2 className="living-in-moldova-contact-title">{t('contact.title')}</h2>
           <p className="living-in-moldova-contact-text">
-            Have questions about life in Moldova? We're here to help! Whether you need advice about accommodation, transportation, or daily life, our team is ready to assist you. We can also help with university applications and visa requirements.
+            {t('contact.text')}
           </p>
           <div className="living-in-moldova-contact-links">
             <Link to="/contact" className="living-in-moldova-contact-button">
-              Get in Touch
+              {t('contact.buttons.getInTouch')}
             </Link>
             <Link to="/about" className="living-in-moldova-contact-button">
-              Plan Your Studies
+              {t('contact.buttons.planStudies')}
             </Link>
           </div>
         </div>
