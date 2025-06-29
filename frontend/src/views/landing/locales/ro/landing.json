@@ -1,0 +1,114 @@
+{
+  "navbar": {
+    "title": "Studiază în Moldova",
+    "login": "Autentificare",
+    "livingInMoldova": "Viața în Moldova",
+    "programmes": "Programe",
+    "helpYouChoose": "Te ajutăm să alegi",
+    "universities": "Universități",
+    "planYourStudies": "Planifică-ți studiile",
+    "about": "Despre noi",
+    "features": "Caracteristici",
+    "pricing": "Prețuri",
+    "team": "Echipă",
+    "blog": "Blog",
+    "register": "Înregistrare"
+  },
+
+  "heroLandingPage": {
+    "buttonExplorePrograms": "Explorează programele",
+    "buttonContactUs": "Contactează-ne",
+    "content": "Accesul tău către universitățile din Moldova. Ne ocupăm de aplicațiile internaționale pentru toate universitățile din Moldova. Verificăm documentele tale și te ghidăm pe tot parcursul procesului.",
+    "heading": "Studiază în Moldova"
+  },
+
+  "featuresWhyStudyInMoldova1": {
+    "feature1Title": "Educație europeană, fără bătăi de cap cu viza",
+    "feature2Title": "Universități recunoscute internațional",
+    "feature3Title": "Educație în ascensiune",
+    "feature1Description": "Moldova oferă o educație de calitate cu un proces simplu de aplicare și acces fără viză pentru mulți studenți internaționali. Verifică azi dacă ești eligibil!",
+    "feature2Description": "Instituții din Moldova precum Universitatea de Stat din Moldova și Universitatea Tehnică a Moldovei apar în clasamentul QS Europe.",
+    "feature3Description": "Studenții moldoveni prezintă îmbunătățiri constante în evaluările internaționale, reflectând reforme orientate spre calitate."
+  },
+
+  "cta": {
+    "action": "Aplică acum",
+    "content": "Aplică în 6 pași simpli:\n1. Creează-ți un cont\n2. Verifică-ți eligibilitatea\n3. Pregătește-ți documentele\n4. Alege-ți programele\n5. Trimite aplicația\n6. Urmărește-ți statusul",
+    "heading": "Începe-ți călătoria de a studia în Moldova chiar azi!"
+  },
+
+  "featuresWhyStudyInMoldova2": {
+    "feature1Title": "Rată ridicată de alfabetizare",
+    "feature2Title": "Educație accesibilă",
+    "feature3Title": "Educație în dezvoltare",
+    "feature1Description": "Cu o rată de alfabetizare de 99,6%, Moldova oferă o bază academică solidă pentru studenții internaționali.",
+    "feature2Description": "Studiile în Moldova sunt mai accesibile comparativ cu multe alte țări europene, fiind o opțiune atractivă pentru studenții internaționali.",
+    "feature3Description": "Moldova este dedicată unei educații de calitate, alocând 6,25% din PIB educației publice în 2023 — mai mult decât media globală de 4,4%. Această investiție asigură universități bine finanțate, profesori calificați și resurse moderne de învățare. Rata de alfabetizare în rândul tinerilor este de 99,7%, iar raportul elev-profesor în învățământul primar este de 17,9."
+  },
+
+  "featureSteps": {
+    "buttonExplorePrograms": "Explorează programele",
+    "buttonContactUs": "Contactează-ne",
+    "stepsDescription": "Urmează acești pași simpli pentru a-ți începe parcursul academic în Moldova. Platforma noastră te ghidează prin fiecare etapă, de la crearea contului până la aplicarea la programul dorit.",    "heading": "Studiază în Moldova",
+    "steps": {
+      "1": {
+        "title": "1. Creează un cont",
+        "description": "Creează-ți un cont și confirmă adresa de email. Este primul pas către studiile în Moldova."
+      },
+      "2": {
+        "title": "2. Răsfoiește și salvează programele",
+        "description": "Verifică dacă calificările tale îndeplinesc cerințele universităților din Moldova."
+      },
+      "3": {
+        "title": "3. Cercetează universitățile",
+        "description": "Pregătește toate documentele necesare conform listei noastre de verificare și revizuiește-le."
+      },
+      "4": {
+        "title": "4. Încarcă documentele",
+        "description": "Explorează programele oferite de universitățile noastre partenere și alege-le pe cele preferate."
+      },
+      "5": {
+        "title": "5. Trimite aplicația",
+        "description": "Trimite-ți dosarul și achită taxa de procesare prin platforma noastră securizată."
+      },
+      "6": {
+        "title": "6. Urmărește progresul",
+        "description": "Monitorizează statusul aplicației și primește actualizări în timp real."
+      },
+      "7": {
+        "title": "7. Primește suport",
+        "description": "Contactează-ne oricând pentru întrebări sau asistență pe parcursul întregului proces."
+      }
+    }
+  },
+
+  "testimonial": {
+    "heading": "Testimoniale ale studenților",
+    "reviews": {
+      "1":{
+        "text": "Recomand cu căldură să iei în considerare Moldova pentru studiile tale!",
+        "author": "Jessica Smith",
+        "position": "Studentă la licență"
+      },
+      "2":{
+        "text": "Moldova este o bijuterie ascunsă pentru studenții internaționali care caută o educație de calitate fără costuri mari.",
+        "author": "Ahmed Khan",
+        "position": "Student la master"
+      },
+      "3":{
+        "text": "A alege Moldova pentru studiile mele doctorale a fost una dintre cele mai bune decizii din cariera mea academică.",
+        "author": "Elena Petrova",
+        "position": "Doctorandă"
+      },
+      "4":{
+        "text": "Timpul petrecut în Moldova mi-a lărgit orizonturile și mi-a oferit amintiri de neuitat.",
+        "author": "David Lee",
+        "position": "Student în schimb de experiență"
+      }
+    }
+  },
+  "featureLocations": {
+  "description": "Moldova nu este o țară mare, iar deși există universități și în alte orașe, majoritatea oportunităților de învățământ superior se găsesc în capitală, Chișinău."
+}
+
+}

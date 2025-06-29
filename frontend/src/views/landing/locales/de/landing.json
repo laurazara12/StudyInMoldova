@@ -1,0 +1,112 @@
+{
+    "navbar": {
+      "title": "Studieren in Moldawien",
+      "login": "Anmelden",
+      "livingInMoldova": "Leben in Moldawien",
+      "programmes": "Programme",
+      "helpYouChoose": "Hilfe bei der Wahl",
+      "universities": "Universitäten",
+      "planYourStudies": "Studium planen",
+      "about": "Über uns",
+      "features": "Funktionen",
+      "pricing": "Preise",
+      "team": "Team",
+      "blog": "Blog",
+      "register": "Registrieren"
+    },
+
+    "heroLandingPage": {
+      "buttonExplorePrograms": "Programme entdecken",
+      "buttonContactUs": "Kontaktieren Sie uns",
+      "content": "Ihr Zugang zu moldawischen Universitäten. Wir bearbeiten internationale Bewerbungen für alle Universitäten in Moldawien. Wir prüfen Ihre Unterlagen und begleiten Sie durch den Prozess.",
+      "heading": "Studieren in Moldawien"
+    },
+    
+    "featuresWhyStudyInMoldova1": {
+      "feature1Title": "Europäische Bildung, keine Visaprobleme",
+      "feature2Title": "Weltweit anerkannte Universitäten",
+      "feature3Title": "Bildung auf dem Vormarsch",
+      "feature1Description": "Moldawien bietet qualitativ hochwertige Bildung mit einem einfachen Bewerbungsprozess und visafreiem Eintritt für viele internationale Studierende. Prüfen Sie noch heute, ob Sie qualifiziert sind!",
+      "feature2Description": "Moldawische Einrichtungen wie die Staatliche Universität Moldawien und die Technische Universität Moldawien sind im QS Europe University Rankings vertreten.",
+      "feature3Description": "Die moldawischen Studierenden zeigen stetige Verbesserungen bei globalen Bewertungen, was qualitätsorientierte Reformen widerspiegelt."
+    },
+    "cta": {
+      "action": "Jetzt bewerben",
+      "content": "Bewerben Sie sich in 6 einfachen Schritten:\n1. Erstellen Sie Ihr Konto\n2. Prüfen Sie Ihre Berechtigung\n3. Bereiten Sie Ihre Unterlagen vor\n4. Wählen Sie Ihre Programme\n5. Senden Sie Ihre Bewerbung ab\n6. Verfolgen Sie Ihren Status",
+      "heading": "Starten Sie noch heute Ihre Reise zum Studium in Moldawien!"
+    },
+    "featuresWhyStudyInMoldova2": {
+      "feature1Title": "Hohe Alphabetisierungsrate",
+      "feature2Title": "Bezahlbare Bildung",
+      "feature3Title": "Bildung, die voranschreitet",
+      "feature1Description": "Mit einer Alphabetisierungsrate von 99,6 % bietet Moldawien eine starke akademische Grundlage für internationale Studierende.",
+      "feature2Description": "Das Studium in Moldawien ist im Vergleich zu vielen anderen europäischen Ländern kostengünstig und somit eine attraktive Option für internationale Studierende.",
+      "feature3Description": "Moldawien setzt sich für qualitativ hochwertige Bildung ein, mit 6,25 % des BIP, das 2023 für öffentliche Bildung bereitgestellt wurde – mehr als der weltweite Durchschnitt von 4,4 %. Dies sichert gut finanzierte Universitäten, qualifizierte Professoren und moderne Lernressourcen. Mit einer Alphabetisierungsrate von 99,7 % bei jungen Erwachsenen und einem Schüler-Lehrer-Verhältnis von 17,9 in der Grundschule."
+    },
+    "featureSteps": {
+      "buttonExplorePrograms": "Programme entdecken",
+      "buttonContactUs": "Kontaktieren Sie uns",
+      "stepsDescription": "Folgen Sie diesen einfachen Schritten, um Ihre akademische Reise in Moldawien zu beginnen. Unsere Plattform begleitet Sie durch jede Phase – vom Erstellen Ihres Kontos bis zur Bewerbung für das gewünschte Studienprogramm.",
+      "heading": "Studieren in Moldawien",
+      "steps": {
+        "1": {
+          "title": "1. Konto erstellen",
+          "description": "Erstellen Sie Ihr Konto und bestätigen Sie Ihre E-Mail. Dies ist Ihr erster Schritt zum Studium in Moldawien."
+        },
+        "2": {
+          "title": "2. Programme durchsuchen & speichern",
+          "description": "Prüfen Sie, ob Ihre Qualifikationen die Anforderungen moldawischer Universitäten erfüllen."
+        },
+        "3": {
+          "title": "3. Universitäten recherchieren",
+          "description": "Bereiten Sie alle erforderlichen Unterlagen gemäß unserer Checkliste vor und prüfen Sie diese."
+        },
+        "4": {
+          "title": "4. Dokumente hochladen",
+          "description": "Durchsuchen Sie die Studienprogramme unserer Partneruniversitäten und wählen Sie Ihre Favoriten."
+        },
+        "5": {
+          "title": "5. Bewerbung absenden",
+          "description": "Reichen Sie Ihre Bewerbung ein und zahlen Sie die Bearbeitungsgebühr über unsere sichere Plattform."
+        },
+        "6": {
+          "title": "6. Fortschritt verfolgen",
+          "description": "Verfolgen Sie den Status Ihrer Bewerbung und erhalten Sie Echtzeit-Updates."
+        },
+        "7": {
+          "title": "7. Unterstützung erhalten",
+          "description": "Kontaktieren Sie uns jederzeit bei Fragen oder zur Unterstützung während Ihres gesamten Prozesses."
+        }
+      }
+    },
+    "testimonial": {
+      "heading": "Studentenmeinungen",
+      "reviews": {
+        "1":{
+          "text": "Ich empfehle dringend, Moldawien für Ihr Studium in Betracht zu ziehen!",
+          "author": "Jessica Smith",
+          "position": "Bachelor-Studentin"
+            },
+        "2":{
+          "text": "Moldawien ist ein verstecktes Juwel für internationale Studierende, die qualitativ hochwertige Bildung suchen, ohne viel Geld auszugeben.",
+          "author": "Ahmed Khan",
+          "position": "Master-Student"
+            },
+        "3":{
+          "text": "Die Wahl Moldawiens für mein Promotionsstudium war eine der besten Entscheidungen meiner akademischen Laufbahn.",
+          "author": "Elena Petrova",
+          "position": "Ph.D.-Kandidatin"
+            },
+        "4":{
+          "text": "Meine Zeit in Moldawien hat meinen Horizont erweitert und mir unvergessliche Erinnerungen beschert.",
+          "author": "David Lee",
+          "position": "Austauschstudent"
+            }
+        }
+    },
+    "featureLocations": {
+  "description": "Moldawien ist kein großes Land, und obwohl es auch in anderen Städten Universitäten gibt, befinden sich die meisten Möglichkeiten für eine Hochschulausbildung in der Hauptstadt Chișinău."
+    }
+
+}
+  

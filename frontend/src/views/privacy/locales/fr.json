@@ -1,0 +1,61 @@
+{
+  "title": "Politique de Confidentialité",
+  "sections": {
+    "general": {
+      "title": "1. Informations Générales",
+      "content": "StudyInMoldova (\"nous\", \"notre\", ou \"nos\") s'engage à protéger la vie privée des utilisateurs de notre plateforme. Cette politique de confidentialité explique comment nous collectons, utilisons et protégeons les informations personnelles que vous nous fournissez."
+    },
+    "information": {
+      "title": "2. Informations que Nous Collectons",
+      "content": "Nous collectons les types d'informations suivants :",
+      "items": [
+        "Informations d'identification personnelle (nom, adresse e-mail, numéro de téléphone)",
+        "Informations sur l'éducation et les études",
+        "Préférences et intérêts académiques",
+        "Données d'utilisation de la plateforme"
+      ]
+    },
+    "usage": {
+      "title": "3. Comment Nous Utilisons les Informations",
+      "content": "Nous utilisons les informations collectées pour :",
+      "items": [
+        "Fournir nos services éducatifs",
+        "Personnaliser l'expérience utilisateur",
+        "Communiquer sur les opportunités éducatives pertinentes",
+        "Améliorer notre plateforme",
+        "Respecter les obligations légales"
+      ]
+    },
+    "protection": {
+      "title": "4. Protection des Données",
+      "content": "Nous mettons en œuvre des mesures de sécurité techniques et organisationnelles pour protéger vos informations personnelles contre l'accès non autorisé, la modification, la divulgation ou la destruction."
+    },
+    "rights": {
+      "title": "5. Vos Droits",
+      "content": "Vous avez le droit de :",
+      "items": [
+        "Accéder à vos données personnelles",
+        "Corriger les données inexactes",
+        "Supprimer les données personnelles",
+        "Restreindre le traitement",
+        "Portabilité des données",
+        "Vous opposer au traitement"
+      ]
+    },
+    "cookies": {
+      "title": "6. Cookies et Technologies Similaires",
+      "content": "Nous utilisons des cookies et des technologies similaires pour améliorer votre expérience sur notre plateforme. Vous pouvez contrôler les préférences des cookies via les paramètres de votre navigateur."
+    },
+    "changes": {
+      "title": "7. Modifications de la Politique de Confidentialité",
+      "content": "Nous nous réservons le droit de mettre à jour cette politique de confidentialité périodiquement. Nous vous informerons de tout changement important via la plateforme ou par e-mail."
+    },
+    "contact": {
+      "title": "8. Contact",
+      "content": "Pour toute question ou demande concernant cette politique de confidentialité, veuillez nous contacter à :",
+      "email": "Email : privacy@studyinmoldova.md",
+      "phone": "Téléphone : +373 XX XXX XXX"
+    }
+  },
+  "lastUpdated": "Dernière mise à jour :"
+} 

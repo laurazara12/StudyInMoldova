@@ -223,6 +223,8 @@ const ApplicationTab = () => {
       if (response.data.success) {
         setSuccessMessage('Application submitted successfully!');
         setShowApplicationDetails(false);
+        setShowCreateForm(false); // Close the create/edit form modal
+        setSelectedApplication(null);
         await loadUserApplications();
       } else {
         throw new Error(response.data.message || 'Error submitting application');
@@ -392,6 +394,7 @@ const ApplicationTab = () => {
   const renderDocumentsSection = () => (
     <div className="form-group">
       <label>Required Documents: <span className="required">*</span></label>
+      <p className="documents-help-text">Please select the necessary documents for the selected program</p>
       <div className="documents-selection">
         {!userDocuments || userDocuments.length === 0 ? (
           <p className="no-documents">You don't have any documents uploaded yet. Please upload documents in the profile section.</p>
@@ -402,29 +405,22 @@ const ApplicationTab = () => {
               console.log(`Document ${doc.id} is selected:`, isSelected);
               
               return (
-                <div key={doc.id} className="document-item">
-                  <label className="document-checkbox">
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => toggleDocumentSelection(doc.id)}
-                    />
-                    <span className="document-name">{doc.name || doc.document_type}</span>
-                  </label>
-                  {doc.url && (
-                    <a 
-                      href={doc.url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="document-preview"
-                    >
-                      <i className="fas fa-eye"></i> View
-                    </a>
-                  )}
-                </div>
-              );
+                <>
+                <label className="document-checkbox">
+                <input
+                  type="checkbox"
+                  checked={isSelected}
+                  onChange={() => toggleDocumentSelection(doc.id)}
+                />
+                <span> </span>
+                <span className="document-name">{doc.name || doc.document_type}</span>
+                </label>
+              
+                </>
+                );
             })}
           </div>
+          
         )}
         {newApplication.errors.documents && (
           <span className="error-message">{newApplication.errors.documents}</span>
@@ -966,6 +962,18 @@ const ApplicationTab = () => {
                         <i className="fas fa-edit"></i> Edit
                       </button>
                     )}
+                    {canEditApplication(app) && !app.is_paid && (
+                      <button
+                        className="btn1"
+                        style={{ marginLeft: '10px' }}
+                        onClick={() => {
+                          setSelectedApplication(app);
+                          handlePayment();
+                        }}
+                      >
+                        <i className="fas fa-credit-card"></i> Pay 100 MDL
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -1071,29 +1079,29 @@ const ApplicationTab = () => {
                     )}
                   </button>
                 )}
-                <button
-                  type="button"
-                  className="btn2"
-                  onClick={() => {
-                    setShowCreateForm(false);
-                    setNewApplication({
-                      program_id: '',
-                      motivation_letter: '',
-                      selectedDocuments: [],
-                      is_paid: false,
-                      errors: {
-                        program: '',
-                        documents: '',
-                        motivation_letter: '',
-                        payment: ''
-                      }
-                    });
-                  }}
-                >
-                  Cancel
-                </button>
               </div>
             </form>
+            <button 
+              className="close-button"
+              onClick={() => {
+                setShowCreateForm(false);
+                setNewApplication({
+                  program_id: '',
+                  motivation_letter: '',
+                  selectedDocuments: [],
+                  is_paid: false,
+                  errors: {
+                    program: '',
+                    documents: '',
+                    motivation_letter: '',
+                    payment: ''
+                  }
+                });
+                setSelectedApplication(null);
+              }}
+            >
+              <i className="fas fa-times"></i>
+            </button>
           </div>
         </div>
       )}

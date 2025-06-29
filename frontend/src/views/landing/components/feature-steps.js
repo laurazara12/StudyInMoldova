@@ -13,15 +13,13 @@ const FeatureSteps = (props) => {
             <h2 className="thq-heading-2">
               Steps to Study in Moldova
             </h2>
-            <p className="feature-steps-text11 thq-body-large">
-              Follow these simple steps to begin your academic journey in Moldova. 
-              Our platform guides you through each stage, from creating your account 
-              to applying to your desired program.
-            </p>
+            {props.stepsDescription}
             <div className="feature-steps-actions">
-              <button className="thq-button-filled thq-button-animated feature-steps-button">
-                <span className="thq-body-small">View Programs</span>
-              </button>
+            <button className="thq-button-filled hero-landing-page-button1">
+            <span className="thq-body-small">
+              {props.action1}
+            </span>
+          </button>
             </div>
           </div>
           <div className="feature-steps-container3">

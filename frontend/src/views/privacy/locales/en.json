@@ -1,0 +1,61 @@
+{
+  "title": "Privacy Policy",
+  "sections": {
+    "general": {
+      "title": "1. General Information",
+      "content": "StudyInMoldova (\"we\", \"our\", or \"us\") is committed to protecting the privacy of our platform users. This privacy policy explains how we collect, use, and protect the personal information you provide to us."
+    },
+    "information": {
+      "title": "2. Information We Collect",
+      "content": "We collect the following types of information:",
+      "items": [
+        "Personal identification information (name, email address, phone number)",
+        "Education and study information",
+        "Academic preferences and interests",
+        "Platform usage data"
+      ]
+    },
+    "usage": {
+      "title": "3. How We Use Information",
+      "content": "We use the collected information for:",
+      "items": [
+        "Providing our educational services",
+        "Personalizing user experience",
+        "Communicating about relevant educational opportunities",
+        "Improving our platform",
+        "Complying with legal obligations"
+      ]
+    },
+    "protection": {
+      "title": "4. Data Protection",
+      "content": "We implement technical and organizational security measures to protect your personal information against unauthorized access, modification, disclosure, or destruction."
+    },
+    "rights": {
+      "title": "5. Your Rights",
+      "content": "You have the right to:",
+      "items": [
+        "Access your personal data",
+        "Correct inaccurate data",
+        "Delete personal data",
+        "Restrict processing",
+        "Data portability",
+        "Object to processing"
+      ]
+    },
+    "cookies": {
+      "title": "6. Cookies and Similar Technologies",
+      "content": "We use cookies and similar technologies to enhance your experience on our platform. You can control cookie preferences through your browser settings."
+    },
+    "changes": {
+      "title": "7. Privacy Policy Changes",
+      "content": "We reserve the right to update this privacy policy periodically. We will notify you of any significant changes through the platform or via email."
+    },
+    "contact": {
+      "title": "8. Contact",
+      "content": "For questions or requests regarding this privacy policy, please contact us at:",
+      "email": "Email: privacy@studyinmoldova.md",
+      "phone": "Phone: +373 XX XXX XXX"
+    }
+  },
+  "lastUpdated": "Last updated:"
+} 

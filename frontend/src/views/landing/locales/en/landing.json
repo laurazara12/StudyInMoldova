@@ -1,0 +1,109 @@
+{
+  "navbar": {
+    "title": "Study in Moldova",
+    "login": "Login",
+    "livingInMoldova": "Living in Moldova",
+    "programmes": "Programs",
+    "helpYouChoose": "Help You Choose",
+    "universities": "Universities",
+    "planYourStudies": "Plan Your Studies",
+    "about": "About Us",
+    "features": "Features",
+    "pricing": "Pricing",
+    "team": "Team",
+    "blog": "Blog",
+    "register": "Register"
+  },
+  "heroLandingPage": {
+    "buttonExplorePrograms": "Explore Programs",
+    "buttonContactUs": "Contact Us",
+    "content": "Your gateway to Moldovan universities. We handle international applications for all universities in Moldova. We review your documents and guide you through the process.",
+    "heading": "Study in Moldova"
+  },
+  "featuresWhyStudyInMoldova1": {
+    "feature1Title": "European Education, No Visa Hassles",
+    "feature2Title": "Globally Recognized Universities",
+    "feature3Title": "Education on the Rise",
+    "feature1Description": "Moldova offers high-quality education with a simple application process and visa-free entry for many international students. Check today if you qualify!",
+    "feature2Description": "Moldovan institutions like Moldova State University and the Technical University of Moldova are listed in the QS Europe University Rankings.",
+    "feature3Description": "Moldovan students show continuous improvement in global assessments, reflecting quality-driven reforms."
+  },
+  "cta": {
+    "action": "Apply Now",
+    "content": "Apply in 6 easy steps:\n1. Create your account\n2. Check your eligibility\n3. Prepare your documents\n4. Choose your programs\n5. Submit your application\n6. Track your status",
+    "heading": "Start your journey to study in Moldova today!"
+  },
+  "featuresWhyStudyInMoldova2": {
+    "feature1Title": "High Literacy Rate",
+    "feature2Title": "Affordable Education",
+    "feature3Title": "Advancing Education",
+    "feature1Description": "With a literacy rate of 99.6%, Moldova provides a strong academic foundation for international students.",
+    "feature2Description": "Studying in Moldova is cost-effective compared to many other European countries, making it an attractive option for international students.",
+    "feature3Description": "Moldova is committed to quality education, with 6.25% of GDP allocated to public education in 2023 – more than the global average of 4.4%. This ensures well-funded universities, qualified professors, and modern learning resources. With a youth literacy rate of 99.7% and a primary school student-teacher ratio of 17.9."
+  },
+  "featureSteps": {
+    "buttonExplorePrograms": "Explore Programs",
+    "buttonContactUs": "Contact Us",
+    "stepsDescription": "Follow these simple steps to begin your academic journey in Moldova. Our platform guides you through each stage, from creating your account to applying to your desired program.",
+    "heading": "Study in Moldova",
+    "steps": {
+      "1": {
+        "title": "1. Create Account",
+        "description": "Create your account and confirm your email. This is your first step toward studying in Moldova."
+      },
+      "2": {
+        "title": "2. Browse & Save Programs",
+        "description": "Check if your qualifications meet the requirements of Moldovan universities."
+      },
+      "3": {
+        "title": "3. Research Universities",
+        "description": "Prepare all required documents according to our checklist and review them."
+      },
+      "4": {
+        "title": "4. Upload Documents",
+        "description": "Browse study programs from our partner universities and choose your favorites."
+      },
+      "5": {
+        "title": "5. Submit Application",
+        "description": "Submit your application and pay the processing fee through our secure platform."
+      },
+      "6": {
+        "title": "6. Track Progress",
+        "description": "Track your application status and receive real-time updates."
+      },
+      "7": {
+        "title": "7. Get Support",
+        "description": "Contact us anytime with questions or for support throughout the entire process."
+      }
+    }
+  },
+  "testimonial": {
+    "heading": "Student Testimonials",
+    "reviews": {
+      "1":{
+        "text": "I highly recommend considering Moldova for your studies!",
+        "author": "Jessica Smith",
+        "position": "Bachelor Student"
+      },
+      "2":{
+        "text": "Moldova is a hidden gem for international students seeking quality education without spending a fortune.",
+        "author": "Ahmed Khan",
+        "position": "Master Student"
+      },
+      "3":{
+        "text": "Choosing Moldova for my Ph.D. studies was one of the best decisions of my academic journey.",
+        "author": "Elena Petrova",
+        "position": "Ph.D. Candidate"
+      },
+      "4":{
+        "text": "My time in Moldova broadened my horizons and gave me unforgettable memories.",
+        "author": "David Lee",
+        "position": "Exchange Student"
+      }
+    }
+  },
+  
+  "featureLocations": {
+    "description":"Moldova is not a big country, and while there are universities in other cities, most opportunities for higher education can be foundin the capital city, Chișinău."
+  }
+}

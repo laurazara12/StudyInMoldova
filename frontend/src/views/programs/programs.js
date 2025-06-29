@@ -176,7 +176,6 @@ const Programs = () => {
       }
 
       const programIdInt = parseInt(programId);
-      
       const response = await axios.post(
         `${API_BASE_URL}/api/saved-programs`,
         { program_id: programIdInt },
@@ -189,7 +188,7 @@ const Programs = () => {
       );
 
       if (response.data?.data) {
-        setSavedPrograms(prev => [...prev, response.data.data]);
+        setSavedPrograms(prev => [...prev, { ...response.data.data, id: programIdInt }]);
         setNotification({
           type: 'success',
           message: 'Program saved successfully!'
@@ -222,8 +221,7 @@ const Programs = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      // Eliminăm programul din lista locală
-      setSavedPrograms(prev => prev.filter(sp => (sp.program_id || sp.program?.id) !== programId));
+      setSavedPrograms(prev => prev.filter(sp => (sp.id || sp.program_id || sp.program?.id) !== parseInt(programId)));
       
       const successMessage = document.createElement('div');
       successMessage.className = 'success-message';
@@ -296,7 +294,7 @@ const Programs = () => {
       <Navbar />
       
       {notification && (
-        <div className={`notification ${notification.type}`}>
+        <div className={`notification ${notification.type} notification-left`}>
           {notification.message}
           <button 
             className="notification-close"
@@ -418,7 +416,6 @@ const Programs = () => {
                   <th>Degree</th>
                   <th>Language</th>
                   <th>Duration</th>
-                  <th>Start Date</th>
                   <th>Application Deadline</th>
                   <th>Tuition Fee</th>
                   <th>Actions</th>
@@ -432,11 +429,19 @@ const Programs = () => {
                       <div className="program-name">
                         <strong>{program.name || 'Program name unavailable'}</strong>
                         {program.description && (
-                          <div className="program-description">{program.description}</div>
+                          <div className="program-description">
+                            {program.description.length > 20
+                              ? program.description.slice(0, 20) + '...'
+                              : program.description}
+                          </div>
                         )}
                       </div>
                     </td>
-                    <td>{program.university?.name || 'University not assigned'}</td>
+                    <td>{program.university?.name
+                      ? program.university.name.length > 30
+                        ? program.university.name.slice(0, 30) + '...'
+                        : program.university.name
+                      : 'University not assigned'}</td>
                     <td>
                       <span className={`degree-badge ${program.degree_type?.toLowerCase() || 'unknown'}`}>
                         {program.degree_type || program.degree || 'Unknown'}
@@ -447,8 +452,11 @@ const Programs = () => {
                         {program.language || 'Language unknown'}
                       </span>
                     </td>
-                    <td>{program.duration ? `${program.duration} years` : 'Duration not assigned'}</td>
-                    <td>{program.start_date ? new Date(program.start_date).toLocaleDateString() : 'Not set'}</td>
+                    <td>{program.duration
+                      ? /year/i.test(program.duration)
+                        ? program.duration
+                        : `${program.duration} years`
+                      : 'Duration not assigned'}</td>
                     <td>{program.application_deadline ? new Date(program.application_deadline).toLocaleDateString() : 'Not set'}</td>
                     <td>{program.tuition_fees ? `${program.tuition_fees} EUR` : 'Fee not assigned'}</td>
                     <td>
@@ -460,7 +468,7 @@ const Programs = () => {
                               onClick={() => handleRemoveSavedProgram(program.id)}
                               title="Remove from saved programs"
                             >
-                              <i className="fas fa-trash"></i> Remove
+                              Remove
                             </button>
                           ) : (
                             <button 
@@ -468,7 +476,7 @@ const Programs = () => {
                               onClick={() => handleSaveProgram(program.id)}
                               title="Save program"
                             >
-                              <i className="fas fa-save"></i> Save
+                              Save
                             </button>
                           )
                         ) : null}

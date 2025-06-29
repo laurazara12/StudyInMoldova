@@ -1,0 +1,64 @@
+{
+  "title": "Terms and Conditions",
+  "sections": {
+    "accepting": {
+      "title": "1. Accepting the Terms",
+      "content": "By accessing and using the StudyInMoldova platform, you agree to be bound by these terms and conditions. If you do not agree with any of these terms, please do not use our platform."
+    },
+    "service": {
+      "title": "2. Service Description",
+      "content": "StudyInMoldova provides an educational platform that facilitates the enrollment process and information about study opportunities in the Republic of Moldova. Our services include:",
+      "items": [
+        "Information about universities and study programs",
+        "Enrollment process assistance",
+        "Educational resources and guides",
+        "Community for students and applicants"
+      ]
+    },
+    "obligations": {
+      "title": "3. User Obligations",
+      "content": "As a user of the platform, you agree to:",
+      "items": [
+        "Provide accurate and complete information",
+        "Maintain the confidentiality of your account",
+        "Not use the platform for illegal or unauthorized purposes",
+        "Not attempt to access restricted areas of the platform",
+        "Not use the platform in a way that could damage our services"
+      ]
+    },
+    "property": {
+      "title": "4. Intellectual Property",
+      "content": "All materials, content, and design of the StudyInMoldova platform are protected by copyright laws and are our property or that of our license providers. You do not have the right to:",
+      "items": [
+        "Reproduce, distribute, or modify the platform's content",
+        "Use the StudyInMoldova brand without our written permission",
+        "Remove or modify any copyright notices"
+      ]
+    },
+    "liability": {
+      "title": "5. Limitation of Liability",
+      "content": "StudyInMoldova cannot be held liable for:",
+      "items": [
+        "The accuracy of information provided by universities or other third-party sources",
+        "Admission decisions of educational institutions",
+        "Any interruptions or errors in platform operation",
+        "Losses or damages resulting from platform use"
+      ]
+    },
+    "modifications": {
+      "title": "6. Terms Modifications",
+      "content": "We reserve the right to modify these terms and conditions at any time. Changes will take effect immediately after their publication on the platform. Continued use of the platform after changes constitutes acceptance of the new terms."
+    },
+    "law": {
+      "title": "7. Applicable Law",
+      "content": "These terms and conditions are governed and interpreted in accordance with the laws of the Republic of Moldova. Any dispute will be subject to the exclusive jurisdiction of the courts of the Republic of Moldova."
+    },
+    "contact": {
+      "title": "8. Contact",
+      "content": "For questions or clarifications regarding these terms and conditions, please contact us at:",
+      "email": "Email: terms@studyinmoldova.md",
+      "phone": "Phone: +373 XX XXX XXX"
+    }
+  },
+  "lastUpdated": "Last updated:"
+} 

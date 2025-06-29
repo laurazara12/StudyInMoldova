@@ -574,24 +574,24 @@
   top: 10px;
   background: none;
   border: none;
-  font-size: 20px;
+  font-size: 1.5rem;
   cursor: pointer;
   padding: 5px;
   line-height: 1;
-  color: var(--dl-color-theme-neutral-dark);
-  width: 30px;
-  height: 30px;
+  color: #888;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: background-color 0.2s;
-  z-index: 1;
+  transition: background 0.2s, color 0.2s;
+  z-index: 10;
 }
 
 .close-button:hover {
-  background-color: var(--dl-color-theme-neutral-dark);
-  color: var(--dl-color-theme-neutral-light);
+  background: var(--dl-color-theme-neutral-dark, #222); /* fallback dacă nu există variabila */
+  color: #fff;
 }
 
 .modal-header {
@@ -627,7 +627,6 @@
 
 .form-group label {
   display: block;
-  margin-bottom: 0.5rem;
   font-weight: 500;
   color: var(--dl-color-theme-neutral-dark);
 }

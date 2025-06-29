@@ -3,6 +3,7 @@ import axios from 'axios';
 import { API_BASE_URL, getAuthHeaders } from '../../../config/api.config';
 import DeleteDocumentModal from './components/DeleteDocumentModal';
 import { FaCheckCircle, FaTimesCircle, FaTrash, FaEdit, FaClock, FaUsers, FaUserPlus, FaFileUpload, FaFileAlt, FaShieldAlt } from 'react-icons/fa';
+import { toast } from 'react-hot-toast';
 
 const DocumentsTab = () => {
   const [documents, setDocuments] = useState([]);
@@ -203,7 +204,7 @@ const DocumentsTab = () => {
       setLoading(true);
       setError(null);
 
-      const response = await axios.delete(`${API_BASE_URL}/api/documents/${documentId}`, {
+      const response = await axios.delete(`${API_BASE_URL}/api/documents/admin/${documentId}`, {
         headers: getAuthHeaders(),
         data: {
           admin_message: adminMessage
@@ -237,9 +238,29 @@ const DocumentsTab = () => {
     }
   };
 
-  const handleDownloadDocument = (documentType, userId) => {
-    // Implementați funcția de descărcare a documentului aici
-    console.log(`Downloading document of type ${documentType} for user ${userId}`);
+  const handleDownloadDocument = async (documentId, originalName) => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/api/documents/admin/download/${documentId}`,
+        {
+          headers: getAuthHeaders(),
+          responseType: 'blob',
+        }
+      );
+
+      // Creează un link temporar pentru descărcare
+      const url = window.URL.createObjectURL(response.data);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', originalName || 'document');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Eroare la descărcarea documentului:', error);
+      toast.error('Eroare la descărcarea documentului!');
+    }
   };
 
   const formatDate = (dateString) => {
@@ -247,7 +268,7 @@ const DocumentsTab = () => {
     try {
       const date = new Date(dateString);
       if (isNaN(date.getTime())) return 'Invalid Date';
-      return date.toLocaleDateString('ro-RO', {
+      return date.toLocaleDateString('en-EN', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
@@ -373,7 +394,7 @@ const DocumentsTab = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredDocuments.map(doc => (
+                {(filteredDocuments || []).map(doc => (
                   <tr key={doc.id}>
                     <td>{doc.id}</td>
                     <td>{doc.user_name || `User ID: ${doc.user_id}`}</td>
@@ -391,7 +412,7 @@ const DocumentsTab = () => {
                       <div className="action-buttons">
                         <button 
                           className="btn1"
-                          onClick={() => handleDownloadDocument(doc.document_type, doc.user_id)}
+                          onClick={() => handleDownloadDocument(doc.id, doc.originalName)}
                         >
                           <i className="fas fa-download"></i> Download
                         </button>

@@ -1,0 +1,50 @@
+{
+  "title": "Universités en Moldavie",
+  "description": "Découvrez les meilleures universités de Moldavie offrant une éducation de qualité et des programmes d'études diversifiés",
+  "loading": "Chargement des universités...",
+  "error": {
+    "title": "Erreur",
+    "message": "Un problème est survenu lors du chargement des universités. Veuillez réessayer.",
+    "retry": "Réessayer"
+  },
+  "filters": {
+    "type": "Type",
+    "allTypes": "Tous les Types",
+    "public": "Public",
+    "private": "Privé",
+    "location": "Localisation",
+    "allLocations": "Toutes les Localisations",
+    "rankingRange": "Plage de Classement",
+    "tuitionFeeRange": "Plage de Frais de Scolarité",
+    "date": "Plage de Dates",
+    "sort": "Trier par",
+    "searchPlaceholder": "Rechercher par nom...",
+    "sortOptions": {
+      "nameAZ": "Nom (A-Z)",
+      "nameZA": "Nom (Z-A)",
+      "locationAZ": "Localisation (A-Z)",
+      "typeAZ": "Type (A-Z)",
+      "rankingLowHigh": "Classement (Croissant)",
+      "rankingHighLow": "Classement (Décroissant)",
+      "tuitionLowHigh": "Frais (Croissant)",
+      "tuitionHighLow": "Frais (Décroissant)"
+    },
+    "clearFilters": "Effacer les Filtres",
+    "search": "Rechercher"
+  },
+  "noResults": "Aucune université ne correspond à vos critères",
+  "university": {
+    "public": "Université Publique",
+    "private": "Université Privée",
+    "ranking": "Classement Universitaire",
+    "noRanking": "Classement non disponible",
+    "website": "Site Web",
+    "tuitionFees": "Frais de Scolarité",
+    "bachelor": "Licence",
+    "master": "Master",
+    "phd": "Doctorat",
+    "noFees": "Informations sur les frais non disponibles",
+    "viewDetails": "Voir les Détails",
+    "contactUniversity": "Contacter l'Université"
+  }
+} 

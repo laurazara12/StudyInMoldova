@@ -1,7 +1,6 @@
 import React, { Fragment } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { useNavigate } from 'react-router-dom'
-
 import Navbar from '../../components/navbar'
 import HeroLandingPage from './components/hero-landing-page'
 import FeaturesWhyStudyInMoldova1 from './components/features-why-study-in-moldova1'
@@ -12,10 +11,11 @@ import FeatureSteps from './components/feature-steps'
 import Testimonial from './components/testimonial'
 import Footer from '../../components/footer'
 import './landing.css'
+import { useTranslation } from 'react-i18next';
 
 function Home() {
+  const { t } = useTranslation('landing');
   const navigate = useNavigate();
-
   const handleExplorePrograms = () => {
     navigate('/programs');
   };
@@ -29,7 +29,7 @@ function Home() {
       <Navbar
         text={
           <Fragment>
-            <span className="landing-text10">Study In Moldova</span>
+            <span className="landing-text10"></span>
           </Fragment>
         }
         login={
@@ -112,26 +112,26 @@ function Home() {
               onClick={handleExplorePrograms}
             >
               <span>
-                <span>Explore Programs</span>
+                <span>{t('heroLandingPage.buttonExplorePrograms')}</span>
               </span>
             </button>
           </Fragment>
         }
         action2={
           <Fragment>
-            <span className="btn2">Contact Us</span>
+            <span className="btn2">{t('heroLandingPage.buttonContactUs')}</span>
           </Fragment>
         }
         content1={
           <Fragment>
             <span className="landing-text27">
-              Your access to Moldovan universities. We process international applications for all universities in Moldova. We evaluate your documents and guide you through the process.
+              {t('heroLandingPage.content')}
             </span>
           </Fragment>
         }
         heading1={
           <Fragment>
-            <h1 className="landing-text28">Study in Moldova</h1>
+            <h1 className="landing-text28">{t('heroLandingPage.heading')}</h1>
           </Fragment>
         }
       ></HeroLandingPage>
@@ -139,44 +139,40 @@ function Home() {
         feature1Title={
           <Fragment>
             <span className="landing-text29">
-              European Education, No Visa Hassle
+              {t('featuresWhyStudyInMoldova1.feature1Title')}
             </span>
           </Fragment>
         }
         feature2Title={
           <Fragment>
             <span className="landing-text30">
-              Globally Recognized Universities
+            {t('featuresWhyStudyInMoldova1.feature2Title')}
             </span>
           </Fragment>
         }
         feature3Title={
           <Fragment>
-            <span className="landing-text31">Education on the Rise</span>
+            {t('featuresWhyStudyInMoldova1.feature3Title')}
           </Fragment>
         }
         feature1Description={
           <Fragment>
             <span className="landing-text32">
-              Moldova offers quality education with a simple application process
-              and visa-free entry for many international students. Check if you
-              qualify today!
+              {t('featuresWhyStudyInMoldova1.feature1Description')}
             </span>
           </Fragment>
         }
         feature2Description={
           <Fragment>
             <span className="landing-text33">
-              Moldovan institutions like Moldova State University and Technical
-              University of Moldova rank in QS Europe University Rankings.
+            {t('featuresWhyStudyInMoldova1.feature2Description')}
             </span>
           </Fragment>
         }
         feature2Description1={
           <Fragment>
             <span className="landing-text34">
-              Moldova's students show steady improvement in global assessments,
-              reflecting quality-driven reforms.
+            {t('featuresWhyStudyInMoldova1.feature3Description')}
             </span>
           </Fragment>
         }
@@ -184,26 +180,20 @@ function Home() {
       <CTA
         action1={
           <Fragment>
-            <span className="landing-text35">Apply Now</span>
+            <span className="landing-text35">{t('cta.action')}</span>
           </Fragment>
         }
         content1={
           <Fragment>
             <span className="landing-text36">
-              Apply in 6 simple steps:
-              1. Create your account
-              2. Check your eligibility
-              3. Prepare your documents
-              4. Choose your programs
-              5. Submit your application
-              6. Track your status
+              {t('cta.content')}
             </span>
           </Fragment>
         }
         heading1={
           <Fragment>
             <span className="landing-text37">
-              Start Your Journey to Studying in Moldova Today!
+            {t('cta.heading')}
             </span>
           </Fragment>
         }
@@ -211,225 +201,240 @@ function Home() {
       <FeaturesWhyStudyInMoldova2
         feature1Title={
           <Fragment>
-            <span className="landing-text38">High Literacy Rates</span>
+            <span className="landing-text38">{t('featuresWhyStudyInMoldova2.feature1Title')}</span>
           </Fragment>
         }
         feature2Title={
           <Fragment>
-            <span className="landing-text39">Affordable Education</span>
+            <span className="landing-text39">{t('featuresWhyStudyInMoldova2.feature2Title')}</span>
           </Fragment>
         }
         feature3Title={
           <Fragment>
-            <span className="landing-text40">Education That Moves Forward</span>
+            <span className="landing-text40">{t('featuresWhyStudyInMoldova2.feature2Title')}</span>
           </Fragment>
         }
         feature1Description={
           <Fragment>
             <span className="landing-text41">
-              With a 99.6% literacy rate, Moldova provides a strong academic
-              foundation for international students.
+              {t('featuresWhyStudyInMoldova2.feature1Description')}
             </span>
           </Fragment>
         }
         feature2Description={
           <Fragment>
             <span className="landing-text42">
-              Studying in Moldova is cost-effective compared to many other
-              European countries, making it an attractive option for
-              international students.
+            {t('featuresWhyStudyInMoldova2.feature1Description')}
             </span>
           </Fragment>
         }
         feature3Description={
           <Fragment>
             <span className="landing-text43">
-              Moldova is dedicated to quality education, with 6.25% of its GDP
-              allocated to public education in 2023—higher than the global
-              average of 4.4%. This strong investment ensures well-funded
-              universities, skilled professors, and modern learning resources.
-              With a 99.7% literacy rate among young adults and a
-              student-to-teacher ratio of 17.9 in primary education.
+            {t('featuresWhyStudyInMoldova2.feature1Description')}
             </span>
           </Fragment>
         }
         activeTab={0}
       ></FeaturesWhyStudyInMoldova2>
+
       <FeatureSteps
+
+      stepsDescription={
+        <p className="feature-steps-text11 thq-body-large">
+              {t('featureSteps.stepsDescription')}
+          </p>
+      }
+
+      action1={
+        <Fragment>
+          <button 
+            className="btn1 "
+            onClick={handleExplorePrograms}
+          >
+            <span>
+              <span>{t('featureSteps.buttonExplorePrograms')}</span>
+            </span>
+          </button>
+        </Fragment>
+      }
+      action2={
+        <Fragment>
+          <span className="btn2">{t('featureSteps.buttonContactUs')}</span>
+        </Fragment>
+      }
+      content1={
+        <Fragment>
+          <span className="landing-text27">
+            Your access to Moldovan universities. We process international applications for all universities in Moldova. We evaluate your documents and guide you through the process.
+          </span>
+        </Fragment>
+      }
+      heading1={
+        <Fragment>
+          <h1 className="landing-text28">Study in Moldova</h1>
+        </Fragment>
+      }
         step1Title={
           <Fragment>
-            <span className="landing-text50">1. Create Account</span>
+            <span className="landing-text50">{t('featureSteps.steps.1.title')}</span>
           </Fragment>
         }
         step2Title={
           <Fragment>
-            <span className="landing-text51">2. Browse & Save Programs</span>
+            <span className="landing-text51">{t('featureSteps.steps.2.title')}</span>
           </Fragment>
         }
         step3Title={
           <Fragment>
             <span className="landing-text52">
-              3. Research Universities
+            {t('featureSteps.steps.3.title')}
             </span>
           </Fragment>
         }
         step4Title={
           <Fragment>
-            <span className="landing-text53">4. Upload Documents</span>
+            <span className="landing-text53">{t('featureSteps.steps.4.title')}</span>
           </Fragment>
         }
         step5Title={
           <Fragment>
-            <span className="landing-text54">5. Submit Application</span>
+            <span className="landing-text54">{t('featureSteps.steps.5.title')}</span>
           </Fragment>
         }
         step6Title={
           <Fragment>
-            <span className="landing-text55">6. Track Progress</span>
+            <span className="landing-text55">{t('featureSteps.steps.6.title')}</span>
           </Fragment>
         }
         step7Title={
           <Fragment>
-            <span className="landing-text56">7. Get Support</span>
+            <span className="landing-text56">{t('featureSteps.steps.7.title')}</span>
           </Fragment>
         }
         step1Description={
           <Fragment>
             <span className="landing-text57">
-              Create your account and verify your email. This is your first step towards studying in Moldova.
+            {t('featureSteps.steps.1.description')}
             </span>
           </Fragment>
         }
         step2Description={
           <Fragment>
             <span className="landing-text58">
-              Check if your qualifications meet the requirements for Moldovan universities.
+            {t('featureSteps.steps.2.description')}
             </span>
           </Fragment>
         }
         step3Description={
           <Fragment>
             <span className="landing-text59">
-              Prepare and verify all required documents according to our checklist.
+            {t('featureSteps.steps.3.description')}
             </span>
           </Fragment>
         }
         step4Description={
           <Fragment>
             <span className="landing-text60">
-              Browse and select your preferred study programs from our partner universities.
+            {t('featureSteps.steps.4.description')}
             </span>
           </Fragment>
         }
         step5Description={
           <Fragment>
             <span className="landing-text61">
-              Submit your application and pay the processing fee through our secure platform.
+            {t('featureSteps.steps.5.description')}
             </span>
           </Fragment>
         }
         step6Description={
           <Fragment>
             <span className="landing-text62">
-              Track your application status and receive updates in real-time.
+            {t('featureSteps.steps.6.description')}
             </span>
           </Fragment>
         }
         step7Description={
           <Fragment>
             <span className="landing-text63">
-              Contact us anytime for questions or support throughout your journey.
+            {t('featureSteps.steps.7.description')}
             </span>
           </Fragment>
         }
       ></FeatureSteps>
       <Testimonial
+
         review1={
           <Fragment>
             <span className="landing-text58">
-              I highly recommend considering Moldova for your studies!
+              {t('testimonial.reviews.1.text')}
             </span>
           </Fragment>
         }
         review2={
           <Fragment>
             <span className="landing-text59">
-              Moldova is a hidden gem for international students seeking quality
-              education without breaking the bank.
+            {t('testimonial.reviews.2.text')}
             </span>
           </Fragment>
         }
         review3={
           <Fragment>
             <span className="landing-text60">
-              Choosing Moldova for my Ph.D. studies was one of the best
-              decisions I&apos;ve made in my academic career.
+            {t('testimonial.reviews.3.text')}
             </span>
           </Fragment>
         }
         review4={
           <Fragment>
             <span className="landing-text61">
-              My time in Moldova has broadened my horizons and left me with
-              unforgettable memories.
-            </span>
-          </Fragment>
-        }
-        content1={
-          <Fragment>
-            <span className="landing-text62">
-              Useful Tools:
-              • Check Your Eligibility
-              • Document Requirements by Country
-              • Application Deadlines
-              • Processing Times
-              • Fee Calculator
+            {t('testimonial.reviews.4.text')}
             </span>
           </Fragment>
         }
         heading1={
           <Fragment>
-            <span className="landing-text63">Student Testimonials</span>
+            <span className="landing-text63">{t('testimonial.heading')}</span>
           </Fragment>
         }
         author1Name={
           <Fragment>
-            <span className="landing-text64">Jessica Smith</span>
+            <span className="landing-text64">{t('testimonial.reviews.1.author')}</span>
           </Fragment>
         }
         author2Name={
           <Fragment>
-            <span className="landing-text65">Ahmed Khan</span>
+            <span className="landing-text65">{t('testimonial.reviews.2.author')}</span>
           </Fragment>
         }
         author3Name={
           <Fragment>
-            <span className="landing-text66">Elena Petrova</span>
+            <span className="landing-text66">{t('testimonial.reviews.3.author')}</span>
           </Fragment>
         }
         author4Name={
           <Fragment>
-            <span className="landing-text67">David Lee</span>
+            <span className="landing-text67">{t('testimonial.reviews.4.author')}</span>
           </Fragment>
         }
         author1Position={
           <Fragment>
-            <span className="landing-text68">Bachelor&apos;s Student</span>
+            <span className="landing-text68">{t('testimonial.reviews.1.position')}</span>
           </Fragment>
         }
         author2Position={
           <Fragment>
-            <span className="landing-text69">Master&apos;s Student</span>
+            <span className="landing-text69">{t('testimonial.reviews.2.position')}</span>
           </Fragment>
         }
         author3Position={
           <Fragment>
-            <span className="landing-text70">Ph.D. Candidate</span>
+            <span className="landing-text70">{t('testimonial.reviews.3.position')}</span>
           </Fragment>
         }
         author4Position={
           <Fragment>
-            <span className="landing-text71">Exchange Student</span>
+            <span className="landing-text71">{t('testimonial.reviews.4.position')}</span>
           </Fragment>
         }
       ></Testimonial>
@@ -437,9 +442,7 @@ function Home() {
         content1={
           <Fragment>
             <span className="landing-text44">
-              Moldova is not a big country, and while there are universities in
-              other cities, most opportunities for higher education can be found
-              in the capital city, Chișinău.
+              {t('featureLocations.description')}
             </span>
           </Fragment>
         }

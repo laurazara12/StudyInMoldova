@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 import Navbar from '../../components/navbar';
 import Footer from '../../components/footer';
 import './cookies.css';
@@ -10,7 +10,6 @@ const Cookies = () => {
       <div className="cookies-container">
         <div className="cookies-content">
           <h1>Cookie Policy</h1>
-
           <section>
             <h2>What are cookies?</h2>
             <p>Cookies are small text files that are stored on your device when you visit a website. They are widely used to make websites functional or more efficient, as well as to provide information to website owners.</p>

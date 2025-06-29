@@ -939,6 +939,14 @@ const UniversitiesTab = () => {
       {isViewModalOpen && viewingUniversity && (
         <div className="modal-overlay">
           <div className="modal-content program-modal">
+            <button
+              className="close-button"
+              onClick={handleCloseViewModal}
+              aria-label="Închide detalii universitate"
+              style={{ position: 'absolute', top: 10, right: 10 }}
+            >
+              &#10005;
+            </button>
             <h2>University Details</h2>
             <div className="university-details">
               <div className="detail-section">
@@ -1032,16 +1040,6 @@ const UniversitiesTab = () => {
                   </div>
                 </div>
               )}
-            </div>
-
-            <div className="modal-buttons">
-              <button 
-                type="button" 
-                className="btn-grey-2"
-                onClick={handleCloseViewModal}
-              >
-                Close
-              </button>
             </div>
           </div>
         </div>

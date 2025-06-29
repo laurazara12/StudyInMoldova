@@ -113,6 +113,7 @@
   max-width: 600px;
   max-height: 90vh;
   overflow-y: auto;
+  position: relative;
 }
 
 .modal-content h2 {
@@ -137,6 +138,13 @@
 .form-group label {
   font-weight: 500;
   color: #495057;
+}
+
+.documents-help-text {
+  color: #6c757d;
+  font-size: var(--dl-font-size-small);
+  margin: 4px 0 8px 0;
+  font-style: italic;
 }
 
 .required {
@@ -335,17 +343,26 @@
 }
 
 .close-button {
-  background-color: #6c757d;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
+  padding: 8px;
+  border-radius: 50%;
   cursor: pointer;
-  margin-top: 20px;
+  transition: all 0.2s ease;
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
 }
 
 .close-button:hover {
-  background-color: #5a6268;
+  background-color: #6c757d;
+  color: white;
+  border-color: #6c757d;
+  transform: scale(1.1);
 }
 
 /* Documente selection */
@@ -373,15 +390,6 @@
   padding-right: 8px;
 }
 
-.document-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 12px;
-  background-color: #f8f9fa;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-}
 
 .document-item:hover {
   background-color: #e9ecef;
@@ -390,9 +398,9 @@
 .document-checkbox {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   cursor: pointer;
-  flex: 1;
+  justify-content: flex-start;
 }
 
 .document-checkbox input[type="checkbox"] {
@@ -660,6 +668,23 @@
   margin: 0;
 }
 
+/* Stiluri pentru butoanele din tabel */
+.profile-table .btn2,
+.profile-table .btn1 {
+  min-width: 80px;
+  width: 80px;
+  height: 35px;
+  margin: 0 5px;
+  display: inline-block;
+  text-align: center;
+  padding: 8px 12px;
+  box-sizing: border-box;
+}
+
+.profile-table td:last-child {
+  white-space: nowrap;
+}
+
 /* Stiluri pentru modal */
 .modal-content .payment-status {
   margin-left: 10px;
@@ -736,12 +761,9 @@
 
 .document-item {
   background-color: white;
-  padding: 15px;
   border-radius: 6px;
   border: 1px solid #e9ecef;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
 }
 
 .document-info {

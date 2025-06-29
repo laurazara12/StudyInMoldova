@@ -1,0 +1,64 @@
+{
+  "title": "Allgemeine Geschäftsbedingungen",
+  "sections": {
+    "accepting": {
+      "title": "1. Annahme der Bedingungen",
+      "content": "Durch den Zugriff auf und die Nutzung der StudyInMoldova-Plattform stimmen Sie zu, an diese Allgemeinen Geschäftsbedingungen gebunden zu sein. Wenn Sie mit einer dieser Bedingungen nicht einverstanden sind, nutzen Sie bitte unsere Plattform nicht."
+    },
+    "service": {
+      "title": "2. Dienstbeschreibung",
+      "content": "StudyInMoldova bietet eine Bildungsplattform, die den Einschreibungsprozess erleichtert und Informationen über Studienmöglichkeiten in der Republik Moldau bereitstellt. Unsere Dienstleistungen umfassen:",
+      "items": [
+        "Informationen über Universitäten und Studiengänge",
+        "Unterstützung beim Einschreibungsprozess",
+        "Bildungsressourcen und Leitfäden",
+        "Community für Studierende und Bewerber"
+      ]
+    },
+    "obligations": {
+      "title": "3. Nutzerpflichten",
+      "content": "Als Nutzer der Plattform stimmen Sie zu:",
+      "items": [
+        "Genaue und vollständige Informationen bereitzustellen",
+        "Die Vertraulichkeit Ihres Kontos zu wahren",
+        "Die Plattform nicht für illegale oder nicht autorisierte Zwecke zu nutzen",
+        "Nicht zu versuchen, auf eingeschränkte Bereiche der Plattform zuzugreifen",
+        "Die Plattform nicht auf eine Weise zu nutzen, die unsere Dienste schädigen könnte"
+      ]
+    },
+    "property": {
+      "title": "4. Geistiges Eigentum",
+      "content": "Alle Materialien, Inhalte und das Design der StudyInMoldova-Plattform sind durch Urheberrechtsgesetze geschützt und sind unser Eigentum oder das unserer Lizenzgeber. Sie haben nicht das Recht:",
+      "items": [
+        "Die Inhalte der Plattform zu reproduzieren, zu verbreiten oder zu modifizieren",
+        "Die Marke StudyInMoldova ohne unsere schriftliche Genehmigung zu verwenden",
+        "Urheberrechtshinweise zu entfernen oder zu ändern"
+      ]
+    },
+    "liability": {
+      "title": "5. Haftungsbeschränkung",
+      "content": "StudyInMoldova haftet nicht für:",
+      "items": [
+        "Die Richtigkeit der von Universitäten oder anderen Drittanbietern bereitgestellten Informationen",
+        "Zulassungsentscheidungen von Bildungseinrichtungen",
+        "Unterbrechungen oder Fehler im Betrieb der Plattform",
+        "Verluste oder Schäden, die sich aus der Nutzung der Plattform ergeben"
+      ]
+    },
+    "modifications": {
+      "title": "6. Änderungen der Bedingungen",
+      "content": "Wir behalten uns das Recht vor, diese Allgemeinen Geschäftsbedingungen jederzeit zu ändern. Die Änderungen treten unmittelbar nach ihrer Veröffentlichung auf der Plattform in Kraft. Die weitere Nutzung der Plattform nach den Änderungen stellt die Annahme der neuen Bedingungen dar."
+    },
+    "law": {
+      "title": "7. Anwendbares Recht",
+      "content": "Diese Allgemeinen Geschäftsbedingungen unterliegen den Gesetzen der Republik Moldau und werden in Übereinstimmung mit diesen ausgelegt. Alle Streitigkeiten unterliegen der ausschließlichen Zuständigkeit der Gerichte der Republik Moldau."
+    },
+    "contact": {
+      "title": "8. Kontakt",
+      "content": "Bei Fragen oder Klarstellungen zu diesen Allgemeinen Geschäftsbedingungen kontaktieren Sie uns bitte unter:",
+      "email": "E-Mail: terms@studyinmoldova.md",
+      "phone": "Telefon: +373 XX XXX XXX"
+    }
+  },
+  "lastUpdated": "Zuletzt aktualisiert:"
+} 

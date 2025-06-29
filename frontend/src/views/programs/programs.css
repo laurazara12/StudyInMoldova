@@ -457,4 +457,25 @@
     transform: translateX(0);
     opacity: 1;
   }
+}
+
+.notification-left {
+  left: 2rem;
+  right: auto;
+  top: 2rem;
+  position: fixed;
+  z-index: 9999;
+  max-width: 350px;
+  animation: slideInLeft 0.3s ease;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 } 

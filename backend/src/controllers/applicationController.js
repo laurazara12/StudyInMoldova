@@ -7,7 +7,7 @@ exports.createApplication = async (req, res) => {
   try {
     const userId = req.user.id;
     const { program_id, motivation_letter } = req.body;
-    const document_ids = req.body['document_ids[]'] || [];
+    const document_ids = req.body.document_ids || req.body['document_ids[]'] || [];
 
     console.log('Starting application creation:', {
       userId,

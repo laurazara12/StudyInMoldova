@@ -1,0 +1,61 @@
+{
+  "title": "Politica de Confidențialitate",
+  "sections": {
+    "general": {
+      "title": "1. Informații Generale",
+      "content": "StudyInMoldova (\"noi\", \"a noastră\", sau \"ne\") este dedicată protejării confidențialității utilizatorilor platformei noastre. Această politică de confidențialitate explică modul în care colectăm, utilizăm și protejăm informațiile personale pe care ni le furnizați."
+    },
+    "information": {
+      "title": "2. Informațiile pe Care Le Colectăm",
+      "content": "Colectăm următoarele tipuri de informații:",
+      "items": [
+        "Informații de identificare personală (nume, adresă de email, număr de telefon)",
+        "Informații despre educație și studii",
+        "Preferințe și interese academice",
+        "Date despre utilizarea platformei"
+      ]
+    },
+    "usage": {
+      "title": "3. Cum Utilizăm Informațiile",
+      "content": "Utilizăm informațiile colectate pentru:",
+      "items": [
+        "Oferirea serviciilor noastre educaționale",
+        "Personalizarea experienței utilizatorului",
+        "Comunicarea despre oportunitățile educaționale relevante",
+        "Îmbunătățirea platformei noastre",
+        "Respectarea obligațiilor legale"
+      ]
+    },
+    "protection": {
+      "title": "4. Protecția Datelor",
+      "content": "Implementăm măsuri de securitate tehnice și organizaționale pentru a proteja informațiile dvs. personale împotriva accesului neautorizat, modificării, dezvăluirii sau distrugerii."
+    },
+    "rights": {
+      "title": "5. Drepturile Dvs",
+      "content": "Aveți dreptul să:",
+      "items": [
+        "Accesați datele dvs. personale",
+        "Corectați datele inexacte",
+        "Ștergeți datele personale",
+        "Restricționați procesarea",
+        "Portabilitatea datelor",
+        "Vă opuneți procesării"
+      ]
+    },
+    "cookies": {
+      "title": "6. Cookie-uri și Tehnologii Similare",
+      "content": "Utilizăm cookie-uri și tehnologii similare pentru a îmbunătăți experiența dvs. pe platforma noastră. Puteți controla preferințele cookie-urilor prin setările browserului."
+    },
+    "changes": {
+      "title": "7. Modificări ale Politicii de Confidențialitate",
+      "content": "Ne rezervăm dreptul de a actualiza această politică de confidențialitate periodic. Vă vom notifica despre orice modificări semnificative prin platformă sau prin email."
+    },
+    "contact": {
+      "title": "8. Contact",
+      "content": "Pentru întrebări sau solicitări privind această politică de confidențialitate, vă rugăm să ne contactați la:",
+      "email": "Email: privacy@studyinmoldova.md",
+      "phone": "Telefon: +373 XX XXX XXX"
+    }
+  },
+  "lastUpdated": "Ultima actualizare:"
+} 

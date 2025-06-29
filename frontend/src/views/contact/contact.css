@@ -67,6 +67,7 @@
     border: 1px solid var(--dl-color-theme-gray-light);
     height: 100%;
     text-align: left;
+    cursor: pointer;
 }
 
 .contact-item:last-child {
@@ -77,6 +78,7 @@
     transform: translateY(-5px);
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
     border-color: var(--dl-color-theme-primary1);
+    cursor: pointer;
 }
 
 .contact-item i {
@@ -96,6 +98,7 @@
     transform: scale(1.1);
     background: var(--dl-color-theme-primary1);
     color: var(--dl-color-theme-accent1);
+    cursor: pointer;
 }
 
 .contact-details h3 {

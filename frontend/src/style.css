@@ -55,6 +55,10 @@ p{
   border-radius: var(--dl-radius-radius-buttonradius);
   background-color: var(--dl-color-theme-neutral-light);
 }
+
+button{
+  cursor: pointer;
+}
  
 .input {
   color: var(--dl-color-theme-neutral-dark);
@@ -197,7 +201,6 @@ p{
   color: var(--dl-color-theme-primary1);
   border-radius: 25px;
   transition: all 0.15s ease;
-  cursor: pointer;
   display: inline-block;
   text-decoration: none;
 }
@@ -205,13 +208,11 @@ p{
 .navbar-register1.button:hover {
   background-color: var(--dl-color-theme-primary1);
   color: var(--dl-color-theme-accent1);
-  cursor: pointer;
 }
 
 .navbar-register1.button .navbar-navlink2 {
   color: inherit;
   text-decoration: none;
-  cursor: pointer;
   display: block;
   width: 100%;
   height: 100%;
@@ -220,7 +221,6 @@ p{
 .navbar-register1.button .navbar-text34 {
   color: var(--dl-color-theme-primary1);
   font-weight: 500;
-  cursor: pointer;
 }
 
 .navbar-register1.button:hover .navbar-text34 {
@@ -374,7 +374,6 @@ p{
   border-radius: 8px;
   padding: 0.5rem 1rem;
   border: none;
-  cursor: pointer;
   font-size: 0.9rem;
   transition: all 0.2s;
 }
@@ -405,14 +404,12 @@ p{
 .download-button {
   color: var(--dl-color-theme-neutral-light);
   border-radius: 25px;
-  cursor: pointer;
 }
 
 .download-button:hover {
   transition: all 0.1s ease;
   background-color: var(--dl-color-theme-primary1);
   border-radius: 25px;
-  cursor: pointer;
 }
 
 .action-button:active {
@@ -431,7 +428,6 @@ p{
   font-size: 0.8rem;
   border: none;
   border-radius: 4px;
-  cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
@@ -465,7 +461,6 @@ p{
   font-size: var(--dl-font-size-small);
   font-family: 'Inter', sans-serif;
   font-weight: 500;
-  cursor: pointer;
   transition: all 0.3s ease;
   border: none;
   color: white;
@@ -503,7 +498,6 @@ p{
 
 .choose-button:disabled {
   background-color: #cccccc;
-  cursor: not-allowed;
 }
 
 .delete-button {
@@ -551,7 +545,6 @@ p{
   font-size: var(--dl-font-size-small);
   font-weight: 500;
   transition: all 0.1s ease;
-  cursor: pointer;
 }
 
 .btn1:hover {
@@ -567,7 +560,6 @@ p{
   border-radius: var(--dl-radius-radius-buttonradius);
   font-size: var(--dl-font-size-small);
   transition: all 0.1s ;
-  cursor: pointer;
 }
 
 .btn2:hover {
@@ -584,7 +576,6 @@ p{
   border-radius: var(--dl-radius-radius-buttonradius);
   font-size: var(--dl-font-size-small);
   transition: all 0.1s ease;
-  cursor: pointer;
 }
 
 .btn-grey:hover {
@@ -602,7 +593,6 @@ p{
   font-weight: 500;
   font-size: var(--dl-font-size-small);
   transition: all 0.1s ease;
-  cursor: pointer;
 }
 
 .btn-success:hover {
@@ -613,12 +603,11 @@ p{
 .btn-delete {
   background-color: #dc3545; /* roșu deschis */
   color: white;
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 1rem;
   border: none;
   border-radius: var(--dl-radius-radius-buttonradius);
   font-size: var(--dl-font-size-small);
   transition: all 0.1s ease;
-  cursor: pointer;
 }
 
 .btn-delete:hover {
@@ -634,7 +623,6 @@ p{
   border-radius: var(--dl-radius-radius-buttonradius);
   font-size: var(--dl-font-size-small);
   transition: all 0.1s ease;
-  cursor: pointer;
 }
 
 .btn-grey-2:hover {
@@ -647,7 +635,6 @@ p{
   border-radius: var(--dl-radius-radius-buttonradius);
   font-weight: 500;
   border: none;
-  cursor: pointer;
   transition: all var(--dl-transition-fast);
   white-space: nowrap;
   font-size: var(--dl-font-size-small);
@@ -670,7 +657,6 @@ p{
   font-size: var(--dl-font-size-small);
   border: none;
   border-radius: var(--dl-radius-radius-buttonradius);
-  cursor: pointer;
   transition: all 0.1s ease;
   background-color: var(--dl-color-theme-gray-light);
   color: var(--dl-color-theme-neutral-dark);
@@ -711,7 +697,6 @@ p{
   margin: 0 0.5rem;
   border: none;
   border-radius: var(--dl-radius-radius-buttonradius);
-  cursor: pointer;
 }
 
 .delete-confirmation button:first-child {
@@ -742,7 +727,6 @@ p{
     font-size: var(--dl-font-size-small);
     border: none;
     border-radius: var(--dl-radius-radius-buttonradius);
-    cursor: pointer;
     transition: all 0.2s ease;
     background-color: var(--dl-color-theme-gray-light);
     color: var(--dl-color-theme-neutral-dark);
@@ -778,7 +762,6 @@ p{
     background: none;
     border: none;
     font-size: 1.5rem;
-    cursor: pointer;
     color: #666;
     padding: 0.5rem;
     transition: color 0.2s;
@@ -802,7 +785,6 @@ p{
     font-size: 0.8rem;
     border: none;
     border-radius: var(--dl-radius-radius-buttonradius);
-    cursor: pointer;
     transition: background-color 0.3s ease;
   }
 
@@ -837,7 +819,6 @@ p{
   border-radius: var(--dl-radius-radius-buttonradius);
   font-size: var(--dl-font-size-small);
   transition: all 0.1s ease;
-  cursor: pointer;
 }
 
 .confirm-button:hover {

@@ -153,8 +153,11 @@ const ApplicationsTab = () => {
     if (!dateString) return 'N/A';
     try {
       const date = new Date(dateString);
-      if (isNaN(date.getTime())) return 'Invalid Date';
-      return date.toLocaleDateString('en-US', {
+      if (isNaN(date.getTime())) {
+        console.warn('Data invalidă:', dateString);
+        return dateString || 'Invalid Date';
+      }
+      return date.toLocaleDateString('en-GB', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
@@ -162,8 +165,8 @@ const ApplicationsTab = () => {
         minute: '2-digit'
       });
     } catch (error) {
-      console.error('Error formatting date:', error);
-      return 'Invalid Date';
+      console.error('Eroare la formatat data:', error, dateString);
+      return dateString || 'Invalid Date';
     }
   };
 
@@ -288,7 +291,7 @@ const ApplicationsTab = () => {
                   </td>
                   <td>{app.program?.name || 'N/A'}</td>
                   <td>{app.program?.university?.name || 'N/A'}</td>
-                  <td>{formatDate(app.created_at)}</td>
+                  <td>{formatDate(app.application_date || app.createdAt || app.created_at)}</td>
                   <td>
                     <span className={`status-badge status-${app.status}`}>
                       {app.status === 'pending' ? 'Pending' :
@@ -323,36 +326,74 @@ const ApplicationsTab = () => {
       )}
 
       {showApplicationDetails && selectedApplication && (
-        <div className="modal">
-          <div className="modal-content">
-            <h2>Application Details</h2>
-            <div className="application-details">
-              <p><strong>ID:</strong> {selectedApplication.id}</p>
-              <p><strong>User:</strong> {selectedApplication.user_name || `ID: ${selectedApplication.user_id}`}</p>
-              <p><strong>Program:</strong> {selectedApplication.program?.name || 'N/A'}</p>
-              <p><strong>University:</strong> {selectedApplication.program?.university?.name || 'N/A'}</p>
-              <p><strong>Application Date:</strong> {formatDate(selectedApplication.created_at)}</p>
-              <p><strong>Status:</strong> {selectedApplication.status}</p>
-              {selectedApplication.notes && (
-                <p><strong>Note:</strong> {selectedApplication.notes}</p>
-              )}
-            </div>
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ position: 'relative' }}>
             <button 
               className="close-button"
               onClick={() => {
                 setShowApplicationDetails(false);
                 setSelectedApplication(null);
               }}
+              aria-label="Close"
             >
-              Close
+              &times;
             </button>
+            <h2>Application Details</h2>
+            <div className="application-details">
+              <p><strong>ID:</strong> {selectedApplication.id}</p>
+              <p><strong>User:</strong> {selectedApplication.user?.name || selectedApplication.user_name || `ID: ${selectedApplication.user_id}`}</p>
+              <p><strong>User Email:</strong> {selectedApplication.user?.email || 'N/A'}</p>
+              <p><strong>Program:</strong> {selectedApplication.program?.name || 'N/A'}</p>
+              <p><strong>Program Description:</strong> {selectedApplication.program?.description || 'N/A'}</p>
+              <p><strong>Program Duration:</strong> {selectedApplication.program?.duration || 'N/A'}</p>
+              <p><strong>Degree Type:</strong> {selectedApplication.program?.degree_type || 'N/A'}</p>
+              <p><strong>Language:</strong> {selectedApplication.program?.language || 'N/A'}</p>
+              <p><strong>Tuition Fees:</strong> {selectedApplication.program?.tuition_fees || 'N/A'}</p>
+              <p><strong>Faculty:</strong> {selectedApplication.program?.faculty || 'N/A'}</p>
+              <p><strong>University:</strong> {selectedApplication.program?.university?.name || 'N/A'}</p>
+              <p><strong>University Location:</strong> {selectedApplication.program?.university?.location || 'N/A'}</p>
+              <p><strong>Application Date:</strong> {formatDate(selectedApplication.application_date || selectedApplication.createdAt || selectedApplication.created_at)}</p>
+              <p><strong>Status:</strong> {selectedApplication.status}</p>
+              <p><strong>Notes:</strong> {selectedApplication.notes || 'N/A'}</p>
+              <p><strong>Motivation Letter:</strong> {selectedApplication.motivation_letter || 'N/A'}</p>
+              <p><strong>Payment Status:</strong> {selectedApplication.payment_status || (selectedApplication.is_paid ? 'paid' : 'unpaid')}</p>
+              <p><strong>Payment ID:</strong> {selectedApplication.payment_id || 'N/A'}</p>
+              <p><strong>Payment Date:</strong> {formatDate(selectedApplication.payment_date)}</p>
+              <p><strong>Payment Amount:</strong> {selectedApplication.payment_amount ? `${selectedApplication.payment_amount} ${selectedApplication.payment_currency || ''}` : 'N/A'}</p>
+              <p><strong>Created At:</strong> {formatDate(selectedApplication.createdAt || selectedApplication.created_at)}</p>
+              <p><strong>Updated At:</strong> {formatDate(selectedApplication.updatedAt || selectedApplication.updated_at)}</p>
+              <div style={{ marginTop: '1rem' }}>
+                <strong>Documents:</strong>
+                {selectedApplication.documents && selectedApplication.documents.length > 0 ? (
+                  <ul>
+                    {selectedApplication.documents.map(doc => (
+                      <li key={doc.id}>
+                        <span>{doc.document_type}</span> - <span>{doc.status}</span> - <span>{doc.originalName}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>Nicio document atașat</p>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}
 
       {showApplicationEdit && selectedApplication && (
-        <div className="modal">
-          <div className="modal-content">
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ position: 'relative' }}>
+            <button 
+              className="close-button"
+              onClick={() => {
+                setShowApplicationEdit(false);
+                setSelectedApplication(null);
+              }}
+              aria-label="Close"
+            >
+              &times;
+            </button>
             <h2>Edit Application</h2>
             <div className="application-edit">
               <div className="form-group">
@@ -389,15 +430,6 @@ const ApplicationsTab = () => {
                   onClick={() => handleUpdateApplicationStatus(selectedApplication.id, selectedApplication.status)}
                 >
                   Save
-                </button>
-                <button
-                  className="cancel-button"
-                  onClick={() => {
-                    setShowApplicationEdit(false);
-                    setSelectedApplication(null);
-                  }}
-                >
-                  Cancel
                 </button>
               </div>
             </div>

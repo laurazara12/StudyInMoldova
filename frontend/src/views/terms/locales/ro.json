@@ -1,0 +1,64 @@
+{
+  "title": "Termeni și Condiții",
+  "sections": {
+    "accepting": {
+      "title": "1. Acceptarea Termenilor",
+      "content": "Prin accesarea și utilizarea platformei StudyInMoldova, sunteți de acord să respectați acești termeni și condiții. Dacă nu sunteți de acord cu oricare dintre acești termeni, vă rugăm să nu utilizați platforma noastră."
+    },
+    "service": {
+      "title": "2. Descrierea Serviciului",
+      "content": "StudyInMoldova oferă o platformă educațională care facilitează procesul de înscriere și oferă informații despre oportunitățile de studiu din Republica Moldova. Serviciile noastre includ:",
+      "items": [
+        "Informații despre universități și programe de studiu",
+        "Asistență în procesul de înscriere",
+        "Resurse educaționale și ghiduri",
+        "Comunitate pentru studenți și candidați"
+      ]
+    },
+    "obligations": {
+      "title": "3. Obligațiile Utilizatorului",
+      "content": "Ca utilizator al platformei, sunteți de acord să:",
+      "items": [
+        "Furnizați informații exacte și complete",
+        "Mențineți confidențialitatea contului dvs",
+        "Nu utilizați platforma în scopuri ilegale sau neautorizate",
+        "Nu încercați să accesați zone restricționate ale platformei",
+        "Nu utilizați platforma într-un mod care ar putea deteriora serviciile noastre"
+      ]
+    },
+    "property": {
+      "title": "4. Proprietatea Intelectuală",
+      "content": "Toate materialele, conținutul și designul platformei StudyInMoldova sunt protejate de legile drepturilor de autor și sunt proprietatea noastră sau a furnizorilor noștri de licențe. Nu aveți dreptul să:",
+      "items": [
+        "Reproduceți, distribuiți sau modificați conținutul platformei",
+        "Utilizați marca StudyInMoldova fără permisiunea noastră scrisă",
+        "Eliminați sau modificați orice notificări de drepturi de autor"
+      ]
+    },
+    "liability": {
+      "title": "5. Limitarea Răspunderii",
+      "content": "StudyInMoldova nu poate fi trasă la răspundere pentru:",
+      "items": [
+        "Exactitatea informațiilor furnizate de universități sau alte surse terțe",
+        "Deciziile de admitere ale instituțiilor educaționale",
+        "Orice întreruperi sau erori în funcționarea platformei",
+        "Pierderi sau daune rezultate din utilizarea platformei"
+      ]
+    },
+    "modifications": {
+      "title": "6. Modificări ale Termenilor",
+      "content": "Ne rezervăm dreptul de a modifica acești termeni și condiții în orice moment. Modificările vor intra în vigoare imediat după publicarea lor pe platformă. Utilizarea continuă a platformei după modificări constituie acceptarea noilor termeni."
+    },
+    "law": {
+      "title": "7. Legea Aplicabilă",
+      "content": "Acești termeni și condiții sunt guvernați și interpretați în conformitate cu legile Republicii Moldova. Orice dispută va fi supusă jurisdicției exclusive a instanțelor din Republica Moldova."
+    },
+    "contact": {
+      "title": "8. Contact",
+      "content": "Pentru întrebări sau clarificări privind acești termeni și condiții, vă rugăm să ne contactați la:",
+      "email": "Email: terms@studyinmoldova.md",
+      "phone": "Telefon: +373 XX XXX XXX"
+    }
+  },
+  "lastUpdated": "Ultima actualizare:"
+} 

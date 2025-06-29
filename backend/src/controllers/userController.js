@@ -42,7 +42,9 @@ const login = async (email, password) => {
       };
     }
 
+
     const isValidPassword = await bcrypt.compare(password, user.password);
+    
     
     if (!isValidPassword) {
       console.log('Incorrect password');
@@ -104,13 +106,6 @@ const register = async (name, email, password) => {
       };
     }
 
-    // Password validation
-    if (password.length < 6) {
-      return {
-        success: false,
-        message: 'Password must be at least 6 characters long'
-      };
-    }
 
     // Check if email already exists
     const existingUser = await User.findOne({ where: { email: email.trim() } });
@@ -123,13 +118,10 @@ const register = async (name, email, password) => {
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-    
-    // Create user
     const user = await User.create({
       name: name.trim(),
       email: email.trim(),
-      password: hashedPassword,
+      password: password.trim(), 
       role: 'user',
       status: 'active'
     });

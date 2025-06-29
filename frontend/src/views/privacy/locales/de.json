@@ -1,0 +1,61 @@
+{
+  "title": "Datenschutzerklärung",
+  "sections": {
+    "general": {
+      "title": "1. Allgemeine Informationen",
+      "content": "StudyInMoldova (\"wir\", \"unsere\" oder \"uns\") verpflichtet sich zum Schutz der Privatsphäre unserer Plattformnutzer. Diese Datenschutzerklärung erläutert, wie wir die von Ihnen bereitgestellten persönlichen Informationen sammeln, verwenden und schützen."
+    },
+    "information": {
+      "title": "2. Informationen, die wir sammeln",
+      "content": "Wir sammeln folgende Arten von Informationen:",
+      "items": [
+        "Persönliche Identifikationsinformationen (Name, E-Mail-Adresse, Telefonnummer)",
+        "Bildungs- und Studieninformationen",
+        "Akademische Präferenzen und Interessen",
+        "Plattformnutzungsdaten"
+      ]
+    },
+    "usage": {
+      "title": "3. Wie wir Informationen verwenden",
+      "content": "Wir verwenden die gesammelten Informationen für:",
+      "items": [
+        "Bereitstellung unserer Bildungsdienste",
+        "Personalisierung der Benutzererfahrung",
+        "Kommunikation über relevante Bildungsmöglichkeiten",
+        "Verbesserung unserer Plattform",
+        "Einhaltung gesetzlicher Verpflichtungen"
+      ]
+    },
+    "protection": {
+      "title": "4. Datenschutz",
+      "content": "Wir implementieren technische und organisatorische Sicherheitsmaßnahmen, um Ihre persönlichen Informationen vor unbefugtem Zugriff, Änderung, Offenlegung oder Zerstörung zu schützen."
+    },
+    "rights": {
+      "title": "5. Ihre Rechte",
+      "content": "Sie haben das Recht:",
+      "items": [
+        "Auf Ihre persönlichen Daten zuzugreifen",
+        "Ungenaue Daten zu korrigieren",
+        "Persönliche Daten zu löschen",
+        "Die Verarbeitung einzuschränken",
+        "Datenübertragbarkeit",
+        "Der Verarbeitung zu widersprechen"
+      ]
+    },
+    "cookies": {
+      "title": "6. Cookies und ähnliche Technologien",
+      "content": "Wir verwenden Cookies und ähnliche Technologien, um Ihre Erfahrung auf unserer Plattform zu verbessern. Sie können die Cookie-Einstellungen über Ihre Browsereinstellungen steuern."
+    },
+    "changes": {
+      "title": "7. Änderungen der Datenschutzerklärung",
+      "content": "Wir behalten uns das Recht vor, diese Datenschutzerklärung regelmäßig zu aktualisieren. Wir werden Sie über wesentliche Änderungen über die Plattform oder per E-Mail informieren."
+    },
+    "contact": {
+      "title": "8. Kontakt",
+      "content": "Bei Fragen oder Anfragen bezüglich dieser Datenschutzerklärung kontaktieren Sie uns bitte unter:",
+      "email": "E-Mail: privacy@studyinmoldova.md",
+      "phone": "Telefon: +373 XX XXX XXX"
+    }
+  },
+  "lastUpdated": "Zuletzt aktualisiert:"
+} 

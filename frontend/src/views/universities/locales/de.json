@@ -1,0 +1,49 @@
+{
+  "title": "Universitäten in Moldawien",
+  "description": "Entdecken Sie die besten Universitäten in Moldawien, die qualitativ hochwertige Bildung und vielfältige Studienprogramme anbieten",
+  "loading": "Universitäten werden geladen...",
+  "error": {
+    "title": "Fehler",
+    "message": "Beim Laden der Universitäten ist ein Problem aufgetreten. Bitte versuchen Sie es erneut.",
+    "retry": "Wiederholen"
+  },
+  "filters": {
+    "type": "Typ",
+    "allTypes": "Alle Typen",
+    "public": "Öffentlich",
+    "private": "Privat",
+    "location": "Standort",
+    "allLocations": "Alle Standorte",
+    "rankingRange": "Ranglistenbereich",
+    "tuitionFeeRange": "Studiengebührenbereich",
+    "date": "Datumsbereich",
+    "sort": "Sortieren nach",
+    "sortOptions": {
+      "nameAZ": "Name (A-Z)",
+      "nameZA": "Name (Z-A)",
+      "locationAZ": "Standort (A-Z)",
+      "typeAZ": "Typ (A-Z)",
+      "rankingLowHigh": "Rangliste (Aufsteigend)",
+      "rankingHighLow": "Rangliste (Absteigend)",
+      "tuitionLowHigh": "Gebühren (Aufsteigend)",
+      "tuitionHighLow": "Gebühren (Absteigend)"
+    },
+    "clearFilters": "Filter zurücksetzen",
+    "search": "Suchen"
+  },
+  "noResults": "Keine Universitäten entsprechen Ihren Kriterien",
+  "university": {
+    "public": "Öffentliche Universität",
+    "private": "Private Universität",
+    "ranking": "Universitätsrangliste",
+    "noRanking": "Keine Rangliste verfügbar",
+    "website": "Webseite",
+    "tuitionFees": "Studiengebühren",
+    "bachelor": "Bachelor",
+    "master": "Master",
+    "phd": "Promotion",
+    "noFees": "Keine Informationen zu Studiengebühren verfügbar",
+    "viewDetails": "Details anzeigen",
+    "contactUniversity": "Universität kontaktieren"
+  }
+} 

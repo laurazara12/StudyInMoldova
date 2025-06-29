@@ -1,0 +1,157 @@
+{
+  "title": "Despre Noi | StudyInMoldova",
+  "description": "Descoperă cum StudyInMoldova te ajută să-ți realizezi visul de a studia în Moldova",
+  "hero": {
+    "title": "Despre StudyInMoldova",
+    "subtitle": "Prima platformă dedicată studenților internaționali din Moldova"
+  },
+  "whatWeOffer": {
+    "title": "Ce Oferim",
+    "description": "StudyInMoldova este prima și singura platformă completă dedicată studenților internaționali care doresc să studieze în Moldova. Ne propunem să simplificăm procesul de înscriere și să oferim toate informațiile necesare într-un singur loc.",
+    "features": {
+      "completeGuide": {
+        "title": "Ghid Complet",
+        "description": "Informații detaliate despre universități, programe de studiu, costuri și procesul de admitere"
+      },
+      "personalizedAssistance": {
+        "title": "Asistență Personalizată",
+        "description": "Ajutor în alegerea programului potrivit și ghidare în procesul de aplicare"
+      },
+      "practicalResources": {
+        "title": "Resurse Practice",
+        "description": "Ghiduri despre viața în Moldova, transport, cazare și alte aspecte importante"
+      }
+    }
+  },
+  "whyUnique": {
+    "title": "De Ce Suntem Unici",
+    "points": {
+      "specializedPlatform": "Platformă Specializată: Suntem singura platformă dedicată exclusiv studenților internaționali din Moldova",
+      "updatedInformation": "Informații Actualizate: Toate informațiile sunt verificate și actualizate regulat",
+      "personalizedSupport": "Suport Personalizat: Oferim asistență individuală pentru fiecare student",
+      "completeResources": "Resurse Complete: De la informații academice la sfaturi practice despre viața în Moldova"
+    }
+  },
+  "howToUse": {
+    "title": "Cum Să Folosești Platforma",
+    "steps": {
+      "explore": {
+        "title": "Explorează",
+        "description": "Navighează prin universități și programe de studiu pentru a găsi opțiunile potrivite pentru tine"
+      },
+      "plan": {
+        "title": "Planifică",
+        "description": "Folosește secțiunea \"Planifică-ți Studiile\" pentru a-ți organiza procesul de aplicare"
+      },
+      "prepare": {
+        "title": "Pregătește",
+        "description": "Încarcă documentele necesare și pregătește-te pentru procesul de admitere"
+      },
+      "apply": {
+        "title": "Aplică",
+        "description": "Trimite cererea și urmărește-i statusul prin platformă"
+      }
+    }
+  },
+  "vision": {
+    "title": "Viziunea Noastră",
+    "description": "Dorim să facem procesul de studiu în Moldova accesibil și transparent pentru toți studenții internaționali. Prin platforma noastră, aspirăm să devenim partenerul de încredere al fiecărui student care visează să studieze în Moldova."
+  },
+  "whyMoldova": {
+    "title": "De Ce Moldova",
+    "cards": {
+      "qualityEducation": {
+        "title": "Educație de Calitate",
+        "description": "Programe moderne și profesori experimentați, recunoscuți internațional"
+      },
+      "affordableCosts": {
+        "title": "Costuri Accesibile",
+        "description": "Taxe de școlarizare și costuri de trai competitive comparativ cu alte țări europene"
+      },
+      "richCulture": {
+        "title": "Cultură Bogată",
+        "description": "O țară cu o istorie fascinantă și o cultură vibrantă, perfectă pentru studenții internaționali"
+      }
+    }
+  },
+  "services": {
+    "title": "Ce Oferim",
+    "subtitle": "Servicii complete pentru studenții internaționali",
+    "cards": {
+      "universities": {
+        "title": "Universități",
+        "description": "Informații complete despre universitățile din Moldova, programele și facilitățile lor"
+      },
+      "studyPrograms": {
+        "title": "Programe de Studiu",
+        "description": "Informații detaliate despre programele de studiu disponibile, specializări și oportunități de dezvoltare"
+      },
+      "studentLife": {
+        "title": "Viața Studențească",
+        "description": "Ghiduri pentru cazare, transport, activități culturale și adaptare în Moldova"
+      }
+    }
+  },
+  "statistics": {
+    "title": "Statistici",
+    "subtitle": "Impactul nostru în educația internațională",
+    "cards": {
+      "students": {
+        "number": "5000+",
+        "title": "Studenți Internaționali",
+        "description": "Studenți din peste 50 de țări care au ales Moldova"
+      },
+      "universities": {
+        "number": "15+",
+        "title": "Universități Partenere",
+        "description": "Instituții de învățământ superior din Moldova"
+      },
+      "satisfaction": {
+        "number": "95%",
+        "title": "Rata de Satisfacție",
+        "description": "Studenți mulțumiți de serviciile noastre"
+      }
+    }
+  },
+  "cta": {
+    "title": "Gata să începi aventura în Moldova?",
+    "description": "Hai să explorăm împreună oportunitățile de studiu și să-ți construiești viitorul în Republica Moldova!",
+    "buttons": {
+      "explore": "Explorează Universitățile",
+      "contact": "Contactează-ne"
+    }
+  },
+  "team": {
+    "title": "Echipa Noastră",
+    "subtitle": "Profesioniști dedicați educației internaționale",
+    "members": {
+      "consultants": {
+        "title": "Consultanți Educaționali",
+        "description": "Specialiști în ghidarea studenților către programe potrivite",
+        "expertise": [
+          "Evaluare academică",
+          "Consiliere de carieră",
+          "Suport pentru aplicații"
+        ]
+      },
+      "support": {
+        "title": "Specialiști Suport Studenți",
+        "description": "Profesioniști dedicați asistenței studenților în procesul de înscriere",
+        "expertise": [
+          "Asistență viză",
+          "Cazare și transport",
+          "Orientare culturală"
+        ]
+      },
+      "experts": {
+        "title": "Experți Academici",
+        "description": "Profesori și cercetători cu experiență în educație internațională",
+        "expertise": [
+          "Dezvoltare curriculum",
+          "Cercetare academică",
+          "Mentorat studenți"
+        ]
+      }
+    }
+  }
+} 

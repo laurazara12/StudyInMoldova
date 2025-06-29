@@ -167,8 +167,8 @@ const DocumentsTab = ({ userData }) => {
       }));
 
       const formData = new FormData();
-      formData.append('file', file);
       formData.append('document_type', docTypeId);
+      formData.append('file', file);
       formData.append('status', 'pending');
 
       const response = await axios.post(
@@ -241,48 +241,46 @@ const DocumentsTab = ({ userData }) => {
 
   const handleDownload = async (documentId) => {
     try {
+      const doc = documents.find(doc => doc.id === documentId);
+      const fileName = doc?.originalName || 'document';
+  
       const response = await axios.get(
-        `${API_BASE_URL}/api/documents/${documentId}/download`,
+        `${API_BASE_URL}/api/documents/${documentId}`,
         {
           headers: getAuthHeaders(),
-          responseType: 'blob'
+          responseType: 'blob',
         }
       );
-
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+  
+      const url = window.URL.createObjectURL(response.data);
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', 'document.pdf');
+      link.setAttribute('download', fileName);
       document.body.appendChild(link);
       link.click();
       link.remove();
+      window.URL.revokeObjectURL(url);
+  
     } catch (error) {
       console.error('Error downloading document:', error);
       toast.error(handleApiError(error));
     }
   };
+  
 
   const handleDocumentDelete = async (documentId) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete the document?');
+    if (!confirmDelete) return;
     try {
       setLoading(true);
       setError(null);
-
-      // First check if the document exists
-      const document = documents.find(doc => doc.id === documentId);
-      if (!document) {
-        throw new Error('Document not found');
-      }
 
       const response = await axios.delete(`${API_BASE_URL}/api/documents/${documentId}`, {
         headers: getAuthHeaders()
       });
 
       if (response.data.success) {
-        // Update documents list
-        const updatedDocuments = documents.filter(doc => doc.id !== documentId);
-        setDocuments(updatedDocuments);
-        
-        // Show success message
+        await fetchDocuments();
         setSuccessMessage('Document deleted successfully');
         setTimeout(() => setSuccessMessage(null), 3000);
       } else {

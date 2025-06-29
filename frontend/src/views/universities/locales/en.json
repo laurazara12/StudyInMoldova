@@ -1,0 +1,49 @@
+{
+  "title": "Universities in Moldova",
+  "description": "Discover top universities in Moldova offering quality education and diverse study programs",
+  "loading": "Loading universities...",
+  "error": {
+    "title": "Error",
+    "message": "There was a problem loading the universities. Please try again.",
+    "retry": "Retry"
+  },
+  "filters": {
+    "type": "Type",
+    "allTypes": "All Types",
+    "public": "Public",
+    "private": "Private",
+    "location": "Location",
+    "allLocations": "All Locations",
+    "rankingRange": "Ranking Range",
+    "tuitionFeeRange": "Tuition Fee Range",
+    "date": "Date Range",
+    "sort": "Sort By",
+    "sortOptions": {
+      "nameAZ": "Name (A-Z)",
+      "nameZA": "Name (Z-A)",
+      "locationAZ": "Location (A-Z)",
+      "typeAZ": "Type (A-Z)",
+      "rankingLowHigh": "Ranking (Low to High)",
+      "rankingHighLow": "Ranking (High to Low)",
+      "tuitionLowHigh": "Tuition (Low to High)",
+      "tuitionHighLow": "Tuition (High to Low)"
+    },
+    "clearFilters": "Clear Filters",
+    "search": "Search"
+  },
+  "noResults": "No universities found matching your criteria",
+  "university": {
+    "public": "Public University",
+    "private": "Private University",
+    "ranking": "University Ranking",
+    "noRanking": "No ranking available",
+    "website": "Website",
+    "tuitionFees": "Tuition Fees",
+    "bachelor": "Bachelor",
+    "master": "Master",
+    "phd": "PhD",
+    "noFees": "No tuition fees information available",
+    "viewDetails": "View Details",
+    "contactUniversity": "Contact University"
+  }
+} 

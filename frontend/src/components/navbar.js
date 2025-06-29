@@ -4,13 +4,35 @@ import PropTypes from 'prop-types'
 import './navbar.css'
 import { useAuth } from '../contexts/AuthContext'
 import { API_BASE_URL, getAuthHeaders } from '../config/api.config'
+import { useTranslation } from 'react-i18next'
 
 const Navbar = (props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, user, logout } = useAuth();
+  const { i18n } = useTranslation();
+
+  const languages = [
+    { code: 'ro', name: 'Română' },
+    { code: 'en', name: 'English' },
+    { code: 'de', name: 'Deutsch' },
+    { code: 'ru', name: 'Русский' },
+    { code: 'fr', name: 'Français' }
+  ];
+
+  const currentLanguage = languages.find(lang => lang.code === i18n.language) || languages[0];
+
+  const handleLanguageChange = (language) => {
+    i18n.changeLanguage(language);
+    setShowLanguageDropdown(false);
+  };
+
+  const toggleLanguageDropdown = () => {
+    setShowLanguageDropdown(!showLanguageDropdown);
+  };
 
   const handleLogout = () => {
     setShowLogoutConfirm(true);
@@ -100,6 +122,28 @@ const Navbar = (props) => {
                 </button>
               </>
             )}
+                        <div className="language-selector">
+              <div 
+                className={`language-dropdown ${showLanguageDropdown ? 'active' : ''}`}
+                onClick={toggleLanguageDropdown}
+              >
+                {currentLanguage.code.toUpperCase()}
+                
+              </div>
+              {showLanguageDropdown && (
+                <div className="language-options">
+                  {languages.map((lang) => (
+                    <div
+                      key={lang.code}
+                      className={`lang-option ${i18n.language === lang.code ? 'active' : ''}`}
+                      onClick={() => handleLanguageChange(lang.code)}
+                    >
+                      {lang.name}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <div className="navbar-burger-menu">
@@ -140,6 +184,31 @@ const Navbar = (props) => {
             )}
           </nav>
           <div className="navbar-buttons2">
+            <div className="language-selector-mobile">
+              <div 
+                className={`language-dropdown ${showLanguageDropdown ? 'active' : ''}`}
+                onClick={toggleLanguageDropdown}
+              >
+                {currentLanguage.name}
+                <span>▼</span>
+              </div>
+              {showLanguageDropdown && (
+                <div className="language-options">
+                  {languages.map((lang) => (
+                    <div
+                      key={lang.code}
+                      className={`lang-option ${i18n.language === lang.code ? 'active' : ''}`}
+                      onClick={() => {
+                        handleLanguageChange(lang.code);
+                        toggleMenu();
+                      }}
+                    >
+                      {lang.name}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
             {isAuthenticated && user && (
               <>
                 {isAdmin && (

@@ -89,7 +89,6 @@
 }
  
 .features-why-study-in-moldova1-tab-horizontal2 {
-  gap: var(--dl-space-space-twounits);
   cursor: pointer;
   display: flex;
   overflow: hidden;
@@ -139,9 +138,7 @@
   background-color: var(--dl-color-theme-neutral-dark);
 }
  
-.features-why-study-in-moldova1-feature3-title {
-  font-size: 36px;
-}
+
  
 .features-why-study-in-moldova1-text1 {
   display: inline-block;

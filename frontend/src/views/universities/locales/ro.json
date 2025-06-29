@@ -1,0 +1,50 @@
+{
+  "title": "Universități din Moldova",
+  "description": "Descoperă universitățile de top din Moldova care oferă educație de calitate și programe de studii diverse",
+  "loading": "Se încarcă universitățile...",
+  "error": {
+    "title": "Eroare",
+    "message": "A apărut o problemă la încărcarea universităților. Vă rugăm să încercați din nou.",
+    "retry": "Reîncearcă"
+  },
+  "filters": {
+    "type": "Tip",
+    "allTypes": "Toate Tipurile",
+    "public": "Public",
+    "private": "Privat",
+    "location": "Locație",
+    "allLocations": "Toate Locațiile",
+    "rankingRange": "Interval Clasament",
+    "tuitionFeeRange": "Interval Taxe de Studii",
+    "date": "Interval Dată",
+    "sort": "Sortează După",
+    "searchPlaceholder": "Caută după nume...",
+    "sortOptions": {
+      "nameAZ": "Nume (A-Z)",
+      "nameZA": "Nume (Z-A)",
+      "locationAZ": "Locație (A-Z)",
+      "typeAZ": "Tip (A-Z)",
+      "rankingLowHigh": "Clasament (Crescător)",
+      "rankingHighLow": "Clasament (Descrescător)",
+      "tuitionLowHigh": "Taxe (Crescător)",
+      "tuitionHighLow": "Taxe (Descrescător)"
+    },
+    "clearFilters": "Resetează Filtrele",
+    "search": "Caută"
+  },
+  "noResults": "Nu s-au găsit universități care să corespundă criteriilor selectate",
+  "university": {
+    "public": "Universitate Publică",
+    "private": "Universitate Privată",
+    "ranking": "Clasament Universitar",
+    "noRanking": "Clasament indisponibil",
+    "website": "Website",
+    "tuitionFees": "Taxe de Studii",
+    "bachelor": "Licență",
+    "master": "Masterat",
+    "phd": "Doctorat",
+    "noFees": "Informații despre taxe indisponibile",
+    "viewDetails": "Vezi Detalii",
+    "contactUniversity": "Contactează Universitatea"
+  }
+} 

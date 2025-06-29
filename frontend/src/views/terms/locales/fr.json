@@ -1,0 +1,64 @@
+{
+  "title": "Conditions Générales",
+  "sections": {
+    "accepting": {
+      "title": "1. Acceptation des Conditions",
+      "content": "En accédant et en utilisant la plateforme StudyInMoldova, vous acceptez d'être lié par ces conditions générales. Si vous n'acceptez pas l'une de ces conditions, veuillez ne pas utiliser notre plateforme."
+    },
+    "service": {
+      "title": "2. Description du Service",
+      "content": "StudyInMoldova fournit une plateforme éducative qui facilite le processus d'inscription et fournit des informations sur les opportunités d'études en République de Moldavie. Nos services comprennent :",
+      "items": [
+        "Informations sur les universités et les programmes d'études",
+        "Assistance au processus d'inscription",
+        "Ressources éducatives et guides",
+        "Communauté pour les étudiants et les candidats"
+      ]
+    },
+    "obligations": {
+      "title": "3. Obligations de l'Utilisateur",
+      "content": "En tant qu'utilisateur de la plateforme, vous acceptez de :",
+      "items": [
+        "Fournir des informations exactes et complètes",
+        "Maintenir la confidentialité de votre compte",
+        "Ne pas utiliser la plateforme à des fins illégales ou non autorisées",
+        "Ne pas tenter d'accéder aux zones restreintes de la plateforme",
+        "Ne pas utiliser la plateforme d'une manière qui pourrait endommager nos services"
+      ]
+    },
+    "property": {
+      "title": "4. Propriété Intellectuelle",
+      "content": "Tous les matériaux, le contenu et la conception de la plateforme StudyInMoldova sont protégés par les lois sur le droit d'auteur et sont notre propriété ou celle de nos fournisseurs de licences. Vous n'avez pas le droit de :",
+      "items": [
+        "Reproduire, distribuer ou modifier le contenu de la plateforme",
+        "Utiliser la marque StudyInMoldova sans notre autorisation écrite",
+        "Supprimer ou modifier les mentions de droits d'auteur"
+      ]
+    },
+    "liability": {
+      "title": "5. Limitation de Responsabilité",
+      "content": "StudyInMoldova ne peut être tenu responsable de :",
+      "items": [
+        "L'exactitude des informations fournies par les universités ou d'autres sources tierces",
+        "Les décisions d'admission des institutions éducatives",
+        "Toute interruption ou erreur dans le fonctionnement de la plateforme",
+        "Les pertes ou dommages résultant de l'utilisation de la plateforme"
+      ]
+    },
+    "modifications": {
+      "title": "6. Modifications des Conditions",
+      "content": "Nous nous réservons le droit de modifier ces conditions générales à tout moment. Les modifications prendront effet immédiatement après leur publication sur la plateforme. L'utilisation continue de la plateforme après les modifications constitue l'acceptation des nouvelles conditions."
+    },
+    "law": {
+      "title": "7. Loi Applicable",
+      "content": "Ces conditions générales sont régies et interprétées conformément aux lois de la République de Moldavie. Tout litige sera soumis à la juridiction exclusive des tribunaux de la République de Moldavie."
+    },
+    "contact": {
+      "title": "8. Contact",
+      "content": "Pour toute question ou clarification concernant ces conditions générales, veuillez nous contacter à :",
+      "email": "Email : terms@studyinmoldova.md",
+      "phone": "Téléphone : +373 XX XXX XXX"
+    }
+  },
+  "lastUpdated": "Dernière mise à jour :"
+} 

@@ -1,0 +1,157 @@
+{
+  "title": "About Us | StudyInMoldova",
+  "description": "Discover how StudyInMoldova helps you achieve your dream of studying in Moldova",
+  "hero": {
+    "title": "About StudyInMoldova",
+    "subtitle": "The first platform dedicated to international students in Moldova"
+  },
+  "whatWeOffer": {
+    "title": "What We Offer",
+    "description": "StudyInMoldova is the first and only comprehensive platform dedicated to international students who want to study in Moldova. We aim to simplify the enrollment process and provide all necessary information in one place.",
+    "features": {
+      "completeGuide": {
+        "title": "Complete Guide",
+        "description": "Detailed information about universities, study programs, costs, and the admission process"
+      },
+      "personalizedAssistance": {
+        "title": "Personalized Assistance",
+        "description": "Help in choosing the right program and guidance through the application process"
+      },
+      "practicalResources": {
+        "title": "Practical Resources",
+        "description": "Guides about life in Moldova, transportation, accommodation, and other important aspects"
+      }
+    }
+  },
+  "whyUnique": {
+    "title": "Why We're Unique",
+    "points": {
+      "specializedPlatform": "Specialized Platform: We are the only platform exclusively dedicated to international students in Moldova",
+      "updatedInformation": "Updated Information: All information is verified and regularly updated",
+      "personalizedSupport": "Personalized Support: We provide individual assistance for each student",
+      "completeResources": "Complete Resources: From academic information to practical advice about life in Moldova"
+    }
+  },
+  "howToUse": {
+    "title": "How to Use the Platform",
+    "steps": {
+      "explore": {
+        "title": "Explore",
+        "description": "Browse through universities and study programs to find the right options for you"
+      },
+      "plan": {
+        "title": "Plan",
+        "description": "Use the \"Plan Your Studies\" section to organize your application process"
+      },
+      "prepare": {
+        "title": "Prepare",
+        "description": "Upload necessary documents and prepare for the admission process"
+      },
+      "apply": {
+        "title": "Apply",
+        "description": "Submit your application and track its status through the platform"
+      }
+    }
+  },
+  "vision": {
+    "title": "Our Vision",
+    "description": "We want to make the process of studying in Moldova accessible and transparent for all international students. Through our platform, we aspire to become the trusted partner of every student who dreams of studying in Moldova."
+  },
+  "whyMoldova": {
+    "title": "Why Moldova",
+    "cards": {
+      "qualityEducation": {
+        "title": "Quality Education",
+        "description": "Modern programs and experienced professors, internationally recognized"
+      },
+      "affordableCosts": {
+        "title": "Affordable Costs",
+        "description": "Competitive tuition fees and living costs compared to other European countries"
+      },
+      "richCulture": {
+        "title": "Rich Culture",
+        "description": "A country with fascinating history and vibrant culture, perfect for international students"
+      }
+    }
+  },
+  "services": {
+    "title": "What We Offer",
+    "subtitle": "Complete services for international students",
+    "cards": {
+      "universities": {
+        "title": "Universities",
+        "description": "Complete information about universities in Moldova, their programs and facilities"
+      },
+      "studyPrograms": {
+        "title": "Study Programs",
+        "description": "Detailed information about available study programs, specializations and development opportunities"
+      },
+      "studentLife": {
+        "title": "Student Life",
+        "description": "Guides for accommodation, transportation, cultural activities and adaptation in Moldova"
+      }
+    }
+  },
+  "statistics": {
+    "title": "Statistics",
+    "subtitle": "Our impact in international education",
+    "cards": {
+      "students": {
+        "number": "5000+",
+        "title": "International Students",
+        "description": "Students from over 50 countries who chose Moldova"
+      },
+      "universities": {
+        "number": "15+",
+        "title": "Partner Universities",
+        "description": "Higher education institutions in Moldova"
+      },
+      "satisfaction": {
+        "number": "95%",
+        "title": "Satisfaction Rate",
+        "description": "Students satisfied with our services"
+      }
+    }
+  },
+  "cta": {
+    "title": "Ready to start your adventure in Moldova?",
+    "description": "Let's explore together the study opportunities and build your future in the Republic of Moldova!",
+    "buttons": {
+      "explore": "Explore Universities",
+      "contact": "Contact Us"
+    }
+  },
+  "team": {
+    "title": "Our Team",
+    "subtitle": "Professionals dedicated to international education",
+    "members": {
+      "consultants": {
+        "title": "Educational Consultants",
+        "description": "Specialists in guiding students to suitable programs",
+        "expertise": [
+          "Academic assessment",
+          "Career counseling",
+          "Application support"
+        ]
+      },
+      "support": {
+        "title": "Student Support Specialists",
+        "description": "Professionals dedicated to assisting students in the enrollment process",
+        "expertise": [
+          "Visa assistance",
+          "Housing and transportation",
+          "Cultural orientation"
+        ]
+      },
+      "experts": {
+        "title": "Academic Experts",
+        "description": "Professors and researchers with experience in international education",
+        "expertise": [
+          "Curriculum development",
+          "Academic research",
+          "Student mentoring"
+        ]
+      }
+    }
+  }
+} 

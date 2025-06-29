@@ -9,6 +9,19 @@ import aboutFR from './views/about/locales/fr/about.json';
 import aboutDE from './views/about/locales/de/about.json';
 import aboutRU from './views/about/locales/ru/about.json';
 
+// Importă traducerile pentru pagina About
+import ctaRO from './views/landing/locales/ro/cta.json';
+import ctaEN from './views/landing/locales/en/cta.json';
+import ctaFR from './views/landing/locales/fr/cta.json';
+import ctaDE from './views/landing/locales/de/cta.json';
+import ctaRU from './views/landing/locales/ru/cta.json';
+
+import landingRO from './views/landing/locales/ro/landing.json';
+import landingEN from './views/landing/locales/en/landing.json';
+import landingFR from './views/landing/locales/fr/landing.json';
+import landingDE from './views/landing/locales/de/landing.json';
+import landingRU from './views/landing/locales/ru/landing.json';
+
 // Importă traducerile pentru pagina Universities
 import universitiesRO from './views/universities/locales/ro.json';
 import universitiesEN from './views/universities/locales/en.json';
@@ -44,35 +57,45 @@ const resources = {
     universities: universitiesRO,
     terms: termsRO,
     privacy: privacyRO,
-    livingInMoldova: livingInMoldovaRO
+    livingInMoldova: livingInMoldovaRO,
+    cta: ctaRO,
+    landing: landingRO
   },
   en: {
     about: aboutEN,
     universities: universitiesEN,
     terms: termsEN,
     privacy: privacyEN,
-    livingInMoldova: livingInMoldovaEN
+    livingInMoldova: livingInMoldovaEN,
+    cta: ctaEN,
+    landing: landingEN
   },
   de: {
     about: aboutDE,
     universities: universitiesDE,
     terms: termsDE,
     privacy: privacyDE,
-    livingInMoldova: livingInMoldovaDE
+    livingInMoldova: livingInMoldovaDE,
+    cta: ctaDE,
+    landing: landingDE
   },
   ru: {
     about: aboutRU,
     universities: universitiesRU,
     terms: termsRU,
     privacy: privacyRU,
-    livingInMoldova: livingInMoldovaRU
+    livingInMoldova: livingInMoldovaRU,
+    cta: ctaRU,
+    landing: landingRU
   },
   fr: {
     about: aboutFR,
     universities: universitiesFR,
     terms: termsFR,
     privacy: privacyFR,
-    livingInMoldova: livingInMoldovaFR
+    livingInMoldova: livingInMoldovaFR,
+    cta: ctaFR,
+    landing: landingFR
   }
 };
 
@@ -87,7 +110,7 @@ i18n
     interpolation: {
       escapeValue: false
     },
-    ns: ['about', 'universities', 'terms', 'privacy', 'livingInMoldova'],
+    ns: ['about', 'universities','landing', 'terms', 'privacy', 'livingInMoldova', 'cta'],
     defaultNS: 'about',
     react: {
       useSuspense: false

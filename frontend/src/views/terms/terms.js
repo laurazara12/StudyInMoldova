@@ -1,106 +1,86 @@
 import React from 'react'
+import { Helmet } from 'react-helmet'
+import { useTranslation } from 'react-i18next'
 import Navbar from '../../components/navbar'
 import Footer from '../../components/footer'
 import './terms.css'
 
 const Terms = () => {
+  const { t } = useTranslation('terms')
+
   return (
     <>
+      <Helmet>
+        <title>{t('title')} - Study In Moldova</title>
+        <meta name="description" content="Terms and conditions for using StudyInMoldova platform" />
+      </Helmet>
+
       <Navbar />
       <div className="terms-container">
         <div className="terms-content">
-          <h1>Terms and Conditions</h1>
+          <h1>{t('title')}</h1>
+          <p className="last-updated">{t('lastUpdated')} 01.03.2024</p>
           
           <section>
-            <h2>1. Accepting the Terms</h2>
-            <p>
-              By accessing and using the StudyInMoldova platform, you agree to be bound by these terms and conditions. 
-              If you do not agree with any of these terms, please do not use our platform.
-            </p>
+            <h2>{t('sections.accepting.title')}</h2>
+            <p>{t('sections.accepting.content')}</p>
           </section>
 
           <section>
-            <h2>2. Service Description</h2>
-            <p>
-              StudyInMoldova provides an educational platform that facilitates the enrollment process and information about 
-              study opportunities in the Republic of Moldova. Our services include:
-            </p>
+            <h2>{t('sections.service.title')}</h2>
+            <p>{t('sections.service.content')}</p>
             <ul>
-              <li>Information about universities and study programs</li>
-              <li>Enrollment process assistance</li>
-              <li>Educational resources and guides</li>
-              <li>Community for students and applicants</li>
+              {t('sections.service.items', { returnObjects: true }).map((item, index) => (
+                <li key={index}>{item}</li>
+              ))}
             </ul>
           </section>
 
           <section>
-            <h2>3. User Obligations</h2>
-            <p>As a user of the platform, you agree to:</p>
+            <h2>{t('sections.obligations.title')}</h2>
+            <p>{t('sections.obligations.content')}</p>
             <ul>
-              <li>Provide accurate and complete information</li>
-              <li>Maintain the confidentiality of your account</li>
-              <li>Not use the platform for illegal or unauthorized purposes</li>
-              <li>Not attempt to access restricted areas of the platform</li>
-              <li>Not use the platform in a way that could damage our services</li>
+              {t('sections.obligations.items', { returnObjects: true }).map((item, index) => (
+                <li key={index}>{item}</li>
+              ))}
             </ul>
           </section>
 
           <section>
-            <h2>4. Intellectual Property</h2>
-            <p>
-              All materials, content, and design of the StudyInMoldova platform are protected by copyright laws and are 
-              our property or that of our license providers. You do not have the right to:
-            </p>
+            <h2>{t('sections.property.title')}</h2>
+            <p>{t('sections.property.content')}</p>
             <ul>
-              <li>Reproduce, distribute, or modify the platform's content</li>
-              <li>Use the StudyInMoldova brand without our written permission</li>
-              <li>Remove or modify any copyright notices</li>
+              {t('sections.property.items', { returnObjects: true }).map((item, index) => (
+                <li key={index}>{item}</li>
+              ))}
             </ul>
           </section>
 
           <section>
-            <h2>5. Limitation of Liability</h2>
-            <p>
-              StudyInMoldova cannot be held liable for:
-            </p>
+            <h2>{t('sections.liability.title')}</h2>
+            <p>{t('sections.liability.content')}</p>
             <ul>
-              <li>The accuracy of information provided by universities or other third-party sources</li>
-              <li>Admission decisions of educational institutions</li>
-              <li>Any interruptions or errors in platform operation</li>
-              <li>Losses or damages resulting from platform use</li>
+              {t('sections.liability.items', { returnObjects: true }).map((item, index) => (
+                <li key={index}>{item}</li>
+              ))}
             </ul>
           </section>
 
           <section>
-            <h2>6. Terms Modifications</h2>
-            <p>
-              We reserve the right to modify these terms and conditions at any time. Changes will take effect 
-              immediately after their publication on the platform. Continued use of the platform after changes 
-              constitutes acceptance of the new terms.
-            </p>
+            <h2>{t('sections.modifications.title')}</h2>
+            <p>{t('sections.modifications.content')}</p>
           </section>
 
           <section>
-            <h2>7. Applicable Law</h2>
-            <p>
-              These terms and conditions are governed and interpreted in accordance with the laws of the Republic of Moldova. 
-              Any dispute will be subject to the exclusive jurisdiction of the courts of the Republic of Moldova.
-            </p>
+            <h2>{t('sections.law.title')}</h2>
+            <p>{t('sections.law.content')}</p>
           </section>
 
           <section>
-            <h2>8. Contact</h2>
-            <p>
-              For questions or clarifications regarding these terms and conditions, please contact us at:
-              <br />
-              Email: terms@studyinmoldova.md
-              <br />
-              Phone: +373 XX XXX XXX
-            </p>
-          </section>
-
-          <section className="last-updated">
-            <p>Last updated: {new Date().toLocaleDateString('en-US')}</p>
+            <h2>{t('sections.contact.title')}</h2>
+            <p>{t('sections.contact.content')}</p>
+            <p>{t('sections.contact.email')}</p>
+            <p>{t('sections.contact.phone')}</p>
           </section>
         </div>
       </div>

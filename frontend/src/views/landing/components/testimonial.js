@@ -11,24 +11,8 @@ const Testimonial = (props) => {
       <div className="testimonial-max-width thq-section-max-width">
         <div className="testimonial-container10">
           <h2 className="thq-heading-2">
-            {props.heading1 ?? (
-              <Fragment>
-                <span className="testimonial-text36">Student Testimonials</span>
-              </Fragment>
-            )}
+            {props.heading1}
           </h2>
-          <span className="testimonial-text11 thq-body-small">
-            {props.content1 ?? (
-              <Fragment>
-                <span className="testimonial-text27">
-                  Studying in Moldova has been a life-changing experience for
-                  many students. The quality of education and the welcoming
-                  environment at the university made them feel at home. They
-                  say...
-                </span>
-              </Fragment>
-            )}
-          </span>
         </div>
         <div className="thq-grid-2">
           <div className="thq-animated-card-bg-2">
@@ -42,33 +26,15 @@ const Testimonial = (props) => {
                   />
                   <div className="testimonial-container13">
                     <strong className="thq-body-large">
-                      {props.author1Name ?? (
-                        <Fragment>
-                          <span className="testimonial-text30">
-                            Jessica Smith
-                          </span>
-                        </Fragment>
-                      )}
+                      {props.author1Name}
                     </strong>
                     <span className="thq-body-small">
-                      {props.author1Position ?? (
-                        <Fragment>
-                          <span className="testimonial-text35">
-                            Bachelor&apos;s Student
-                          </span>
-                        </Fragment>
-                      )}
+                      {props.author1Position}
                     </span>
                   </div>
                 </div>
                 <span className="testimonial-text14 thq-body-small">
-                  {props.review1 ?? (
-                    <Fragment>
-                      <span className="testimonial-text24">
-                        I highly recommend considering Moldova for your studies!
-                      </span>
-                    </Fragment>
-                  )}
+                  {props.review1}
                 </span>
               </div>
             </div>
@@ -84,32 +50,15 @@ const Testimonial = (props) => {
                   />
                   <div className="testimonial-container15">
                     <strong className="thq-body-large">
-                      {props.author2Name ?? (
-                        <Fragment>
-                          <span className="testimonial-text28">Ahmed Khan</span>
-                        </Fragment>
-                      )}
+                      {props.author2Name}
                     </strong>
                     <span className="thq-body-small">
-                      {props.author2Position ?? (
-                        <Fragment>
-                          <span className="testimonial-text33">
-                            Master&apos;s Student
-                          </span>
-                        </Fragment>
-                      )}
+                      {props.author2Position}
                     </span>
                   </div>
                 </div>
                 <span className="testimonial-text17 thq-body-small">
-                  {props.review2 ?? (
-                    <Fragment>
-                      <span className="testimonial-text32">
-                        Moldova is a hidden gem for international students
-                        seeking quality education without breaking the bank.
-                      </span>
-                    </Fragment>
-                  )}
+                  {props.review2}
                 </span>
               </div>
             </div>
@@ -125,34 +74,15 @@ const Testimonial = (props) => {
                   />
                   <div className="testimonial-container17">
                     <strong className="thq-body-large">
-                      {props.author3Name ?? (
-                        <Fragment>
-                          <span className="testimonial-text29">
-                            Elena Petrova
-                          </span>
-                        </Fragment>
-                      )}
+                      {props.author3Name}
                     </strong>
                     <span className="thq-body-small">
-                      {props.author3Position ?? (
-                        <Fragment>
-                          <span className="testimonial-text26">
-                            Ph.D. Candidate
-                          </span>
-                        </Fragment>
-                      )}
+                      {props.author3Position}
                     </span>
                   </div>
                 </div>
                 <span className="testimonial-text20 thq-body-small">
-                  {props.review3 ?? (
-                    <Fragment>
-                      <span className="testimonial-text34">
-                        Choosing Moldova for my Ph.D. studies was one of the
-                        best decisions I&apos;ve made in my academic career.
-                      </span>
-                    </Fragment>
-                  )}
+                  {props.review3}
                 </span>
               </div>
             </div>
@@ -168,32 +98,15 @@ const Testimonial = (props) => {
                   />
                   <div className="testimonial-container19">
                     <strong className="thq-body-large">
-                      {props.author4Name ?? (
-                        <Fragment>
-                          <span className="testimonial-text31">David Lee</span>
-                        </Fragment>
-                      )}
+                      {props.author4Name}
                     </strong>
                     <span className="thq-body-small">
-                      {props.author4Position ?? (
-                        <Fragment>
-                          <span className="testimonial-text37">
-                            Exchange Student
-                          </span>
-                        </Fragment>
-                      )}
+                      {props.author4Position}
                     </span>
                   </div>
                 </div>
                 <span className="testimonial-text23 thq-body-small">
-                  {props.review4 ?? (
-                    <Fragment>
-                      <span className="testimonial-text25">
-                        My time in Moldova has broadened my horizons and left me
-                        with unforgettable memories.
-                      </span>
-                    </Fragment>
-                  )}
+                  {props.review4}
                 </span>
               </div>
             </div>
@@ -218,7 +131,7 @@ Testimonial.defaultProps = {
   author1Src:
     'https://images.unsplash.com/photo-1525219884637-43180fbb6455?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTMyMXwwfDF8cmFuZG9tfHx8fHx8fHx8MTczNDEwOTYzM3w&ixlib=rb-4.0.3&q=80&w=1080',
   author2Name: undefined,
-  author1Alt: 'Image of Jessica Smith',
+  author1Alt: '',
   author3Src:
     'https://images.unsplash.com/photo-1499229694635-fc626e0d9c01?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MTMyMXwwfDF8cmFuZG9tfHx8fHx8fHx8MTczNDEwOTYzNHw&ixlib=rb-4.0.3&q=80&w=1080',
   author2Src:

@@ -565,7 +565,6 @@ const ProgramsTab = () => {
                     value={newProgram.start_date}
                     onChange={handleNewProgramChange}
                     className="form-input"
-                    required
                   />
                 </div>
                 <div className="form-group">
@@ -576,7 +575,6 @@ const ProgramsTab = () => {
                     value={newProgram.application_deadline}
                     onChange={handleNewProgramChange}
                     className="form-input"
-                    required
                   />
                 </div>
               </div>
@@ -589,7 +587,6 @@ const ProgramsTab = () => {
                   onChange={handleNewProgramChange}
                   className="form-textarea"
                   rows="4"
-                  required
                 />
               </div>
 
@@ -867,20 +864,20 @@ const ProgramsTab = () => {
       {deleteConfirmation && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h2>Confirmare ștergere</h2>
-            <p>Sigur doriți să ștergeți acest program? Această acțiune va șterge și toate aplicațiile asociate.</p>
+            <h2>Confirm delete</h2>
+            <p>Are you sure you want to delete this program? This action will also delete all associated applications.</p>
             <div className="modal-buttons">
               <button 
                 className="btn-grey-2"
                 onClick={handleCancelDelete}
               >
-                Anulează
+                Cancel
               </button>
               <button 
                 className="btn-delete"
                 onClick={handleConfirmDelete}
               >
-                Șterge
+                Delete
               </button>
             </div>
           </div>

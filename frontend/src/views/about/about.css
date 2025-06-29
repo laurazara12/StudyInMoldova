@@ -76,7 +76,6 @@
 
 .about-header .subtitle {
     font-size: 1.2rem;
-    color: #666;
 }
 
 .about-section {
@@ -84,11 +83,14 @@
 }
 
 .about-section h2 {
-    color: var(--dl-color-theme-primary1);
     font-size: 1.8rem;
     margin-bottom: 1.5rem;
     padding-bottom: 0.5rem;
     border-bottom: 2px solid #eee;
+}
+
+.cta-section h2{
+    color: var(--background-light);
 }
 
 .features-grid {
@@ -108,6 +110,7 @@
 
 .feature-card:hover {
     transform: translateY(-5px);
+    cursor: pointer;
 }
 
 .feature-card h3 {
@@ -247,6 +250,7 @@
     transform: translateY(-5px);
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
     border-color: var(--dl-color-theme-primary1);
+    cursor: pointer;
 }
 
 .why-moldova-card:hover::before,
@@ -254,6 +258,8 @@
 .team-member:hover::before,
 .stat-card:hover::before {
     transform: scaleX(1);
+    cursor: pointer;
+
 }
 
 .card-icon,
@@ -277,6 +283,7 @@
 .service-card:hover .service-icon,
 .team-member:hover .member-avatar {
     transform: scale(1.1);
+    cursor: pointer;
 }
 
 .why-moldova-card h3,
@@ -325,26 +332,27 @@
     position: relative;
     z-index: 2;
     text-align: center;
-    color: var(--dl-color-theme-accent1);
     max-width: var(--dl-size-size-maxwidth);
     margin: 0 auto;
     padding: 0 var(--dl-space-space-unit);
 }
 
-.cta-content h2 {
-    font-size: var(--dl-font-size-heading2);
-    margin-bottom: var(--dl-space-space-unit);
-    color: var(--dl-color-theme-accent1);
-    font-family: var(--dl-font-family-heading);
-    font-weight: var(--dl-font-weight-bold);
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
+
 
 .cta-content p {
     font-size: var(--dl-font-size-body1);
     margin-bottom: var(--dl-space-space-twounits);
-    color: var(--dl-color-theme-accent1);
     opacity: 0.9;
+    line-height: var(--dl-line-height-body);
+    font-family: var(--dl-font-family-body);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.about-page .cta-content p {
+    font-size: var(--dl-font-size-body1);
+    margin-bottom: var(--dl-space-space-twounits);
+    opacity: 0.9;
+    color: var(--background-light);
     line-height: var(--dl-line-height-body);
     font-family: var(--dl-font-family-body);
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
@@ -361,12 +369,13 @@
     padding: 0.75rem 1.5rem;
     border-radius: var(--dl-radius-radius-buttonradius);
     transition: all 0.2s ease;
-    cursor: pointer;
     font-family: var(--dl-font-family-body);
     font-size: var(--dl-font-size-small);
     text-decoration: none;
     display: inline-block;
     text-align: center;
+    cursor: pointer;
+
 }
 
 .cta-button.primary {
@@ -374,6 +383,7 @@
     background: var(--dl-color-theme-accent1);
     color: var(--dl-color-theme-primary1);
     border: var(--dl-border-width-thin);
+    cursor: pointer;
 }
 
 .cta-button.primary:hover {
@@ -382,6 +392,7 @@
     color: var(--dl-color-theme-accent1);
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
 }
 
 .cta-button.secondary {
@@ -389,6 +400,7 @@
     background: transparent;
     color: var(--dl-color-theme-accent1);
     border: var(--dl-border-width-thin) solid var(--dl-color-theme-accent1);
+    cursor: pointer;
 }
 
 .cta-button.secondary:hover {
@@ -396,6 +408,7 @@
     color: var(--dl-color-theme-primary1);
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
 }
 
 .member-expertise {

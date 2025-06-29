@@ -1,0 +1,109 @@
+{
+  "navbar": {
+    "title": "Étudier en Moldavie",
+    "login": "Se connecter",
+    "livingInMoldova": "Vivre en Moldavie",
+    "programmes": "Programmes",
+    "helpYouChoose": "Aide au choix",
+    "universities": "Universités",
+    "planYourStudies": "Planifiez vos études",
+    "about": "À propos de nous",
+    "features": "Fonctionnalités",
+    "pricing": "Tarifs",
+    "team": "Équipe",
+    "blog": "Blog",
+    "register": "S'inscrire"
+  },
+  "heroLandingPage": {
+    "buttonExplorePrograms": "Explorer les programmes",
+    "buttonContactUs": "Contactez-nous",
+    "content": "Votre passerelle vers les universités moldaves. Nous gérons les candidatures internationales pour toutes les universités de Moldavie. Nous examinons vos documents et vous guidons tout au long du processus.",
+    "heading": "Étudier en Moldavie"
+  },
+  "featuresWhyStudyInMoldova1": {
+    "feature1Title": "Éducation européenne, sans tracas de visa",
+    "feature2Title": "Universités reconnues mondialement",
+    "feature3Title": "Éducation en plein essor",
+    "feature1Description": "La Moldavie offre une éducation de qualité avec un processus de candidature simple et une entrée sans visa pour de nombreux étudiants internationaux. Vérifiez dès aujourd'hui si vous êtes éligible !",
+    "feature2Description": "Des institutions moldaves comme l’Université d’État de Moldavie et l’Université Technique de Moldavie figurent dans le classement QS Europe.",
+    "feature3Description": "Les étudiants moldaves montrent une amélioration continue dans les évaluations internationales, reflet de réformes axées sur la qualité."
+  },
+  "cta": {
+    "action": "Postulez maintenant",
+    "content": "Postulez en 6 étapes simples :\n1. Créez votre compte\n2. Vérifiez votre admissibilité\n3. Préparez vos documents\n4. Choisissez vos programmes\n5. Soumettez votre candidature\n6. Suivez votre statut",
+    "heading": "Commencez votre aventure d'études en Moldavie dès aujourd'hui !"
+  },
+  "featuresWhyStudyInMoldova2": {
+    "feature1Title": "Taux d'alphabétisation élevé",
+    "feature2Title": "Éducation abordable",
+    "feature3Title": "Une éducation en progrès",
+    "feature1Description": "Avec un taux d'alphabétisation de 99,6 %, la Moldavie offre une base académique solide aux étudiants internationaux.",
+    "feature2Description": "Étudier en Moldavie est économique par rapport à de nombreux autres pays européens, ce qui en fait une option attrayante pour les étudiants internationaux.",
+    "feature3Description": "La Moldavie est engagée envers une éducation de qualité, avec 6,25 % du PIB alloués à l'éducation publique en 2023 — bien au-dessus de la moyenne mondiale de 4,4 %. Cela garantit des universités bien financées, des professeurs qualifiés et des ressources pédagogiques modernes. Le taux d'alphabétisation des jeunes est de 99,7 % et le ratio élèves-enseignant en primaire est de 17,9."
+  },
+  "featureSteps": {
+    "buttonExplorePrograms": "Explorer les programmes",
+    "buttonContactUs": "Contactez-nous",
+    "stepsDescription": "Suivez ces étapes simples pour commencer votre parcours académique en Moldavie. Notre plateforme vous guide à chaque étape, de la création de votre compte jusqu'à la candidature au programme souhaité.",
+    "heading": "Étudier en Moldavie",
+    "steps": {
+      "1": {
+        "title": "1. Créez un compte",
+        "description": "Créez votre compte et confirmez votre adresse e-mail. C'est votre première étape pour étudier en Moldavie."
+      },
+      "2": {
+        "title": "2. Parcourez et enregistrez les programmes",
+        "description": "Vérifiez si vos qualifications répondent aux exigences des universités moldaves."
+      },
+      "3": {
+        "title": "3. Recherchez les universités",
+        "description": "Préparez tous les documents requis selon notre liste de contrôle et vérifiez-les."
+      },
+      "4": {
+        "title": "4. Téléversez vos documents",
+        "description": "Parcourez les programmes d'études de nos universités partenaires et choisissez vos favoris."
+      },
+      "5": {
+        "title": "5. Soumettez votre candidature",
+        "description": "Soumettez votre dossier et payez les frais de traitement via notre plateforme sécurisée."
+      },
+      "6": {
+        "title": "6. Suivez votre progression",
+        "description": "Suivez l'état de votre candidature et recevez des mises à jour en temps réel."
+      },
+      "7": {
+        "title": "7. Obtenez du soutien",
+        "description": "Contactez-nous à tout moment pour poser vos questions ou obtenir de l’aide pendant tout le processus."
+      }
+    }
+  },
+  "testimonial": {
+    "heading": "Témoignages d'étudiants",
+    "reviews": {
+      "1":{
+        "text": "Je recommande vivement de considérer la Moldavie pour vos études !",
+        "author": "Jessica Smith",
+        "position": "Étudiante en licence"
+      },
+      "2":{
+        "text": "La Moldavie est un joyau caché pour les étudiants internationaux à la recherche d'une éducation de qualité sans se ruiner.",
+        "author": "Ahmed Khan",
+        "position": "Étudiant en master"
+      },
+      "3":{
+        "text": "Choisir la Moldavie pour mon doctorat a été l'une des meilleures décisions de ma carrière académique.",
+        "author": "Elena Petrova",
+        "position": "Doctorante"
+      },
+      "4":{
+        "text": "Mon séjour en Moldavie a élargi mes horizons et m’a laissé des souvenirs inoubliables.",
+        "author": "David Lee",
+        "position": "Étudiant en échange"
+      }
+    }
+  },
+  "featureLocations": {
+  "description": "La Moldavie n'est pas un grand pays et, bien qu’il existe des universités dans d’autres villes, la plupart des opportunités d’enseignement supérieur se trouvent dans la capitale, Chișinău."
+}
+
+}

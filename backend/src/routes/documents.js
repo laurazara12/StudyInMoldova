@@ -603,12 +603,27 @@ router.delete('/:id', auth, async (req, res) => {
       }
     }
 
-    // Șterge documentul din baza de date
-    await document.destroy();
-
-    res.json({
+   
+    await document.update({ status: 'deleted' });
+    
+    const documents = await Document.findAll({
+      include: [{
+        model: User,
+        as: 'user',
+        attributes: ['id', 'name', 'email']
+      }],
+      order: [['createdAt', 'DESC']]
+    });
+    const status = {
+      pending: documents.filter(doc => doc.status === 'pending').length,
+      approved: documents.filter(doc => doc.status === 'approved').length,
+      rejected: documents.filter(doc => doc.status === 'rejected').length
+    };
+    res.json({ 
       success: true,
-      message: 'Document șters cu succes'
+      message: 'Document șters cu succes',
+      data: documents,
+      status
     });
   } catch (error) {
     console.error('Eroare la ștergerea documentului:', error);
@@ -976,9 +991,24 @@ router.delete('/admin/:id', auth, adminAuth, async (req, res) => {
       { customMessage: admin_message }
     );
 
+    const documents = await Document.findAll({
+      include: [{
+        model: User,
+        as: 'user',
+        attributes: ['id', 'name', 'email']
+      }],
+      order: [['createdAt', 'DESC']]
+    });
+    const status = {
+      pending: documents.filter(doc => doc.status === 'pending').length,
+      approved: documents.filter(doc => doc.status === 'approved').length,
+      rejected: documents.filter(doc => doc.status === 'rejected').length
+    };
     res.json({ 
       success: true,
-      message: 'Document șters cu succes' 
+      message: 'Document șters cu succes',
+      data: documents,
+      status
     });
   } catch (error) {
     console.error('Eroare la ștergerea documentului:', error);

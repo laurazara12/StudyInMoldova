@@ -1,0 +1,157 @@
+{
+  "title": "Über Uns | StudyInMoldova",
+  "description": "Entdecken Sie, wie StudyInMoldova Ihnen hilft, Ihren Traum vom Studium in Moldawien zu verwirklichen",
+  "hero": {
+    "title": "Über StudyInMoldova",
+    "subtitle": "Die erste Plattform für internationale Studierende in Moldawien"
+  },
+  "whatWeOffer": {
+    "title": "Was Wir Bieten",
+    "description": "StudyInMoldova ist die erste und einzige umfassende Plattform für internationale Studierende, die in Moldawien studieren möchten. Unser Ziel ist es, den Einschreibungsprozess zu vereinfachen und alle notwendigen Informationen an einem Ort bereitzustellen.",
+    "features": {
+      "completeGuide": {
+        "title": "Umfassender Leitfaden",
+        "description": "Detaillierte Informationen über Universitäten, Studiengänge, Kosten und den Zulassungsprozess"
+      },
+      "personalizedAssistance": {
+        "title": "Personalisierte Unterstützung",
+        "description": "Hilfe bei der Auswahl des richtigen Programms und Begleitung durch den Bewerbungsprozess"
+      },
+      "practicalResources": {
+        "title": "Praktische Ressourcen",
+        "description": "Leitfäden zum Leben in Moldawien, Transport, Unterkunft und anderen wichtigen Aspekten"
+      }
+    }
+  },
+  "whyUnique": {
+    "title": "Warum Wir Einzigartig Sind",
+    "points": {
+      "specializedPlatform": "Spezialisierte Plattform: Wir sind die einzige Plattform, die ausschließlich internationalen Studierenden in Moldawien gewidmet ist",
+      "updatedInformation": "Aktualisierte Informationen: Alle Informationen werden verifiziert und regelmäßig aktualisiert",
+      "personalizedSupport": "Personalisierte Unterstützung: Wir bieten individuelle Unterstützung für jeden Studierenden",
+      "completeResources": "Umfassende Ressourcen: Von akademischen Informationen bis hin zu praktischen Ratschlägen über das Leben in Moldawien"
+    }
+  },
+  "howToUse": {
+    "title": "Wie Sie Die Plattform Nutzen Können",
+    "steps": {
+      "explore": {
+        "title": "Entdecken",
+        "description": "Durchsuchen Sie Universitäten und Studiengänge, um die richtigen Optionen für Sie zu finden"
+      },
+      "plan": {
+        "title": "Planen",
+        "description": "Nutzen Sie den Bereich \"Planen Sie Ihr Studium\", um Ihren Bewerbungsprozess zu organisieren"
+      },
+      "prepare": {
+        "title": "Vorbereiten",
+        "description": "Laden Sie notwendige Dokumente hoch und bereiten Sie sich auf den Zulassungsprozess vor"
+      },
+      "apply": {
+        "title": "Bewerben",
+        "description": "Reichen Sie Ihre Bewerbung ein und verfolgen Sie ihren Status über die Plattform"
+      }
+    }
+  },
+  "vision": {
+    "title": "Unsere Vision",
+    "description": "Wir möchten den Prozess des Studierens in Moldawien für alle internationalen Studierenden zugänglich und transparent gestalten. Durch unsere Plattform streben wir danach, der vertrauenswürdige Partner jedes Studierenden zu werden, der davon träumt, in Moldawien zu studieren."
+  },
+  "whyMoldova": {
+    "title": "Warum Moldawien",
+    "cards": {
+      "qualityEducation": {
+        "title": "Qualitativ Hochwertige Bildung",
+        "description": "Moderne Programme und erfahrene Professoren, international anerkannt"
+      },
+      "affordableCosts": {
+        "title": "Erschwingliche Kosten",
+        "description": "Wettbewerbsfähige Studiengebühren und Lebenshaltungskosten im Vergleich zu anderen europäischen Ländern"
+      },
+      "richCulture": {
+        "title": "Reiche Kultur",
+        "description": "Ein Land mit faszinierender Geschichte und lebendiger Kultur, perfekt für internationale Studierende"
+      }
+    }
+  },
+  "services": {
+    "title": "Was Wir Bieten",
+    "subtitle": "Umfassende Dienstleistungen für internationale Studierende",
+    "cards": {
+      "universities": {
+        "title": "Universitäten",
+        "description": "Vollständige Informationen über Universitäten in Moldawien, ihre Programme und Einrichtungen"
+      },
+      "studyPrograms": {
+        "title": "Studiengänge",
+        "description": "Detaillierte Informationen über verfügbare Studiengänge, Spezialisierungen und Entwicklungsmöglichkeiten"
+      },
+      "studentLife": {
+        "title": "Studentenleben",
+        "description": "Leitfäden für Unterkunft, Transport, kulturelle Aktivitäten und Anpassung in Moldawien"
+      }
+    }
+  },
+  "statistics": {
+    "title": "Statistiken",
+    "subtitle": "Unser Einfluss auf die internationale Bildung",
+    "cards": {
+      "students": {
+        "number": "5000+",
+        "title": "Internationale Studierende",
+        "description": "Studierende aus über 50 Ländern, die sich für Moldawien entschieden haben"
+      },
+      "universities": {
+        "number": "15+",
+        "title": "Partneruniversitäten",
+        "description": "Hochschulen in Moldawien"
+      },
+      "satisfaction": {
+        "number": "95%",
+        "title": "Zufriedenheitsrate",
+        "description": "Studierende, die mit unseren Dienstleistungen zufrieden sind"
+      }
+    }
+  },
+  "cta": {
+    "title": "Bereit für Ihr Abenteuer in Moldawien?",
+    "description": "Lassen Sie uns gemeinsam die Studienmöglichkeiten erkunden und Ihre Zukunft in der Republik Moldawien aufbauen!",
+    "buttons": {
+      "explore": "Universitäten Entdecken",
+      "contact": "Kontaktieren Sie Uns"
+    }
+  },
+  "team": {
+    "title": "Unser Team",
+    "subtitle": "Professionals, die sich der internationalen Bildung widmen",
+    "members": {
+      "consultants": {
+        "title": "Bildungsberater",
+        "description": "Spezialisten für die Beratung von Studierenden zu geeigneten Programmen",
+        "expertise": [
+          "Akademische Bewertung",
+          "Karriereberatung",
+          "Bewerbungsunterstützung"
+        ]
+      },
+      "support": {
+        "title": "Studentenbetreuungsspezialisten",
+        "description": "Professionals, die sich der Unterstützung von Studierenden im Einschreibungsprozess widmen",
+        "expertise": [
+          "Visumassistenz",
+          "Unterkunft und Transport",
+          "Kulturelle Orientierung"
+        ]
+      },
+      "experts": {
+        "title": "Akademische Experten",
+        "description": "Professoren und Forscher mit Erfahrung in internationaler Bildung",
+        "expertise": [
+          "Lehrplanentwicklung",
+          "Akademische Forschung",
+          "Studentenbetreuung"
+        ]
+      }
+    }
+  }
+} 
