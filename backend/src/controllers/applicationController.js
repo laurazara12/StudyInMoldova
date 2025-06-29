@@ -427,7 +427,7 @@ exports.withdrawApplication = async (req, res) => {
 exports.updateApplicationStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, notes } = req.body;
 
     const application = await Application.findByPk(id);
 
@@ -451,7 +451,7 @@ exports.updateApplicationStatus = async (req, res) => {
     // Actualizăm statusul aplicației
     await application.update({ 
       status,
-      // Dacă aplicația este marcată ca "submitted", ne asigurăm că și statusul plății este corect
+      notes,
       ...(status === 'submitted' && {
         is_paid: true,
         payment_status: 'paid'

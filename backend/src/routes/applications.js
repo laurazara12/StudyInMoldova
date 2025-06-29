@@ -24,6 +24,7 @@ router.delete('/:id', applicationAuth, applicationOwnership, deleteApplication);
 
 // Rute pentru admin
 router.put('/:id/status', applicationAuth, updateApplicationStatus);
+router.patch('/:id/status', applicationAuth, updateApplicationStatus);
 router.put('/:id/cancel', applicationAuth, applicationOwnership, cancelApplication);
 router.put('/:id/withdraw', applicationAuth, applicationOwnership, withdrawApplication);
 

@@ -119,7 +119,7 @@ const ApplicationsTab = () => {
         `${API_BASE_URL}/api/applications/${applicationId}/status`,
         {
           status: newStatus,
-          notes: application.notes || ''
+          notes: selectedApplication.notes || ''
         },
         { 
           headers: getAuthHeaders()
@@ -176,8 +176,9 @@ const ApplicationsTab = () => {
         app.user_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         app.program_name?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = filterApplicationStatus === 'all' || app.status === filterApplicationStatus;
-      const matchesDateRange = (!filterApplicationDateRange.start || new Date(app.created_at) >= new Date(filterApplicationDateRange.start)) &&
-                             (!filterApplicationDateRange.end || new Date(app.created_at) <= new Date(filterApplicationDateRange.end));
+      const appDate = app.application_date || app.createdAt || app.created_at;
+      const matchesDateRange = (!filterApplicationDateRange.start || new Date(appDate) >= new Date(filterApplicationDateRange.start)) &&
+                             (!filterApplicationDateRange.end || new Date(appDate) <= new Date(filterApplicationDateRange.end));
       return matchesSearch && matchesStatus && matchesDateRange;
     });
     setFilteredApplications(filtered);
