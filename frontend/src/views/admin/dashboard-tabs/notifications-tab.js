@@ -163,29 +163,32 @@ const NotificationsTab = () => {
   };
 
   const getNotificationMessage = (notification) => {
+    const userName = notification.user_name || 'Unknown User';
+    const documentType = notification.document_type || 'document';
+    
     switch (notification.type) {
       case 'document_deleted':
-        return `User ${notification.user_name} has deleted a ${notification.document_type} document.`;
+        return `User ${userName} has deleted a ${documentType} document.`;
       case 'document_approved':
-        return `User ${notification.user_name}'s ${notification.document_type} document has been approved.`;
+        return `User ${userName}'s ${documentType} document has been approved.`;
       case 'document_rejected':
-        return `User ${notification.user_name}'s ${notification.document_type} document has been rejected.`;
+        return `User ${userName}'s ${documentType} document has been rejected.`;
       case 'document_updated':
-        return `User ${notification.user_name} has updated their ${notification.document_type} document.`;
+        return `User ${userName} has updated their ${documentType} document.`;
       case 'document_expired':
-        return `User ${notification.user_name}'s ${notification.document_type} document has expired.`;
+        return `User ${userName}'s ${documentType} document has expired.`;
       case 'deadline':
-        return `Deadline approaching for ${notification.document_type} document.`;
+        return `Deadline approaching for ${documentType} document.`;
       case 'team':
-        return `New team member ${notification.user_name} has joined.`;
+        return `New team member ${userName} has joined.`;
       case 'new_user':
-        return `New user ${notification.user_name} has registered.`;
+        return `New user ${userName} has registered.`;
       case 'new_document':
-        return `User ${notification.user_name} has uploaded a new ${notification.document_type} document.`;
+        return `User ${userName} has uploaded a new ${documentType} document.`;
       case 'new_application':
-        return `New application received from ${notification.user_name}.`;
+        return `New application received from ${userName}.`;
       default:
-        return notification.message;
+        return notification.message || 'New notification received.';
     }
   };
 

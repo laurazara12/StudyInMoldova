@@ -482,4 +482,15 @@ h1{
   .filter-select {
     padding: var(--dl-space-space-halfunit) var(--dl-space-space-unit);
   }
-} 
+}
+
+.range-input {
+  width: 80px;
+  padding: 0.3rem;
+  border: 0.5px solid var(--dl-color-theme-primary1);
+  margin-right: 0.5rem;
+  margin-left: 0.5rem;
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+  border-radius: var(--dl-space-space-unit);
+}

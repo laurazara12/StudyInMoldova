@@ -259,7 +259,7 @@ const UsersTab = () => {
             <input
               type="text"
               className="search-input"
-              placeholder="Search by name, email or ID..."
+              placeholder="Search by name or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -314,9 +314,10 @@ const UsersTab = () => {
               setFilterRole('all');
               setFilterStatus('all');
               setFilterUserDateRange({ start: '', end: '' });
+              setSearchTerm('');
             }}
           >
-            Reset Filters
+            Clear Filters
           </button>
           <button 
             className="clear-filters-button"

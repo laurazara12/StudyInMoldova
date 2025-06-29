@@ -266,11 +266,18 @@ const getUserNotifications = async (userId, userRole) => {
 
     const notifications = await Notification.findAll({
       where: whereClause,
-      include: [{
-        model: Document,
-        attributes: ['id', 'document_type', 'filename', 'file_path'],
-        as: 'document'
-      }],
+      include: [
+        {
+          model: Document,
+          attributes: ['id', 'document_type', 'filename', 'file_path'],
+          as: 'document'
+        },
+        {
+          model: User,
+          attributes: ['id', 'name', 'email'],
+          as: 'user'
+        }
+      ],
       order: [
         ['priority', 'DESC'],
         ['createdAt', 'DESC']
@@ -294,6 +301,8 @@ const getUserNotifications = async (userId, userRole) => {
       expires_at: notification.expires_at,
       created_at: notification.createdAt,
       updated_at: notification.updatedAt,
+      user_name: notification.user ? notification.user.name : null,
+      document_type: notification.document ? notification.document.document_type : null,
       document: notification.document ? {
         id: notification.document.id,
         type: notification.document.document_type,

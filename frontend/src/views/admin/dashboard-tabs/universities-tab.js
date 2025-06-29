@@ -337,7 +337,7 @@ const UniversitiesTab = () => {
             <input
               type="text"
               className="search-input"
-              placeholder="Caută după nume sau descriere..."
+              placeholder="Search by name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -505,7 +505,17 @@ const UniversitiesTab = () => {
             <tbody>
               {filteredUniversities.map(university => (
                 <tr key={university.id}>
-                  <td>{university.name || 'N/A'}</td>
+                  <td>
+                    {(() => {
+                      const truncateName = (name) => {
+                        if (!name) return 'N/A';
+                        const words = name.split(' ');
+                        if (words.length <= 5) return name;
+                        return words.slice(0, 5).join(' ') + '...';
+                      };
+                      return truncateName(university.name);
+                    })()}
+                  </td>
                   <td>{university.type || 'N/A'}</td>
                   <td>{university.location || 'N/A'}</td>
                   <td>
@@ -757,6 +767,14 @@ const UniversitiesTab = () => {
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content program-modal">
+            <button
+              className="close-button"
+              onClick={handleCloseModal}
+              aria-label="Închide editare universitate"
+              style={{ position: 'absolute', top: 10, right: 10 }}
+            >
+              &#10005;
+            </button>
             <h2>Edit University</h2>
             {editingUniversity && (
               <form onSubmit={handleUpdateUniversity} className="program-form">
@@ -919,13 +937,6 @@ const UniversitiesTab = () => {
                 </div>
 
                 <div className="modal-buttons">
-                  <button 
-                    type="button" 
-                    className="btn-grey-2"
-                    onClick={handleCloseModal}
-                  >
-                    Cancel
-                  </button>
                   <button type="submit" className="btn1">
                     Save Changes
                   </button>

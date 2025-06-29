@@ -26,12 +26,8 @@
   --dl-color-theme-secondary2: #FBF1EB;
   --dl-space-space-threeunits: 48px;
   --dl-color-theme-neutral-dark: #333333;
-  --dl-radius-radius-cardradius: 8px;
   --dl-color-theme-neutral-light: #ffffff;
-  --dl-radius-radius-imageradius: 8px;
-  --dl-radius-radius-inputradius: 25px;
   --dl-radius-radius-buttonradius: 25px;
-  --dl-space-space-oneandhalfunits: 24px;
   --dl-font-size-small: 0.8rem; 
   --dl-font-size-medium: 1.1rem; 
   --dl-font-size-large: 1.4rem;       
@@ -905,6 +901,13 @@ body {
 }
 
 
-
-
-
+.range-input {
+  width: 80px;
+  padding: 0.3rem;
+  border: 0.5px solid var(--dl-color-theme-primary1);
+  margin-right: 0.5rem;
+  margin-left: 0.5rem;
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+  border-radius: var(--dl-space-space-unit);
+}
