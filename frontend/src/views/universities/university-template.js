@@ -29,6 +29,9 @@ const UniversityTemplate = ({
   const [programDetails, setProgramDetails] = useState({});
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedProgramId, setSelectedProgramId] = useState(null);
+  const [selectedProgramDetails, setSelectedProgramDetails] = useState({});
+  const [loadingProgramDetails, setLoadingProgramDetails] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -38,7 +41,8 @@ const UniversityTemplate = ({
         setLoading(true);
         setError(null);
         
-        const universityData = await getUniversityBySlug(slug);
+        const response = await getUniversityBySlug(slug);
+        const universityData = response.data ? response.data : response;
         console.log('Date universității primite:', universityData);
         
         if (!isMounted) return;
@@ -61,38 +65,6 @@ const UniversityTemplate = ({
           setPrograms(programsData);
         }
 
-        // Încărcăm detaliile pentru fiecare program
-        const details = {};
-        for (const program of programsData) {
-          try {
-            const [programInfo, specializations, tuitionFees] = await Promise.all([
-              getProgramDetails(program.id),
-              getProgramSpecializations(program.id),
-              getProgramTuitionFees(program.id)
-            ]);
-            
-            if (!isMounted) return;
-            
-            details[program.id] = {
-              ...programInfo,
-              specializations: Array.isArray(specializations) ? specializations : [],
-              tuitionFees: tuitionFees || null
-            };
-          } catch (error) {
-            console.error(`Eroare la încărcarea detaliilor programului ${program.id}:`, error);
-            if (!isMounted) return;
-            
-            details[program.id] = {
-              ...program,
-              specializations: [],
-              tuitionFees: null
-            };
-          }
-        }
-        
-        if (!isMounted) return;
-        setProgramDetails(details);
-        
       } catch (err) {
         if (!isMounted) return;
         console.error('Eroare la încărcarea datelor:', err);
@@ -109,6 +81,34 @@ const UniversityTemplate = ({
       isMounted = false;
     };
   }, [slug]);
+
+  const handleProgramClick = async (programId) => {
+    if (selectedProgramDetails[programId]) {
+      setSelectedProgramId(programId); // deja încărcat
+      return;
+    }
+    setLoadingProgramDetails(true);
+    try {
+      const [programInfo, specializations, tuitionFees] = await Promise.all([
+        getProgramDetails(programId),
+        getProgramSpecializations(programId),
+        getProgramTuitionFees(programId)
+      ]);
+      setSelectedProgramDetails(prev => ({
+        ...prev,
+        [programId]: {
+          ...programInfo,
+          specializations: Array.isArray(specializations) ? specializations : [],
+          tuitionFees: tuitionFees || null
+        }
+      }));
+      setSelectedProgramId(programId);
+    } catch (error) {
+      // tratează eroarea
+    } finally {
+      setLoadingProgramDetails(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -168,7 +168,17 @@ const UniversityTemplate = ({
       {beforeHero}
 
       {/* Secțiunea Hero */}
-      <div className="university-hero">
+      <div
+        className="university-hero"
+        style={{
+          backgroundImage: `url(${
+            university.image_url && university.image_url.trim() !== ''
+              ? university.image_url
+              : 'https://res.cloudinary.com/dlbu43xwt/image/upload/v1747599108/sasha-pleshco-LI5MSjGm6sQ-unsplash_qquwmh.jpg'
+          })`
+        }}
+      >
+        <div className="hero-overlay"></div>
         <div className="hero-content">
           <h1>{university.name}</h1>
           <div className="hero-details">
@@ -193,13 +203,31 @@ const UniversityTemplate = ({
                   <h4>Tuition Fees (MDL/year):</h4>
                   <ul>
                     {university.tuition_fees.bachelor && (
-                      <li>Bachelor's: {university.tuition_fees.bachelor} MDL</li>
+                      <li>
+                        Bachelor's: {
+                          typeof university.tuition_fees.bachelor === 'object'
+                            ? `${university.tuition_fees.bachelor.amount} ${university.tuition_fees.bachelor.currency}`
+                            : university.tuition_fees.bachelor
+                        }
+                      </li>
                     )}
                     {university.tuition_fees.master && (
-                      <li>Master's: {university.tuition_fees.master} MDL</li>
+                      <li>
+                        Master's: {
+                          typeof university.tuition_fees.master === 'object'
+                            ? `${university.tuition_fees.master.amount} ${university.tuition_fees.master.currency}`
+                            : university.tuition_fees.master
+                        }
+                      </li>
                     )}
                     {university.tuition_fees.phd && (
-                      <li>PhD: {university.tuition_fees.phd} MDL</li>
+                      <li>
+                        PhD: {
+                          typeof university.tuition_fees.phd === 'object'
+                            ? `${university.tuition_fees.phd.amount} ${university.tuition_fees.phd.currency}`
+                            : university.tuition_fees.phd
+                        }
+                      </li>
                     )}
                   </ul>
                 </div>
@@ -207,20 +235,33 @@ const UniversityTemplate = ({
             </div>
             <div className="about-stats">
               <div className="stat-item">
+              <span className="stat-label">Study Programs</span>
                 <span className="stat-number">{programs.length || 'N/A'}</span>
-                <span className="stat-label">Study Programs</span>
+
               </div>
               <div className="stat-item">
-                <span className="stat-number">{university.type === 'public' ? 'Public' : 'Private'}</span>
-                <span className="stat-label">Type</span>
+                <span className="stat-label">Phone number</span>
+                <span className="stat-number">
+                  {university.contact_info?.phone || 'N/A'}
+                </span>
+
               </div>
               <div className="stat-item">
+              <span className="stat-label">Location</span>
                 <span className="stat-number">{university.location || 'N/A'}</span>
-                <span className="stat-label">Location</span>
               </div>
               <div className="stat-item">
-                <span className="stat-number">{university.contact_info?.email ? 'Available' : 'N/A'}</span>
+                <span className="stat-number">
                 <span className="stat-label">Contact</span>
+                  {university.contact_info?.email 
+                    ? (
+                        <>
+                          <div>Email: {university.contact_info.email}</div>
+                        </>
+                      )
+                    : 'N/A'}
+                </span>
+
               </div>
             </div>
           </div>
@@ -234,37 +275,45 @@ const UniversityTemplate = ({
 
         {/* Programe de studii */}
         <section className="university-section">
-          <h3>Study Programs</h3>
+          <h3>Programe de studii</h3>
           {programs.length > 0 ? (
-            <div className="programs-grid">
-              {programs.map(program => {
-                const details = programDetails[program.id] || {};
-                return (
-                  <div key={program.id} className="program-card">
-                    <h4>{program.name}</h4>
-                    <p>{program.description}</p>
-                    {details.tuitionFees && (
-                      <div className="program-fees">
-                        <h5>Tuition Fees:</h5>
-                        <p>{details.tuitionFees} MDL/year</p>
-                      </div>
-                    )}
-                    {details.specializations && details.specializations.length > 0 && (
-                      <div className="program-specializations">
-                        <h5>Specializations:</h5>
-                        <ul>
-                          {details.specializations.map(spec => (
-                            <li key={spec.id}>{spec.name}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+            <div className="programs-table-container">
+              <table className="dashboard-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nume program</th>
+                    <th>Grad</th>
+                    <th>Limbă</th>
+                    <th>Durată</th>
+                    <th>Taxă</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {programs.map(program => (
+                    <tr key={program.id}>
+                      <td>{program.id}</td>
+                      <td>
+                        <strong>{program.name || 'N/A'}</strong>
+                        {program.description && (
+                          <div className="program-description">
+                            {program.description.length > 20
+                              ? program.description.slice(0, 20) + '...'
+                              : program.description}
+                          </div>
+                        )}
+                      </td>
+                      <td>{program.degree_type || 'N/A'}</td>
+                      <td>{program.language || 'N/A'}</td>
+                      <td>{program.duration || 'N/A'}</td>
+                      <td>{program.tuition_fees ? `${program.tuition_fees} EUR` : 'N/A'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           ) : (
-            <p>No study programs available at the moment.</p>
+            <p>Nu există programe de studii disponibile momentan.</p>
           )}
         </section>
 

@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getCloudinaryImageUrl } from '../../config/cloudinary';
 import './universities.css';
-
 const UniversityPresentation = ({ university }) => {
   const navigate = useNavigate();
   const { t } = useTranslation(['universities', 'common']);
@@ -30,8 +29,8 @@ const UniversityPresentation = ({ university }) => {
       'usm': 'usm',
       'universitatea de stat din moldova': 'usm',
       'universitatea de stat a moldovei': 'usm',
-      'moldova state university': 'usm',
-      'moldova state university (usm)': 'usm',
+      'moldova state university': 'moldova-state-university-usm',
+      'moldova state university (usm)': 'moldova-state-university-usm',
       
       // UTM
       'utm': 'utm',
@@ -74,9 +73,50 @@ const UniversityPresentation = ({ university }) => {
       'comrat state university': 'comrat',
       
       // Ion Creangă
-      'universitatea pedagogica de stat ion creanga': 'creanga',
-      'ion creanga state pedagogical university': 'creanga',
-      'creanga': 'creanga',
+      'ion creanga state pedagogical university of chisinau': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'ion creangă state pedagogical university of chisinau': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'ion creanga state pedagogical university': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'ion creangă state pedagogical university': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'state pedagogical university ion creanga': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'state pedagogical university ion creangă': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'pedagogical university ion creanga': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'pedagogical university ion creangă': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'universitatea pedagogica de stat ion creanga': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'universitatea pedagogică de stat ion creangă': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'universitatea pedagogica ion creanga': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'universitatea pedagogică ion creangă': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'ion creanga': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'ion creangă': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'creanga': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'creangă': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'ion creanga chisinau': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'ion creangă chisinau': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'ion creanga chișinău': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'ion creangă chișinău': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      // Variante cu "upsc"
+      'ion creanga state pedagogical university of chisinau (upsc)': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'ion creanga state pedagogical university of chisinau upsc': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'ion creanga state pedagogical university of chisinău (upsc)': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'ion creanga state pedagogical university of chisinău upsc': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'ion creangă state pedagogical university of chisinău (upsc)': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'ion creangă state pedagogical university of chisinău upsc': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'state pedagogical university ion creanga upsc': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'state pedagogical university ion creangă upsc': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'pedagogical university ion creanga upsc': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'pedagogical university ion creangă upsc': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'universitatea pedagogica de stat ion creanga upsc': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'universitatea pedagogică de stat ion creangă upsc': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'universitatea pedagogica ion creanga upsc': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'universitatea pedagogică ion creangă upsc': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'ion creanga upsc': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'ion creangă upsc': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'creanga upsc': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'creangă upsc': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'ion creanga chisinau upsc': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'ion creangă chisinau upsc': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'ion creanga chișinău upsc': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'ion creangă chișinău upsc': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'ion-creang-state-pedagogical-university-of-chisin-u-upsc': 'ion-creang-state-pedagogical-university-of-chi-in-u',
       
       // AMTAP
       'academia de muzica teatru si arte plastice': 'amtap',
@@ -130,16 +170,22 @@ const UniversityPresentation = ({ university }) => {
       // UAP
       'universitatea de administratie publica': 'uap',
       'public administration university': 'uap',
-      'uap': 'uap'
+      'uap': 'uap',
+      
+      // Ion Creangă (upsc)
+      'ion creanga state pedagogical university of chisinau (upsc)': 'ion-creang-state-pedagogical-university-of-chi-in-u',
+      'ion creangă state pedagogical university of chisinau (upsc)': 'ion-creang-state-pedagogical-university-of-chi-in-u'
     };
 
     return nameMappings[name] || name.replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   };
 
+  console.log('Test generateSlug:', generateSlug('Ion Creangă State Pedagogical University of Chisinău (UPSC)'));
+
   const getUniversityPath = (university) => {
     if (!university || !university.name) return null;
-    
     const slug = generateSlug(university.name.toLowerCase());
+    console.log('Slug generat pentru', university.name, ':', slug);
     return `/universities/${slug}`;
   };
 

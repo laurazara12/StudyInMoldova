@@ -14,7 +14,7 @@ router.get('/:universityId/programs', async (req, res) => {
       where: { university_id: req.params.universityId },
       include: [{
         model: University,
-        as: 'University',
+        as: 'university',
         attributes: ['id', 'name', 'image_url', 'location', 'website']
       }],
       order: [['name', 'ASC']]

@@ -118,11 +118,19 @@ export const getUniversityBySlug = async (slug) => {
     console.log('Loading university by slug:', slug);
     const response = await axiosInstance.get(`/api/universities/${slug}`);
     
-    if (!response.data || !response.data.success) {
-      throw new Error(response.data?.message || 'University not found');
+    if (!response.data) {
+      throw new Error('University not found');
     }
-    
-    return response.data.data;
+
+    // Dacă răspunsul are .success și .data, folosește-le, altfel folosește direct response.data
+    if (typeof response.data === 'object' && ('success' in response.data) && ('data' in response.data)) {
+      if (!response.data.success) {
+        throw new Error(response.data?.message || 'University not found');
+      }
+      return response.data.data;
+    } else {
+      return response.data;
+    }
   } catch (error) {
     console.error('Error loading university:', error);
     throw new Error(error.response?.data?.message || 'University not found');
