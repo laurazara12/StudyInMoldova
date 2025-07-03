@@ -8,7 +8,7 @@ const NotificationsTab = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [filter, setFilter] = useState('all'); // 'all', 'unread', 'important', 'expired', 'admin'
+  const [filter, setFilter] = useState('all'); // 'all', 'unread', 'important'
 
   useEffect(() => {
     loadNotifications();
@@ -125,18 +125,11 @@ const NotificationsTab = () => {
   };
 
   const filteredNotifications = notifications.filter(notification => {
-    const now = new Date();
-    const expiresAt = calculateExpirationDate(notification);
-    
     switch (filter) {
       case 'unread':
         return !notification.is_read;
       case 'important':
         return calculatePriority(notification) === 'high';
-      case 'expired':
-        return expiresAt < now;
-      case 'admin':
-        return notification.is_admin_notification;
       default:
         return true;
     }
@@ -214,18 +207,6 @@ const NotificationsTab = () => {
             >
               Important
             </button>
-            <button 
-              className={`tab-button ${filter === 'expired' ? 'active' : ''}`}
-              onClick={() => setFilter('expired')}
-            >
-              Expired
-            </button>
-            <button 
-              className={`tab-button ${filter === 'admin' ? 'active' : ''}`}
-              onClick={() => setFilter('admin')}
-            >
-              Administrative
-            </button>
         </div>
 
         {unreadCount > 0 && (
@@ -289,9 +270,6 @@ const NotificationsTab = () => {
                     <div className="admin-badge">
                       <FaShieldAlt /> Admin Notification
                     </div>
-                  )}
-                  {calculateExpirationDate(notification) < new Date() && (
-                    <span className="expired-badge">Expired</span>
                   )}
                 </div>
                 {!notification.is_read && <div className="unread-indicator" />}

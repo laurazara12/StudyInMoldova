@@ -30,8 +30,4 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Add applications router
-const applicationsRouter = require('./routes/applications');
-app.use('/api/applications', applicationsRouter);
-
 module.exports = app; 

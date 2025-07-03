@@ -704,41 +704,41 @@ const ApplicationTab = () => {
 
   const canEditApplication = (application) => {
     if (userRole === 'admin') return false;
-    return application.status === 'draft' || !application.submitted_at;
+    return application.status === 'draft';
   };
 
-  const handlePayment = async () => {
+  const handlePayment = async (application) => {
     try {
       setLoading(true);
       setError(null);
 
-      // Check if we have a selected application
-      if (!selectedApplication) {
-        throw new Error('Please select an application before proceeding with payment');
+      // Verificăm dacă avem aplicația selectată
+      if (!application) {
+        throw new Error('Selectează o aplicație înainte de a efectua plata');
       }
 
-      // Check if application exists and is not already paid
-      if (selectedApplication.is_paid) {
-        throw new Error('This application has already been paid');
+      // Verificăm dacă aplicația există și nu este deja plătită
+      if (application.is_paid) {
+        throw new Error('Această aplicație a fost deja plătită');
       }
 
-      console.log('Starting payment process for application:', selectedApplication.id);
+      console.log('Încep procesul de plată pentru aplicația:', application.id);
 
-      // Find selected program from programs list
-      const selectedProgram = programs.find(p => p.id === selectedApplication.program_id);
+      // Găsim programul selectat din lista de programe
+      const selectedProgram = programs.find(p => p.id === application.program_id);
       if (!selectedProgram) {
-        throw new Error('Selected program not found');
+        throw new Error('Programul selectat nu a fost găsit');
       }
 
       const paymentData = {
-        application_id: selectedApplication.id,
-        program_id: selectedApplication.program_id,
+        application_id: application.id,
+        program_id: application.program_id,
         amount: selectedProgram.tuition_fees,
-        motivation_letter: selectedApplication.motivation_letter || '',
-        document_ids: selectedApplication.documents?.map(doc => doc.id) || []
+        motivation_letter: application.motivation_letter || '',
+        document_ids: application.documents?.map(doc => doc.id) || []
       };
 
-      console.log('Payment data:', paymentData);
+      console.log('Date plată:', paymentData);
 
       const response = await axios.post(
         `${API_BASE_URL}/api/payments/create-checkout-session`,
@@ -751,29 +751,29 @@ const ApplicationTab = () => {
         }
       );
 
-      console.log('Server response for payment session:', response.data);
+      console.log('Răspuns server pentru sesiunea de plată:', response.data);
 
       if (!response.data) {
-        throw new Error('No response received from server');
+        throw new Error('Nu s-a primit răspuns de la server');
       }
 
       if (!response.data.success) {
-        throw new Error(response.data.message || 'Error creating payment session');
+        throw new Error(response.data.message || 'Eroare la crearea sesiunii de plată');
       }
 
       if (!response.data.url) {
-        throw new Error('Payment URL missing from server response');
+        throw new Error('Lipsește URL-ul de plată din răspunsul serverului');
       }
 
-      // Save payment session ID and application ID
+      // Salvăm sesiunea de plată și id-ul aplicației
       localStorage.setItem('currentPaymentSession', response.data.session_id);
-      localStorage.setItem('paymentApplicationId', selectedApplication.id);
+      localStorage.setItem('paymentApplicationId', application.id);
       
-      console.log('Redirecting to payment page:', response.data.url);
+      console.log('Redirecționare către pagina de plată:', response.data.url);
       window.location.href = response.data.url;
     } catch (error) {
-      console.error('Error processing payment:', error);
-      setError(error.response?.data?.message || error.message || 'An error occurred while processing the payment');
+      console.error('Eroare la procesarea plății:', error);
+      setError(error.response?.data?.message || error.message || 'A apărut o eroare la procesarea plății');
     } finally {
       setLoading(false);
     }
@@ -966,10 +966,7 @@ const ApplicationTab = () => {
                       <button
                         className="btn1"
                         style={{ marginLeft: '10px' }}
-                        onClick={() => {
-                          setSelectedApplication(app);
-                          handlePayment();
-                        }}
+                        onClick={() => handlePayment(app)}
                       >
                         <i className="fas fa-credit-card"></i> Pay 100 MDL
                       </button>
@@ -1176,15 +1173,7 @@ const ApplicationTab = () => {
               )}
 
               <div className="action-buttons">
-                {!selectedApplication.is_paid && canEditApplication(selectedApplication) && (
-                  <button
-                    className="btn1"
-                    onClick={() => handlePayment()}
-                    disabled={loading}
-                  >
-                    <i className="fas fa-credit-card"></i> Pay 100 MDL
-                  </button>
-                )}
+                
                 
                 {canDeleteApplication(selectedApplication) && (
                   <button

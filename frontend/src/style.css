@@ -20,6 +20,7 @@
   --dl-radius-radius-radius2: 2px;
   --dl-radius-radius-radius4: 4px;
   --dl-radius-radius-radius8: 8px;
+  --dl-radius-radius-inputradius:50px;
   --dl-space-space-fiveunits: 80px;
   --dl-space-space-fourunits: 64px;
   --dl-color-theme-secondary1: #FFFFFF;
@@ -403,7 +404,6 @@ button{
 }
 
 .download-button:hover {
-  transition: all 0.1s ease;
   background-color: var(--dl-color-theme-primary1);
   border-radius: 25px;
 }
@@ -540,7 +540,6 @@ button{
   border-radius: var(--dl-radius-radius-buttonradius);
   font-size: var(--dl-font-size-small);
   font-weight: 500;
-  transition: all 0.1s ease;
 }
 
 .btn1:hover {
@@ -555,7 +554,6 @@ button{
   border: var(--dl-border-width-thin) solid var(--dl-color-theme-primary1);
   border-radius: var(--dl-radius-radius-buttonradius);
   font-size: var(--dl-font-size-small);
-  transition: all 0.1s ;
 }
 
 .btn2:hover {
@@ -571,7 +569,6 @@ button{
   border: none;
   border-radius: var(--dl-radius-radius-buttonradius);
   font-size: var(--dl-font-size-small);
-  transition: all 0.1s ease;
 }
 
 .btn-grey:hover {
@@ -588,7 +585,6 @@ button{
   border-radius: var(--dl-radius-radius-buttonradius);
   font-weight: 500;
   font-size: var(--dl-font-size-small);
-  transition: all 0.1s ease;
 }
 
 .btn-success:hover {
@@ -603,7 +599,6 @@ button{
   border: none;
   border-radius: var(--dl-radius-radius-buttonradius);
   font-size: var(--dl-font-size-small);
-  transition: all 0.1s ease;
 }
 
 .btn-delete:hover {
@@ -618,7 +613,6 @@ button{
   border: var(--dl-border-width-thin) solid var(--dl-color-theme-gray-light);
   border-radius: var(--dl-radius-radius-buttonradius);
   font-size: var(--dl-font-size-small);
-  transition: all 0.1s ease;
 }
 
 .btn-grey-2:hover {
@@ -653,7 +647,6 @@ button{
   font-size: var(--dl-font-size-small);
   border: none;
   border-radius: var(--dl-radius-radius-buttonradius);
-  transition: all 0.1s ease;
   background-color: var(--dl-color-theme-gray-light);
   color: var(--dl-color-theme-neutral-dark);
   height: 36px;
@@ -814,7 +807,6 @@ button{
   border: none;
   border-radius: var(--dl-radius-radius-buttonradius);
   font-size: var(--dl-font-size-small);
-  transition: all 0.1s ease;
 }
 
 .confirm-button:hover {
@@ -862,6 +854,7 @@ body {
 
 /* Stiluri pentru input-uri */
 .input-field {
+
   color: var(--dl-color-theme-neutral-dark);
   cursor: auto;
   padding: 0.5rem 1rem;

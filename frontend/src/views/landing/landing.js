@@ -342,7 +342,7 @@ function Home() {
         }
         step5Description={
           <Fragment>
-            <span className="landing-text61">
+            <span className="landing-text63">
             {t('featureSteps.steps.5.description')}
             </span>
           </Fragment>
@@ -387,7 +387,7 @@ function Home() {
         }
         review4={
           <Fragment>
-            <span className="landing-text61">
+            <span className="landing-text63">
             {t('testimonial.reviews.4.text')}
             </span>
           </Fragment>

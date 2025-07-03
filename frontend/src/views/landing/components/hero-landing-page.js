@@ -25,9 +25,16 @@ const HeroLandingPage = (props) => {
   const containerRef = useRef(null);
 
   useEffect(() => {
-    if (containerRef.current) {
-      setContainerWidth(containerRef.current.offsetWidth);
-    }
+    const updateContainerWidth = () => {
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.offsetWidth);
+      }
+    };
+
+    updateContainerWidth();
+    window.addEventListener('resize', updateContainerWidth);
+    
+    return () => window.removeEventListener('resize', updateContainerWidth);
   }, []);
 
   const handleImageLoad = (idx) => {
@@ -40,10 +47,16 @@ const HeroLandingPage = (props) => {
 
   const allLoaded = loaded.every(Boolean);
 
-  // Calculăm câte imagini sunt necesare pentru a umple containerul
+  // Calculăm câte imagini sunt necesare pentru a umple containerul și a crea o animație fluidă
   const imageWidth = 300; // lățimea unei imagini
   const gap = 16; // spațiul dintre imagini
-  const imagesNeeded = Math.ceil((containerWidth + gap) / (imageWidth + gap)) * 2; // Înmulțim cu 2 pentru a avea suficientă suprapunere
+  const totalImageWidth = imageWidth + gap;
+  
+  // Calculăm câte imagini sunt necesare pentru a umple containerul de două ori
+  // pentru a crea efectul de scroll infinit fără pauze
+  const imagesNeeded = containerWidth > 0 
+    ? Math.ceil((containerWidth * 2) / totalImageWidth) + rotativeImages.length
+    : rotativeImages.length * 3; // fallback pentru când containerWidth nu este încă calculat
 
   // Generăm array-ul de imagini pentru animație
   const displayImages = useMemo(() => {
@@ -111,7 +124,7 @@ const HeroLandingPage = (props) => {
       </div>
       <div className="hero-landing-page-content2">
         <div className="hero-landing-page-row-container1 thq-mask-image-horizontal thq-animated-group-container-horizontal">
-          <div className="thq-animated-group-horizontal">
+          <div className="thq-animated-group-horizontal animate">
             <img
               alt="Students studying in Moldova"
               src={getCloudinaryImageUrl('pexels-anaghan-km-177642992-11351622-1400w_cwfhbp', { width: 300, height: 300, crop: 'fill', quality: 'auto:good' })}
@@ -149,7 +162,7 @@ const HeroLandingPage = (props) => {
               className="hero-landing-page-placeholder-image15 thq-img-scale thq-img-ratio-1-1"
             />
           </div>
-          <div className="thq-animated-group-horizontal">
+          <div className="thq-animated-group-horizontal animate">
             <img
               alt="Campus activities"
               src={getCloudinaryImageUrl('WhatsApp_Image_2024-11-15_at_14.32.59_10_nvuklt', { width: 300, height: 300, crop: 'fill', quality: 'auto:good' })}
@@ -188,6 +201,7 @@ const HeroLandingPage = (props) => {
             />
           </div>
         </div>
+        <br></br>
         <div className="hero-landing-page-row-container2 thq-mask-image-horizontal thq-animated-group-container-horizontal" ref={containerRef}>
           <div className={`thq-animated-group-horizontal-reverse${allLoaded ? ' animate' : ''}`}>
             {displayImages.map((src, idx) => (
@@ -207,7 +221,7 @@ const HeroLandingPage = (props) => {
         <div className="hero-landing-page-container2">
           <Script
             html={`<style>
-  @keyframes scroll-x {
+  @keyframes scroll-x-smooth {
     0% {
       transform: translateX(0);
     }
@@ -216,14 +230,78 @@ const HeroLandingPage = (props) => {
     }
   }
 
-  .thq-animated-group-horizontal-reverse.animate {
-    animation: scroll-x 30s linear infinite;
-    display: flex;
-    gap: 16px;
+  @keyframes scroll-x-smooth-reverse {
+    0% {
+      transform: translateX(calc(-50% - 8px));
+    }
+    100% {
+      transform: translateX(0);
+    }
   }
 
+  .thq-animated-group-horizontal.animate {
+    animation: scroll-x-smooth 40s linear infinite;
+    display: flex;
+    gap: 16px;
+    will-change: transform;
+  }
+
+  .thq-animated-group-horizontal-reverse.animate {
+    animation: scroll-x-smooth-reverse 40s linear infinite;
+    display: flex;
+    gap: 16px;
+    will-change: transform;
+  }
+
+  .thq-animated-group-horizontal.animate:hover,
   .thq-animated-group-horizontal-reverse.animate:hover {
     animation-play-state: paused;
+  }
+
+  /* Asigurăm că imaginile nu se deformează */
+  .thq-animated-group-horizontal.animate img,
+  .thq-animated-group-horizontal-reverse.animate img {
+    flex-shrink: 0;
+    width: 300px;
+    height: 300px;
+    object-fit: cover;
+  }
+
+  /* Media queries pentru mobile */
+  @media (max-width: 768px) {
+    .thq-animated-group-horizontal.animate {
+      animation: scroll-x-smooth 40s linear infinite;
+      gap: 12px;
+    }
+
+    .thq-animated-group-horizontal-reverse.animate {
+      animation: scroll-x-smooth-reverse 40s linear infinite;
+      gap: 12px;
+    }
+
+    .thq-animated-group-horizontal.animate img,
+    .thq-animated-group-horizontal-reverse.animate img {
+      width: 250px;
+      height: 250px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .thq-animated-group-horizontal.animate {
+      animation: scroll-x-smooth 40s linear infinite;
+      gap: 8px;
+    }
+
+    .thq-animated-group-horizontal-reverse.animate {
+      animation: scroll-x-smooth-reverse  40s linear infinite;
+      gap: 8px;
+    }
+
+    .thq-animated-group-horizontal.animate img,
+    .thq-animated-group-horizontal-reverse.animate img {
+      width: 200px;
+      height: 200px;
+    }
   }
 </style>
 `}

@@ -155,100 +155,107 @@ const Navbar = (props) => {
         </div>
       </header>
       {isOpen && (
-        <div className="navbar-mobile-menu">
-          <nav className="navbar-links2">
-            <Link to="/universities" className="navbar-text18" onClick={toggleMenu}>
-              <span className="navbar-text31">Universities</span>
-            </Link>
-            <Link to="/programs" className="navbar-text19" onClick={toggleMenu}>
-              <span className="navbar-text28">Programmes</span>
-            </Link>
-            <Link to="/living-in-moldova" className="navbar-text16" onClick={toggleMenu}>
-              <span className="navbar-text36">Living In Moldova</span>
-            </Link>
-            <Link to="/blog" className="navbar-text17" onClick={toggleMenu}>
-              <span className="navbar-text24">Blog</span>
-            </Link>
-            <Link to="/about" className="navbar-text20" onClick={toggleMenu}>
-              <span className="navbar-text27">About Us</span>
-            </Link>
-            <Link to="/help-you-choose-AI" className="navbar-text20" onClick={toggleMenu}>
-              <span className="navbar-text27">Help You Choose AI</span>
-            </Link>
-            {isAuthenticated && isAdmin && (
-              <>
-                <Link to="/admin/users" className="navbar-text21" onClick={toggleMenu}>Users</Link>
-                <Link to="/admin/documents" className="navbar-text22" onClick={toggleMenu}>Documents</Link>
-                <Link to="/admin/applications" className="navbar-text23" onClick={toggleMenu}>Applications</Link>
-              </>
-            )}
-          </nav>
-          <div className="navbar-buttons2">
-            <div className="language-selector-mobile">
-              <div 
-                className={`language-dropdown ${showLanguageDropdown ? 'active' : ''}`}
-                onClick={toggleLanguageDropdown}
-              >
-                {currentLanguage.name}
-                <span>▼</span>
-              </div>
-              {showLanguageDropdown && (
-                <div className="language-options">
-                  {languages.map((lang) => (
-                    <div
-                      key={lang.code}
-                      className={`lang-option ${i18n.language === lang.code ? 'active' : ''}`}
-                      onClick={() => {
-                        handleLanguageChange(lang.code);
-                        toggleMenu();
-                      }}
-                    >
-                      {lang.name}
-                    </div>
-                  ))}
+        <div className="navbar-mobile-overlay" onClick={toggleMenu}>
+          <div className="navbar-mobile-menu open" onClick={e => e.stopPropagation()}>
+            <button className="navbar-close-menu" onClick={toggleMenu}>
+              <svg width="24" height="24" viewBox="0 0 24 24">
+                <path d="M18 6L6 18M6 6l12 12" stroke="#333" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            </button>
+            <nav className="navbar-links2">
+              <Link to="/universities" className="navbar-text18" onClick={toggleMenu}>
+                <span className="navbar-text31">Universities</span>
+              </Link>
+              <Link to="/programs" className="navbar-text19" onClick={toggleMenu}>
+                <span className="navbar-text28">Programmes</span>
+              </Link>
+              <Link to="/living-in-moldova" className="navbar-text16" onClick={toggleMenu}>
+                <span className="navbar-text36">Living In Moldova</span>
+              </Link>
+              <Link to="/blog" className="navbar-text17" onClick={toggleMenu}>
+                <span className="navbar-text24">Blog</span>
+              </Link>
+              <Link to="/about" className="navbar-text20" onClick={toggleMenu}>
+                <span className="navbar-text27">About Us</span>
+              </Link>
+              <Link to="/help-you-choose-AI" className="navbar-text20" onClick={toggleMenu}>
+                <span className="navbar-text27">Help You Choose AI</span>
+              </Link>
+              {isAuthenticated && isAdmin && (
+                <>
+                  <Link to="/admin/users" className="navbar-text21" onClick={toggleMenu}>Users</Link>
+                  <Link to="/admin/documents" className="navbar-text22" onClick={toggleMenu}>Documents</Link>
+                  <Link to="/admin/applications" className="navbar-text23" onClick={toggleMenu}>Applications</Link>
+                </>
+              )}
+            </nav>
+            <div className="navbar-buttons2">
+              <div className="language-selector-mobile">
+                <div 
+                  className={`language-dropdown ${showLanguageDropdown ? 'active' : ''}`}
+                  onClick={toggleLanguageDropdown}
+                >
+                  {currentLanguage.name}
+                  <span>▼</span>
                 </div>
+                {showLanguageDropdown && (
+                  <div className="language-options">
+                    {languages.map((lang) => (
+                      <div
+                        key={lang.code}
+                        className={`lang-option ${i18n.language === lang.code ? 'active' : ''}`}
+                        onClick={() => {
+                          handleLanguageChange(lang.code);
+                          toggleMenu();
+                        }}
+                      >
+                        {lang.name}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {isAuthenticated && user && (
+                <>
+                  {isAdmin && (
+                    <>
+                      <button className="navbar-login2 button">
+                        <Link to="/dashboard" className="navbar-navlink3" onClick={toggleMenu}>
+                          Dashboard
+                        </Link>
+                      </button>
+                    </>
+                  )}
+                  {!isAdmin && (
+                    <Link to="/profile" className={`navbar-navlink3 ${location.pathname === '/profile' ? 'active' : ''}`}>
+                      <button className="navbar-login2 button">
+                        <span className="navbar-text38">Profile</span>
+                      </button>
+                    </Link>
+                  )}
+                  <button className="button" onClick={() => {
+                    handleLogout();
+                    toggleMenu();
+                  }}>
+                    <span className="navbar-text33">Logout</span>
+                  </button>
+                </>
+              )}
+              {(!isAuthenticated || !user) && (
+                <>
+                  <button className="navbar-login2 button">
+                    <Link to="/sign-in" className="navbar-navlink3" onClick={toggleMenu}>
+                      <span className="navbar-text33">Login</span>
+                    </Link>
+                  </button>
+                  <button className="navbar-register2 button">
+                    <Link to="/sign-up" className="navbar-navlink4" onClick={toggleMenu}>
+                      <span className="navbar-text34">Register</span>
+                    </Link>
+                  </button>
+                </>
               )}
             </div>
-            {isAuthenticated && user && (
-              <>
-                {isAdmin && (
-                  <>
-                    <button className="navbar-login2 button">
-                      <Link to="/dashboard" className="navbar-navlink3" onClick={toggleMenu}>
-                        Dashboard
-                      </Link>
-                    </button>
-                  </>
-                )}
-                {!isAdmin && (
-                  <Link to="/profile" className={`navbar-navlink3 ${location.pathname === '/profile' ? 'active' : ''}`}>
-                    <button className="navbar-login2 button">
-                      <span className="navbar-text38">Profile</span>
-                    </button>
-                  </Link>
-                )}
-                <button className="button" onClick={() => {
-                  handleLogout();
-                  toggleMenu();
-                }}>
-                  <span className="navbar-text33">Logout</span>
-                </button>
-              </>
-            )}
-            {(!isAuthenticated || !user) && (
-              <>
-                <button className="navbar-login2 button">
-                  <Link to="/sign-in" className="navbar-navlink3" onClick={toggleMenu}>
-                    <span className="navbar-text33">Login</span>
-                  </Link>
-                </button>
-                <button className="navbar-register2 button">
-                  <Link to="/sign-up" className="navbar-navlink4" onClick={toggleMenu}>
-                    <span className="navbar-text34">Register</span>
-                  </Link>
-                </button>
-              </>
-            )}
           </div>
         </div>
       )}

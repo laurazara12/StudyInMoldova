@@ -8,7 +8,7 @@ const NotificationsTab = ({ userData }) => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filter, setFilter] = useState('all'); // 'all', 'unread', 'important', 'expired'
+  const [filter, setFilter] = useState('all'); // 'all', 'unread', 'important'
 
   useEffect(() => {
     fetchNotifications();
@@ -209,8 +209,6 @@ const NotificationsTab = ({ userData }) => {
     console.log('Filtering notification:', notification);
     console.log('Current filter:', filter);
     
-    const now = new Date();
-    const expiresAt = calculateExpirationDate(notification);
     const isRead = notification.is_read || notification.read; // Check both properties
     
     let shouldShow = true;
@@ -220,9 +218,6 @@ const NotificationsTab = ({ userData }) => {
         break;
       case 'important':
         shouldShow = calculatePriority(notification) === 'high';
-        break;
-      case 'expired':
-        shouldShow = expiresAt < now;
         break;
       default:
         shouldShow = true;
@@ -281,15 +276,6 @@ const NotificationsTab = ({ userData }) => {
           >
             Important
           </button>
-          <button 
-            className={`tab-button ${filter === 'expired' ? 'active' : ''}`}
-            onClick={() => {
-              console.log('Setting filter to: expired');
-              setFilter('expired');
-            }}
-          >
-            Expired
-          </button>
         </div>
 
       {unreadCount > 0 && (
@@ -326,9 +312,6 @@ const NotificationsTab = ({ userData }) => {
                     minute: '2-digit'
                   })}
                 </span>
-                {calculateExpirationDate(notification) < new Date() && (
-                  <span className="expired-badge">Expired</span>
-                )}
               </div>
               {!(notification.is_read || notification.read) && <div className="unread-indicator" />}
             </div>

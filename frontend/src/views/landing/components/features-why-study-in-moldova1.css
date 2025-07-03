@@ -5,7 +5,7 @@
   position: relative;
   grid-template-columns: 1fr 1fr;
   align-items: center;
-  padding: var(--dl-space-space-threeunits) 0;
+  padding: var(--dl-space-space-unit) 0;
 }
  
 .features-why-study-in-moldova1-image-container {

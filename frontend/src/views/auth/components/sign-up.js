@@ -154,7 +154,7 @@ const SignUp = (props) => {
                 </Fragment>
               )}
             </button>
-            <button className="sign-up-button2 thq-button-outline">
+            {/* <button className="sign-up-button2 thq-button-outline">
               <svg
                 viewBox="0 0 860.0137142857142 1024"
                 className="sign-up-icon1"
@@ -168,7 +168,7 @@ const SignUp = (props) => {
                   </Fragment>
                 )}
               </span>
-            </button>
+            </button> */}
           </form>
           <span className="sign-up-text18 thq-body-small">
             <span>

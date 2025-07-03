@@ -437,6 +437,43 @@ const ApplicationsTab = () => {
           </div>
         </div>
       )}
+
+      <div className="application-stat">
+        Drafts
+        <span className="stat-value status-draft">
+          {applications.filter(app => app.status === 'draft').length}
+        </span>
+      </div>
+      <div className="application-stat">
+        Submitted
+        <span className="stat-value status-submitted">
+          {applications.filter(app => app.status === 'submitted').length}
+        </span>
+      </div>
+      <div className="application-stat">
+        Under Review
+        <span className="stat-value status-under-review">
+          {applications.filter(app => app.status === 'under_review').length}
+        </span>
+      </div>
+      <div className="application-stat">
+        Approved
+        <span className="stat-value status-approved">
+          {applications.filter(app => app.status === 'approved').length}
+        </span>
+      </div>
+      <div className="application-stat">
+        Rejected
+        <span className="stat-value status-rejected">
+          {applications.filter(app => app.status === 'rejected').length}
+        </span>
+      </div>
+      <div className="application-stat">
+        Withdrawn
+        <span className="stat-value status-withdrawn">
+          {applications.filter(app => app.status === 'withdrawn').length}
+        </span>
+      </div>
     </div>
   );
 };

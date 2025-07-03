@@ -19,11 +19,11 @@ const SignUpPage = (props) => {
             <span className="sign-up-text25">Submit</span>
           </Fragment>
         }
-        action3={
-          <Fragment>
-            <span className="sign-up-text26">Continue with Google</span>
-          </Fragment>
-        }
+        // action3={
+        //   <Fragment>
+        //     <span className="sign-up-text26">Continue with Google</span>
+        //   </Fragment>
+        // }
         content1={
           <Fragment>
             <span className="sign-up-text27">Sign up to see details</span>
