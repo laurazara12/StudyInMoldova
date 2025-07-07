@@ -385,7 +385,6 @@
   border-radius: 8px;
   padding: 1.5rem;
   display: flex;
-  flex-direction: column;
   gap: 1rem;
 }
 
@@ -425,30 +424,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.download-button {
-  background-color: #ff6b35;
-}
-
-.download-button:hover {
-  background-color: #ff914d;
-}
-
-.upload-button {
-  background-color: #ff6b35;
-}
-
-.upload-button:hover {
-  background-color: #ff914d;
-}
-
-.choose-button {
-  background-color: #4CAF50;
-}
-
-.choose-button:hover {
-  background-color: #45a049;
 }
 
 .choose-button:disabled {

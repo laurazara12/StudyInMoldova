@@ -69,10 +69,13 @@ const ApplicationsTab = () => {
       // Actualizăm statisticile doar pentru aplicațiile plătite
       const stats = {
         totalApplications: paidApplications.length,
+        draftApplications: paidApplications.filter(app => app.status === 'draft').length,
+        submittedApplications: paidApplications.filter(app => app.status === 'submitted').length,
         pendingApplications: paidApplications.filter(app => app.status === 'pending').length,
         approvedApplications: paidApplications.filter(app => app.status === 'approved').length,
         rejectedApplications: paidApplications.filter(app => app.status === 'rejected').length,
-        underReviewApplications: paidApplications.filter(app => app.status === 'under_review').length
+        underReviewApplications: paidApplications.filter(app => app.status === 'under_review').length,
+        withdrawnApplications: paidApplications.filter(app => app.status === 'withdrawn').length
       };
 
       setStatistics(stats);
@@ -184,8 +187,59 @@ const ApplicationsTab = () => {
     setFilteredApplications(filtered);
   };
 
+  // Descărcare document cu request autenticat (ca în documents-tab.js)
+  const handleDownloadDocument = async (documentId, originalName) => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/api/documents/admin/download/${documentId}`,
+        {
+          headers: getAuthHeaders(),
+          responseType: 'blob',
+        }
+      );
+      const url = window.URL.createObjectURL(response.data);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', originalName || 'document');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Eroare la descărcarea documentului:', error);
+      alert('Eroare la descărcarea documentului!');
+    }
+  };
+
   return (
     <div className="applications-tab">
+      <div className="application-stats">
+        <div className="application-stat">
+          Drafts
+          <span className="stat-value status-draft">{statistics.draftApplications || 0}</span>
+        </div>
+        <div className="application-stat">
+          Submitted
+          <span className="stat-value status-submitted">{statistics.submittedApplications || 0}</span>
+        </div>
+        <div className="application-stat">
+          Under Review
+          <span className="stat-value status-under-review">{statistics.underReviewApplications || 0}</span>
+        </div>
+        <div className="application-stat">
+          Approved
+          <span className="stat-value status-approved">{statistics.approvedApplications || 0}</span>
+        </div>
+        <div className="application-stat">
+          Rejected
+          <span className="stat-value status-rejected">{statistics.rejectedApplications || 0}</span>
+        </div>
+        <div className="application-stat">
+          Withdrawn
+          <span className="stat-value status-withdrawn">{statistics.withdrawnApplications || 0}</span>
+        </div>
+      </div>
+
       <div className="dashboard-filters">
         <div className="search-box">
           <div className="search-input-wrapper">
@@ -328,55 +382,140 @@ const ApplicationsTab = () => {
 
       {showApplicationDetails && selectedApplication && (
         <div className="modal-overlay">
-          <div className="modal-content" style={{ position: 'relative' }}>
-            <button 
-              className="close-button"
-              onClick={() => {
-                setShowApplicationDetails(false);
-                setSelectedApplication(null);
-              }}
-              aria-label="Close"
-            >
-              &times;
-            </button>
-            <h2>Application Details</h2>
-            <div className="application-details">
-              <p><strong>ID:</strong> {selectedApplication.id}</p>
-              <p><strong>User:</strong> {selectedApplication.user?.name || selectedApplication.user_name || `ID: ${selectedApplication.user_id}`}</p>
-              <p><strong>User Email:</strong> {selectedApplication.user?.email || 'N/A'}</p>
-              <p><strong>Program:</strong> {selectedApplication.program?.name || 'N/A'}</p>
-              <p><strong>Program Description:</strong> {selectedApplication.program?.description || 'N/A'}</p>
-              <p><strong>Program Duration:</strong> {selectedApplication.program?.duration || 'N/A'}</p>
-              <p><strong>Degree Type:</strong> {selectedApplication.program?.degree_type || 'N/A'}</p>
-              <p><strong>Language:</strong> {selectedApplication.program?.language || 'N/A'}</p>
-              <p><strong>Tuition Fees:</strong> {selectedApplication.program?.tuition_fees || 'N/A'}</p>
-              <p><strong>Faculty:</strong> {selectedApplication.program?.faculty || 'N/A'}</p>
-              <p><strong>University:</strong> {selectedApplication.program?.university?.name || 'N/A'}</p>
-              <p><strong>University Location:</strong> {selectedApplication.program?.university?.location || 'N/A'}</p>
-              <p><strong>Application Date:</strong> {formatDate(selectedApplication.application_date || selectedApplication.createdAt || selectedApplication.created_at)}</p>
-              <p><strong>Status:</strong> {selectedApplication.status}</p>
-              <p><strong>Notes:</strong> {selectedApplication.notes || 'N/A'}</p>
-              <p><strong>Motivation Letter:</strong> {selectedApplication.motivation_letter || 'N/A'}</p>
-              <p><strong>Payment Status:</strong> {selectedApplication.payment_status || (selectedApplication.is_paid ? 'paid' : 'unpaid')}</p>
-              <p><strong>Payment ID:</strong> {selectedApplication.payment_id || 'N/A'}</p>
-              <p><strong>Payment Date:</strong> {formatDate(selectedApplication.payment_date)}</p>
-              <p><strong>Payment Amount:</strong> {selectedApplication.payment_amount ? `${selectedApplication.payment_amount} ${selectedApplication.payment_currency || ''}` : 'N/A'}</p>
-              <p><strong>Created At:</strong> {formatDate(selectedApplication.createdAt || selectedApplication.created_at)}</p>
-              <p><strong>Updated At:</strong> {formatDate(selectedApplication.updatedAt || selectedApplication.updated_at)}</p>
-              <div style={{ marginTop: '1rem' }}>
-                <strong>Documents:</strong>
-                {selectedApplication.documents && selectedApplication.documents.length > 0 ? (
-                  <ul>
-                    {selectedApplication.documents.map(doc => (
-                      <li key={doc.id}>
-                        <span>{doc.document_type}</span> - <span>{doc.status}</span> - <span>{doc.originalName}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p>Nicio document atașat</p>
-                )}
+          <div className="modal-content user-details-modal">
+            <div className="modal-header">
+              <h2>Application Details</h2>
+              <button className="close-button" onClick={() => { setShowApplicationDetails(false); setSelectedApplication(null); }}>
+                <span className="close-x">×</span>
+              </button>
+            </div>
+            <div className="user-details-content">
+              {/* Section 1: Basic Information */}
+              <div className="user-details-section">
+                <h3>Basic Information</h3>
+                <div className="detail-row">
+                  <span className="detail-label">Application ID:</span>
+                  <span className="detail-value">{selectedApplication.id}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Application Date:</span>
+                  <span className="detail-value">{formatDate(selectedApplication.application_date || selectedApplication.createdAt || selectedApplication.created_at)}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Status:</span>
+                  <span className="detail-value">{getStatusLabel(selectedApplication.status)}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Notes:</span>
+                  <span className="detail-value">{selectedApplication.notes || 'N/A'}</span>
+                </div>
               </div>
+
+              {/* Section 2: User */}
+              <div className="user-details-section">
+                <h3>User</h3>
+                <div className="detail-row">
+                  <span className="detail-label">Name:</span>
+                  <span className="detail-value">{selectedApplication.user?.name || selectedApplication.user_name || `ID: ${selectedApplication.user_id}`}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Email:</span>
+                  <span className="detail-value">{selectedApplication.user?.email || 'N/A'}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">User ID:</span>
+                  <span className="detail-value">{selectedApplication.user_id || 'N/A'}</span>
+                </div>
+              </div>
+
+              {/* Section 3: Program */}
+              <div className="user-details-section">
+                <h3>Program</h3>
+                <div className="detail-row">
+                  <span className="detail-label">Program:</span>
+                  <span className="detail-value">{selectedApplication.program?.name || 'N/A'}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">University:</span>
+                  <span className="detail-value">{selectedApplication.program?.university?.name || 'N/A'}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Description:</span>
+                  <span className="detail-value">{selectedApplication.program?.description ? (selectedApplication.program.description.length > 120 ? selectedApplication.program.description.slice(0, 120) + '...' : selectedApplication.program.description) : 'N/A'}</span>
+                </div>
+              </div>
+
+              {/* Section 4: Payment */}
+              <div className="user-details-section">
+                <h3>Payment</h3>
+                <div className="detail-row">
+                  <span className="detail-label">Payment Status:</span>
+                  <span className="detail-value">{selectedApplication.payment_status || (selectedApplication.is_paid ? 'Paid' : 'Unpaid')}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Payment ID:</span>
+                  <span className="detail-value">{selectedApplication.payment_id || 'N/A'}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Payment Date:</span>
+                  <span className="detail-value">{formatDate(selectedApplication.payment_date)}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Amount Paid:</span>
+                  <span className="detail-value">{selectedApplication.payment_amount ? `${selectedApplication.payment_amount} ${selectedApplication.payment_currency || ''}` : 'N/A'}</span>
+                </div>
+              </div>
+
+              {/* Section 5: Motivation Letter */}
+              <div className="user-details-section">
+                <h3>Motivation Letter</h3>
+                <div className="detail-row">
+                  <span className="detail-value">{selectedApplication.motivation_letter || 'No motivation letter provided.'}</span>
+                </div>
+              </div>
+
+              {/* Section 6: Attached Documents */}
+              <div className="user-details-section">
+                <h3>Attached Documents</h3>
+                <div className="documents-list">
+                  {selectedApplication.documents && selectedApplication.documents.length > 0 ? (
+                    selectedApplication.documents.map((doc, index) => (
+                      <div key={index} className="document-item">
+                        <div className="document-info">
+                          <span className="document-type">
+                            <i className="fas fa-file-alt"></i> {doc.document_type}
+                          </span>
+                        </div>
+                        <div className="document-actions">
+                          <span className="document-name">{doc.originalName || doc.filename}</span>
+                          <button 
+                            className="btn1 download-button"
+                            onClick={() => handleDownloadDocument(doc.id, doc.originalName || doc.filename)}
+                          >
+                            <i className="fas fa-download"></i> Download
+                          </button>
+                          <span className={`document-status`}>
+                            <i className={`fas fa-circle ${doc.status === 'approved' ? 'status-approved' : doc.status === 'rejected' ? 'status-rejected' : 'status-pending'}`}></i>
+                            {doc.status === 'approved' ? 'Approved' : doc.status === 'rejected' ? 'Rejected' : 'Pending'}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="no-documents">No attached documents</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Section 7: Admin Notes */}
+              {selectedApplication.notes && (
+                <div className="user-details-section">
+                  <h3>Admin Notes</h3>
+                  <div className="detail-row">
+                    <span className="detail-value">{selectedApplication.notes}</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -437,45 +576,31 @@ const ApplicationsTab = () => {
           </div>
         </div>
       )}
-
-      <div className="application-stat">
-        Drafts
-        <span className="stat-value status-draft">
-          {applications.filter(app => app.status === 'draft').length}
-        </span>
-      </div>
-      <div className="application-stat">
-        Submitted
-        <span className="stat-value status-submitted">
-          {applications.filter(app => app.status === 'submitted').length}
-        </span>
-      </div>
-      <div className="application-stat">
-        Under Review
-        <span className="stat-value status-under-review">
-          {applications.filter(app => app.status === 'under_review').length}
-        </span>
-      </div>
-      <div className="application-stat">
-        Approved
-        <span className="stat-value status-approved">
-          {applications.filter(app => app.status === 'approved').length}
-        </span>
-      </div>
-      <div className="application-stat">
-        Rejected
-        <span className="stat-value status-rejected">
-          {applications.filter(app => app.status === 'rejected').length}
-        </span>
-      </div>
-      <div className="application-stat">
-        Withdrawn
-        <span className="stat-value status-withdrawn">
-          {applications.filter(app => app.status === 'withdrawn').length}
-        </span>
-      </div>
     </div>
   );
 };
+
+// Helper for status label
+function getStatusLabel(status) {
+  if (!status) return 'Unknown';
+  switch (status) {
+    case 'draft':
+      return 'Draft';
+    case 'submitted':
+      return 'Submitted';
+    case 'under_review':
+      return 'Under Review';
+    case 'approved':
+      return 'Approved';
+    case 'rejected':
+      return 'Rejected';
+    case 'pending':
+      return 'Pending';
+    case 'withdrawn':
+      return 'Withdrawn';
+    default:
+      return status.charAt(0).toUpperCase() + status.slice(1);
+  }
+}
 
 export default ApplicationsTab;

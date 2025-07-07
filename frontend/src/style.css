@@ -224,7 +224,6 @@ button{
   color: var(--dl-color-theme-accent1);
 }
 
-/* Stiluri pentru butonul de login */
 .navbar-login1.button {
   background-color: transparent;
   border: var(--dl-border-width-thin) solid var(--dl-color-theme-primary1);
@@ -252,7 +251,6 @@ button{
   color: var(--dl-color-theme-accent1);
 }
 
-/* Stiluri pentru butonul de logout */
 .navbar-logout1.button {
   background-color: transparent;
   border: var(--dl-border-width-thin) solid var(--dl-color-theme-primary1);
@@ -280,7 +278,6 @@ button{
   color: var(--dl-color-theme-accent1);
 }
 
-/* Stiluri pentru butonul de Subscribe */
 .footer-button.thq-button-outline {
   background-color: transparent;
   border: var(--dl-border-width-thin) solid var(--dl-color-theme-primary1);
@@ -305,7 +302,6 @@ button{
   color: inherit;
 }
 
-/* Stiluri pentru input-ul de email din footer */
 .footer-text-input.thq-input {
   background-color: transparent;
   border: var(--dl-border-width-thin) solid var(--dl-color-theme-gray-light);
@@ -325,7 +321,6 @@ button{
   border-color: var(--dl-color-theme-gray-dark);
 }
 
-/* Stiluri pentru link-urile din navbar */
 .navbar-links1 a {
   color: var(--dl-color-theme-neutral-dark);
   text-decoration: none;
@@ -339,7 +334,6 @@ button{
   font-weight: 500;
 }
 
-/* Stiluri pentru textul din link-uri */
 .navbar-links1 .navbar-text35,
 .navbar-links1 .navbar-text23,
 .navbar-links1 .navbar-text32,
@@ -349,15 +343,11 @@ button{
   font-weight: inherit;
 }
 
-/* Stiluri pentru link-ul activ */
 .navbar-links1 a.active {
   color: #1a1a1a;
   font-weight: 500;
 }
 
-
-
-/* Stiluri pentru butoane de acțiune */
 .action-buttons {
   display: flex;
   gap: 8px;
@@ -399,13 +389,12 @@ button{
 }
 
 .download-button {
-  color: var(--dl-color-theme-neutral-light);
+  background-color: var(--dl-color-theme-primary1);
   border-radius: 25px;
 }
 
-.download-button:hover {
-  background-color: var(--dl-color-theme-primary1);
-  border-radius: 25px;
+.download-button:hover{
+  background-color: var(--dl-color-theme-primary2);
 }
 
 .action-button:active {
@@ -413,7 +402,6 @@ button{
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Stiluri pentru butoane de profil admin */
 .profile-admin-actions {
   display: flex;
   gap: 0.5rem;
@@ -446,9 +434,6 @@ button{
   opacity: 0.9;
 }
 
-/* Stiluri pentru butoane de blog */
-
-/* Stiluri pentru butoane de documente */
 .document-actions button {
   flex: 1;
   min-width: 120px;
@@ -468,20 +453,13 @@ button{
   justify-content: center;
 }
 
-.download-button {
-  background-color: #ff6b35 !important;
-}
-
-.download-button:hover {
-  background-color: #ff914d !important;
-}
 
 .upload-button {
-  background-color: #ff6b35;
+  background-color: var(--dl-color-theme-primary2);
 }
 
 .upload-button:hover {
-  background-color: #ff914d;
+  background-color: var(--dl-color-theme-primary1);
 }
 
 .choose-button {
@@ -504,7 +482,6 @@ button{
   background-color: #c0392b;
 }
 
-/* Media queries pentru butoane */
 @media (max-width: 768px) {
   .action-buttons {
     flex-direction: column;
@@ -531,9 +508,8 @@ button{
   }
 }
 
-/* Stiluri pentru butoane personalizate */
 .btn1 {
-  background-color: var(--dl-color-theme-primary1); /* portocaliu deschis */
+  background-color: var(--dl-color-theme-primary1);
   color: white;
   padding: 0.75rem 1.1rem;
   border: none;
@@ -543,12 +519,11 @@ button{
 }
 
 .btn1:hover {
-  background-color: var(--dl-color-theme-primary2); /* portocaliu închis */
+  background-color: var(--dl-color-theme-primary2); 
 }
 
 .btn2 {
-  background-color: white;
-  color: var(--dl-color-theme-primary1); /* portocaliu pentru text */
+  color: var(--dl-color-theme-primary1); 
   padding: 0.5rem 1.5rem;
   font-weight: 500;
   border: var(--dl-border-width-thin) solid var(--dl-color-theme-primary1);
@@ -557,11 +532,10 @@ button{
 }
 
 .btn2:hover {
-  background-color: var(--dl-color-theme-primary1);
+  background-color: var(--dl-color-theme-primary2);
   color: white;
 }
 
-/* Stiluri pentru butoane cu fundal gri */
 .btn-grey {
   background-color: var(--dl-color-theme-gray-light);
   color: var(--dl-color-theme-neutral-dark);
@@ -576,9 +550,8 @@ button{
   color: white;
 }
 
-/* Stiluri pentru buton de succes */
 .btn-success {
-  background-color: #4CAF50; /* verde deschis */
+  background-color: #4CAF50;
   color: white;
   padding: 0.75rem 1.5rem;
   border: none;
@@ -588,12 +561,11 @@ button{
 }
 
 .btn-success:hover {
-  background-color: #45a049; /* verde închis */
+  background-color: #45a049;
 }
 
-/* Stiluri pentru buton de ștergere */
 .btn-delete {
-  background-color: #dc3545; /* roșu deschis */
+  background-color: #dc3545;
   color: white;
   padding: 0.75rem 1rem;
   border: none;
@@ -602,10 +574,9 @@ button{
 }
 
 .btn-delete:hover {
-  background-color: #c82333; /* roșu închis */
+  background-color: #c82333;
 }
 
-/* Stiluri pentru buton gri varianta 2 */
 .btn-grey-2 {
   background-color: white;
   color: var(--dl-color-theme-neutral-dark);
@@ -813,7 +784,6 @@ button{
   background-color: var(--dl-color-theme-primary2);
 }
 
-/* Stiluri de bază pentru body */
 body {
   margin: 0;
   padding: 0;
@@ -827,7 +797,6 @@ body {
   min-height: 100vh;
 }
 
-/* Media queries pentru body */
 @media (max-width: 1200px) {
   body {
     font-size: calc(var(--dl-font-size-small) * 0.95);
@@ -852,7 +821,6 @@ body {
   }
 }
 
-/* Stiluri pentru input-uri */
 .input-field {
 
   color: var(--dl-color-theme-neutral-dark);
@@ -885,7 +853,6 @@ body {
   border-color: var(--dl-color-theme-primary1);
 }
 
-/* Media queries pentru input-uri */
 @media (max-width: 768px) {
   .input-field {
     font-size: 0.8rem;
