@@ -40,7 +40,10 @@ const upload = multer();
 
 // Configure basic middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: [
+    'https://studyinmoldova-frontend.onrender.com',
+    'http://localhost:3000'
+  ],
   credentials: true
 }));
 app.use(express.json());
