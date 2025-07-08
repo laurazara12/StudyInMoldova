@@ -1,6 +1,5 @@
 import React, { Fragment, useState, useRef, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import Script from 'dangerous-html/react'
 import PropTypes from 'prop-types'
 import { getCloudinaryImageUrl } from '../../../config/cloudinary'
 
@@ -219,8 +218,7 @@ const HeroLandingPage = (props) => {
       </div>
       <div>
         <div className="hero-landing-page-container2">
-          <Script
-            html={`<style>
+          <style>
   @keyframes scroll-x-smooth {
     0% {
       transform: translateX(0);
@@ -304,8 +302,6 @@ const HeroLandingPage = (props) => {
     }
   }
 </style>
-`}
-          ></Script>
         </div>
       </div>
     </div>
