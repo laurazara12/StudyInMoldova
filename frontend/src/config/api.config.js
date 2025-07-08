@@ -1,5 +1,8 @@
 // API Configuration
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
+if (!process.env.REACT_APP_API_URL) {
+  throw new Error('REACT_APP_API_URL nu este setat! Toate request-urile către backend trebuie să folosească domeniul corect.');
+}
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 console.log('=== API Configuration ===');
 console.log('API Base URL:', API_BASE_URL);

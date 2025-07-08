@@ -2,8 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import './help-you-choose-AI.css';
 import Navbar from '../../components/navbar';
 import Footer from '../../components/footer';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
+import { API_BASE_URL } from '../../config/api.config';
 
 const HelpYouChoose = () => {
   const [messages, setMessages] = useState([
