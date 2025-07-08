@@ -7,7 +7,8 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "reset-db": "node -e \"require('./src/config/database').safeSync(true).then(() => process.exit())\"",
-    "migrate": "node src/scripts/runMigrations.js"
+    "migrate": "node src/scripts/runMigrations.js",
+    "build": "next build"
   },
   "keywords": [],
   "author": "",
@@ -18,7 +19,7 @@
     "cloudinary": "^2.6.1",
     "connect-redis": "^8.1.0",
     "cors": "^2.8.5",
-    "dotenv": "^16.0.3",
+    "dotenv": "^16.6.1",
     "express": "^4.18.2",
     "express-rate-limit": "^7.5.0",
     "ioredis": "^5.6.1",
