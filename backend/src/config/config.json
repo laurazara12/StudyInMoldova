@@ -10,8 +10,12 @@
     "logging": false
   },
   "production": {
-    "dialect": "sqlite",
-    "storage": "./data/database_prod.sqlite",
+    "username": "${DB_USERNAME}",
+    "password": "${DB_PASSWORD}",
+    "database": "${DB_NAME}",
+    "host": "${DB_HOST}",
+    "port": 5432,
+    "dialect": "postgres",
     "logging": false
   }
 } 

@@ -4,7 +4,23 @@ require('dotenv').config();
 const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
-const config = require('./config.json')[process.env.NODE_ENV || 'development'];
+const config = {
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  host: process.env.DB_HOST,
+  port: 5432,
+  dialect: 'postgres',
+  logging: false,
+  ...(process.env.NODE_ENV === 'production' && {
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
+    }
+  })
+};
 
 // Configurare directoare
 const DB_DIR = path.join(__dirname, '../../data');
@@ -31,18 +47,46 @@ const createBackup = () => {
 // Verificare dacă baza de date există
 const dbExists = fs.existsSync(DB_FILE);
 
-// Configurare Sequelize
-const sequelize = new Sequelize({
-  ...config,
-  dialect: 'sqlite',
-  storage: config.storage,
-  logging: false,
-  define: {
-    timestamps: true,
-    underscored: true,
-    underscoredAll: true
-  }
-});
+const env = process.env.NODE_ENV || 'development';
+
+let sequelize;
+if (env === 'production') {
+  // Config pentru Postgres (cu SSL)
+  sequelize = new Sequelize(
+    process.env.DB_NAME,
+    process.env.DB_USERNAME,
+    process.env.DB_PASSWORD,
+    {
+      host: process.env.DB_HOST,
+      port: 5432,
+      dialect: 'postgres',
+      logging: false,
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false
+        }
+      },
+      define: {
+        timestamps: true,
+        underscored: true,
+        underscoredAll: true
+      }
+    }
+  );
+} else {
+  // Config pentru SQLite
+  sequelize = new Sequelize({
+    dialect: 'sqlite',
+    storage: './data/database.sqlite',
+    logging: false,
+    define: {
+      timestamps: true,
+      underscored: true,
+      underscoredAll: true
+    }
+  });
+}
 
 // Import models
 const UserModel = require('../models/user');

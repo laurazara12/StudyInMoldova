@@ -14,10 +14,12 @@
     "seedersPath": "./src/database/seeders"
   },
   "production": {
-    "dialect": "sqlite",
-    "storage": "./data/database.sqlite",
-    "logging": false,
-    "migrationsPath": "./src/database/migrations",
-    "seedersPath": "./src/database/seeders"
+    "username": "${DB_USERNAME}",
+    "password": "${DB_PASSWORD}",
+    "database": "${DB_NAME}",
+    "host": "${DB_HOST}",
+    "port": 5432,
+    "dialect": "postgres",
+    "logging": false
   }
 } 

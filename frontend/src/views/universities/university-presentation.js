@@ -53,9 +53,10 @@ const UniversityPresentation = ({ university }) => {
       
       // ULIM
       'ulim': 'ulim',
-      'universitatea libera internationala din moldova': 'ulim',
-      'free international university of moldova': 'ulim',
-      'free international university of moldova (ulim)': 'ulim',
+      'universitatea libera internationala din moldova': 'free-international-university-of-moldova-ulim',
+      'free international university of moldova': 'free-international-university-of-moldova-ulim',
+      'free international university of moldova (ulim)': 'free-international-university-of-moldova-ulim',
+      'free-international-university-of-moldova-ulim':'free-international-university-of-moldova-ulim',
       
       // USEM
       'usem': 'usem',
@@ -64,9 +65,18 @@ const UniversityPresentation = ({ university }) => {
       'european university of moldova (usem)': 'usem',
       
       // Alecu Russo
-      'universitatea de stat alecu russo din balti': 'russo-balti',
-      'alecu russo state university of balti': 'russo-balti',
-      'russo-balti': 'russo-balti',
+      'universitatea de stat alecu russo din balti': 'alecu-russo-state-university-of-b-l-i-usarb',
+      'alecu russo state university of balti': 'alecu-russo-state-university-of-b-l-i-usarb',
+      'alecu russo state university of bălți': 'alecu-russo-state-university-of-b-l-i-usarb',
+      'alecu russo state university of balti (usarb)': 'alecu-russo-state-university-of-b-l-i-usarb',
+      'alecu russo state university of bălți (usarb)': 'alecu-russo-state-university-of-b-l-i-usarb',
+      'usarb': 'alecu-russo-state-university-of-b-l-i-usarb',
+      'alecu-russo-state-university-of-b-l-i-usarb': 'alecu-russo-state-university-of-b-l-i-usarb',
+      'universitatea alecu russo din balti': 'alecu-russo-state-university-of-b-l-i-usarb',
+      'universitatea alecu russo din bălți': 'alecu-russo-state-university-of-b-l-i-usarb',
+      'universitatea de stat alecu russo din bălți': 'alecu-russo-state-university-of-b-l-i-usarb',
+      'universitatea de stat alecu russo din balti (usarb)': 'alecu-russo-state-university-of-b-l-i-usarb',
+      'universitatea de stat alecu russo din bălți (usarb)': 'alecu-russo-state-university-of-b-l-i-usarb',
       
       // Comrat
       'universitatea de stat din comrat': 'comrat',
@@ -163,7 +173,7 @@ const UniversityPresentation = ({ university }) => {
       'usm': 'usm',
       
       // USPEES
-      'universitatea de studii politice si economice europene constantin stere': 'uspees',
+      'universitatea de stat de educatie fizica si sport': 'usefs',
       'constantin stere european university of political and economic studies': 'uspees',
       'uspees': 'uspees',
       
