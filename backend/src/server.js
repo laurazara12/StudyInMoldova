@@ -33,7 +33,7 @@ const documentRoutes = require('./routes/documents');
 
 const app = express();
 const server = http.createServer(app);
-const PORT = 4000; // Force port 4000
+const PORT = process.env.PORT || 4000;
 
 // Configure multer for multipart/form-data
 const upload = multer();
