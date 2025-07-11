@@ -29,6 +29,8 @@ if (env === 'production') {
   sequelize = new Sequelize(config);
 }
 
+const db = {};
+
 // Încărcăm modelele în ordinea corectă
 const modelFiles = [
   'user.js',
