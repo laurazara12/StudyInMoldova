@@ -133,12 +133,22 @@ ApplicationDocument.associate(models);
 // Funcție pentru verificarea existenței tabelelor
 const checkTablesExist = async () => {
   try {
-    // Verificăm dacă tabela users există
-    const result = await sequelize.query(
-      "SELECT name FROM sqlite_master WHERE type='table' AND name='users'",
-      { type: sequelize.QueryTypes.SELECT }
-    );
-    return result.length > 0;
+    let result;
+    if (sequelize.getDialect() === 'sqlite') {
+      result = await sequelize.query(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='users'",
+        { type: sequelize.QueryTypes.SELECT }
+      );
+      return result.length > 0;
+    } else if (sequelize.getDialect() === 'postgres') {
+      result = await sequelize.query(
+        "SELECT to_regclass('public.users') as name",
+        { type: sequelize.QueryTypes.SELECT }
+      );
+      return !!(result[0] && result[0].name);
+    }
+    // Pentru alte baze de date, poți adăuga aici alte verificări
+    return false;
   } catch (error) {
     console.error('Eroare la verificarea tabelelor:', error);
     return false;
