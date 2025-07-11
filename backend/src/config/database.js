@@ -4,23 +4,6 @@ require('dotenv').config();
 const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
-const config = {
-  username: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  host: process.env.DB_HOST,
-  port: 5432,
-  dialect: 'postgres',
-  logging: false,
-  ...(process.env.NODE_ENV === 'production' && {
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false
-      }
-    }
-  })
-};
 
 // Configurare directoare
 const DB_DIR = path.join(__dirname, '../../data');
@@ -48,6 +31,24 @@ const createBackup = () => {
 const dbExists = fs.existsSync(DB_FILE);
 
 const env = process.env.NODE_ENV || 'development';
+let config;
+if (env === 'production') {
+  config = {
+    username: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    host: process.env.DB_HOST,
+    port: 5432,
+    dialect: 'postgres',
+    logging: false
+  };
+} else {
+  config = {
+    dialect: 'sqlite',
+    storage: './data/database.sqlite',
+    logging: false
+  };
+}
 
 let sequelize;
 if (env === 'production') {
