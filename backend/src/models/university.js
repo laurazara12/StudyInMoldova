@@ -24,11 +24,11 @@ module.exports = (sequelize) => {
       allowNull: false
     },
     image_url: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(255), // sau chiar mai mult, dacă vrei
       allowNull: true
     },
     website: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(255),
       allowNull: true
     },
     ranking: {

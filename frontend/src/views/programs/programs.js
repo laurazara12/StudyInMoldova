@@ -44,10 +44,6 @@ const Programs = () => {
       const isAuth = !!token;
       setIsAuthenticated(isAuth);
       setIsAdmin(user?.role === 'admin');
-      
-      if (isAuth) {
-        fetchSavedPrograms();
-      }
     };
 
     checkAuth();

@@ -14,22 +14,10 @@ const http = require('http');
 const multer = require('multer');
 const { auth } = require('./middleware/auth');
 const { sequelize, safeSync } = require('./config/database');
-const universitiesRouter = require('./routes/universities');
-const programsRouter = require('./routes/programRoutes');
-const authRouter = require('./routes/auth');
-const documentsRouter = require('./routes/documents');
-const notificationsRouter = require('./routes/notifications');
-const savedProgramRoutes = require('./routes/savedProgramRoutes');
-const applicationsRouter = require('./routes/applications');
-const helpYouChooseRoutes = require('./routes/helpYouChooseRoutes');
-const paymentRoutes = require('./routes/payment.routes');
 const { setupRoutes } = require('./routes');
 const { wss, authenticateWebSocket } = require('./websocket/notificationSocket');
 const WebSocket = require('ws');
 const jwt = require('jsonwebtoken');
-const userRoutes = require('./routes/userRoutes');
-const authRoutes = require('./routes/auth');
-const documentRoutes = require('./routes/documents');
 
 const app = express();
 const server = http.createServer(app);
@@ -64,17 +52,8 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Configure API routes in the correct order
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/documents', documentRoutes);
-app.use('/api/notifications', notificationsRouter);
-app.use('/api/universities', universitiesRouter);
-app.use('/api/programs', programsRouter);
-app.use('/api/saved-programs', savedProgramRoutes);
-app.use('/api/applications', upload.none(), applicationsRouter);
-app.use('/api/help-you-choose', helpYouChooseRoutes);
-app.use('/api/payments', paymentRoutes);
+// Configure API routes using setupRoutes
+setupRoutes(app);
 
 // Route for checking server status
 app.get('/api/health', (req, res) => {

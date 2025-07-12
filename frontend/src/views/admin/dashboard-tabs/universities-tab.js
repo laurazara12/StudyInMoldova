@@ -74,9 +74,22 @@ const UniversitiesTab = () => {
         throw new Error('Invalid data format received');
       }
 
-      console.log('Processed universities:', universitiesData);
-      setUniversities(universitiesData);
-      setFilteredUniversities(universitiesData);
+      // Validăm că toate universitățile au ID-uri valide
+      const validUniversities = universitiesData.filter(uni => {
+        if (!uni || !uni.id) {
+          console.warn('University without valid ID found:', uni);
+          return false;
+        }
+        return true;
+      });
+
+      if (validUniversities.length !== universitiesData.length) {
+        console.warn(`Filtered out ${universitiesData.length - validUniversities.length} universities without valid IDs`);
+      }
+
+      console.log('Processed universities with valid IDs:', validUniversities);
+      setUniversities(validUniversities);
+      setFilteredUniversities(validUniversities);
     } catch (error) {
       console.error('Error loading universities:', error);
       setError('Error loading universities: ' + error.message);
@@ -123,44 +136,90 @@ const UniversitiesTab = () => {
         headers: getAuthHeaders()
       });
 
-      if (response.data.success) {
-        setUniversities(prev => [...prev, response.data.data]);
-        setShowAddUniversityForm(false);
-        setNewUniversity({
-          name: '',
-          type: 'Public',
-          description: '',
-          location: '',
-          imageUrl: '',
-          website: '',
-          ranking: '',
-          tuitionFees: {
-            bachelor: '',
-            master: '',
-            phd: ''
-          },
-          programs: [],
-          contactInfo: {
-            email: '',
-            phone: '',
-            address: ''
-          }
-        });
-        setSuccessMessage('University was successfully added!');
-        setTimeout(() => setSuccessMessage(''), 3000);
+      console.log('Server response for new university:', response.data);
+
+      // Verificăm diferite formate de răspuns posibile
+      let newUniversityData;
+      if (response.data && response.data.success && response.data.data) {
+        // Format: { success: true, data: { id: 1, name: "...", ... } }
+        newUniversityData = response.data.data;
+      } else if (response.data && response.data.id) {
+        // Format: { id: 1, name: "...", ... }
+        newUniversityData = response.data;
+      } else if (response.data && Array.isArray(response.data)) {
+        // Format: [{ id: 1, name: "...", ... }] - luăm ultimul element
+        newUniversityData = response.data[response.data.length - 1];
+      } else {
+        console.error('Unexpected response format:', response.data);
+        throw new Error('Invalid response format from server');
       }
+
+      // Verificăm că avem un ID valid
+      if (!newUniversityData || !newUniversityData.id) {
+        console.error('No valid ID received for new university:', newUniversityData);
+        throw new Error('Server did not return a valid university ID');
+      }
+
+      console.log('New university created with ID:', newUniversityData.id);
+
+      // Adăugăm universitatea nouă la lista existentă
+      setUniversities(prev => [...prev, newUniversityData]);
+      setFilteredUniversities(prev => [...prev, newUniversityData]);
+      
+      // Resetăm formularul
+      setShowAddUniversityForm(false);
+      setNewUniversity({
+        name: '',
+        type: 'Public',
+        description: '',
+        location: '',
+        imageUrl: '',
+        website: '',
+        ranking: '',
+        tuitionFees: {
+          bachelor: '',
+          master: '',
+          phd: ''
+        },
+        programs: [],
+        contactInfo: {
+          email: '',
+          phone: '',
+          address: ''
+        }
+      });
+      
+      setSuccessMessage(`University "${newUniversityData.name}" was successfully added with ID: ${newUniversityData.id}!`);
+      setTimeout(() => setSuccessMessage(''), 5000);
+      
     } catch (error) {
       console.error('Error adding university:', error);
-      setError(error.response?.data?.message || 'Error adding university');
+      const errorMessage = error.response?.data?.message || error.message || 'Error adding university';
+      setError(errorMessage);
+      setTimeout(() => setError(null), 5000);
     }
   };
 
   const handleEditUniversity = (university) => {
+    // Validare pentru ID înainte de editare
+    if (!university || !university.id) {
+      setError('Cannot edit university: Invalid or missing university ID.');
+      return;
+    }
+    
+    console.log('Editing university with ID:', university.id);
     setEditingUniversity(university);
     setIsModalOpen(true);
   };
 
   const handleDeleteUniversity = (universityId) => {
+    // Validare pentru ID înainte de ștergere
+    if (!universityId) {
+      setError('Cannot delete university: Invalid or missing university ID.');
+      return;
+    }
+    
+    console.log('Deleting university with ID:', universityId);
     setDeleteConfirmation(universityId);
   };
 
@@ -219,6 +278,12 @@ const UniversitiesTab = () => {
     try {
       console.log('Starting university update:', editingUniversity);
       
+      // Validare pentru ID
+      if (!editingUniversity || !editingUniversity.id) {
+        setError('Invalid university ID. Cannot update university without a valid ID.');
+        return;
+      }
+      
       const updateData = {
         name: editingUniversity.name,
         type: editingUniversity.type,
@@ -240,6 +305,7 @@ const UniversitiesTab = () => {
       };
 
       console.log('Data sent to server:', updateData);
+      console.log('University ID for update:', editingUniversity.id);
 
       const response = await axios.put(
         `${API_BASE_URL}/api/universities/${editingUniversity.id}`,
@@ -457,7 +523,7 @@ const UniversitiesTab = () => {
             onClick={handleSearch}
           >
             Search
-          </button>
+          </button> 
         </div>
       </div>
 
@@ -494,6 +560,7 @@ const UniversitiesTab = () => {
           <table className="dashboard-table">
             <thead>
               <tr>
+                <th>ID</th>
                 <th>Name</th>
                 <th>Type</th>
                 <th>Location</th>
@@ -505,6 +572,9 @@ const UniversitiesTab = () => {
             <tbody>
               {filteredUniversities.map(university => (
                 <tr key={university.id}>
+                  <td>
+                    <strong>{university.id || 'N/A'}</strong>
+                  </td>
                   <td>
                     {(() => {
                       const truncateName = (name) => {
