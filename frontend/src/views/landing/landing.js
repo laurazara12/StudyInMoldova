@@ -180,7 +180,14 @@ function Home() {
       <CTA
         action1={
           <Fragment>
-            <span className="landing-text35">{t('cta.action')}</span>
+            <button 
+              className="btn1 "
+              onClick={handleExplorePrograms}
+            >
+              <span>
+                <span>{t('cta.action')}</span>
+              </span>
+            </button>
           </Fragment>
         }
         content1={
