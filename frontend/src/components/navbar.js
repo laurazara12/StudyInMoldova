@@ -124,7 +124,7 @@ const Navbar = (props) => {
             )}
                         <div className="language-selector">
               <div 
-                className={`language-dropdown ${showLanguageDropdown ? 'active' : ''}`}
+                className={`sim-language-dropdown ${showLanguageDropdown ? 'active' : ''}`}
                 onClick={toggleLanguageDropdown}
               >
                 {currentLanguage.code.toUpperCase()}
@@ -135,7 +135,7 @@ const Navbar = (props) => {
                   {languages.map((lang) => (
                     <div
                       key={lang.code}
-                      className={`lang-option ${i18n.language === lang.code ? 'active' : ''}`}
+                      className={`sim-lang-option ${i18n.language === lang.code ? 'active' : ''}`}
                       onClick={() => handleLanguageChange(lang.code)}
                     >
                       {lang.name}
@@ -192,7 +192,7 @@ const Navbar = (props) => {
             <div className="navbar-buttons2">
               <div className="language-selector-mobile">
                 <div 
-                  className={`language-dropdown ${showLanguageDropdown ? 'active' : ''}`}
+                  className={`sim-language-dropdown ${showLanguageDropdown ? 'active' : ''}`}
                   onClick={toggleLanguageDropdown}
                 >
                   {currentLanguage.name}
@@ -203,7 +203,7 @@ const Navbar = (props) => {
                     {languages.map((lang) => (
                       <div
                         key={lang.code}
-                        className={`lang-option ${i18n.language === lang.code ? 'active' : ''}`}
+                        className={`sim-lang-option ${i18n.language === lang.code ? 'active' : ''}`}
                         onClick={() => {
                           handleLanguageChange(lang.code);
                           toggleMenu();

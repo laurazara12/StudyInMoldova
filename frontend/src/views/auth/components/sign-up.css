@@ -293,23 +293,6 @@
   to   { opacity: 1; }
 }
 
-.navbar-mobile-menu.open {
-  background: #fff;
-  border-radius: 0 0 16px 16px;
-  margin-top: 0;
-  margin-left: 0.5rem;
-  width: 90vw;
-  max-width: 340px;
-  min-width: 180px;
-  min-height: unset;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
-  position: relative;
-  animation: slideDownDrawer 0.15s;
-  padding: 0.7rem 0.7rem 0.7rem 0.7rem;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-}
 
 @keyframes slideDownDrawer {
   from { transform: translateY(-40px); opacity: 0; }
@@ -348,4 +331,24 @@
 
 .language-selector-mobile {
   margin: 0.3rem 0;
+}
+
+@media(max-width: 600px) {
+  .sign-up-button1, .sign-up-button2 {
+    font-size: 16px !important;
+    padding: 12px 0 !important;
+    width: 100%;
+    min-width: 0;
+    text-align: center;
+    white-space: normal;
+  }
+  .sign-up-button1 span, .sign-up-button2 span, .sign-up-text22 {
+    font-size: 16px !important;
+    text-align: center;
+    white-space: normal;
+    display: block;
+  }
+  .sign-up-sign-up-image {
+    display: none !important;
+  }
 }

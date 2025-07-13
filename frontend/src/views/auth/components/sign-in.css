@@ -325,14 +325,107 @@
     align-items: center;
     flex-direction: column;
     justify-content: center;
+    padding-left: var(--dl-space-space-unit);
+    padding-right: var(--dl-space-space-unit);
+    width: 100%;
+    min-height: unset;
   }
   .sign-in-container2 {
     width: 100%;
-    height: 300px;
+    height: 200px;
     display: flex;
+    margin-bottom: var(--dl-space-space-unit);
   }
   .sign-in-form-root {
     width: 100%;
+    padding: var(--dl-space-space-unit);
+    min-width: 0;
+  }
+}
+
+@media(max-width: 600px) {
+  .sign-in-container1 {
+    flex-direction: column;
+    align-items: stretch;
+    min-height: 100vh;
+    justify-content: flex-start;
+    padding: 0;
+    margin: 0;
+    background: #fff;
+  }
+  .sign-in-max-width {
+    flex-direction: column;
+    padding: 10px;
+    width: 100%;
+    min-height: unset;
+  }
+  .sign-in-container2,
+  .sign-in-sign-up-image {
+    display: none !important;
+  }
+  .sign-in-form-root {
+    width: 100%;
+    padding: 0 5px 10px 5px;
+    min-width: 0;
+  }
+  .sign-in-form1 {
+    max-width: 100%;
+    padding: 0;
+  }
+  .sign-in-form2 {
+    width: 100%;
+  }
+  .input-field {
+    font-size: 16px;
+    padding: 10px;
+  }
+  .thq-button-filled, .thq-button-outline {
+    font-size: 16px;
+    padding: 12px 0;
+    width: 100%;
+    min-width: 0;
+  }
+  .sign-in-divider1 {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .sign-in-text11, .sign-in-text15, .sign-in-text17, .sign-in-text19 {
+    font-size: 18px;
+    text-align: center;
+  }
+  .sign-in-link {
+    font-size: 14px;
+  }
+  .thq-button-filled, .thq-button-outline, .sign-in-button1, .sign-in-button2 {
+    font-size: 16px !important;
+    padding: 12px 0 !important;
+    width: 100%;
+    min-width: 0;
+    text-align: center;
+    white-space: normal;
+  }
+  .thq-button-filled span, .thq-button-outline span, .sign-in-text19 {
+    font-size: 16px !important;
+    text-align: center;
+    white-space: normal;
+    display: block;
+  }
+}
+
+@media(max-width: 400px) {
+  .sign-in-max-width {
+    padding: 2px;
+  }
+  .sign-in-form-root {
+    padding: 0 2px 6px 2px;
+  }
+  .input-field {
+    font-size: 14px;
+    padding: 8px;
+  }
+  .thq-button-filled, .thq-button-outline {
+    font-size: 14px;
+    padding: 10px 0;
   }
 }
  
