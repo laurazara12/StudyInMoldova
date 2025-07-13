@@ -1,6 +1,7 @@
 const programsRouter = require('./programRoutes');
 const savedProgramRoutes = require('./savedProgramRoutes');
 const authRouter = require('./auth');
+const userRouter = require('./userRoutes');
 const documentsRouter = require('./documents');
 const universitiesRouter = require('./universities');
 const notificationRoutes = require('./notificationRoutes');
@@ -13,6 +14,7 @@ const setupRoutes = (app) => {
   app.use('/api/programs', programsRouter);
   app.use('/api/saved-programs', savedProgramRoutes);
   app.use('/api/auth', authRouter);
+  app.use('/api/users', userRouter);
   app.use('/api/documents', documentsRouter);
   app.use('/api/universities', universitiesRouter);
   app.use('/api/notifications', notificationRoutes);

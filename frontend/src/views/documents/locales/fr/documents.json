@@ -1,0 +1,104 @@
+{
+  "title": "Documents Requis pour les Candidatures Universitaires",
+  "description": "Apprenez-en plus sur les documents requis pour les candidatures universitaires en Moldavie. Obtenez des informations complètes sur les documents que vous devez préparer avant de postuler.",
+  "keywords": "documents requis, candidature universitaire, Moldavie, documents d'études, exigences de candidature",
+  "lastUpdated": "Dernière mise à jour",
+  "importantNotice": {
+    "title": "Avis Important",
+    "content": "Les exigences en matière de documents peuvent varier d'une université à l'autre. Nous vous recommandons fortement de rassembler d'abord tous les documents nécessaires avant de commencer votre processus de candidature. Cela contribuera à assurer une expérience de candidature fluide et réussie."
+  },
+  "generalDocuments": {
+    "title": "Documents Requis Généraux",
+    "academicDocuments": {
+      "title": "Documents Académiques",
+      "items": [
+        "Diplôme de baccalauréat ou équivalent (avec apostille/légalisation)",
+        "Relevé de notes/certificat de notes",
+        "Certificat de licence (pour les programmes de master)",
+        "Certificat de master (pour les programmes de doctorat)",
+        "Relevé de notes des études précédentes"
+      ]
+    },
+    "personalDocuments": {
+      "title": "Documents Personnels",
+      "items": [
+        "Passeport valide (avec au moins 6 mois de validité)",
+        "Certificat de naissance (avec apostille/légalisation)",
+        "Certificat médical (contrôle de santé)",
+        "Certificat de test VIH/SIDA",
+        "Photographies récentes format passeport (4-6 copies)"
+      ]
+    },
+    "languageProficiency": {
+      "title": "Compétences Linguistiques",
+      "items": [
+        "Certificat de langue anglaise (IELTS, TOEFL ou équivalent)",
+        "Certificat de langue roumaine (si applicable)",
+        "Certificat de langue russe (si applicable)",
+        "Résultats de test de compétence linguistique"
+      ]
+    },
+    "applicationDocuments": {
+      "title": "Documents de Candidature",
+      "items": [
+        "Formulaire de candidature complété",
+        "Lettre de motivation/Déclaration d'intention",
+        "Curriculum Vitae (CV)",
+        "Lettres de recommandation (2-3)",
+        "Portfolio (pour les programmes d'art/design)"
+      ]
+    }
+  },
+  "legalizationRequirements": {
+    "title": "Exigences de Légalisation des Documents",
+    "subtitle": "Pour les Étudiants Internationaux",
+    "content": "Tous les documents académiques doivent être correctement légalisés selon les normes internationales :",
+    "items": [
+      {
+        "title": "Apostille :",
+        "description": "Pour les pays qui font partie de la Convention de La Haye"
+      },
+      {
+        "title": "Légalisation :",
+        "description": "Pour les pays qui ne font pas partie de la Convention de La Haye"
+      },
+      {
+        "title": "Traduction :",
+        "description": "Les documents doivent être traduits en roumain ou en anglais"
+      },
+      {
+        "title": "Notarisation :",
+        "description": "Certains documents peuvent nécessiter une notarisation"
+      }
+    ]
+  },
+  "applicationProcess": {
+    "title": "Étapes du Processus de Candidature",
+    "steps": {
+      "1": {
+        "title": "Rassemblez Tous les Documents",
+        "description": "Collectez tous les documents requis selon les exigences spécifiques de l'université. Assurez-vous que tous les documents sont correctement légalisés et traduits."
+      },
+      "2": {
+        "title": "Vérifiez les Exigences",
+        "description": "Vérifiez à nouveau les exigences spécifiques pour votre université et programme choisis. Les exigences peuvent varier considérablement entre les institutions."
+      },
+      "3": {
+        "title": "Préparez la Candidature",
+        "description": "Complétez le formulaire de candidature et préparez tous les documents de soutien. Assurez-vous que tout est correctement organisé et prêt pour la soumission."
+      },
+      "4": {
+        "title": "Soumettez la Candidature",
+        "description": "Soumettez votre dossier de candidature complet avant la date limite. Gardez des copies de tous les documents soumis pour vos dossiers."
+      }
+    }
+  },
+  "needHelp": {
+    "title": "Besoin d'Aide ?",
+    "content": "Si vous avez besoin d'aide pour la préparation des documents ou avez des questions sur des exigences spécifiques, n'hésitez pas à nous contacter. Notre équipe est là pour vous aider à naviguer dans le processus de candidature.",
+    "buttons": {
+      "contact": "Contactez-nous",
+      "faq": "Voir FAQ"
+    }
+  }
+} 

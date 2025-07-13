@@ -1,0 +1,104 @@
+{
+  "title": "Erforderliche Dokumente für Universitätsbewerbungen",
+  "description": "Erfahren Sie mehr über die erforderlichen Dokumente für Universitätsbewerbungen in Moldawien. Erhalten Sie umfassende Informationen über die Dokumente, die Sie vor der Bewerbung vorbereiten müssen.",
+  "keywords": "erforderliche dokumente, universitätsbewerbung, moldawien, studienunterlagen, bewerbungsanforderungen",
+  "lastUpdated": "Zuletzt aktualisiert",
+  "importantNotice": {
+    "title": "Wichtiger Hinweis",
+    "content": "Die Dokumentenanforderungen können von Universität zu Universität variieren. Wir empfehlen Ihnen dringend, zuerst alle erforderlichen Dokumente zu sammeln, bevor Sie mit Ihrem Bewerbungsprozess beginnen. Dies wird dazu beitragen, eine reibungslose und erfolgreiche Bewerbungserfahrung zu gewährleisten."
+  },
+  "generalDocuments": {
+    "title": "Allgemeine Erforderliche Dokumente",
+    "academicDocuments": {
+      "title": "Akademische Dokumente",
+      "items": [
+        "Abiturzeugnis oder gleichwertig (mit Apostille/Legalisierung)",
+        "Zeugnis/Notenbescheinigung",
+        "Bachelor-Zeugnis (für Master-Programme)",
+        "Master-Zeugnis (für Promotionsprogramme)",
+        "Zeugnis aus vorherigen Studien"
+      ]
+    },
+    "personalDocuments": {
+      "title": "Persönliche Dokumente",
+      "items": [
+        "Gültiger Reisepass (mit mindestens 6 Monaten Gültigkeit)",
+        "Geburtsurkunde (mit Apostille/Legalisierung)",
+        "Medizinisches Zeugnis (Gesundheitscheck)",
+        "HIV/AIDS-Testzertifikat",
+        "Aktuelle Passfotos (4-6 Kopien)"
+      ]
+    },
+    "languageProficiency": {
+      "title": "Sprachkenntnisse",
+      "items": [
+        "Englisch-Sprachzertifikat (IELTS, TOEFL oder gleichwertig)",
+        "Rumänisch-Sprachzertifikat (falls zutreffend)",
+        "Russisch-Sprachzertifikat (falls zutreffend)",
+        "Sprachkenntnistest-Ergebnisse"
+      ]
+    },
+    "applicationDocuments": {
+      "title": "Bewerbungsdokumente",
+      "items": [
+        "Ausgefülltes Bewerbungsformular",
+        "Motivationsschreiben/Zweckerklärung",
+        "Lebenslauf (CV)",
+        "Empfehlungsschreiben (2-3)",
+        "Portfolio (für Kunst-/Design-Programme)"
+      ]
+    }
+  },
+  "legalizationRequirements": {
+    "title": "Dokumenten-Legalisierungsanforderungen",
+    "subtitle": "Für Internationale Studierende",
+    "content": "Alle akademischen Dokumente müssen ordnungsgemäß nach internationalen Standards legalisiert werden:",
+    "items": [
+      {
+        "title": "Apostille:",
+        "description": "Für Länder, die Teil der Haager Konvention sind"
+      },
+      {
+        "title": "Legalisierung:",
+        "description": "Für Länder, die nicht Teil der Haager Konvention sind"
+      },
+      {
+        "title": "Übersetzung:",
+        "description": "Dokumente müssen ins Rumänische oder Englische übersetzt werden"
+      },
+      {
+        "title": "Beglaubigung:",
+        "description": "Einige Dokumente können eine Beglaubigung erfordern"
+      }
+    ]
+  },
+  "applicationProcess": {
+    "title": "Bewerbungsprozess-Schritte",
+    "steps": {
+      "1": {
+        "title": "Alle Dokumente Sammeln",
+        "description": "Sammeln Sie alle erforderlichen Dokumente gemäß den spezifischen Anforderungen der Universität. Stellen Sie sicher, dass alle Dokumente ordnungsgemäß legalisiert und übersetzt sind."
+      },
+      "2": {
+        "title": "Anforderungen Überprüfen",
+        "description": "Überprüfen Sie nochmals die spezifischen Anforderungen für Ihre gewählte Universität und Ihr Programm. Anforderungen können zwischen Institutionen erheblich variieren."
+      },
+      "3": {
+        "title": "Bewerbung Vorbereiten",
+        "description": "Füllen Sie das Bewerbungsformular aus und bereiten Sie alle unterstützenden Dokumente vor. Stellen Sie sicher, dass alles ordnungsgemäß organisiert und zur Einreichung bereit ist."
+      },
+      "4": {
+        "title": "Bewerbung Einreichen",
+        "description": "Reichen Sie Ihr vollständiges Bewerbungspaket vor der Frist ein. Bewahren Sie Kopien aller eingereichten Dokumente für Ihre Unterlagen auf."
+      }
+    }
+  },
+  "needHelp": {
+    "title": "Brauchen Sie Hilfe?",
+    "content": "Wenn Sie Hilfe bei der Dokumentenvorbereitung benötigen oder Fragen zu spezifischen Anforderungen haben, zögern Sie nicht, uns zu kontaktieren. Unser Team ist hier, um Ihnen bei der Navigation durch den Bewerbungsprozess zu helfen.",
+    "buttons": {
+      "contact": "Kontaktieren Sie uns",
+      "faq": "FAQ anzeigen"
+    }
+  }
+} 

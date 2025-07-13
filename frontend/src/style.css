@@ -536,6 +536,11 @@ button{
   color: white;
 }
 
+.btn2.active {
+  background-color: var(--dl-color-theme-primary2);
+  color: white;
+}
+
 .btn-grey {
   background-color: var(--dl-color-theme-gray-light);
   color: var(--dl-color-theme-neutral-dark);

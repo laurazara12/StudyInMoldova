@@ -235,20 +235,20 @@ const UsersTab = () => {
   };
 
   const renderUserDocuments = (user) => {
-    if (!user || !user.documents) return null;
-    
-    return user.documents.map(doc => {
-      if (!doc) return null;
-      
-      return (
-        <div key={doc.id} className="document-item">
-          <span className="document-type">{doc.document_type}</span>
-          <span className={`status-badge ${getDocumentStatusClass(doc.status)}`}>
-            {doc.status || 'pending'}
-          </span>
-        </div>
-      );
-    });
+    if (!user || !user.id) return null;
+    const userDocs = documents.filter(doc => doc.user_id === user.id && doc.status !== 'deleted');
+    if (userDocs.length === 0) return <p>No uploaded documents.</p>;
+
+    return userDocs.map(doc => (
+      <div key={doc.id} className="document-item">
+        <span className="document-type">{doc.document_type}</span>
+        <span className={`status-badge ${getDocumentStatusClass(doc.status)}`}>
+          {doc.status || 'pending'}
+        </span>
+        <span className="document-name">{doc.originalName || doc.filename}</span>
+        <span className="upload-date">{formatDate(doc.createdAt || doc.uploadDate)}</span>
+      </div>
+    ));
   };
 
   return (

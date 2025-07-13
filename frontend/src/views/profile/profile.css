@@ -891,7 +891,6 @@
 }
 
 .modal-buttons .cancel-button {
-  background-color: transparent;
   color: var(--dl-color-theme-primary1);
   border: 1px solid var(--dl-color-theme-primary1);
   padding: 4px 8px;

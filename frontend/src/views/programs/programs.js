@@ -19,6 +19,8 @@ const Programs = () => {
   const [filteredPrograms, setFilteredPrograms] = useState([]);
   const [notification, setNotification] = useState(null);
   const [filterTuitionFee, setFilterTuitionFee] = useState({ min: '', max: '' });
+  const [viewingProgram, setViewingProgram] = useState(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -246,12 +248,11 @@ const Programs = () => {
   useEffect(() => {
     const filtered = programs.filter(program => {
       const matchesSearch = searchTerm === '' || 
-        (program.name && program.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (program.description && program.description.toLowerCase().includes(searchTerm.toLowerCase()));
+        (program.name && program.name.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesDegree = !degreeFilter || program.degree_type === degreeFilter;
       const matchesLanguage = !languageFilter || program.language === languageFilter;
       const matchesTuitionFee = (!filterTuitionFee.min || program.tuition_fees >= filterTuitionFee.min) &&
-                             (!filterTuitionFee.max || program.tuition_fees <= filterTuitionFee.max);
+                           (!filterTuitionFee.max || program.tuition_fees <= filterTuitionFee.max);
       return matchesSearch && matchesDegree && matchesLanguage && matchesTuitionFee;
     });
     setFilteredPrograms(filtered);
@@ -342,6 +343,7 @@ const Programs = () => {
                 <option value="Romanian">Romanian</option>
                 <option value="English">English</option>
                 <option value="Russian">Russian</option>
+                <option value="French">French</option>
               </select>
             </div>
             <div className="filter-group">
@@ -381,8 +383,7 @@ const Programs = () => {
               onClick={() => {
                 const filtered = programs.filter(program => {
                   const matchesSearch = searchTerm === '' || 
-                    (program.name && program.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                    (program.description && program.description.toLowerCase().includes(searchTerm.toLowerCase()));
+                    (program.name && program.name.toLowerCase().includes(searchTerm.toLowerCase()));
                   const matchesDegree = !degreeFilter || program.degree_type === degreeFilter;
                   const matchesLanguage = !languageFilter || program.language === languageFilter;
                   const matchesTuitionFee = (!filterTuitionFee.min || program.tuition_fees >= filterTuitionFee.min) &&
@@ -422,20 +423,20 @@ const Programs = () => {
                   <tr key={program.id}>
                     <td>{program.id}</td>
                     <td>
-                      <div className="program-name">
+                      <div className="program-name" style={{whiteSpace: 'pre-wrap', wordBreak: 'break-word', maxWidth: '250px'}}>
                         <strong>{program.name || 'Program name unavailable'}</strong>
                         {program.description && (
                           <div className="program-description">
-                            {program.description.length > 20
-                              ? program.description.slice(0, 20) + '...'
+                            {program.description.length > 40
+                              ? program.description.slice(0, 40) + '...'
                               : program.description}
                           </div>
                         )}
                       </div>
                     </td>
                     <td>{program.university?.name
-                      ? program.university.name.length > 30
-                        ? program.university.name.slice(0, 30) + '...'
+                      ? program.university.name.length > 20
+                        ? program.university.name.slice(0, 20) + '...'
                         : program.university.name
                       : 'University not assigned'}</td>
                     <td>
@@ -476,6 +477,13 @@ const Programs = () => {
                             </button>
                           )
                         ) : null}
+                        <button 
+                          className="btn1"
+                          onClick={() => { setViewingProgram(program); setIsViewModalOpen(true); }}
+                          title="View program details"
+                        >
+                          View Program
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -487,6 +495,80 @@ const Programs = () => {
       </main>
       
       <Footer />
+      {isViewModalOpen && viewingProgram && (
+        <div className="modal-overlay">
+          <div className="modal-content program-modal">
+            <button className="close-button" style={{position: 'absolute', top: 10, right: 10}} onClick={() => { setIsViewModalOpen(false); setViewingProgram(null); }} aria-label="Close">×</button>
+            <h2>Program Details</h2>
+            <div className="program-details">
+              <div className="detail-section">
+                <h3>Basic Information</h3>
+                <div className="detail-row">
+                  <span className="detail-label">Name:</span>
+                  <span className="detail-value">{viewingProgram.name || 'N/A'}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">University:</span>
+                  <span className="detail-value">{viewingProgram.university?.name || 'N/A'}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Degree:</span>
+                  <span className="detail-value">{viewingProgram.degree_type || viewingProgram.degree || 'N/A'}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Faculty:</span>
+                  <span className="detail-value">{viewingProgram.faculty || 'N/A'}</span>
+                </div>
+              </div>
+              <div className="detail-section">
+                <h3>Program Details</h3>
+                <div className="detail-row">
+                  <span className="detail-label">Duration:</span>
+                  <span className="detail-value">{viewingProgram.duration || 'N/A'}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Credits:</span>
+                  <span className="detail-value">{viewingProgram.credits || 'N/A'}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Language:</span>
+                  <span className="detail-value">{viewingProgram.language || 'N/A'}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Tuition Fee:</span>
+                  <span className="detail-value">{viewingProgram.tuition_fees || 'N/A'}</span>
+                </div>
+              </div>
+              <div className="detail-section">
+                <h3>Important Dates</h3>
+                <div className="detail-row">
+                  <span className="detail-label">Start Date:</span>
+                  <span className="detail-value">{viewingProgram.start_date ? new Date(viewingProgram.start_date).toLocaleDateString() : 'N/A'}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Application Deadline:</span>
+                  <span className="detail-value">{viewingProgram.application_deadline ? new Date(viewingProgram.application_deadline).toLocaleDateString() : 'N/A'}</span>
+                </div>
+              </div>
+              <div className="detail-section">
+                <h3>Description</h3>
+                <div className="detail-description">
+                  {viewingProgram.description || 'No description available'}
+                </div>
+              </div>
+            </div>
+            <div className="modal-buttons">
+              <button 
+                type="button" 
+                className="btn-grey-2"
+                onClick={() => { setIsViewModalOpen(false); setViewingProgram(null); }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

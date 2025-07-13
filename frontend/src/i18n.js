@@ -50,6 +50,13 @@ import livingInMoldovaFR from './views/living-in-moldova/locales/fr.json';
 import livingInMoldovaDE from './views/living-in-moldova/locales/de.json';
 import livingInMoldovaRU from './views/living-in-moldova/locales/ru.json';
 
+// Importă traducerile pentru pagina Documents
+import documentsRO from './views/documents/locales/ro/documents.json';
+import documentsEN from './views/documents/locales/en/documents.json';
+import documentsFR from './views/documents/locales/fr/documents.json';
+import documentsDE from './views/documents/locales/de/documents.json';
+import documentsRU from './views/documents/locales/ru/documents.json';
+
 // Configurare resurse pentru traduceri
 const resources = {
   ro: {
@@ -59,7 +66,8 @@ const resources = {
     privacy: privacyRO,
     livingInMoldova: livingInMoldovaRO,
     cta: ctaRO,
-    landing: landingRO
+    landing: landingRO,
+    documents: documentsRO
   },
   en: {
     about: aboutEN,
@@ -68,7 +76,8 @@ const resources = {
     privacy: privacyEN,
     livingInMoldova: livingInMoldovaEN,
     cta: ctaEN,
-    landing: landingEN
+    landing: landingEN,
+    documents: documentsEN
   },
   de: {
     about: aboutDE,
@@ -77,7 +86,8 @@ const resources = {
     privacy: privacyDE,
     livingInMoldova: livingInMoldovaDE,
     cta: ctaDE,
-    landing: landingDE
+    landing: landingDE,
+    documents: documentsDE
   },
   ru: {
     about: aboutRU,
@@ -86,7 +96,8 @@ const resources = {
     privacy: privacyRU,
     livingInMoldova: livingInMoldovaRU,
     cta: ctaRU,
-    landing: landingRU
+    landing: landingRU,
+    documents: documentsRU
   },
   fr: {
     about: aboutFR,
@@ -95,7 +106,8 @@ const resources = {
     privacy: privacyFR,
     livingInMoldova: livingInMoldovaFR,
     cta: ctaFR,
-    landing: landingFR
+    landing: landingFR,
+    documents: documentsFR
   }
 };
 
@@ -110,7 +122,7 @@ i18n
     interpolation: {
       escapeValue: false
     },
-    ns: ['about', 'universities','landing', 'terms', 'privacy', 'livingInMoldova', 'cta'],
+    ns: ['about', 'universities','landing', 'terms', 'privacy', 'livingInMoldova', 'cta', 'documents'],
     defaultNS: 'about',
     react: {
       useSuspense: false

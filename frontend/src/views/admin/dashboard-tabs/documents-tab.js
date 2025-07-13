@@ -302,7 +302,7 @@ const DocumentsTab = () => {
             <input
               type="text"
               className="search-input"
-              placeholder="Search by name..."
+              placeholder="Search by document's type..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />

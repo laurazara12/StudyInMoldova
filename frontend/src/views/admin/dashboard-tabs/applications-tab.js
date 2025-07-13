@@ -20,6 +20,10 @@ const ApplicationsTab = () => {
     approvedApplications: 0,
     rejectedApplications: 0
   });
+  const [filterUniversity, setFilterUniversity] = useState('');
+  const [filterProgram, setFilterProgram] = useState('');
+  const [filterStudentName, setFilterStudentName] = useState('');
+  const [filterStudentId, setFilterStudentId] = useState('');
 
   useEffect(() => {
     loadApplications();
@@ -182,7 +186,11 @@ const ApplicationsTab = () => {
       const appDate = app.application_date || app.createdAt || app.created_at;
       const matchesDateRange = (!filterApplicationDateRange.start || new Date(appDate) >= new Date(filterApplicationDateRange.start)) &&
                              (!filterApplicationDateRange.end || new Date(appDate) <= new Date(filterApplicationDateRange.end));
-      return matchesSearch && matchesStatus && matchesDateRange;
+      const matchesUniversity = filterUniversity === '' || (app.program && app.program.university && app.program.university.name && app.program.university.name.toLowerCase().includes(filterUniversity.toLowerCase()));
+      const matchesProgram = filterProgram === '' || (app.program && app.program.name && app.program.name.toLowerCase().includes(filterProgram.toLowerCase()));
+      const matchesStudentName = filterStudentName === '' || (app.user_name && app.user_name.toLowerCase().includes(filterStudentName.toLowerCase()));
+      const matchesStudentId = filterStudentId === '' || (app.user_id && app.user_id.toString().includes(filterStudentId));
+      return matchesSearch && matchesStatus && matchesDateRange && matchesUniversity && matchesProgram && matchesStudentName && matchesStudentId;
     });
     setFilteredApplications(filtered);
   };
@@ -269,6 +277,46 @@ const ApplicationsTab = () => {
             </select>
           </div>
           <div className="filter-group">
+            <label>University:</label>
+            <input
+              type="text"
+              className="filter-select"
+              placeholder="University name..."
+              value={filterUniversity}
+              onChange={e => setFilterUniversity(e.target.value)}
+            />
+          </div>
+          <div className="filter-group">
+            <label>Program:</label>
+            <input
+              type="text"
+              className="filter-select"
+              placeholder="Program name..."
+              value={filterProgram}
+              onChange={e => setFilterProgram(e.target.value)}
+            />
+          </div>
+          <div className="filter-group">
+            <label>Student Name:</label>
+            <input
+              type="text"
+              className="filter-select"
+              placeholder="Student name..."
+              value={filterStudentName}
+              onChange={e => setFilterStudentName(e.target.value)}
+            />
+          </div>
+          <div className="filter-group">
+            <label>Student ID:</label>
+            <input
+              type="text"
+              className="filter-select"
+              placeholder="Student ID..."
+              value={filterStudentId}
+              onChange={e => setFilterStudentId(e.target.value)}
+            />
+          </div>
+          <div className="filter-group">
             <label>Date:</label>
             <div className="date-range-inputs">
               <input 
@@ -291,6 +339,10 @@ const ApplicationsTab = () => {
             onClick={() => {
               setSearchTerm('');
               setFilterApplicationStatus('all');
+              setFilterUniversity('');
+              setFilterProgram('');
+              setFilterStudentName('');
+              setFilterStudentId('');
               setFilterApplicationDateRange({ start: '', end: '' });
               setFilteredApplications(applications);
             }}
@@ -329,7 +381,8 @@ const ApplicationsTab = () => {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>User</th>
+                <th>User ID</th>
+                <th>User Name</th>
                 <th>Program</th>
                 <th>University</th>
                 <th>Application Date</th>
@@ -341,11 +394,18 @@ const ApplicationsTab = () => {
               {filteredApplications.map(app => (
                 <tr key={app.id}>
                   <td>{app.id}</td>
-                  <td>
-                    <span className="user-name">{app.user_name || `User ID: ${app.user_id}`}</span>
-                  </td>
-                  <td>{app.program?.name || 'N/A'}</td>
-                  <td>{app.program?.university?.name || 'N/A'}</td>
+                  <td>{app.user_id || 'N/A'}</td>
+                  <td>{app.user_name || (app.user && app.user.name) || 'N/A'}</td>
+                  <td>{app.program?.name
+                    ? app.program.name.length > 25
+                      ? app.program.name.slice(0, 25) + '...'
+                      : app.program.name
+                    : 'N/A'}</td>
+                  <td>{app.program?.university?.name
+                    ? app.program.university.name.length > 25
+                      ? app.program.university.name.slice(0, 25) + '...'
+                      : app.program.university.name
+                    : 'N/A'}</td>
                   <td>{formatDate(app.application_date || app.createdAt || app.created_at)}</td>
                   <td>
                     <span className={`status-badge status-${app.status}`}>

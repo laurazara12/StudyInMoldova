@@ -93,14 +93,6 @@
   flex: 1;
 }
 
-.download-button {
-  background-color: #007bff;
-  color: white;
-}
-
-.download-button:hover {
-  background-color: #0056b3;
-}
 
 .delete-button {
   background-color: #dc3545;

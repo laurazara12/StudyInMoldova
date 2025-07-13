@@ -1,0 +1,104 @@
+{
+  "title": "Documente Necesare pentru Aplicații Universitare",
+  "description": "Află despre documentele necesare pentru aplicațiile universitare în Moldova. Obține informații complete despre ce documente trebuie să pregătești înainte de a aplica.",
+  "keywords": "documente necesare, aplicație universitară, Moldova, documente de studiu, cerințe aplicație",
+  "lastUpdated": "Ultima actualizare",
+  "importantNotice": {
+    "title": "Notă Importantă",
+    "content": "Cerințele pentru documente pot varia de la o universitate la alta. Vă recomandăm cu tărie să adunați mai întâi toate documentele necesare înainte de a începe procesul de aplicare. Acest lucru va ajuta la asigurarea unei experiențe de aplicare lină și de succes."
+  },
+  "generalDocuments": {
+    "title": "Documente Necesare Generale",
+    "academicDocuments": {
+      "title": "Documente Academice",
+      "items": [
+        "Diplomă de bacalaureat sau echivalent (cu apostilă/legalizare)",
+        "Foaie matricolă/certificat de note",
+        "Certificat de licență (pentru programe de masterat)",
+        "Certificat de masterat (pentru programe de doctorat)",
+        "Foaie matricolă din studiile anterioare"
+      ]
+    },
+    "personalDocuments": {
+      "title": "Documente Personale",
+      "items": [
+        "Pașaport valabil (cu cel puțin 6 luni valabilitate)",
+        "Certificat de naștere (cu apostilă/legalizare)",
+        "Certificat medical (control de sănătate)",
+        "Certificat test HIV/SIDA",
+        "Fotografii recente tip pașaport (4-6 copii)"
+      ]
+    },
+    "languageProficiency": {
+      "title": "Competențe Lingvistice",
+      "items": [
+        "Certificat de limba engleză (IELTS, TOEFL sau echivalent)",
+        "Certificat de limba română (dacă este aplicabil)",
+        "Certificat de limba rusă (dacă este aplicabil)",
+        "Rezultate test competențe lingvistice"
+      ]
+    },
+    "applicationDocuments": {
+      "title": "Documente de Aplicație",
+      "items": [
+        "Formular de aplicație completat",
+        "Scrisoare de motivație/Declarație de intenții",
+        "Curriculum Vitae (CV)",
+        "Scrisori de recomandare (2-3)",
+        "Portofoliu (pentru programe de artă/design)"
+      ]
+    }
+  },
+  "legalizationRequirements": {
+    "title": "Cerințe de Legalizare a Documentelor",
+    "subtitle": "Pentru Studenții Internaționali",
+    "content": "Toate documentele academice trebuie să fie legalizate corespunzător conform standardelor internaționale:",
+    "items": [
+      {
+        "title": "Apostilă:",
+        "description": "Pentru țările care fac parte din Convenția de la Haga"
+      },
+      {
+        "title": "Legalizare:",
+        "description": "Pentru țările care nu fac parte din Convenția de la Haga"
+      },
+      {
+        "title": "Traducere:",
+        "description": "Documentele trebuie traduse în română sau engleză"
+      },
+      {
+        "title": "Notarizare:",
+        "description": "Unele documente pot necesita notarizare"
+      }
+    ]
+  },
+  "applicationProcess": {
+    "title": "Pașii Procesului de Aplicație",
+    "steps": {
+      "1": {
+        "title": "Adună Toate Documentele",
+        "description": "Colectează toate documentele necesare conform cerințelor specifice ale universității. Asigură-te că toate documentele sunt legalizate și traduse corespunzător."
+      },
+      "2": {
+        "title": "Verifică Cerințele",
+        "description": "Verifică din nou cerințele specifice pentru universitatea și programul ales. Cerințele pot varia semnificativ între instituții."
+      },
+      "3": {
+        "title": "Pregătește Aplicația",
+        "description": "Completează formularul de aplicație și pregătește toate documentele de suport. Asigură-te că totul este organizat corespunzător și gata pentru depunere."
+      },
+      "4": {
+        "title": "Depune Aplicația",
+        "description": "Depune pachetul complet de aplicație înainte de termenul limită. Păstrează copii ale tuturor documentelor depuse pentru evidențele tale."
+      }
+    }
+  },
+  "needHelp": {
+    "title": "Ai Nevoie de Ajutor?",
+    "content": "Dacă ai nevoie de asistență în pregătirea documentelor sau ai întrebări despre cerințe specifice, nu ezita să ne contactezi. Echipa noastră este aici să te ajute să navighezi prin procesul de aplicare.",
+    "buttons": {
+      "contact": "Contactează-ne",
+      "faq": "Vezi FAQ"
+    }
+  }
+} 

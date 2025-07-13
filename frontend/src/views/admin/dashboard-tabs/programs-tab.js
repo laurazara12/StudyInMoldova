@@ -191,6 +191,12 @@ const ProgramsTab = () => {
   const handleUpdateProgram = async (e) => {
     e.preventDefault();
     try {
+      // Validare și conversie sigură pentru date
+      const getValidDate = (dateStr) => {
+        if (!dateStr) return null;
+        const d = new Date(dateStr);
+        return isNaN(d.getTime()) ? null : d.toISOString().split('T')[0];
+      };
       const updatedData = {
         name: editingProgram.name,
         description: editingProgram.description,
@@ -201,8 +207,8 @@ const ProgramsTab = () => {
         language: editingProgram.language,
         duration: editingProgram.duration?.years ? `${editingProgram.duration.years} years` : editingProgram.duration,
         tuition_fees: editingProgram.tuition_fees,
-        start_date: editingProgram.start_date ? new Date(editingProgram.start_date).toISOString().split('T')[0] : null,
-        application_deadline: editingProgram.application_deadline ? new Date(editingProgram.application_deadline).toISOString().split('T')[0] : null
+        start_date: getValidDate(editingProgram.start_date),
+        application_deadline: getValidDate(editingProgram.application_deadline)
       };
 
       console.log('Data sent for update:', updatedData);
@@ -251,8 +257,7 @@ const ProgramsTab = () => {
   const handleSearch = () => {
     const filtered = programs.filter(program => {
       const matchesSearch = searchTerm === '' || 
-        program.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        program.description?.toLowerCase().includes(searchTerm.toLowerCase());
+        program.name.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesDegree = filterDegree === 'all' || program.degree_type === filterDegree;
       const matchesLanguage = !filterLanguage || program.language === filterLanguage;
       const matchesTuitionFee = (!filterTuitionFee.min || program.tuition_fees >= filterTuitionFee.min) &&
@@ -312,6 +317,7 @@ const ProgramsTab = () => {
               <option value="Romanian">Romanian</option>
               <option value="English">English</option>
               <option value="Russian">Russian</option>
+              <option value="French">French</option>
             </select>
           </div>
           <div className="filter-group">
@@ -400,15 +406,24 @@ const ProgramsTab = () => {
               {filteredPrograms.map(program => (
                 <tr key={program.id}>
                   <td>{program.id}</td>
-                  <td>{program.name || 'N/A'}</td>
+                  <td>
+                    <div style={{whiteSpace: 'pre-wrap', wordBreak: 'break-word', maxWidth: '200px'}}>
+                      {program.name || 'N/A'}
+                    </div>
+                  </td>
                   <td>{program.degree_type || program.degree || 'N/A'}</td>
                   <td>{program.duration || 'N/A'}</td>
                   <td>{program.language === 'Ro' ? 'Romanian' : 
                        program.language === 'En' ? 'English' : 
                        program.language === 'Ru' ? 'Russian' : 
+                       program.language === 'Fr' ? 'French' : 
                        program.language || 'N/A'}</td>
                   <td>{program.tuition_fees || 'N/A'}</td>
-                  <td>{program.university?.name || 'N/A'}</td>
+                  <td>{program.university?.name
+  ? program.university.name.length > 25
+    ? program.university.name.slice(0, 25) + '...'
+    : program.university.name
+  : 'N/A'}</td>
                   <td>
                     <div className="action-buttons">
                       <button 
@@ -441,6 +456,7 @@ const ProgramsTab = () => {
       {showAddProgramForm && (
         <div className="modal-overlay">
           <div className="modal-content program-modal">
+            <button className="close-button" style={{position: 'absolute', top: 10, right: 10}} onClick={handleCloseAddProgramForm} aria-label="Close">×</button>
             <h2>Add New Program</h2>
             <form onSubmit={handleAddProgram}>
               <div className="form-row">
@@ -527,6 +543,7 @@ const ProgramsTab = () => {
                     <option value="Romanian">Romanian</option>
                     <option value="English">English</option>
                     <option value="Russian">Russian</option>
+                    <option value="French">French</option>
                   </select>
                 </div>
               </div>
@@ -602,6 +619,7 @@ const ProgramsTab = () => {
       {showEditProgramForm && editingProgram && (
         <div className="modal-overlay">
           <div className="modal-content program-modal">
+            <button className="close-button" style={{position: 'absolute', top: 10, right: 10}} onClick={() => { setShowEditProgramForm(false); setEditingProgram(null); }} aria-label="Close">×</button>
             <h2>Edit Program</h2>
             <form onSubmit={handleUpdateProgram} className="program-form">
               <div className="form-row">
@@ -683,6 +701,7 @@ const ProgramsTab = () => {
                     <option value="Romanian">Romanian</option>
                     <option value="English">English</option>
                     <option value="Russian">Russian</option>
+                    <option value="French">French</option>
                   </select>
                 </div>
               </div>
@@ -777,6 +796,7 @@ const ProgramsTab = () => {
       {isViewModalOpen && viewingProgram && (
         <div className="modal-overlay">
           <div className="modal-content program-modal">
+            <button className="close-button" style={{position: 'absolute', top: 10, right: 10}} onClick={handleCloseViewModal} aria-label="Close">×</button>
             <h2>Program Details</h2>
             <div className="program-details">
               <div className="detail-section">
@@ -815,6 +835,7 @@ const ProgramsTab = () => {
                     {viewingProgram.language === 'Ro' ? 'Romanian' : 
                      viewingProgram.language === 'En' ? 'English' : 
                      viewingProgram.language === 'Ru' ? 'Russian' : 
+                     viewingProgram.language === 'Fr' ? 'French' : 
                      viewingProgram.language || 'N/A'}
                   </span>
                 </div>

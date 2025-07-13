@@ -576,15 +576,9 @@ const UniversitiesTab = () => {
                     <strong>{university.id || 'N/A'}</strong>
                   </td>
                   <td>
-                    {(() => {
-                      const truncateName = (name) => {
-                        if (!name) return 'N/A';
-                        const words = name.split(' ');
-                        if (words.length <= 5) return name;
-                        return words.slice(0, 5).join(' ') + '...';
-                      };
-                      return truncateName(university.name);
-                    })()}
+                    <div style={{whiteSpace: 'pre-wrap', wordBreak: 'break-word', maxWidth: '200px'}}>
+                      {university.name || 'N/A'}
+                    </div>
                   </td>
                   <td>{university.type || 'N/A'}</td>
                   <td>{university.location || 'N/A'}</td>

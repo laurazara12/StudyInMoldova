@@ -259,6 +259,13 @@
   color: #721c24;
 }
 
+.status-withdrawn {
+  background-color: #E0E0E0;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--dl-radius-radius-buttonradius);
+  color: #555;
+}
+
 .status-under_review {
   background-color: #cce5ff;
   padding: 0.25rem 0.75rem;

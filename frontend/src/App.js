@@ -34,6 +34,7 @@ import Privacy from './views/privacy/privacy';
 import Terms from './views/terms/terms';
 import Cookies from './views/cookies/cookies';
 import FAQ from './views/faq/faq';
+import Documents from './views/documents/documents';
 import Success from './views/payment/Success';
 import Cancel from './views/payment/Cancel';
 
@@ -98,6 +99,7 @@ function App() {
               <Route path="/terms" element={<Terms />} />
               <Route path="/cookies" element={<Cookies />} />
               <Route path="/faq" element={<FAQ />} />
+              <Route path="/documents" element={<Documents />} />
               <Route path="/payment/success" element={<Success />} />
               <Route path="/payment/cancel" element={<Cancel />} />
               <Route path="*" element={<Error404Page />} />

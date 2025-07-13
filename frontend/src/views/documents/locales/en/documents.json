@@ -1,0 +1,104 @@
+{
+  "title": "Required Documents for University Applications",
+  "description": "Learn about the required documents for university applications in Moldova. Get comprehensive information about what documents you need to prepare before applying.",
+  "keywords": "required documents, university application, Moldova, study documents, application requirements",
+  "lastUpdated": "Last updated",
+  "importantNotice": {
+    "title": "Important Notice",
+    "content": "Document requirements can vary from university to university. We strongly recommend that you first gather all the necessary documents before starting your application process. This will help ensure a smooth and successful application experience."
+  },
+  "generalDocuments": {
+    "title": "General Required Documents",
+    "academicDocuments": {
+      "title": "Academic Documents",
+      "items": [
+        "High school diploma or equivalent (with apostille/legalization)",
+        "Academic transcript/grade certificate",
+        "Bachelor's degree certificate (for Master's programs)",
+        "Master's degree certificate (for PhD programs)",
+        "Academic transcript from previous studies"
+      ]
+    },
+    "personalDocuments": {
+      "title": "Personal Documents",
+      "items": [
+        "Valid passport (with at least 6 months validity)",
+        "Birth certificate (with apostille/legalization)",
+        "Medical certificate (health check-up)",
+        "HIV/AIDS test certificate",
+        "Recent passport-size photographs (4-6 copies)"
+      ]
+    },
+    "languageProficiency": {
+      "title": "Language Proficiency",
+      "items": [
+        "English language certificate (IELTS, TOEFL, or equivalent)",
+        "Romanian language certificate (if applicable)",
+        "Russian language certificate (if applicable)",
+        "Language proficiency test results"
+      ]
+    },
+    "applicationDocuments": {
+      "title": "Application Documents",
+      "items": [
+        "Completed application form",
+        "Motivation letter/Statement of purpose",
+        "Curriculum Vitae (CV)",
+        "Letters of recommendation (2-3)",
+        "Portfolio (for arts/design programs)"
+      ]
+    }
+  },
+  "legalizationRequirements": {
+    "title": "Document Legalization Requirements",
+    "subtitle": "For International Students",
+    "content": "All academic documents must be properly legalized according to international standards:",
+    "items": [
+      {
+        "title": "Apostille:",
+        "description": "For countries that are part of the Hague Convention"
+      },
+      {
+        "title": "Legalization:",
+        "description": "For countries not part of the Hague Convention"
+      },
+      {
+        "title": "Translation:",
+        "description": "Documents must be translated into Romanian or English"
+      },
+      {
+        "title": "Notarization:",
+        "description": "Some documents may require notarization"
+      }
+    ]
+  },
+  "applicationProcess": {
+    "title": "Application Process Steps",
+    "steps": {
+      "1": {
+        "title": "Gather All Documents",
+        "description": "Collect all required documents according to the university's specific requirements. Make sure all documents are properly legalized and translated."
+      },
+      "2": {
+        "title": "Verify Requirements",
+        "description": "Double-check the specific requirements for your chosen university and program. Requirements can vary significantly between institutions."
+      },
+      "3": {
+        "title": "Prepare Application",
+        "description": "Complete the application form and prepare all supporting documents. Ensure everything is properly organized and ready for submission."
+      },
+      "4": {
+        "title": "Submit Application",
+        "description": "Submit your complete application package before the deadline. Keep copies of all submitted documents for your records."
+      }
+    }
+  },
+  "needHelp": {
+    "title": "Need Help?",
+    "content": "If you need assistance with document preparation or have questions about specific requirements, please don't hesitate to contact us. Our team is here to help you navigate the application process.",
+    "buttons": {
+      "contact": "Contact Us",
+      "faq": "View FAQ"
+    }
+  }
+} 

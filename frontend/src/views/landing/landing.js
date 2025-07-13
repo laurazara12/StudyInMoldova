@@ -211,7 +211,7 @@ function Home() {
         }
         feature3Title={
           <Fragment>
-            <span className="landing-text40">{t('featuresWhyStudyInMoldova2.feature2Title')}</span>
+            <span className="landing-text40">{t('featuresWhyStudyInMoldova2.feature3Title')}</span>
           </Fragment>
         }
         feature1Description={
@@ -224,14 +224,14 @@ function Home() {
         feature2Description={
           <Fragment>
             <span className="landing-text42">
-            {t('featuresWhyStudyInMoldova2.feature1Description')}
+            {t('featuresWhyStudyInMoldova2.feature2Description')}
             </span>
           </Fragment>
         }
         feature3Description={
           <Fragment>
             <span className="landing-text43">
-            {t('featuresWhyStudyInMoldova2.feature1Description')}
+            {t('featuresWhyStudyInMoldova2.feature3Description')}
             </span>
           </Fragment>
         }
