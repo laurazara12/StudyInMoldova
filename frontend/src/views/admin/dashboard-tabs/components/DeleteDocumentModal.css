@@ -90,12 +90,12 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
-  border: none;
 }
 
 .cancel-button {
   background-color: #f0f0f0;
-  color: #555;
+  border: 0.5px solid var(--toastify-text-color-light) !important;
+  color: #555 !important;
 }
 
 .cancel-button:hover {
