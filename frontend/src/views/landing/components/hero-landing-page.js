@@ -53,9 +53,10 @@ const HeroLandingPage = (props) => {
   
   // Calculăm câte imagini sunt necesare pentru a umple containerul de două ori
   // pentru a crea efectul de scroll infinit fără pauze
-  const imagesNeeded = containerWidth > 0 
-    ? Math.ceil((containerWidth * 2) / totalImageWidth) + rotativeImages.length
-    : rotativeImages.length * 3; // fallback pentru când containerWidth nu este încă calculat
+  const imagesNeeded = Math.max(
+    rotativeImages.length * 3,
+    containerWidth > 0 ? Math.ceil((containerWidth * 2) / totalImageWidth) + rotativeImages.length : 0
+  );
 
   // Generăm array-ul de imagini pentru animație
   const displayImages = useMemo(() => {
